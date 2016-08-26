@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>ColorNotAlignedByColumn</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ColorNotAlignedByColumn</td></tr>
+</thead><tbody>
+<!--For bug #430-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenColor</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Color</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageColor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenColor</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageColor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Color__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__usedTo___number</td>
+	<td>leftPosition</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__characteristicThing___number</td>
+	<td>leftPosition2</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__anotherCT___number</td>
+	<td>leftPosition3</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>(${leftPosition2} - ${leftPosition}) &lt;=180</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>(${leftPosition2} - ${leftPosition}) &gt;=145</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>(${leftPosition3} - ${leftPosition}) &lt;=350</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>(${leftPosition3} - ${leftPosition}) &gt;= 310</td>
+	<td>true</td>
+</tr>
+</tbody></table>
+</body>
+</html>

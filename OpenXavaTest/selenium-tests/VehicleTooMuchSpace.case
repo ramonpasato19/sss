@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>VehicleTooMuchSpace</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">VehicleTooMuchSpace</td></tr>
+</thead><tbody>
+<!--For Bug #472 and #477-->
+<!--TEST Bug #472-->
+<!--DescriptionsList did not respect aligned by columns-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenVehicle</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Vehicle</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageVehicle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenVehicle</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Vehicle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Vehicle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageVehicle</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Vehicle__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>600</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Vehicle__model</td>
+	<td>left</td>
+</tr>
+<tr>
+	<td>storeElementWidth</td>
+	<td>id=ox_OpenXavaTest_Vehicle__model</td>
+	<td>width</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${left} + ${width}</td>
+	<td>nonExpectedLeft</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Vehicle__city__KEY__</td>
+	<td>left</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${left} &lt; ${nonExpectedLeft}</td>
+	<td>true</td>
+</tr>
+<!--TEST Bug #477-->
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_Vehicle__icon_required_city</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

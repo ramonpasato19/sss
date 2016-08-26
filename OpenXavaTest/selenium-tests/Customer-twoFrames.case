@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>Customer-twoFrames</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">Customer-twoFrames</td></tr>
+</thead><tbody>
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCustomer</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Customer</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCustomer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCustomer</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Customer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Customers</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCustomer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Customer__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>OnChangeVoidAction executed</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>OnChangeVoidAction executed</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>xpath=//div[@id='ox_OpenXavaTest_Customer__frame_group_sellercontent']/..</td>
+	<td>left</td>
+</tr>
+<tr>
+	<td>storeElementWidth</td>
+	<td>xpath=//div[@id='ox_OpenXavaTest_Customer__frame_group_sellercontent']/..</td>
+	<td>width</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>xpath=//div[@id='ox_OpenXavaTest_Customer__frame_alternateSellercontent']/..</td>
+	<td>leftSecond</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${left} + ${width}</td>
+	<td>lastX</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${lastX} + 0</td>
+	<td>leftSecondExpected</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${leftSecond} &gt;= ${leftSecondExpected}</td>
+	<td>true</td>
+</tr>
+</tbody></table>
+</body>
+</html>

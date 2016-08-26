@@ -1,0 +1,226 @@
+Change Log for XavaPro
+======================
+
+XavaPro 5.4.1 (2015-12-17)
+--------------------------
+- Includes OpenXava 5.4.1.
+- Installation instructions improved.
+- Fix: @NewAction("") and @RemoveSelectedAction("") with empty string fail with mobile UI. 
+- Fix: BigDecimal properties with value 0 are not shown in list with mobile UI.
+- Fix: Ask for login twice when started from iPhone start page with mobile UI.
+- Fix: Open a new browser going to a module when started from iPhone start page.
+- Fix: Money symbol in a new line when field editable in mobile UI.
+- Fix: forceChangePassword in User not translated.
+- Fix: addActions() fails when there is no default action.
+- Fix: setControllers() fails when there is no default action.
+- Fix: Fails on creating new organizations when hibernate.hbm2ddl.auto=update.
+
+XavaPro 5.4 (2015-11-13)
+------------------------
+- PCI-DSS compliant.
+- A new Configuration admin module to define password and user management policies.
+- User account is locked if user does not login for n days, optional and configurable.
+- User account is locked after n failed attempts to login, optional and configurable.
+- It's possible to lock the current session after n minutes of inactivity.
+- It's possible to force users to change their passwords every n days.
+- It's possible to force a user to change his password next time he uses the application. 
+- On changing password the last 4 passwords are not allowed, configurable by the administrator.
+- The password must contain letters and numbers, configurable by the administrator.
+- The minimum length of password can be configured by the administrator.
+- Last login date for each user available for the administrator.
+- New property initialPasswordForAdmin in naviox.properties.
+- Images changed by monochrome icons for all actions.
+- Includes OpenXava 5.4.
+
+XavaPro 5.3.2 (2015-7-30)
+-------------------------
+- Includes OpenXava 5.3.2.
+- Fix: Organizations which name contains a grave accent do not work correctly.
+- Fix: Adding a new module is not reflected in all organizations.
+- Fix: Sometimes navigating folders with menu the language changes. 
+- Fix: Ordering modules from the dialog for editing a subfolder does not work.
+
+XavaPro 5.3.1 (2015-7-3)
+------------------------
+- Includes OpenXava 5.3.1.
+- Empty collections display a no objects message in mobile UI.
+- Fix: Changing image in PHOTO stereotype does not work with mobile UI.
+- Fix: Users, Roles and Modules modules fail with mobile UI.
+- Fix: Android tablets show the mobile UI instead of the desktop UI.
+- Fix: Reference search list does not fill all the screen in mobile UI.
+- Fix: An ugly point is displayed when a collection is empty with mobile UI.
+
+XavaPro 5.3 (2015-5-22)
+-----------------------
+- Creating and modifying from a reference is not possible if the module of the referenced entity is not available for the user.
+- Restricting the new and save action for a module restricts also the creation and modification from references to that type. 
+- Sections support for Mobile UI.
+- Groups support for Mobile UI.
+- Collections support for Mobile UI.
+- Application name is no longer shown in the modules info in administration modules.
+- Includes OpenXava 5.3.
+- Fix: Empty frame when the first element is a reference in mobile UI.
+
+XavaPro 5.2.1 (2015-3-5)
+------------------------
+- Includes OpenXava 5.2.1.
+- Fix: Login using mobile UI with multitenancy fails sometimes.
+- Fix: Incorrect folders and modules using multitenancy with mobile UI.
+- Fix: Exit button fails with mobile UI inside an organization. 
+- Fix: Log used from XavaPro classes does not follow javaLoggingLevel from xava.properties.
+- Fix: Impossible to change the parent of an already existing folder.
+- Fix: Clicking on "Load more..." in module menu within an organization does not load the correct modules.
+- Fix: Creating a new organization fails when @GeneratedValue with no options is used.
+- Fix: It's possible to add twice the same module for a role.
+
+XavaPro 5.2 (2015-2-3)
+----------------------
+- Multitenancy.
+- In mobile UI the list shows only the first 50 elements and loads more on demand.
+- Installation instructions simplified.
+- Includes OpenXava 5.2.
+
+XavaPro 5.1.1 (2014-12-1)
+-------------------------
+- Includes OpenXava 5.1.1.
+- Fix: Adding a role creating a new user saves the user without validating the repeated password.
+- Fix: Long module titles are shown in two lines in mobile UI.
+- Fix: Currency symbol misplaced in money field with mobile UI.
+- Fix: Calendar icon misplaced in date fields with mobile UI.
+- Fix: Font size reduced when soft keyboard is shown.
+- Fix: Calling an action from detail mode in views with groups or sections fails with mobile UI.
+- Fix: Back button in mobile UI does not work when entering directly to a module using its URL.
+- Fix: When going back from module to menu with iPhone the loading image is still there.
+- Fix: Going back from a module goes to the root folder instead of the current folder with some mobile browsers.
+- Fix: Clicking on a row in a list with many elements before page is loaded produces the desktop UI from a mobile.
+
+XavaPro 5.1 (2014-10-27)
+------------------------
+- Mobile user interface including security and navigation.
+- Modules in root folder are ordered by name.
+- Includes OpenXava 5.1.
+
+XavaPro 5.0.1 (2014-7-21)
+-------------------------
+- Includes OpenXava 5.0.1.
+- Fix: If updateSchema is executed before the first application execution the XavaPro database is not populated. 
+- Fix: When several applications go against the same DB schema only one application works.
+- Fix: Awkward message "Error going to folder" when the user navigates to some folder but the session was expired.
+- Fix: Modules are duplicated in the menu when there are several applications in the classpath.
+- Fix: When errors parsing entities starting XavaPro the root exception trace is not in the log.
+
+XavaPro 5.0 (2014-6-17)
+-----------------------
+- Includes OpenXava 5.0.
+- Number version synchronized with OpenXava.
+- NaviOX renamed to XavaPro.
+- NaviOX code moved to Addons. 
+- When there are many modules (15) in the menu a "Load more..." link is shown instead of all modules.
+- NaviOXTestBase removed, now the login() and logout() methods of ModuleTestBase work fine with NaviOX.
+- FirstSteps adapted to OpenXava/XavaPro nomenclature.
+- Default welcome page shows the title and description of the current application.
+- Fix: Frames side by side not well aligned at right with the new renderer.
+- Fix: Adding ids to application i18n files does not have effect in first steps page.
+
+NaviOX 2014v1 (2014-2-18)
+-------------------------
+- Modules search in hierarchical menu.
+- The user can bookmark a module to show it in the first level of left menu.
+- The recent modules in top bar are no longer limited to seven, now they fill all the available space.
+- Fix: Code does not compile with OpenXava 4.9.1.
+- Fix: Frames are displayed very ugly with OpenXava 4.9.1 and the new renderer. 
+
+NaviOX 2013v3 (2013-12-18)
+--------------------------
+- It is possible to veto actions of a module for a role.
+- The state of the application is cleared after logout.
+- Style for filtering in list adapted to the latest improvements in OpenXava 4.9.
+- Fix: Sometimes autologin does not work after the first time.
+- Fix: html, head and body HTML tags were duplicated.
+
+NaviOX 2013v2.1 (2013-10-22)
+----------------------------
+- New NaviOXTestBase class to create jUnit tests for NaviOX modules with login and logout.
+- Fix: Links for list actions without image are black instead of blue.
+- Fix: Second level dialogs are shown too narrow with IE9.
+- Fix: Subcontrollers (drop-down menu in button bar) look very ugly.
+- Fix: Links of several actions associated to the same property are too close.
+- Fix: Request denied because CSRF attack with Tomcat 7.
+- Fix: Incorrect encoding in the first page load.
+
+NaviOX 2013v2 (2013-9-18)
+-------------------------
+- The user can change his own password.
+- It's needed to type the password twice when adding a new user or modifying his password.
+- LDAP support (tested with Active Directory).
+- It's possible to define the order for modules and subfolders in the hierarchical menu.
+- Users can be activated and deactivated.
+- Start button is not shown when there are not available modules.
+- Autologin using autologinUser and autologinPassword in naviox.properties.
+- First steps documentation improved.
+
+NaviOX 2013v1.1 (2013-7-2)
+--------------------------
+- Encrypted passwords are stored as hex (to deactivate use storePasswordAsHex=false in naviox.properties).
+- Fix: Password encryption does not work with MS SQL.
+- Fix: Fails with Oracle: ORA-00904: "FALSE" : not valid identifier.
+- Fix: Changing to another application fails trying to load a module of the previous application. 
+- Fix: Ugly outline on mode links after clicking on them with IE.
+- Fix: Module selection on left menu is lost after folder navigation.
+- Fix: Collections go off the dialogs.
+- Fix: Dialog font is different than plain view font.
+- Fix: Views with sections show the browser horizontal scrollbar.
+- Fix: Sections inside a frame are out of the frame.
+
+NaviOX 2013v1 (2013-5-7)
+------------------------
+- Hierarchical menu for the modules.
+- The modules list is hidden by default.
+- The modules list is hidden when a module is selected.
+- 'All modules' button renamed as 'Start'.
+- Fix: Inconsistent translations when the default language of the server is not English or Spanish.
+
+NaviOX 2012v3.1 (2013-1-30)
+---------------------------
+- Fix: Button bar is shown too small when there are no actions. 
+- Fix: Formatters defined in the application are applied to Role and Module properties.
+- Fix: Frames side by side are overlapped.
+- Fix: Inner frames stick out of the parent frame on the right side.
+- Fix: Multischema applications does not work.
+- Fix: Customizing collection fails with nested frames and collections in the same view.  
+- Fix: row-highlight CSS class missing.
+- Fix: Icons for images gallery frames does not use current look&feel (only effective with OX4.7+).
+- Fix: Images gallery minimize icon broken (only effective with OX4.7+).
+- Fix: Images gallery frame for each image too wide (only effective with OX4.7+).  
+
+NaviOX 2012v3 (2012-12-3)
+-------------------------
+- Customizable welcome page for sign in.
+- Customizable first steps page for the first time execution, to improve blank slate stage.
+- Added the properties givenName, familyName, jobTitle, middleName, nickName and birthDate to User.
+- Users.getCurrentUserInfo() from OpenXava works.
+- All labels and messages in English, Spanish and Catalan.
+
+NaviOX 2012v2.1 (2012-10-15)
+----------------------------
+- Module shows the list of its roles.
+- Added suite of jUnit tests.
+- Fix: NaviOX does not start if the application.xml has no modules.
+- Fix: When a module is marked as �Unrestricted� it appears twice in the modules list.
+- Fix: The application fails on starting when modules are remove from application.xml.
+
+NaviOX 2012v2 (2012-9-11)
+-------------------------
+- All new look & feel.
+- Separation of the LITE and Professional edition.
+- Property encryptPassword in naviox.properties to enable/disable the password encryption.
+- Includes a complete Commercial License Agreement.
+- Fix: Modifying any data of a user disables the user.
+
+NaviOX 2012v1 (formerly 0.1.1)
+------------------------------
+- Login/logout.
+- Management of users, modules and roles.
+- Access to modules restricted by roles.
+- Top bar navigation with the recently visited modules.
+- Searchable list of all modules.

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>CustomerAligned</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CustomerAligned</td></tr>
+</thead><tbody>
+<!--For Bugs #455, #457-->
+<!--Only IF-->
+<!--AlignedByColumns-->
+<!--true-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/CustomerNotAligned</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Customer not aligned</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__number</td>
+	<td></td>
+</tr>
+<!--Store first element position-->
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__number</td>
+	<td>left1</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__type</td>
+	<td>left2</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__name</td>
+	<td>left3</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__number</td>
+	<td>top1</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__telephone</td>
+	<td>top2</td>
+</tr>
+<!--Validate position-->
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__telephone</td>
+	<td>${left1}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__email</td>
+	<td>${left2}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__website</td>
+	<td>${left3}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__type</td>
+	<td>${top1}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__name</td>
+	<td>${top1}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__email</td>
+	<td>${top2}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerNotAligned__website</td>
+	<td>${top2}</td>
+</tr>
+<!--Rule out overlaps-->
+<tr>
+	<td>storeEval</td>
+	<td>${left2} - ${left1}</td>
+	<td>difHor1</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${left3} - ${left2}</td>
+	<td>difHor2</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${top2} - ${top1}</td>
+	<td>difVert</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${difHor1} &gt;= 150</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${difHor2} &gt;= 200</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${difVert} &gt;= 20</td>
+	<td>true</td>
+</tr>
+</tbody></table>
+</body>
+</html>

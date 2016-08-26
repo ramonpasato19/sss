@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>CarrierComplexSimpleTopPosition</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CarrierComplexSimpleTopPosition</td></tr>
+</thead><tbody>
+<!--For bug #427-->
+<!--Tests if simple properties in a view has the proper gap as complex-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCarrier</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Carrier</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCarrier</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCarrier</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Carrier</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Carriers</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCarrier</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Carrier__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_Carrier__number</td>
+	<td>topPosition</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_Carrier__button_bar</td>
+	<td>buttonBarTopPosition</td>
+</tr>
+<tr>
+	<td>storeElementHeight</td>
+	<td>id=ox_OpenXavaTest_Carrier__button_bar</td>
+	<td>buttonBarHeight</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${topPosition} - ${buttonBarTopPosition} - ${buttonBarHeight}</td>
+	<td>gap</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${gap} &gt; 5</td>
+	<td>true</td>
+</tr>
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCarrierWithSpecialSearch</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>CarrierWithSpecialSearch</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCarrierWithSpecialSearch</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCarrierWithSpecialSearch</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/CarrierWithSpecialSearch</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Carrier with special search</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCarrierWithSpecialSearch</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSpecialSearch__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSpecialSearch__number</td>
+	<td>topPosition2</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSpecialSearch__button_bar</td>
+	<td>buttonBarTopPosition</td>
+</tr>
+<tr>
+	<td>storeElementHeight</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSpecialSearch__button_bar</td>
+	<td>buttonBarHeight</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${topPosition2} - ${buttonBarTopPosition} - ${buttonBarHeight}</td>
+	<td>gap2</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${gap2} &gt; 5</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertExpression</td>
+	<td>${gap}</td>
+	<td>${gap2}</td>
+</tr>
+</tbody></table>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Test Suite</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="LR-Login.case">LR-Login</a></td></tr>
+<tr><td><a href="../InvoiceAmounts.case">InvoiceAmounts</a></td></tr>
+<tr><td><a href="../InvoiceAmountsInSection.case">InvoiceAmountsInSection</a></td></tr>
+<tr><td><a href="../InvoiceAmountsNotAligned.case">InvoiceAmountsNotAligned</a></td></tr>
+<tr><td><a href="../InvoiceAmountsNotAlignedInSection.case">InvoiceAmountsNotAlignedInSection</a></td></tr>
+<tr><td><a href="../Product4NotAligned.case">Product4NotAligned</a></td></tr>
+<tr><td><a href="../Product5FamilyFromSubfamily.case">Product5FamilyFromSubfamily</a></td></tr>
+<tr><td><a href="../CarrierWithTwoSections.case">CarrierWithTwoSections</a></td></tr>
+<tr><td><a href="../Customer-twoFrames.case">Customer-twoFrames</a></td></tr>
+<tr><td><a href="../CustomerAlignment.case">CustomerAlignment</a></td></tr>
+<tr><td><a href="../CustomerDemoSmallLabel.case">CustomerDemoSmallLabel</a></td></tr>
+<tr><td><a href="../CustomerSmallLabel.case">CustomerSmallLabel</a></td></tr>
+<tr><td><a href="../aligned-by-column-tests/CustomerAligned.case">CustomerAligned</a></td></tr>
+<tr><td><a href="../CustomerNotAligned_FALSE_state.case">CustomerNotAligned_FALSE_state</a></td></tr>
+<tr><td><a href="../InvoiceDetailsWithTotals.case">InvoiceDetailsWithTotals</a></td></tr>
+<tr><td><a href="../DeliveryGroupAndReference">DeliveryGroupAndReference</a></td></tr>
+<tr><td><a href="../CarrierIconAlignment">CarrierIconAlignment</a></td></tr>
+<tr><td><a href="../ColorNotAlignedByColumn">ColorNotAlignedByColumn</a></td></tr>
+<tr><td><a href="../VehicleTooMuchSpace.case">VehicleTooMuchSpace</a></td></tr>
+<tr><td><a href="../FurnitureSetWithRequiredDescriptionsList.case">FurnitureSetWithRequiredDescriptionsList</a></td></tr>
+<tr><td><a href="../CarrierComplexSimpleTopPosition.case">CarrierComplexSimpleTopPosition</a></td></tr>
+<tr><td><a href="../../../../../../../../../CarrierWithTwoCollectionsTogether.case">CarrierWithTwoCollectionsTogether</a></td></tr>
+</tbody></table>
+</body>
+</html>

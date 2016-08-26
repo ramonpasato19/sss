@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Allows to use Hibernate mapped object using JPA -->
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+             version="1.0">
+    <persistence-unit name="default" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <properties>
+            <property name="hibernate.ejb.cfgfile" value="/hibernate-jpa.cfg.xml"/>
+            <property name="hibernate.ejb.event.pre-insert" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener, org.openxava.hibernate.impl.DefaultValueCalculatorsListener"/>
+            <property name="hibernate.ejb.event.pre-update" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener"/>
+            <property name="hibernate.ejb.event.pre-delete" value="org.openxava.hibernate.impl.CalculatorsListener"/>
+            <property name="hibernate.ejb.event.post-load" value="org.openxava.hibernate.impl.CalculatorsListener"/>
+        </properties>
+    </persistence-unit>
+    
+    <persistence-unit name="junit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.ejb.HibernatePersistence</provider>
+
+        <properties>
+            <property name="hibernate.ejb.cfgfile" value="/hibernate-jpa-junit.cfg.xml"/>
+            <property name="hibernate.ejb.event.pre-insert" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener, org.openxava.hibernate.impl.DefaultValueCalculatorsListener"/>
+            <property name="hibernate.ejb.event.pre-update" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener"/>
+            <property name="hibernate.ejb.event.pre-delete" value="org.openxava.hibernate.impl.CalculatorsListener"/>
+            <property name="hibernate.ejb.event.post-load" value="org.openxava.hibernate.impl.CalculatorsListener"/>
+        </properties>
+    </persistence-unit>
+    
+</persistence>

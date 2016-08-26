@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>FurnitureSetWithRequiredDescriptionsList</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">FurnitureSetWithRequiredDescriptionsList</td></tr>
+</thead><tbody>
+<!--For Bug #477-->
+<!--DescriptionsList not showing required -->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterFurnitureSetWithRequiredDescriptionsList</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>FurnitureSetWithRequiredDescriptionsList</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageFurnitureSetWithRequiredDescriptionsList</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterFurnitureSetWithRequiredDescriptionsList</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/FurnitureSetWithRequiredDescriptionsList</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Furniture set with required descriptions list</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageFurnitureSetWithRequiredDescriptionsList</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_FurnitureSetWithRequiredDescriptionsList__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_FurnitureSetWithRequiredDescriptionsList__chair___id</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_FurnitureSetWithRequiredDescriptionsList__icon_required_couch</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

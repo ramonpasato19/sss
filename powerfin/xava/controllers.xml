@@ -1,0 +1,1789 @@
+<?xml version = "1.0" encoding = "ISO-8859-1"?>
+
+<!DOCTYPE controllers SYSTEM "dtds/controllers.dtd">
+
+<controllers>
+	<controller name="DefaultListActionsForCollections">
+	</controller>
+	
+	<controller name="TransientController">
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S"/>	
+	</controller>
+	
+	<controller name="ReportController">
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.report.ReportSaveAction"
+			icon="content-save" 
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+		<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>			
+		</action>
+		<action name="delete" mode="detail" confirm="true"
+			class="org.openxava.actions.DeleteAction"
+			icon="delete"
+			keystroke="Control D"/>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	
+	<controller name="SearchFileType">
+		<action name="SearchFileType" 
+			class="com.powerfin.actions.search.SearchFileType"
+			hidden="true"
+			icon="magnify">
+		</action>
+	</controller>
+	
+	<controller name="SearchTax">
+		<action name="SearchTaxForInvoicePurchase" 
+			class="com.powerfin.actions.search.SearchTax"
+			hidden="true"
+			icon="magnify">
+			<set value="${taxType.taxTypeId} = '001'" property="condition"/>
+		</action>
+		<action name="SearchTaxForInvoiceSale" 
+			class="com.powerfin.actions.search.SearchTax"
+			hidden="true"
+			icon="magnify">
+			<set value="${taxType.taxTypeId} = '001'" property="condition"/>
+		</action>
+	</controller>
+	
+	<controller name="AccountLoan">
+		<action name="GetOverdueBalance" 
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalance"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceForConsult" 
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceSalePortfolio" 
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceSalePortfolio"
+			hidden="true">
+		</action>
+	</controller>
+	
+	<controller name="SearchProduct">
+		<action name="SearchShareholderAndPayableProduct" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} in ('200','300') " property="condition"/>
+		</action>
+		<action name="SearchPayableProduct" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '200'" property="condition"/>
+		</action>
+		<action name="SearchBankProduct" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '101'" property="condition"/>
+		</action>
+		<action name="SearchShareholderProduct" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '300'" property="condition"/>
+		</action>
+		<action name="SearchLoanProducts" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '103'" property="condition"/>
+		</action>
+		<action name="SearchAccountAccountant"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '000'" property="condition"/>
+		</action>
+		<action name="SearchInvoicePurchase"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productId} IN ('202','207')" property="condition"/>
+		</action>
+		<action name="SearchInvoiceSale"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productId} = '102'" property="condition"/>
+		</action>
+		<action name="SearchRetentionPurchase"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productId} = '103'" property="condition"/>
+		</action>
+		<action name="SearchRetentionSale"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productId} = '203'" property="condition"/>
+		</action>
+	</controller>
+	
+	<controller name="SearchAccountDetail">
+		<action name="SearchForInvoicePurchase"
+			class="com.powerfin.actions.search.SearchAccountDetail"
+			hidden="true"
+			icon="magnify">
+			<set value="INVOICE_PURCHASE" property="transactionModuleId"/>
+		</action>
+		<action name="SearchForInvoiceSale"
+			class="com.powerfin.actions.search.SearchAccountDetail"
+			hidden="true"
+			icon="magnify">
+			<set value="INVOICE_SALE" property="transactionModuleId"/>
+		</action>
+	</controller>
+	
+	<controller name="SearchGeneralAccount">
+		<action name="SearchPayableAccount"
+			class="com.powerfin.actions.search.SearchGeneralAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '200'" property="condition"/>
+		</action>
+	</controller>
+	
+	<controller name="SearchPerson">
+		<action name="SearchBrokerPurchasePortfolio"
+			class="com.powerfin.actions.search.SearchPerson"
+			hidden="true"
+			icon="magnify">
+			<set value="${personId} IN (SELECT DISTINCT c.brokerPerson.personId FROM Negotiation c WHERE c.brokerPerson.personId IS NOT NULL AND c.negotiationType.negotiationTypeId = '001')" property="condition"/>
+		</action>
+		<action name="SearchBrokerSalePortfolio"
+			class="com.powerfin.actions.search.SearchPerson"
+			hidden="true"
+			icon="magnify">
+			<set value="${personId} IN (SELECT DISTINCT c.brokerPerson.personId FROM Negotiation c WHERE c.brokerPerson.personId IS NOT NULL AND c.negotiationType.negotiationTypeId = '002')" property="condition"/>
+		</action>
+	</controller>
+	
+	<controller name="SearchAccount">
+		<action name="SearchAccount"
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+		</action>
+		<action name="SearchPayableAccount"
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '200'" property="condition"/>
+		</action>
+		<action name="SearchAccountSaleNegotiation"
+			class="com.powerfin.actions.search.SearchAccountSaleNegotiation"
+			hidden="true"
+			icon="magnify">
+		</action>		
+		<action name="SearchOfficialPayableAccount"
+			class="com.powerfin.actions.search.SearchOfficialAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '200'" property="condition"/>
+		</action>
+		<action name="SearchBankAccount" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '101'" property="condition"/>
+		</action>
+		<action name="SearchOfficialBankAccount" 
+			class="com.powerfin.actions.search.SearchOfficialAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '101'" property="condition"/>
+		</action>
+		<action name="SearchShareholderAccount" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '300'" property="condition"/>
+		</action>
+		<action name="SearchAccountAccountant" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '000' and ${accountStatus.accountStatusId} = '002' " property="condition"/>
+		</action>
+		<action name="SearchActiveInvoicePurchase" 
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} = '002' " property="condition"/>
+		</action>
+		<action name="SearchActiveInvoiceSale" 
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} = '002' " property="condition"/>
+		</action>
+		<action name="SearchAccountToDebitBank" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="DEBITBANK" property="transactionModuleId"/>
+		</action>
+		<action name="SearchAccountToCreditBank" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="CREDITBANK" property="transactionModuleId"/>
+		</action>
+		<action name="SearchAccountToCreditPayable" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="CREDITPAYABLE" property="transactionModuleId"/>
+		</action>
+		<action name="SearchAccountToDebitPayable" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="DEBITPAYABLE" property="transactionModuleId"/>
+		</action>
+		<action name="SearchAccountToManualEntry" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="MANUALACCOUNTINGENTRY" property="transactionModuleId"/>
+		</action>
+		<action name="SearchCashAccount" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '100'" property="condition"/>
+		</action>
+		<action name="SearchCashAndBankAccount" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} in ('100','101')" property="condition"/>
+		</action>
+		<action name="SearchInvoicePurchaseToPayment" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '201' and ${accountStatus.accountStatusId} in ('002','005') " property="condition"/>
+		</action>
+		<action name="SearchInvoiceSaleToPayment" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '102' and ${accountStatus.accountStatusId} in ('002','005') " property="condition"/>
+		</action>
+		<action name="SearchPurchasePortfolioForPayment" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '103' and ${accountStatus.accountStatusId} in ('002') " property="condition"/>
+		</action>
+		<action name="SearchSalePortfolioForPayment" 
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '103' and ${accountStatus.accountStatusId} in ('002') " property="condition"/>
+		</action>
+	</controller>
+		
+	<controller name="SearchBookAccount">
+		<action name="SearchMovementBookAccount" 
+			class="com.powerfin.actions.bookAccount.SearchBookAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${movement} = 1" property="condition"/>
+		</action>
+		<action name="SearchManualEntryBookAccount" 
+			class="com.powerfin.actions.bookAccount.SearchBookAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${movement} = 1 and ${allowManualEntry} = 1" property="condition"/>
+		</action>
+	</controller>
+	
+	<controller name="AccountRetentionActions">
+		<action name="createNewRetentionDetailToRetention" 
+			class="com.powerfin.actions.accountRetention.CreateNewRetentionDetailToRetention" 
+			hidden="true" 
+			icon="library-plus"/>
+	</controller>
+	
+	<controller name="AccountInvoiceActions">
+		<action name="createNewInvoiceDetailToInvoice" 
+			class="com.powerfin.actions.accountInvoice.CreateNewInvoiceDetailToInvoice" 
+			hidden="true" 
+			icon="library-plus"/>
+	</controller>
+	
+	<controller name="BalanceAccountingGenerateController">
+		<action name="generate" 
+			mode="detail" 
+			class="com.powerfin.actions.balanceAccounting.BalanceAccountingGenerateAction"
+			icon="content-save"
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printBalanceSheet" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintBalanceSheetAction" icon="file-pdf">
+		</action>
+		<action name="printProfitLossBalance" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintProfitLossBalanceAction" icon="file-pdf">
+		</action>
+		<action name="printTrialBalance" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintTrialBalanceAction" icon="file-pdf">
+		</action>
+		<action name="printProfitLossBalanceClose" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintProfitLossBalanceCloseAction" icon="file-pdf">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="AccountingLedgerController">
+		<action name="generate" 
+			mode="detail" 
+			class="com.powerfin.actions.balanceAccounting.AccountingLedgerGenerateAction"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountingLedger" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" icon="file-pdf">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="PurchasePortfolioReportController">
+		<action name="printOverdueBalancePurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOverdueBalanceConsolidatePurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceConsolidatePurchasePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOvercomeBalancePurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOvercomeBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printTotalBalancePurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPaymentDividendPurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPaymentDividendPurchasePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<!-- 
+		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPrepaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		 -->
+	</controller>
+	
+	<controller name="SalePortfolioReportController">
+		<action name="printOverdueBalanceSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOvercomeBalanceSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOvercomeBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printTotalBalanceSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPaymentDividendSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPaymentDividendSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<!-- 
+		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPrepaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		 -->
+	</controller>
+	
+	<controller name="AccountPayableMovementController">
+		<action name="generate" 
+			mode="detail" 
+			class="com.powerfin.actions.account.AccountMovementGenerateAction"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountMovement" mode="detail"
+			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-pdf">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="AccountMovementController">
+		<action name="generate" 
+			mode="detail" 
+			class="com.powerfin.actions.account.AccountMovementGenerateAction"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountMovement" mode="detail"
+			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-pdf">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="ExchangeRateDailyController">
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+		<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>
+		</action>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.exchangeRateDaily.ExchangeRateDailySaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+<!-- BEGIN Common TX Controllers ######################################## -->
+	<controller name="RefreshTXController">
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	<controller name="NewTXController">
+		<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>
+		</action>
+	</controller>
+	<controller name="SaveTXController">
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END Common TX Controllers ######################################## -->
+
+
+<!-- BEGIN TXOpening ######################################## -->
+	<controller name="AuthorizeTXOpeningController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXOpeningController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXOpening ######################################## -->	
+
+<!-- BEGIN TXTransferSent ######################################## -->
+	<controller name="AuthorizeTXTransferSentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransferSentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXTransferSent ######################################## -->	
+
+<!-- BEGIN TXTransferReceived ######################################## -->
+	<controller name="AuthorizeTXTransferReceivedController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransferReceivedController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXTransferReceived ######################################## -->
+
+<!-- BEGIN Invoice ######################################## -->
+	<controller name="InvoicePurchaseListController">		
+		<extends controller="RefreshTXController"/>
+	</controller>
+	
+	<controller name="InvoiceSaleListController">
+		<extends controller="RefreshTXController"/>
+	</controller>
+	
+	<controller name="ConsultPurchaseInvoiceController">
+		<action name="consult" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByDate"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountInvoiceByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
+			<set property="type" value="purchase"/>
+		</action>
+		<action name="printAccountRetentionByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
+			<set property="type" value="purchase"/>
+		</action>
+		<action name="printATS" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintATSAction" icon="file-pdf">
+			<set property="type" value="purchase"/>
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="ConsultSaleInvoiceController">
+		<action name="consult" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByDate"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountInvoiceByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
+			<set property="type" value="sale"/>
+		</action>
+		<action name="printAccountRetentionByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
+			<set property="type" value="sale"/>
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+<!-- END Invoice ######################################## -->
+
+<!-- BEGIN AccountBank ######################################## -->
+	<controller name="NewAccountBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountBank.AccountBankSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- BEGIN AccountBank ######################################## -->
+
+<!-- BEGIN AccountAccountant ######################################## -->
+	<controller name="NewAccountAccountantController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountAccountant.AccountAccountantSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+<!-- BEGIN AccountAccountant ######################################## -->
+	<controller name="NewAccountPayableController">		
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountPayable.AccountPayableSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AccountPayableListController">		
+		<extends controller="RefreshTXController"/>
+	</controller>
+<!-- END Payable ######################################## -->
+
+<!-- BEGIN Person ######################################## -->
+	<controller name="LegalPersonController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.person.LegalPersonSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+		<!-- 
+		<action name="printLegalPerson" mode="detail"
+			class="com.powerfin.actions.person.PrintLegalPersonAction" image="pdf.gif">
+			<set property="format" value="pdf" />
+		</action>
+		 -->
+	</controller>
+	
+	<controller name="NaturalPersonController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.person.NaturalPersonSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+		<!-- 
+		<action name="printNaturalPerson" mode="detail"
+			class="com.powerfin.actions.person.PrintNaturalPersonAction" image="pdf.gif">
+			<set property="format" value="pdf" />
+		</action>
+		 -->
+	</controller>
+	<controller name="PersonController">		
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.person.PersonSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="PersonListController">		
+		<extends controller="RefreshTXController"/>
+	</controller>
+<!-- END Person ######################################## -->
+
+<!-- BEGIN TransactionList ######################################## -->
+	<controller name="TransactionListController">		
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountingEntry" mode="detail"
+			class="com.powerfin.actions.transaction.PrintAccountingEntryAction" icon="file-pdf">
+		</action>
+	</controller>
+<!-- END TransactionList ######################################## -->
+
+<!-- BEGIN TXInvoicePurchase ######################################## -->
+	<controller name="RequestTXInvoicePurchaseController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.AccountInvoicePurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXInvoicePurchaseController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXInvoicePurchase ######################################## -->
+
+<!-- BEGIN TXRetentionPurchase ######################################## -->
+	<controller name="AuthorizeTXRetentionPurchaseController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXRetentionPurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXRetentionPurchaseController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountRetention.AccountRetentionPurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXRetentionPurchase ######################################## -->
+
+<!-- BEGIN TXInvoiceSale ######################################## -->
+	<controller name="AuthorizeTXInvoiceSaleController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoiceSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXInvoiceSaleController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.AccountInvoiceSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXInvoiceSale ######################################## -->
+
+<!-- BEGIN TXRetentionSale ######################################## -->
+	<controller name="AuthorizeTXRetentionSaleController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXRetentionSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXRetentionSaleController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountRetention.AccountRetentionSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXRetentionSale ######################################## -->
+
+<!-- BEGIN TXDebitBank ######################################## -->
+	<controller name="AuthorizeTXDebitBankController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXDebitBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXDebitBank ######################################## -->
+
+<!-- BEGIN TXCreditBank ######################################## -->
+	<controller name="AuthorizeTXCreditBankController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXCreditBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXCreditBank ######################################## -->
+
+<!-- BEGIN TXCreditPayable ######################################## -->
+	<controller name="AuthorizeTXCreditPayableController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXCreditPayableController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXCreditPayable ######################################## -->
+
+<!-- BEGIN TXDebitPayable ######################################## -->
+	<controller name="AuthorizeTXDebitPayableController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXDebitPayableController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXDebitPayable ######################################## -->
+
+<!-- BEGIN TXTransferPayable ######################################## -->
+	<controller name="AuthorizeTXTransferPayableController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="SaveTXController"/>
+	</controller>
+	<controller name="RequestTXTransferPayableController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<extends controller="SaveTXController"/>
+	</controller>
+<!-- END TXTransferPayable ######################################## -->
+
+<!-- BEGIN TXTransferBank ######################################## -->
+	<controller name="AuthorizeTXTransferBankController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXTransferBankSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransferBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXTransferBankSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXTransferBank ######################################## -->
+
+<!-- BEGIN TXAdvance ######################################## -->
+	<controller name="AuthorizeTXAdvanceController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdvanceSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXAdvanceController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdvanceSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXAdvance ######################################## -->
+
+<!-- BEGIN TXAdvancePayment ######################################## -->
+	<controller name="AuthorizeTXAdvancePaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdvancePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXAdvancePaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdvancePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXAdvancePayment ######################################## -->
+
+<!-- BEGIN TXThirdAdvancePayment ######################################## -->
+	<controller name="AuthorizeTXThirdAdvancePaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXThirdAdvancePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXThirdAdvancePaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXThirdAdvancePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXThirdAdvancePayment ######################################## -->
+
+<!-- BEGIN TXManualAccountingEntry ######################################## -->
+	<controller name="AuthorizeTXManualAccountingEntryController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXManualAccountingEntrySaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXManualAccountingEntryController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXManualAccountingEntrySaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXManualAccountingEntry ######################################## -->
+
+<!-- BEGIN TXInvoiceSalePayment ######################################## -->
+	<controller name="AuthorizeTXInvoiceSalePaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoiceSalePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXInvoiceSalePaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoiceSalePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXInvoiceSalePayment ######################################## -->
+
+<!-- BEGIN TXInvoicePurchasePayment ######################################## -->
+	<controller name="AuthorizeTXInvoicePurchasePaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchasePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXInvoicePurchasePaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchasePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXInvoicePurchasePayment ######################################## -->
+<!-- BEGIN TXTransferDue ######################################## -->
+	<controller name="AuthorizeTXTransferDueController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchasePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransferDueController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchasePaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- BEGIN TXTransferDue ######################################## -->
+
+<!-- BEGIN TXInvoicePurchaseCheckPayment ######################################## -->
+	<controller name="AuthorizeTXInvoicePurchaseCheckPaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchaseCheckPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXInvoicePurchaseCheckPaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchaseCheckPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXInvoicePurchaseCheckPayment ######################################## -->
+
+<!-- BEGIN TXCheckPaymentPayable ######################################## -->
+	<controller name="AuthorizeTXCheckPaymentPayableController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXCheckPaymentPayableSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXCheckPaymentPayableController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXCheckPaymentPayableSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXCheckPaymentPayable ######################################## -->
+
+
+<!-- BEGIN TXGeneral ######################################## -->
+	<controller name="RequestTXGeneralController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXGeneralSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXGeneralController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXGeneralSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXGeneral ######################################## -->
+
+<!-- BEGIN TXAccountLoan ######################################## -->
+	<controller name="RequestTXAccountLoanController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountLoan.AccountLoanSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXAccountLoanController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXLoanDisbursementSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXAccountLoan ######################################## -->
+
+<!-- BEGIN TXPurchasePortfolio ######################################## -->
+	<controller name="AuthorizeTXPurchasePortfolioController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXPurchasePortfolio ######################################## -->
+
+<!-- BEGIN TXSalePortfolio ######################################## -->
+	<controller name="AuthorizeTXSalePortfolioController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSalePortfolioSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXSalePortfolio ######################################## -->
+
+<!-- BEGIN TXPurchaseForexCustomer ######################################## -->
+	<controller name="RequestTXPurchaseForexCustomerController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchaseForexCustomerAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXPurchaseForexCustomerController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchaseForexCustomerAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXPurchaseForexCustomer ######################################## -->
+
+<!-- BEGIN TXSaleForexCustomer ######################################## -->
+	<controller name="RequestTXSaleForexCustomerController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaleForexCustomerAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXSaleForexCustomerController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaleForexCustomerAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXSaleForexCustomer ######################################## -->
+
+<!-- BEGIN TXPurchaseForexBank ######################################## -->
+	<controller name="RequestTXPurchaseForexBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchaseForexBankAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXPurchaseForexBankController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchaseForexBankAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXPurchaseForexBank ######################################## -->
+
+<!-- BEGIN TXSaleForexBank ######################################## -->
+	<controller name="RequestTXSaleForexBankController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaleForexBankAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXSaleForexBankController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSaleForexBankAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXSaleForexBank ######################################## -->
+
+	<controller name="AuthorizeTXInBatchController">
+		<action name="authorize" mode="list"
+			class="com.powerfin.actions.transaction.TXAuthorizeInBatchSaveAction">
+		</action>
+		<!-- antes de llamar al método execute() de la acción -->
+	</controller>
+
+<!-- BEGIN NegotiationController ######################################## -->
+	<controller name="NewNegotiationController">
+		<action name="save" 
+			mode="detail" 
+			class="org.openxava.actions.SaveAction"
+			icon="content-save" 
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+		<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>			
+		</action>
+		<action name="delete" mode="detail" confirm="true"
+			class="org.openxava.actions.DeleteAction"
+			icon="delete"
+			keystroke="Control D"/>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+<!-- END NegotiationController ######################################## -->
+	<!--000 - NEGOCIACION
+		001 - PERSONA
+		002 - PRESTAMOS
+		003 - TABLA PAGOS
+		004 - VENTA -->
+	<controller name="ProcessPurchaseNegotiationButtonBarController">
+		<action  name="processPerson" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="001" property="negotiationFileTypeId"/>			
+		</action>
+		<action name="processLoan" 
+			mode="detail" 
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="002" property="negotiationFileTypeId"/>		
+		</action>
+		<action name="processPaymentTable" 
+			mode="detail" 
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="003" property="negotiationFileTypeId"/>
+		</action>
+		<action name="disbursementLoan" 
+			mode="detail" 
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="004" property="negotiationFileTypeId"/>
+		</action>
+	</controller>
+	<controller name="ProcessPurchaseNegotiationTopBarController">
+		<action  name="processPersonTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save"
+			image="save.gif">
+			<set value="001" property="negotiationFileTypeId"/>			
+		</action>
+		<action  name="processLoanTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save">
+			<set value="002" property="negotiationFileTypeId"/>			
+		</action>
+		<action  name="processPaymentTableTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save">
+			<set value="003" property="negotiationFileTypeId"/>			
+		</action>
+		<action  name="disbursementLoanTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save">
+			<set value="004" property="negotiationFileTypeId"/>			
+		</action>
+	</controller>
+	
+	<controller name="ProcessSaleNegotiationButtonBarController">
+		<action name="processLoan" 
+			mode="detail" 
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="101" property="negotiationFileTypeId"/>		
+		</action>
+	</controller>
+	<controller name="ProcessSaleNegotiationTopBarController">
+		<action  name="processLoanTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save"
+			image="save.gif">
+			<set value="101" property="negotiationFileTypeId"/>			
+		</action>
+	</controller>
+	
+	<controller name="ConsultPurchasePortfolioController">
+		<extends controller="RefreshTXController"/>
+		<!-- 
+		<action name="printPurchaseNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintPurchaseNegotiationAction"  icon="file-pdf">
+		</action>
+		 -->
+	</controller>
+	
+	<controller name="ConsultPurchaseNegotiationController">
+		<action name="printPurchaseNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintPurchaseNegotiationAction"  icon="file-pdf">
+		</action>
+	</controller>
+	
+	<controller name="ConsultSaleNegotiationController">
+		<action name="printSaleNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintSaleNegotiationAction"  icon="file-pdf">
+		</action>
+	</controller>
+	
+
+<!-- BEGIN AccountingClosingDay ######################################## -->
+	<controller name="AccountingClosingDayController">
+			<action name="save" 
+				mode="detail" 
+				class="com.powerfin.actions.company.AccountingClosingDayAction"
+				icon="content-save" 
+				by-default="if-possible"
+				keystroke="F3">
+				<set property="resetAfter" value="false" />
+			</action>
+			<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+<!-- END AccountingClosingDay ######################################## -->
+
+<!-- BEGIN BatchProcessControllers ######################################## -->
+	<controller name="LoanInterestBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.LoanInterestBatchSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.LoanInterestBatchSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	
+	<controller name="ReceivableSalePortfolioBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.ReceivableSalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.ReceivableSalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	
+	<controller name="PayableSalePortfolioBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.PayableSalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.PayableSalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	
+	<controller name="UtilitySalePortfolioBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.UtilitySalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.UtilitySalePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+	
+	<controller name="SpreadPurchasePortfolioBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.SpreadPurchasePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.batch.SpreadPurchasePortfolioSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+		<action name="refresh" mode="detail"			
+			class="org.openxava.actions.SearchAction"
+			icon="refresh"
+			keystroke="control B"/>
+	</controller>
+<!-- END BatchProcessControllers ######################################## -->
+
+<!-- BEGIN TXPurchasePortfolioPayment ######################################## -->
+	<controller name="AuthorizeTXPurchasePortfolioPaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXPurchasePortfolioPaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXPurchasePortfolioPayment ######################################## -->
+
+<!-- BEGIN TXSalePortfolioPayment ######################################## -->
+	<controller name="AuthorizeTXSalePortfolioPaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSalePortfolioPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXSalePortfolioPaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXSalePortfolioPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXSalePortfolioPayment ######################################## -->
+
+<!-- BEGIN TXLoanPayment ######################################## -->
+	<controller name="AuthorizeTXLoanPaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXLoanPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXLoanPaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXLoanPaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXLoanPayment ######################################## -->
+</controllers>

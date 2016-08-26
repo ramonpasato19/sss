@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>CustomerDemoSmallLabel</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CustomerDemoSmallLabel</td></tr>
+</thead><tbody>
+<!--For Bug #356-->
+<!--For bug #430-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCustomerDemo</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>CustomerDemo</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCustomerDemo</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/CustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Customer demo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__label_address___street</td>
+	<td>labelLeft</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${labelLeft}&nbsp;&nbsp;+ 3</td>
+	<td>dataLeft</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__label_address___city</td>
+	<td>${labelLeft}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__address___city</td>
+	<td>${dataLeft}</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__label_address___state</td>
+	<td>labelLeft</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${labelLeft}&nbsp;&nbsp;+ 3</td>
+	<td>dataLeft</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__address___state___id</td>
+	<td>${dataLeft}</td>
+</tr>
+<!--*******************-->
+<!--For Bug #445-->
+<!--Validate Icon alignment-->
+<!--Required and Key icons-->
+<!--MUST be aligned-->
+<!--and closer to content-->
+<!--   Number key icon-->
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_key_number</td>
+	<td>iconLeftPosition</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_required_type</td>
+	<td>${iconLeftPosition}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_required_name</td>
+	<td>${iconLeftPosition}</td>
+</tr>
+<!--BUT in small labels-->
+<!--Required and Key icons-->
+<!--NEXT to the label-->
+<!--NOT aside to content-->
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__label_address___street</td>
+	<td>labelTop</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__label_address___zipCode</td>
+	<td>${labelTop}</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_required_address___street</td>
+	<td>labelTop</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_required_address___zipCode</td>
+	<td>${labelTop}</td>
+</tr>
+<!--*******************-->
+<!--ERROR Icon Behavior-->
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__CRUD___save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>600</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTextPresent</td>
+	<td>Value for Zip code in Address is required</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertTextPresent</td>
+	<td>Value for Zip code in Address is required</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Customer___number &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Customer___name &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Address___street &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Address___zipCode &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Address___city &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__icon_required_address___street</td>
+	<td>labelTop</td>
+</tr>
+<!--  error icon is smaller-->
+<tr>
+	<td>storeEval</td>
+	<td>${labelTop}&nbsp;&nbsp;+ 4</td>
+	<td>labelTop</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>css=#ox_OpenXavaTest_CustomerDemo__error_image_Address___zipCode &gt; img</td>
+	<td>${labelTop}</td>
+</tr>
+<!--*******************-->
+<!--Tests on multiple rows-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenColor</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Color</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageColor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenColor</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageColor</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Color__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__number</td>
+	<td>dataLeft</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__name</td>
+	<td>${dataLeft}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Color__hexValue</td>
+	<td>${dataLeft}</td>
+</tr>
+</tbody></table>
+</body>
+</html>

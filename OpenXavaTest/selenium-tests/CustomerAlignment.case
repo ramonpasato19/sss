@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>CustomerAlignment</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CustomerAlignment</td></tr>
+</thead><tbody>
+<!--Bug #455-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCustomer</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>Customer</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCustomer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCustomer</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Customer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Customers</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCustomer</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Customer__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_Customer__number</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Customer__telephone</td>
+	<td>leftPosition</td>
+</tr>
+<tr>
+	<td>storeElementWidth</td>
+	<td>id=ox_OpenXavaTest_Customer__telephone</td>
+	<td>widthPosition</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_Customer__label_email</td>
+	<td>targetLeft</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${targetLeft} - ${leftPosition} - ${widthPosition}</td>
+	<td>diff</td>
+</tr>
+<!--Should not be more than 20 pixels space-->
+<tr>
+	<td>assertEval</td>
+	<td>${diff} &lt;= 20</td>
+	<td>true</td>
+</tr>
+<!--Vertical Alignment-->
+<!--  *Normal Labels-->
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_Customer__telephone</td>
+	<td>topPosition</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_Customer__email</td>
+	<td>${topPosition}</td>
+</tr>
+<!--  *Normal/Small-->
+<!--   *** NOT IMPLEMENTED ***-->
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_Customer__address___city</td>
+	<td>topPosition</td>
+</tr>
+<!--assertElementPositionTop id=ox_OpenXavaTest_Customer__address___state___id ${topPosiion}-->
+<!--  *Small/Small-->
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCustomerDemo</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>CustomerDemo</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCustomerDemo</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/CustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Customer demo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCustomerDemo</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__number</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__address___street</td>
+	<td>topPosition</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>id=ox_OpenXavaTest_CustomerDemo__address___zipCode</td>
+	<td>${topPosition}</td>
+</tr>
+</tbody></table>
+</body>
+</html>

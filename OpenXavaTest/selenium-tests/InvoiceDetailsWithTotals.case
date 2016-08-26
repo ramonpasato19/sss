@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>InvoiceDetailsWithTotals</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">InvoiceDetailsWithTotals</td></tr>
+</thead><tbody>
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenInvoiceDetailsWithTotals</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>InvoiceDetailsWithTotals</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageInvoiceDetailsWithTotals</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenInvoiceDetailsWithTotals</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/InvoiceDetailsWithTotals</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Invoice details with totals</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageInvoiceDetailsWithTotals</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForNotValue</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__year</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__year</td>
+	<td>2002</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__number</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__customer___number</td>
+	<td>1</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_InvoiceDetailsWithTotals__CRUD___refresh</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPresent</td>
+	<td>css=img[alt=&quot; - Sum&quot;]</td>
+	<td>present</td>
+</tr>
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${present}&quot; != &quot;true&quot;</td>
+	<td>afterShowSum</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Sum&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterShowSum</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>//div[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__collection_details___']/table/tbody/tr[2]/td/table/tbody/tr/td[2]</td>
+	<td>There are 2 records in list</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>//div[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__collection_details___']/table/tbody/tr[2]/td/table/tbody/tr/td[2]</td>
+	<td>There are 2 records in list</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr td:nth-of-type(3) div nobr</td>
+	<td>expectedDate</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr td:nth-of-type(5) div nobr</td>
+	<td>expectedUnitPrice</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr td:nth-of-type(6) div nobr</td>
+	<td>expectedQuantity</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr td:nth-of-type(7) div nobr</td>
+	<td>expectedSubtotal</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr + tr td:nth-of-type(7) div</td>
+	<td>expectedVat</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__xava_collectionTab_details_1 + tr + tr + tr td:nth-of-type(7) div</td>
+	<td>expectedTotal</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailshide &gt; a &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>css=span.ox-frame-totals-value</td>
+	<td>date</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//span[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader']/span[2]/span[4]</td>
+	<td>unitPrice</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//span[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader']/span[2]/span[12]</td>
+	<td>quantity</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//span[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader']/span[2]/span[6]</td>
+	<td>subtotal</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//span[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader']/span[2]/span[8]</td>
+	<td>vat</td>
+</tr>
+<tr>
+	<td>storeText</td>
+	<td>//span[@id='ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader']/span[2]/span[10]</td>
+	<td>total</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsshow &gt; a &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Remove column sum&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${date}==${expectedDate}</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${unitPrice}==${expectedUnitPrice}</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${quantity}==${expectedQuantity}</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertExpression</td>
+	<td>${subtotal}</td>
+	<td>${expectedSubtotal}</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${vat}==${expectedVat}</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>&quot;${total}&quot;</td>
+	<td>${expectedTotal}</td>
+</tr>
+</tbody></table>
+</body>
+</html>

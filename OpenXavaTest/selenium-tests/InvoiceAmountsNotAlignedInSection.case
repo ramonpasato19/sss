@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>InvoiceAmountsNotAlignedInSection</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">InvoiceAmountsNotAlignedInSection</td></tr>
+</thead><tbody>
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenInvoiceAmountsNotAlignedInSection</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>InvoiceAmountsNotAlignedInSection</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageInvoiceAmountsNotAlignedInSection</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenInvoiceAmountsNotAlignedInSection</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/InvoiceAmountsNotAlignedInSection</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Invoice amounts not aligned in section</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>100</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageInvoiceAmountsNotAlignedInSection</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__CRUD___new &gt; span</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__number</td>
+	<td></td>
+</tr>
+<!--Store Columns Position-->
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__customerDiscount</td>
+	<td>column1</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__customerTypeDiscount</td>
+	<td>column2</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__yearDiscount</td>
+	<td>column3</td>
+</tr>
+<!--Store Row positions-->
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__customerDiscount</td>
+	<td>row1</td>
+</tr>
+<tr>
+	<td>storeElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__amountsSum</td>
+	<td>row2</td>
+</tr>
+<!--Test positions-->
+<!--  Columns-->
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__amountsSum</td>
+	<td>${column1}</td>
+</tr>
+<tr>
+	<td>assertNotElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__vatPercentage</td>
+	<td>${column2}</td>
+</tr>
+<tr>
+	<td>assertNotElementPositionLeft</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__vat</td>
+	<td>${column3}</td>
+</tr>
+<!--  Rows-->
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__customerTypeDiscount</td>
+	<td>${row1}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__yearDiscount</td>
+	<td>${row1}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__vatPercentage</td>
+	<td>${row2}</td>
+</tr>
+<tr>
+	<td>assertElementPositionTop</td>
+	<td>name=ox_OpenXavaTest_InvoiceAmountsNotAlignedInSection__vat</td>
+	<td>${row2}</td>
+</tr>
+</tbody></table>
+</body>
+</html>

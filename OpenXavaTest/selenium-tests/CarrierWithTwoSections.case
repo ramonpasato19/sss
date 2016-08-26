@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>CarrierWithTwoSections</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">CarrierWithTwoSections</td></tr>
+</thead><tbody>
+<!--Liferay Aware-->
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${liferay}&quot;!=&quot;true&quot;</td>
+	<td>afterOpenCarrierWithSections</td>
+</tr>
+<tr>
+	<td>lrToPage</td>
+	<td>/web/guest/</td>
+	<td>CarrierWithSections</td>
+</tr>
+<tr>
+	<td>goto</td>
+	<td>afterLRPageCarrierWithSections</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterOpenCarrierWithSections</td>
+	<td></td>
+</tr>
+<!--Non Liferay-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/CarrierWithSections</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Carriers</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLRPageCarrierWithSections</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPresent</td>
+	<td>link=Data</td>
+	<td>present</td>
+</tr>
+<tr>
+	<td>gotoIf</td>
+	<td>&quot;${present}&quot; != &quot;true&quot;</td>
+	<td>afterLinkData</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Data</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterLinkData</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__number</td>
+	<td></td>
+</tr>
+<!--Test Data Section-->
+<tr>
+	<td>assertText</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_drivingLicence</td>
+	<td>Driving licence</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_warehouse</td>
+	<td>Warehouse</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_key</td>
+	<td>Key</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_drivingLicence</td>
+	<td>drivingLicenceLeft</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_warehouse</td>
+	<td>warehouseLeft</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__label_key</td>
+	<td>keyLeft</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${drivingLicenceLeft} &lt;= 80</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${warehouseLeft} &lt;= 80</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>${keyLeft} &lt;= 95</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>storeElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__drivingLicence___type</td>
+	<td>left</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__drivingLicence___level</td>
+	<td>${left}</td>
+</tr>
+<tr>
+	<td>assertElementPositionLeft</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__drivingLicence___level</td>
+	<td>${left}</td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__warehouse___zoneNumber</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__warehouse___number</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__warehouse___number</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CarrierWithSections__bottom_buttons &gt; #ox_OpenXavaTest_CarrierWithSections__CRUD___save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__CarrierWithSections___fellowCarriersSelected</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__Carrier___translateAll</td>
+	<td></td>
+</tr>
+<!--Test Fellows Section-->
+<tr>
+	<td>click</td>
+	<td>link=Fellows</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>link=Add</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>link=Remove selected</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>link=Translate name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__fellowCarriersCalculated_col1</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#ox_OpenXavaTest_CarrierWithSections__bottom_buttons &gt; #ox_OpenXavaTest_CarrierWithSections__CRUD___save</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__CarrierWithSections___fellowCarriersSelected</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>id=ox_OpenXavaTest_CarrierWithSections__Carrier___translateAll</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>link=Data</td>
+	<td></td>
+</tr>
+</tbody></table>
+</body>
+</html>

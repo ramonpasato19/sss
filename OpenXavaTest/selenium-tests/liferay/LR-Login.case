@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>LR-Login</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">LR-Login</td></tr>
+</thead><tbody>
+<!--*** LIFERAY ***-->
+<!--You must prepare-->
+<!--a liferay installation-->
+<!--and set up-->
+<!--the appropriate-->
+<!--pages as tests require that-->
+<!--Liferay IS UP AND RUNNING!!!-->
+<tr>
+	<td>open</td>
+	<td>/</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>Welcome - liferay.com</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPresent</td>
+	<td>link=Sign Out</td>
+	<td>signOutPresent</td>
+</tr>
+<tr>
+	<td>gotoIf</td>
+	<td>${signOutPresent} == true</td>
+	<td>afterSignIn</td>
+</tr>
+<tr>
+	<td>lrLogin</td>
+	<td>test@liferay.com</td>
+	<td>test</td>
+</tr>
+<tr>
+	<td>label</td>
+	<td>afterSignIn</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeElementPresent</td>
+	<td>css=a.logo</td>
+	<td>liferay</td>
+</tr>
+</tbody></table>
+</body>
+</html>

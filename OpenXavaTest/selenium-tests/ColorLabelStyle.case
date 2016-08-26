@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>ColorLabelStyle</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">ColorLabelStyle</td></tr>
+</thead><tbody>
+<!--For bug #438-->
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Color</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Color__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeAttribute</td>
+	<td>id=ox_OpenXavaTest_Color__label_number@class</td>
+	<td>classAttribute</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>&quot;${classAttribute}&quot;.contains('reverse-label')</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>&quot;${classAttribute}&quot;.contains('italic-label')</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>storeAttribute</td>
+	<td>id=ox_OpenXavaTest_Color__label_name@class</td>
+	<td>classAttribute</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>&quot;${classAttribute}&quot;.contains('bold-label')</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>storeAttribute</td>
+	<td>id=ox_OpenXavaTest_Color__label_usedTo@class</td>
+	<td>classAttribute</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>&quot;${classAttribute}&quot;.contains('italic-label')</td>
+	<td>true</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
