@@ -3,8 +3,9 @@
 
 ### POWERFIN ###
 powerfin/web/WEB-INF/classes/*
-powerfin/web/WEB-INF/lib/*
-
+powerfin/web/WEB-INF/lib/*.jar
+powerfin/web/WEB-INF/lib/addons.jar
+powerfin/web/WEB-INF/lib/openxava.jar
 ### Eclipse ###
 
 RemoteSystemsTempFiles
