@@ -130,15 +130,17 @@ public class TXSaveAction extends SaveAction{
             // Ejecute pre actions
             preSaveAction(transaction);
             
-            // Obtain Transaction Accounts to process
-            List<TransactionAccount> transactionAccounts = getTransactionAccounts(transaction);
-            
-            // Process transaction and Financial
-            if (transactionAccounts!=null)
-            	financialProcessed = TransactionHelper.processTransaction(transaction, transactionAccounts);
+            // Process Transaction
+            if (TransactionHelper.isFinancialSaved(transaction))
+            {
+            	if (transaction.getTransactionAccounts()!=null && !transaction.getTransactionAccounts().isEmpty())
+            		financialProcessed = TransactionHelper.processTransaction(transaction);
+            	else
+            		financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+            }
             else
-            	financialProcessed = TransactionHelper.processTransaction(transaction);
-            
+               	financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+           
 			if (financialProcessed)
 				addMessage("financial_created");
 			

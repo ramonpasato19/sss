@@ -28,7 +28,7 @@ public class SpreadPurchasePortfolioSaveAction extends ViewBaseAction  {
 					+ "AND pt.account.accountId IN "
 					+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '001') "
 					+ "AND pt.account.accountId IN "
-					+ "(SELECT o.account.accountId FROM Account o WHERE o.accountStatus.accountStatusId = '002') "
+					+ "(SELECT o.accountId FROM Account o WHERE o.accountStatus.accountStatusId = '002') "
 					)
 					.setParameter("dueDate", accountingDate)
 					.getResultList();

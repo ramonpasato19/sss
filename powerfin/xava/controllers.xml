@@ -395,6 +395,17 @@
 	</controller>
 	
 	<controller name="PurchasePortfolioReportController">
+		<action name="printPaymentDividendPurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPaymentDividendPurchasePortfolio" icon="file-pdf" image="save.gif" >
+		</action>
+		<!-- 
+		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPrepaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		 -->
 		<action name="printOverdueBalancePurchasePortfolio" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintOverdueBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
 		</action>
@@ -407,17 +418,6 @@
 		<action name="printTotalBalancePurchasePortfolio" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintTotalBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printPaymentDividendPurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintPaymentDividendPurchasePortfolio" icon="file-pdf" image="save.gif">
-		</action>
-		<!-- 
-		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
-		</action>
-		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
-		</action>
-		 -->
 	</controller>
 	
 	<controller name="SalePortfolioReportController">
@@ -1575,11 +1575,12 @@
 	
 	<controller name="ConsultPurchasePortfolioController">
 		<extends controller="RefreshTXController"/>
-		<!-- 
-		<action name="printPurchaseNegotiation" mode="detail"
-			class="com.powerfin.actions.negotiation.PrintPurchaseNegotiationAction"  icon="file-pdf">
+		<action name="printAccountOverdueBalance" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountOverdueBalancePurchasePortfolio"  icon="file-pdf">
 		</action>
-		 -->
+		<action name="printAccountLoanReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountLoanReceipts"  icon="file-pdf">
+		</action>
 	</controller>
 	
 	<controller name="ConsultPurchaseNegotiationController">

@@ -42,13 +42,16 @@ public class AccountLoanHelper {
 		if (accounts!=null && !accounts.isEmpty())
 		{
 			for(Account a:accounts)
-				getOverdueBalances(a);
+				getOverdueBalances(a, accountingDate);
 		}
 	}
 		
+	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
+		return getOverdueBalances(account, CompanyHelper.getCurrentAccountingDate());
+	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
+	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate) {
 		String schema = CompanyHelper.getSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
@@ -58,9 +61,9 @@ public class AccountLoanHelper {
 				+ "sum(capital) capital, "
 				+ "sum(interest) interest, "
 				+ "sum(insurance) insurance, "
-				+ "sum(insuranceMortgage) insuranceMortgage, "
-				+ "sum(receivableFee) receivableFee, "
-				+ "sum(legalFee) legalFee, "
+				+ "sum(insurance_mortgage) insurance_mortgage, "
+				+ "sum(receivable_fee) receivable_fee, "
+				+ "sum(legal_fee) legal_fee, "
 				+ "days_overdue, "
 				+ "real_days_overdue, "
 				+ "last_payment_date, "
@@ -71,11 +74,11 @@ public class AccountLoanHelper {
 				+ "(case when b.category_id = 'CAPITAL' then COALESCE(b.balance,0) else 0 end) capital, "
 				+ "(case when b.category_id = 'INTERESTPR' then COALESCE(b.balance,0) else 0 end) interest, "
 				+ "(case when b.category_id = 'INSURANRE' then COALESCE(b.balance,0) else 0 end) insurance, "
-				+ "(case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end) insuranceMortgage, "
-				+ "(case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end) receivableFee, "
-				+ "(case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end) legalFee, "
-				+ "COALESCE(:accountingDate - ap.due_date, 0) days_overdue, "
-				+ "COALESCE(:accountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
+				+ "(case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end) insurance_mortgage, "
+				+ "(case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end) receivable_fee, "
+				+ "(case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end) legal_fee, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
 				+ "ap.last_payment_date, "
 				+ "ap.last_payment_date_collection,"
 				+ "ap.last_payment_date_default_int "
@@ -89,6 +92,18 @@ public class AccountLoanHelper {
 				+ "and ap.payment_date is null "
 				+ ") x group by subaccount, due_date, days_overdue, "
 				+ " real_days_overdue, last_payment_date,last_payment_date_collection,last_payment_date_default_int  "
+				+ "union all "
+				+ "select ap.subaccount, ap.due_date, ap.capital, ap.interest, ap.insurance, ap.insurance_mortgage, "
+				+ "0 receivable_fee, 0 legal_fee, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
+				+ "null last_payment_date, "
+				+ "null last_payment_date_collection, "
+				+ "null last_payment_date_default_int "
+				+ "from "+schema+".account_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate "
 				+ ") z "
 				+ "order by subaccount";
 
@@ -97,6 +112,7 @@ public class AccountLoanHelper {
 				.setParameter("accountId", account.getAccountId())
 				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
 				.setParameter("accountingDate", accountingDate)
+				.setParameter("projectedAccountingDate", projectedAccountingDate)
 				.getResultList();
 		
 		if (balances!=null && !balances.isEmpty())

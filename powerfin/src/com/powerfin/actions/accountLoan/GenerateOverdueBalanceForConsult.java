@@ -17,17 +17,26 @@ public class GenerateOverdueBalanceForConsult extends ViewBaseAction {
 		Map keyValues = null;
 		AccountLoan account = null;
 		keyValues = getView().getRoot().getKeyValuesWithValue();
+		Date accountingDate = null;
 		try
 		{
 			account = (AccountLoan)
 					MapFacade.findEntity(getView().getRoot().getModelName(), keyValues);
+			
 		}catch (javax.ejb.ObjectNotFoundException ex)
 		{
 			throw new OperativeException("account_is_required");
 		}
-				
+			
+		accountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
+		if (accountingDate==null)
+		{
+			accountingDate = CompanyHelper.getCurrentAccountingDate();
+			getView().getRoot().setValue("projectedAccountingDate",accountingDate);
+		}
+
 		//Obtain list overdue balances
-		AccountLoanHelper.getOverdueBalances(account.getAccount());
+		AccountLoanHelper.getOverdueBalances(account.getAccount(), accountingDate);
 			
 		getView().refreshCollections();
 		

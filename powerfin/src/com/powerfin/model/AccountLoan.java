@@ -82,7 +82,7 @@ import com.powerfin.model.superclass.*;
 						+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
 					+ "}"
 					+ "paytable{accountPaytables}"
-					+ "overdueBalances{accountOverdueBalances}"
+					+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 					),
 	
 })
@@ -269,7 +269,6 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@NoCreate
 	@NoModify
 	@ReadOnly(forViews="ConsultPurchasePortfolio")
-	@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true )
 	private AccountStatus accountStatus;
 	
 	@Transient
@@ -306,6 +305,11 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
 	@ReadOnly(forViews="ConsultPurchasePortfolio")
 	private List<AccountOverdueBalance> accountOverdueBalances;
+	
+	@Transient
+	@Temporal(TemporalType.DATE)
+	@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true )
+	private Date projectedAccountingDate;
 	
 	public AccountLoan() {
 	}
@@ -583,6 +587,14 @@ public class AccountLoan extends AuditEntity implements Serializable {
 
 	public void setAccountPaytables(List<AccountPaytable> accountPaytables) {
 		this.accountPaytables = accountPaytables;
+	}
+
+	public Date getProjectedAccountingDate() {
+		return projectedAccountingDate;
+	}
+
+	public void setProjectedAccountingDate(Date projectedAccountingDate) {
+		this.projectedAccountingDate = projectedAccountingDate;
 	}
 
 	public String getMortgageInsurerName()

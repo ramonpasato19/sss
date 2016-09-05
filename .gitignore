@@ -6,6 +6,10 @@ powerfin/web/WEB-INF/classes/*
 powerfin/web/WEB-INF/lib/*.jar
 powerfin/web/WEB-INF/lib/addons.jar
 powerfin/web/WEB-INF/lib/openxava.jar
+powerfin/web/WEB-INF/classes/controllers.xml
+powerfin/web/WEB-INF/classes/powerfin-labels.properties
+powerfin/web/WEB-INF/classes/powerfin-labels_en.properties
+powerfin/web/WEB-INF/classes/powerfin-labels_es.properties
 ### Eclipse ###
 
 RemoteSystemsTempFiles

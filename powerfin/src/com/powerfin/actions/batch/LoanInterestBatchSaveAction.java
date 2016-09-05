@@ -28,7 +28,7 @@ public class LoanInterestBatchSaveAction extends ViewBaseAction  {
 					+ "AND pt.account.accountId NOT IN "
 					+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '002') "
 					+ "AND pt.account.accountId IN "
-					+ "(SELECT o.account.accountId FROM Account o WHERE o.accountStatus.accountStatusId = '002') "
+					+ "(SELECT o.accountId FROM Account o WHERE o.accountStatus.accountStatusId = '002') "
 					)
 					.setParameter("dueDate", accountingDate)
 					.getResultList();

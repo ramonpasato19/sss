@@ -58,7 +58,10 @@ public class TransactionHelper {
 	public static boolean processTransaction(Transaction transaction, 
 			List<TransactionAccount> transactionAccounts
 			) throws Exception
-	{	
+	{
+		if (transactionAccounts == null)
+			return processTransaction(transaction);
+
 		List<TransactionAccount> transactionAccountSaved = new ArrayList<TransactionAccount>();
 		//Clean Transaction Accounts
 		for (TransactionAccount ta : transaction.getTransactionAccounts())
@@ -94,10 +97,7 @@ public class TransactionHelper {
 	}
 	
 	public static boolean processTransaction(Transaction transaction) throws Exception
-	{	
-		//Reload Transaction
-		//transaction = XPersistence.getManager().find(Transaction.class, transaction.getTransactionId());
-		
+	{		
 		//Clean Transaction Accounts with value ZERO
 		for (TransactionAccount ta : transaction.getTransactionAccounts())
 			if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
