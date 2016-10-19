@@ -13,7 +13,7 @@ persistence.xml.
 	<session-factory>
 
 		<!-- Tomcat + PostgreSQL -->		<property name="hibernate.connection.datasource">java:comp/env/jdbc/powerfinDS</property>		<property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>		<property name="hibernate.jdbc.use_get_generated_keys">false</property>		<property name="hibernate.show_sql">true</property>		<property name="hibernate.auto_import">false</property>
-		
+		<property name="hibernate.order_inserts">true</property>		<property name="hibernate.order_updates">true</property>		
 		<!-- GalleryImage is needed only if you uses IMAGES_GALLERY/GALERIA_IMAGENES stereotype -->
 		<mapping resource="GalleryImage.hbm.xml"/>
 		

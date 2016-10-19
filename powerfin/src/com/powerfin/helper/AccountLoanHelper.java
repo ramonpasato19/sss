@@ -4,9 +4,11 @@ import java.math.*;
 import java.util.*;
 
 import org.openxava.jpa.*;
+import org.openxava.util.*;
 
 import com.powerfin.exception.*;
 import com.powerfin.model.*;
+import com.powerfin.model.types.Types.*;
 import com.powerfin.util.*;
 
 public class AccountLoanHelper {
@@ -45,7 +47,35 @@ public class AccountLoanHelper {
 				getOverdueBalances(a, accountingDate);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static void getAllOverdueBalancesSalePortfolioByBroker(Integer brokerPersonId) {
+		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		String query = "SELECT DISTINCT(b.account) FROM Balance b  "
+				+ "WHERE b.dueDate <= :accountingDate "
+				+ "AND b.balance > 0 "
+				+ "AND b.toDate = :toDate "
+				+ "AND b.category.categoryId in ('SCAPITAL','INTERESTIN') "
+				+ "AND b.account.accountId IN ( "
+				+ "SELECT a.accountId FROM Account a, AccountPortfolio p, Negotiation n "
+				+ "WHERE a.accountId = p.accountId "
+				+ "AND a.accountStatus.accountStatusId  = '002' "
+				+ "AND p.saleNegotiation.negotiationId = n.negotiationId "
+				+ "AND n.brokerPerson.personId = :brokerPersonId )";
 		
+		List<Account> accounts = XPersistence.getManager()
+				.createQuery(query)
+				.setParameter("accountingDate", accountingDate)
+				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+				.setParameter("brokerPersonId", brokerPersonId)
+				.getResultList();
+		if (accounts!=null && !accounts.isEmpty())
+		{
+			for(Account a:accounts)
+				getOverdueBalancesSalePortfolio(a, accountingDate);
+		}
+	}
+	
 	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
 		return getOverdueBalances(account, CompanyHelper.getCurrentAccountingDate());
 	}
@@ -163,24 +193,27 @@ public class AccountLoanHelper {
 		return overdueBalances;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account) {
+		return getOverdueBalancesSalePortfolio(account, CompanyHelper.getCurrentAccountingDate());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate) {
 		String schema = CompanyHelper.getSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
-		String query = "select subaccount, "
+		String query = "select * from ("
+				+ "select subaccount, "
 				+ "due_date, "
 				+ "sum(capital) capital, "
 				+ "sum(interest) interest, "
 				+ "days_overdue, "
-				+ "real_days_overdue, "
 				+ "last_payment_date "
 				+ "from ( "
 				+ "select b.subaccount, ap.due_date, "
 				+ "(case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end) capital, "
 				+ "(case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end) interest, "
-				+ "COALESCE(:accountingDate - ap.due_date, 0) days_overdue, "
-				+ "COALESCE(:accountingDate - ap.last_payment_date, 0) real_days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "ap.last_payment_date "
 				+ "from "+schema+".balance b, "+schema+".account_sold_paytable ap "
 				+ "where b.account_id = :accountId "
@@ -190,21 +223,33 @@ public class AccountLoanHelper {
 				+ "and b.subaccount = ap.subaccount "
 				+ "and ap.due_date <= :accountingDate "
 				+ "and ap.payment_date is null "
-				+ ") x group by subaccount, due_date, days_overdue "
-				+ "order by subaccount";
+				+ ") x group by subaccount, due_date, days_overdue, last_payment_date "
+				
+				+ "union all "
+				+ "select ap.subaccount, ap.due_date, ap.capital, ap.interest, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "null last_payment_date "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate "
+				+ ") z "
+				+ "order by z.subaccount";
 		System.out.println(query);
 		System.out.println(account.getAccountId());
+		System.out.println(projectedAccountingDate);
 		List<Object[]> balances = XPersistence.getManager()
 				.createNativeQuery(query)
 				.setParameter("accountId", account.getAccountId())
 				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
 				.setParameter("accountingDate", accountingDate)
+				.setParameter("projectedAccountingDate", projectedAccountingDate)
 				.getResultList();
 		
 		if (balances!=null && !balances.isEmpty())
 		{
 			for (Object[] balance : balances)
-			{
+			{				
 				AccountOverdueBalance overdueBalance = new AccountOverdueBalance();
 				overdueBalance.setAccountId(account.getAccountId());
 				overdueBalance.setAccountingDate(accountingDate);
@@ -212,23 +257,10 @@ public class AccountLoanHelper {
 				overdueBalance.setDueDate((Date) balance[1]);
 				overdueBalance.setCapital((BigDecimal) balance[2]);
 				overdueBalance.setInterest((BigDecimal) balance[3]);
-				overdueBalance.setInsurance(BigDecimal.ZERO);
-				overdueBalance.setInsuranceMortgage(BigDecimal.ZERO);
 				overdueBalance.setOverdueDays((Integer) balance[4]);
-				overdueBalance.setRealOverdueDays((Integer) balance[5]);
-				overdueBalance.setLastPaymentDate((Date) balance[6]);
-				overdueBalance.setDefaultInterest(BigDecimal.ZERO);
-				overdueBalance.setCollectionFee(BigDecimal.ZERO);
-				overdueBalance.setReceivableFee(BigDecimal.ZERO);
-				overdueBalance.setLegalFee(BigDecimal.ZERO);
+				overdueBalance.setLastPaymentDate((Date) balance[5]);
 				BigDecimal total = overdueBalance.getCapital()
-						.add(overdueBalance.getInterest())
-						.add(overdueBalance.getInsurance())
-						.add(overdueBalance.getInsuranceMortgage())
-						.add(overdueBalance.getDefaultInterest())
-						.add(overdueBalance.getCollectionFee())
-						.add(overdueBalance.getReceivableFee())
-						.add(overdueBalance.getLegalFee());
+						.add(overdueBalance.getInterest());
 				overdueBalance.setTotal(total);
 				if (total.compareTo(BigDecimal.ZERO)>0)
 					overdueBalances.add(overdueBalance);
@@ -308,7 +340,7 @@ public class AccountLoanHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static BigDecimal getBalanceByLoanAccount(String accountId)
+	public static BigDecimal getBalanceByAccountLoan(String accountId)
 	{
 		List<Object> balances = XPersistence.getManager()
 				.createQuery("SELECT COALESCE(sum(balance),0) "
@@ -327,7 +359,7 @@ public class AccountLoanHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static BigDecimal getOverdueBalanceByLoanAccount(String accountId)
+	public static BigDecimal getOverdueBalanceByAccountLoan(String accountId)
 	{
 		List<Object> balances = XPersistence.getManager()
 				.createQuery("SELECT COALESCE(SUM(o.total),0) FROM AccountOverdueBalance o "
@@ -470,5 +502,519 @@ public class AccountLoanHelper {
 			return BigDecimal.ZERO;
 		
 	}
+	
+	public static List<TransactionAccount> getTransactionAccountsForPymentPurchasePortfolio(Transaction transaction, 
+			AccountLoan accountLoan, Account debitAccount, 
+			BigDecimal transactionValue) throws Exception
+	{
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(accountLoan.getAccount());
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		TransactionAccount ta = null;
+		BigDecimal valueToApply = BigDecimal.ZERO;
+		Account disbursementAccount = accountLoan.getDisbursementAccount(); 
+		
+		if (overdueBalances==null || overdueBalances.isEmpty())
+    		throw new OperativeException("payment_not_processed_with_out_overdue_balances");
+	
+		if (accountLoan.getDisbursementAccount()==null)
+			throw new OperativeException("disbursement_account_not_found");
+		
+		
+		if (!accountLoan.getDisbursementAccount().getAccountId().equals(debitAccount.getAccountId()))
+		{
+			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, transactionValue, transaction);
+			ta.setRemark(XavaResources.getString("transfer_to_customer_for_payment_loan", accountLoan.getAccountId()));
+			transactionAccounts.add(ta);
+			
+			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(disbursementAccount, transactionValue, transaction);
+			ta.setRemark(XavaResources.getString("transfer_from_broker_for_payment_loan", accountLoan.getAccountId()));
+			transactionAccounts.add(ta);
+		}
+		else
+			disbursementAccount = debitAccount;
+		
+		for (AccountOverdueBalance quota: overdueBalances)
+		{
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//ReceivableFeePayment
+			if (quota.getReceivableFee().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getReceivableFee();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.RECEIVABLE_FEE_RE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("receivable_fee_payment", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("receivable_fee_payment", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//LegalFeePayment
+			if (quota.getLegalFee().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getLegalFee();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.LEGAL_FEE_RE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("legal_fee_payment", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("legal_fee_payment", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//CollectionFee
+			//Si no cubre el valor completo de los cargos de cobranza termina la prelacion
+			if (quota.getCollectionFee().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getCollectionFee();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					break;
+					//valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.COLLECTION_FEE_IN_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("collection_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("collection_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//DefaultInterest
+			//Si no cubre el valor completo de la mora termina la prelacion
+			if (quota.getDefaultInterest().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getDefaultInterest();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					break;
+					//valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.DEFAULT_INTEREST_IN_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//Insurance
+			if (quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getInsurance();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("insurance_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("insurance_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//InsuranceMortgage
+			if (quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getInsuranceMortgage();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("insurance_mortgage_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("insurance_mortgage_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//Interest
+			if (quota.getInterest().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getInterest();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//CapitalPayment
+			if (quota.getCapital().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getCapital();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+				
+			}
+			
+		}
+		return transactionAccounts;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void postPurchasePortfolioPaymentSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			System.out.println("POST SAVE ACTION**********************");
+			List<AccountPaytable> accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuotaAndCategory(accountPaytable.getAccountId(), accountPaytable.getSubaccount(), CategoryHelper.CAPITAL_CATEGORY);			
+				
+				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
+				{
+					accountPaytable.setPaymentDate(transaction.getAccountingDate());
+					System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" to cancel");
+				}
+				accountPaytable.setLastPaymentDate(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment = "+transaction.getAccountingDate());
+			}
+			
+			accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.category.categoryId = :categoryId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("categoryId", CategoryHelper.COLLECTION_FEE_IN_CATEGORY)
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				accountPaytable.setLastPaymentDateCollection(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment collection = "+transaction.getAccountingDate());
+			}
+			
+			accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.category.categoryId = :categoryId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("categoryId", CategoryHelper.DEFAULT_INTEREST_IN_CATEGORY)
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				accountPaytable.setLastPaymentDateDefaultInterest(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment default interest = "+transaction.getAccountingDate());
+			}
+			/*
+			if (AccountLoanHelper.getBalanceByaccountLoan(transaction.getCreditAccount().getAccountId()).compareTo(BigDecimal.ZERO)<=0)
+			{
+				Account persistAccount = XPersistence.getManager().find(Account.class, transaction.getCreditAccount().getAccountId());
+				persistAccount.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountLoanHelper.STATUS_LOAN_CANCEL));
+				persistAccount.setCancellationDate(currentDate);
+				AccountHelper.updateAccount(persistAccount);
+			}
+			*/
+			
+			XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
+					+ "WHERE o.accountId=:accountId ")
+			.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+			.executeUpdate();			
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void postSalePortfolioPaymentSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			System.out.println("POST SAVE ACTION**********************");
+			List<AccountSoldPaytable> accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountSoldPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getDebitAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("debitOrCredit", DebitOrCredit.DEBIT)
+					.getResultList();
+			
+			for (AccountSoldPaytable accountPaytable: accountPaytables)
+			{
+				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuotaAndCategory(accountPaytable.getAccountId(), accountPaytable.getSubaccount(), CategoryHelper.SALE_CAPITAL_CATEGORY);			
+				
+				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
+				{
+					accountPaytable.setPaymentDate(transaction.getAccountingDate());
+					System.out.println("Update AccountSoldPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" to cancel");
+				}
+				accountPaytable.setLastPaymentDate(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountSoldPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment = "+transaction.getAccountingDate());
+			}
+			
+			/*
+			if (AccountLoanHelper.getBalanceByaccountLoan(transaction.getCreditAccount().getAccountId()).compareTo(BigDecimal.ZERO)<=0)
+			{
+				Account persistAccount = XPersistence.getManager().find(Account.class, transaction.getCreditAccount().getAccountId());
+				persistAccount.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountLoanHelper.STATUS_LOAN_CANCEL));
+				persistAccount.setCancellationDate(currentDate);
+				AccountHelper.updateAccount(persistAccount);
+			}
+			*/
+			
+			XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
+					+ "WHERE o.accountId=:accountId ")
+			.setParameter("accountId", transaction.getDebitAccount().getAccountId())
+			.executeUpdate();
+		}
+		
+	}
+
+	public static List<TransactionAccount> getTransactionAccountsForBatchPymentSalePortfolio(
+			Transaction transaction, 
+			AccountLoan accountLoan, 
+			Account creditAccount, 
+			Integer subAccount,
+			BigDecimal capital,
+			BigDecimal interest,
+			BigDecimal defaultInterest) throws Exception
+	{
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		TransactionAccount ta = null;	
+	
+		AccountSoldPaytable quota = (AccountSoldPaytable) XPersistence.getManager()
+				.createQuery("SELECT o FROM AccountSoldPaytable o "
+				+ "WHERE o.account.accountId = :accountId "
+				+ "AND o.subaccount = :subaccount")
+				.setParameter("accountId", accountLoan.getAccount().getAccountId())
+				.setParameter("subaccount", subAccount)
+				.getSingleResult();
+		
+		//DefaultInterest
+		if (defaultInterest!=null && defaultInterest.compareTo(BigDecimal.ZERO)>0)
+		{
+			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), defaultInterest, transaction, CategoryHelper.getCategoryById(CategoryHelper.DEFAULT_INTEREST_EX_CATEGORY), quota.getDueDate());
+			ta.setRemark(XavaResources.getString("sale_default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+			transactionAccounts.add(ta);
+			
+			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, defaultInterest, transaction);
+			ta.setRemark(XavaResources.getString("sale_default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+			transactionAccounts.add(ta);
+		}
+		
+		//Interest
+		if (interest!=null && interest.compareTo(BigDecimal.ZERO)>0)
+		{			
+			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), interest, transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_IN_CATEGORY), quota.getDueDate());
+			ta.setRemark(XavaResources.getString("sale_interest_payment_quota_number", accountLoan.getAccountId(), quota));
+			transactionAccounts.add(ta);
+			
+			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, interest, transaction);
+			ta.setRemark(XavaResources.getString("sale_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+			transactionAccounts.add(ta);			
+		}
+
+		//CapitalPayment
+		if (capital!=null && capital.compareTo(BigDecimal.ZERO)>0)
+		{
+			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), capital, transaction, CategoryHelper.getCategoryById(CategoryHelper.SALE_CAPITAL_CATEGORY), quota.getDueDate());
+			ta.setRemark(XavaResources.getString("sale_capital_payment_quota_number", accountLoan.getAccountId(), quota));
+			transactionAccounts.add(ta);
+			
+			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, capital, transaction);
+			ta.setRemark(XavaResources.getString("sale_capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+			transactionAccounts.add(ta);			
+		}
+		return transactionAccounts;
+	}
+	
+	public static List<TransactionAccount> getTransactionAccountsForNormalPymentSalePortfolio(
+			Transaction transaction, 
+			AccountLoan accountLoan, 
+			Account creditAccount, 
+			BigDecimal capital,
+			BigDecimal interest,
+			BigDecimal defaultInterest) throws Exception
+	{
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalancesSalePortfolio(accountLoan.getAccount());
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		TransactionAccount ta = null;
+		BigDecimal valueToApply = BigDecimal.ZERO;
+		int firstQuota = 1;
+		
+		if (overdueBalances==null || overdueBalances.isEmpty())
+    		throw new OperativeException("payment_not_processed_with_out_overdue_balances");
+	
+		if (accountLoan.getDisbursementAccount()==null)
+			throw new OperativeException("disbursement_account_not_found");
+		
+		BigDecimal transactionValue = capital.add(interest);
+		
+		for (AccountOverdueBalance quota: overdueBalances)
+		{
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//Interest
+			if (quota.getInterest().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getInterest();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_IN_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("sale_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("sale_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+				
+			}
+			
+			if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+				break;
+			
+			//CapitalPayment
+			if (quota.getCapital().compareTo(BigDecimal.ZERO)>0)
+			{
+				valueToApply = quota.getCapital();
+				
+				if (transactionValue.compareTo(valueToApply)<0)
+					valueToApply = transactionValue;
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), valueToApply, transaction, CategoryHelper.getCategoryById(CategoryHelper.SALE_CAPITAL_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("sale_capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, valueToApply, transaction);
+				ta.setRemark(XavaResources.getString("sale_capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				transactionValue = transactionValue.subtract(valueToApply);
+				
+			}
+			
+			if (firstQuota==1)
+			{
+				if (defaultInterest!=null && defaultInterest.compareTo(BigDecimal.ZERO)>0)
+				{
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), defaultInterest, transaction, CategoryHelper.getCategoryById(CategoryHelper.DEFAULT_INTEREST_EX_CATEGORY));
+					ta.setRemark(XavaResources.getString("sale_default_interest_payment", accountLoan.getAccountId()));
+					transactionAccounts.add(ta);
+					
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, defaultInterest, transaction);
+					ta.setRemark(XavaResources.getString("sale_default_interest_payment", accountLoan.getAccountId()));
+					transactionAccounts.add(ta);
+				}
+			}
+			
+			firstQuota++;
+			
+		}
+		return transactionAccounts;
+	}
+
 	
 }

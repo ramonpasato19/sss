@@ -71,6 +71,10 @@
 			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
 			hidden="true">
 		</action>
+		<action name="GetOverdueBalanceSalePortfolioForConsult" 
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceSalePortfolioForConsult"
+			hidden="true">
+		</action>
 		<action name="GetOverdueBalanceSalePortfolio" 
 			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceSalePortfolio"
 			hidden="true">
@@ -421,8 +425,15 @@
 	</controller>
 	
 	<controller name="SalePortfolioReportController">
+		<action name="printPaymentDividendSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPaymentDividendSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		
 		<action name="printOverdueBalanceSalePortfolio" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOverdueBalanceConsolidateSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceConsolidateSalePortfolio" icon="file-pdf" image="save.gif">
 		</action>
 		<action name="printOvercomeBalanceSalePortfolio" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintOvercomeBalanceSalePortfolio" icon="file-pdf" image="save.gif">
@@ -430,8 +441,8 @@
 		<action name="printTotalBalanceSalePortfolio" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printPaymentDividendSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintPaymentDividendSalePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printBalancingPortfolioDividens" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintBalancingPortfolioDividends" icon="file-pdf" image="save.gif">
 		</action>
 		<!-- 
 		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
@@ -1581,6 +1592,19 @@
 		<action name="printAccountLoanReceipts" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintAccountLoanReceipts"  icon="file-pdf">
 		</action>
+		<action name="printPrepaymentPurchasePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPrepaymentPurchasePortfolio"  icon="file-pdf">
+		</action>
+	</controller>
+	
+	<controller name="ConsultSalePortfolioController">
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountOverdueBalance" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountOverdueBalanceSalePortfolio"  icon="file-pdf">
+		</action>
+		<action name="printAccountLoanPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountLoanPayments"  icon="file-pdf">
+		</action>
 	</controller>
 	
 	<controller name="ConsultPurchaseNegotiationController">
@@ -1787,4 +1811,31 @@
 		</action>
 	</controller>
 <!-- END TXLoanPayment ######################################## -->
+
+<!-- BEGIN TransactionBatch ######################################## -->
+	<controller name="NewTransactionBatchController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S"/>	
+	</controller>
+	<controller name="ProcessTransactionBatchController">
+		<action name="collectInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.batch.TransactionBatchSaveAction"
+			icon="content-save">
+			<set property="subAction" value="COLLECT" />
+		</action>
+		<action name="processInformation" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.batch.TransactionBatchSaveAction"
+			icon="content-save">
+			<set property="subAction" value="PROCESS" />
+		</action>
+	</controller>
+<!-- BEGIN TransactionBatch ######################################## -->
 </controllers>

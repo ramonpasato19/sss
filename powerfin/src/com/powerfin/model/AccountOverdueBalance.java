@@ -116,6 +116,22 @@ public class AccountOverdueBalance implements Serializable {
 	private Account account;
 
 	public AccountOverdueBalance() {
+		
+		setCapital(BigDecimal.ZERO);
+		setInterest(BigDecimal.ZERO);
+		setInsurance(BigDecimal.ZERO);
+		setInsuranceMortgage(BigDecimal.ZERO);
+		setOverdueDays(0);
+		setRealOverdueDays(0);
+		setDefaultInterest(BigDecimal.ZERO);
+		setCollectionFee(BigDecimal.ZERO);
+		setReceivableFee(BigDecimal.ZERO);
+		setLegalFee(BigDecimal.ZERO);
+		setOverdueDays(0);
+		setRealOverdueDays(0);
+		setDefaultInterest(BigDecimal.ZERO);
+		setCollectionFee(BigDecimal.ZERO);
+		
 	}
 
 	public String getAccountOverdueBalanceId() {

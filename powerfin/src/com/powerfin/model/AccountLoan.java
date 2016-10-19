@@ -84,12 +84,36 @@ import com.powerfin.model.superclass.*;
 					+ "paytable{accountPaytables}"
 					+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 					),
+		@View(name="ConsultSalePortfolio",
+		members="#accountId, accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{#"
+				+ "issueDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{#"
+					+ "mortgageInsurerName;"
+					+ "insurerName;"
+					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "}"
+				+ "paytable{accountSoldPaytables}"
+				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
+				),
 	
 })
 @Tabs({
 	@Tab(properties=""),
 	@Tab(name="TXAccountLoan", properties="account.accountId, account.person.name, account.code, account.accountStatus.name, account.product.name"),
-	@Tab(name="ConsultPurchasePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name")
+	@Tab(name="ConsultPurchasePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
+	@Tab(name="ConsultSalePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name")
 })
 public class AccountLoan extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -294,21 +318,33 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@AsEmbedded
 	@OneToMany(mappedBy = "account")
 	@OrderBy("subaccount")
-	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota, paymentDate")
+	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota, paymentDate, lastPaymentDate, lastPaymentDateCollection, lastPaymentDateDefaultInterest")
 	@ReadOnly(forViews="ConsultPurchasePortfolio")
 	private List<AccountPaytable> accountPaytables;
+	
+	//bi-directional many-to-one association to AccountPaytable
+	@Transient
+	@AsEmbedded
+	@OneToMany(mappedBy = "account")
+	@OrderBy("subaccount")
+	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, lastPaymentDate, paymentDate")
+	@ReadOnly(forViews="ConsultSalePortfolio")
+	private List<AccountSoldPaytable> accountSoldPaytables;
 	
 	@Transient
 	@AsEmbedded
 	@OneToMany(mappedBy="account")
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio")
 	private List<AccountOverdueBalance> accountOverdueBalances;
 	
 	@Transient
 	@Temporal(TemporalType.DATE)
-	@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true )
+	@Actions({
+		@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultSalePortfolio", value = "AccountLoan.GetOverdueBalanceSalePortfolioForConsult", alwaysEnabled=true )
+	})
 	private Date projectedAccountingDate;
 	
 	public AccountLoan() {
@@ -689,6 +725,16 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		}
 		return sequence;
 	}
+	
+	
+	public List<AccountSoldPaytable> getAccountSoldPaytables() {
+		return accountSoldPaytables;
+	}
+
+	public void setAccountSoldPaytables(List<AccountSoldPaytable> accountSoldPaytables) {
+		this.accountSoldPaytables = accountSoldPaytables;
+	}
+
 	@PrePersist
 	public void onCreate()
 	{

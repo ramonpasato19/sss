@@ -384,7 +384,7 @@ public class Account extends AuditEntity implements Serializable {
 	}
 	
 	public BigDecimal getTotalOverdueBalance() {
-		return AccountLoanHelper.getOverdueBalanceByLoanAccount(accountId);
+		return AccountLoanHelper.getOverdueBalanceByAccountLoan(accountId);
 	}
 
 	public void setTotalOverdueBalance(BigDecimal totalOverdueBalance) {

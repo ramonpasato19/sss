@@ -8,20 +8,20 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOverdueBalancePurchasePortfolio extends ReportBaseAction {
+public class PrintAccountLoanPayments extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
+		
+		String accountId = (String)getView().getValue("accountId");
+		if (accountId==null)
+			throw new OperativeException("account_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("ACCOUNT_ID", accountId);
 		addDefaultParameters(parameters);
 		
-		AccountLoanHelper.getAllOverdueBalancesByBroker(personId);
 		return parameters;
 	}
 

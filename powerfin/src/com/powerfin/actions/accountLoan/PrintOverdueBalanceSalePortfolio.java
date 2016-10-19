@@ -20,6 +20,8 @@ public class PrintOverdueBalanceSalePortfolio extends ReportBaseAction {
 		Map parameters = new HashMap();
 		parameters.put("BROKER_PERSON_ID", personId);
 		addDefaultParameters(parameters);
+		
+		AccountLoanHelper.getAllOverdueBalancesSalePortfolioByBroker(personId);
 		return parameters;
 	}
 
