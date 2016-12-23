@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountLoan.purchasePortfolio;
 
 import java.util.*;
 

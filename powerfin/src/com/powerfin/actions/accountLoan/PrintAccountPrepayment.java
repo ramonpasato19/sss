@@ -11,11 +11,10 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintAccountOverdueBalancePurchasePortfolio extends ReportBaseAction {
+public class PrintAccountPrepayment extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
-
 		
 		String accountId = (String)getView().getValue("accountId");
 		if (accountId==null)
@@ -36,7 +35,7 @@ public class PrintAccountOverdueBalancePurchasePortfolio extends ReportBaseActio
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", accountingDate);
 		
-		AccountLoanHelper.getOverdueBalances(a, accountingDate);
+		AccountLoanHelper.getOverdueBalances(a, accountingDate, true);
 		
 		return parameters;
 	}

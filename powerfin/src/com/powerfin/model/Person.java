@@ -47,7 +47,7 @@ public class Person extends AuditEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_id")
 	@SequenceGenerator(name = "sequence_id", sequenceName = "person_sequence", allocationSize = 1)
 	@Hidden
-	@ReadOnly(notForViews = "Reference, ShortReference")
+	@ReadOnly(notForViews = "Reference, ShortReference, LoanReference")
 	private Integer personId;
 
 	private String activity;

@@ -17,6 +17,7 @@ public class NegotiationProcessPerson {
 	private PersonType personType = null;
 	private IdentificationType identificationType = null;
 	private NegotiationFile negotiationFile = null;
+	private District district = null;
 	
 	String identification="";
 	String[] dataLine;
@@ -51,6 +52,7 @@ public class NegotiationProcessPerson {
 		                identification = personDTO.getIdentification();
 		                identificationType = XPersistence.getManager().find(IdentificationType.class, personDTO.getIdentificationType());
 		                personType = XPersistence.getManager().find(PersonType.class, personTypeId);
+		                district = getDistrictByCode(personDTO.getHomeDistrict());
 		                
 		                if(personTypeId.equals(NegotiationHelper.NATURAL_PERSON))
 		                	processByNaturalPersonType();
@@ -166,7 +168,7 @@ public class NegotiationProcessPerson {
 			naturalPerson.setHomeSideStreet(personDTO.getSideStreet());
 			naturalPerson.setHomeNumber(personDTO.getHomeNumber());
 			naturalPerson.setHomeSector(personDTO.getHomeSector());
-			naturalPerson.setHomeDistrict(XPersistence.getManager().find(District.class, Integer.parseInt(personDTO.getHomeDistrict())));
+			naturalPerson.setHomeDistrict(district);
 			naturalPerson.setPersonId(person.getPersonId());
 			naturalPerson.setIdentification(identification);
 			naturalPerson.setIdentificationType(identificationType);
@@ -197,6 +199,7 @@ public class NegotiationProcessPerson {
 			legalPerson.setIdentification(personDTO.getIdentification());
 			legalPerson.setIdentificationType(identificationType);
 			legalPerson.setPersonId(person.getPersonId());
+			legalPerson.setHomeDistrict(district);
 			
 			if(!bUpdate)
 				XPersistence.getManager().persist(legalPerson);
@@ -207,5 +210,19 @@ public class NegotiationProcessPerson {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private District getDistrictByCode(String code)
+	{
+		
+		List<District> distrcts = XPersistence.getManager().createQuery("SELECT o FROM District o "
+				+ "WHERE o.code = :code ")
+		.setParameter("code", code)
+		.getResultList();
+		if(distrcts!=null && distrcts.size()>0)
+			return distrcts.get(0);
+		else
+			return null;
 	}
 }

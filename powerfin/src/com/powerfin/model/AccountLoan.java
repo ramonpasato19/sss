@@ -20,71 +20,117 @@ import com.powerfin.model.superclass.*;
 @Table(name="account_loan")
 @Views({
 	@View( 
-			members="accountId, companyAccountingDate; accountStatus;"
-					+ "person{person;}"
-					+ "product{product;}"
-					+ "loanData{"
-					+ "issueDate;"
-					+ "amount;"
-					+ "interestRate;"
-					+ "frecuency, quotasNumber;"
-					+ "startDatePayment, paymentDay;"
-					+ "period;"
-					+ "}"
-					+ "disbursementAccount{disbursementAccount}"
-					+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
-					),
+		members="accountId, companyAccountingDate; accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{"
+				+ "issueDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				),
 	@View(name="RequestTXAccountLoan",
-			members="accountId, companyAccountingDate; accountStatus;"
-					+ "person{person;}"
-					+ "product{product;}"
-					+ "loanData{"
-					+ "issueDate;disbursementDate;"
-					+ "amount;"
-					+ "interestRate;"
-					+ "frecuency, quotasNumber;"
-					+ "startDatePayment, paymentDay;"
-					+ "period;"
-					+ "}"
-					+ "disbursementAccount{disbursementAccount}"
-					+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
-					+ "quotas{accountPaytables}"
-					),
+		members="accountId, companyAccountingDate; accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{"
+				+ "issueDate;disbursementDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				+ "quotas{accountPaytables}"
+				),
 	@View(name="AuthorizeTXAccountLoan",
-			members="data{issueDate;disbursementDate;"
-					+ "amount;"
-					+ "interestRate;"
-					+ "frecuency, quotasNumber;"
-					+ "startDatePayment, paymentDay;"
-					+ "period;"
-					+ "disbursementAccount}"
-					+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
-					+ "quotas{accountPaytables}"
-					),
+		members="data{issueDate;disbursementDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "disbursementAccount}"
+				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				+ "quotas{accountPaytables}"
+				),
+	@View(name="ConsultAccountLoan",
+		members="#accountId, accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{#"
+				+ "issueDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{#"
+					+ "mortgageInsurerName;"
+					+ "insurerName;"
+					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "}"
+				+ "paytable{accountPaytables}"
+				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
+				),
 	@View(name="ConsultPurchasePortfolio",
-			members="#accountId, accountStatus;"
-					+ "person{person;}"
-					+ "product{product;}"
-					+ "loanData{#"
-					+ "issueDate;"
-					+ "amount;"
-					+ "interestRate;"
-					+ "frecuency, quotasNumber;"
-					+ "startDatePayment, paymentDay;"
-					+ "period;"
-					+ "insuranceMortgageAmount, insuranceAmount"
-					+ "}"
-					+ "disbursementAccount{disbursementAccount}"
-					+ "thirdPerson{#"
-						+ "mortgageInsurerName;"
-						+ "insurerName;"
-						+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-						+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
-					+ "}"
-					+ "paytable{accountPaytables}"
-					+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
-					),
-		@View(name="ConsultSalePortfolio",
+		members="#accountId, accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{#"
+				+ "issueDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{#"
+					+ "mortgageInsurerName;"
+					+ "insurerName;"
+					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "}"
+				+ "paytable{accountPaytables}"
+				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
+				),
+	@View(name="ConsultOriginationPortfolio",
+		members="#accountId, accountStatus;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "loanData{#"
+				+ "issueDate;"
+				+ "amount;"
+				+ "interestRate;"
+				+ "frecuency, quotasNumber;"
+				+ "startDatePayment, paymentDay;"
+				+ "period;"
+				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "}"
+				+ "disbursementAccount{disbursementAccount}"
+				+ "thirdPerson{#"
+					+ "mortgageInsurerName;"
+					+ "insurerName;"
+					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "}"
+				+ "paytable{accountPaytables}"
+				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
+				),
+	@View(name="ConsultSalePortfolio",
 		members="#accountId, accountStatus;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -113,7 +159,9 @@ import com.powerfin.model.superclass.*;
 	@Tab(properties=""),
 	@Tab(name="TXAccountLoan", properties="account.accountId, account.person.name, account.code, account.accountStatus.name, account.product.name"),
 	@Tab(name="ConsultPurchasePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
-	@Tab(name="ConsultSalePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name")
+	@Tab(name="ConsultOriginationPortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
+	@Tab(name="ConsultSalePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
+	@Tab(name="ConsultAccountLoan", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name")
 })
 public class AccountLoan extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -126,60 +174,60 @@ public class AccountLoan extends AuditEntity implements Serializable {
 
 	@Column(precision=11, scale=2)
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal amount;
 
 	@Column(name="contract_number", length=30)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private String contractNumber;
 
 	@Column(name="daily_rate", precision=11, scale=7)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal dailyRate;
 
 	@Column(name="day_grace")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer dayGrace;
 
 	@Column(name="day_grace_collection_fee")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer dayGraceCollectionFee;
 	
 	@Column(name="default_interest_rate", precision=5, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal defaultInterestRate;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="disbursement_date")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Date disbursementDate;
 
 	@Column(name="fixed_quota", precision=11, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal fixedQuota;
 
 	@Column(name="interest_rate", precision=5, scale=2)
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal interestRate;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="issue_date")
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Date issueDate;
 
 	@Column(name="original_account", length=50)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private String originalAccount;
 
 	@Column(name="original_amount", precision=11, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal originalAmount;
 
 	@Column(name="payment_day")
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer paymentDay;
 
 	@ReadOnly
@@ -187,18 +235,18 @@ public class AccountLoan extends AuditEntity implements Serializable {
 
 	@Column(name="quotas_number")
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer quotasNumber;
 
 	@Column(name="insurance_quotas_number")
 	//@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer insuranceQuotasNumber;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="start_date_payment")
 	@Required
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Date startDatePayment;
 
 	//bi-directional one-to-one association to Account
@@ -207,11 +255,11 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	private Account account;
 
 	@Column(name="insurance_amount", precision=11, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal insuranceAmount;
 
 	@Column(name="insurance_mortgage_amount", precision=11, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal insuranceMortgageAmount;
 	
 	//bi-directional many-to-one association to Account
@@ -222,7 +270,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Required
 	@ReferenceView("simple")
 	@SearchAction(forViews="RequestTXAccountLoan", value="SearchGeneralAccount.SearchPayableAccount")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Account disbursementAccount;
 
 	//bi-directional many-to-one association to Account
@@ -232,7 +280,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@NoModify
 	//@Required
 	@ReferenceView("simple")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Account insuranceAccount;
 
 	//bi-directional many-to-one association to Account
@@ -242,7 +290,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@NoModify
 	//@Required
 	@ReferenceView("simple")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Account mortgageAccount;
 	
 	//bi-directional many-to-one association to Frecuency
@@ -252,7 +300,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@NoModify
 	@Required
 	@DescriptionsList(descriptionProperties="name")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Frecuency frecuency;
 
 	//bi-directional many-to-one association to Seller
@@ -263,7 +311,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	//@Required
 	@NoFrame
 	@ReferenceView("Reference")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Insurer mortgageInsurer;
 	
 	//bi-directional many-to-one association to Seller
@@ -274,7 +322,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	//@Required
 	@NoFrame
 	@ReferenceView("Reference")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Insurer vehicleInsurer;
 	
 	//////////////////////////////////////////////////////////
@@ -284,7 +332,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@NoCreate
 	@NoModify
 	@ReferenceView("LoanReference")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Person person;
 	
 	@Transient
@@ -292,7 +340,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private AccountStatus accountStatus;
 	
 	@Transient
@@ -300,7 +348,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Required
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	@ReferenceView("Reference")
 	@SearchActions({
 	@SearchAction(value="SearchProduct.SearchLoanProducts")
@@ -319,7 +367,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@OneToMany(mappedBy = "account")
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota, paymentDate, lastPaymentDate, lastPaymentDateCollection, lastPaymentDateDefaultInterest")
-	@ReadOnly(forViews="ConsultPurchasePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultAccountLoan")
 	private List<AccountPaytable> accountPaytables;
 	
 	//bi-directional many-to-one association to AccountPaytable
@@ -336,14 +384,16 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@OneToMany(mappedBy="account")
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
-	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private List<AccountOverdueBalance> accountOverdueBalances;
 	
 	@Transient
 	@Temporal(TemporalType.DATE)
 	@Actions({
-		@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true ),
-		@Action(forViews="ConsultSalePortfolio", value = "AccountLoan.GetOverdueBalanceSalePortfolioForConsult", alwaysEnabled=true )
+		@Action(forViews="ConsultAccountLoan", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalancePPForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultOriginationPortfolio", value = "AccountLoan.GetOverdueBalanceOPForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultSalePortfolio", value = "AccountLoan.GetOverdueBalanceSPForConsult", alwaysEnabled=true )
 	})
 	private Date projectedAccountingDate;
 	

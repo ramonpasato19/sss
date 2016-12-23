@@ -54,7 +54,8 @@ public class NegotiationHelper {
 				if(personDTO.getPaternalSurname()==null || personDTO.getPaternalSurname().isEmpty())
 					return XavaResources.getString("paternal_surname_is_required");
 
-				if(personDTO.getPersonType().equals(NATURAL_PERSON)){
+				if(personDTO.getPersonType().equals(NATURAL_PERSON))
+				{
 					if(personDTO.getGender()==null || personDTO.getGender().isEmpty())
 						return XavaResources.getString("gender_is_required");
 					else if(XPersistence.getManager().find(Gender.class, personDTO.getGender())==null)
@@ -76,8 +77,6 @@ public class NegotiationHelper {
 												
 				if(personDTO.getHomeDistrict()==null || personDTO.getHomeDistrict().isEmpty())
 					return XavaResources.getString("district_is_required");
-				else if(XPersistence.getManager().find(City.class, Integer.parseInt(personDTO.getHomeDistrict()))==null)
-					return XavaResources.getString("district_not_found", personDTO.getHomeDistrict());
 				
 				if(personDTO.getMainStreet()==null || personDTO.getMainStreet().isEmpty())
 					return XavaResources.getString("main_street_is_required");
@@ -344,5 +343,5 @@ public class NegotiationHelper {
 		.setParameter("negotiationId", negotiationFile.getNegotiation().getNegotiationId())
 		.executeUpdate();
 	}
-	
+
 }

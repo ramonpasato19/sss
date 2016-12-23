@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountLoan.salePortfolio;
 
 import java.util.*;
 
@@ -36,7 +36,7 @@ public class GenerateOverdueBalanceForConsult extends ViewBaseAction {
 		}
 
 		//Obtain list overdue balances
-		AccountLoanHelper.getOverdueBalances(account.getAccount(), accountingDate, false);
+		AccountLoanHelper.getOverdueBalancesSalePortfolio(account.getAccount(), accountingDate);
 			
 		getView().refreshCollections();
 		

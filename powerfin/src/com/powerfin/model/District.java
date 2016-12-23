@@ -19,7 +19,7 @@ public class District implements Serializable {
 	@Column(name="district_id", unique=true, nullable=false)
 	private Integer districtId;
 
-	@Column(length=7)
+	@Column(length=20)
 	private String code;
 
 	@Column(nullable=false, length=100)

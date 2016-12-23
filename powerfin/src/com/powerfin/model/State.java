@@ -19,7 +19,7 @@ public class State implements Serializable {
 	@Column(name="state_id", unique=true, nullable=false)
 	private Integer stateId;
 
-	@Column(length=4)
+	@Column(length=20)
 	private String code;
 
 	@Column(nullable=false, length=100)

@@ -71,12 +71,32 @@
 			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
 			hidden="true">
 		</action>
-		<action name="GetOverdueBalanceSalePortfolioForConsult" 
-			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceSalePortfolioForConsult"
+		<action name="GetOverdueBalancePP" 
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalance"
 			hidden="true">
 		</action>
-		<action name="GetOverdueBalanceSalePortfolio" 
-			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceSalePortfolio"
+		<action name="GetOverdueBalancePPValueDate" 
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalanceValueDate"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalancePPForConsult" 
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalanceForConsult"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceOP" 
+			class="com.powerfin.actions.accountLoan.originationPortfolio.GenerateOverdueBalance"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceOPForConsult" 
+			class="com.powerfin.actions.accountLoan.originationPortfolio.GenerateOverdueBalanceForConsult"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceSP" 
+			class="com.powerfin.actions.accountLoan.salePortfolio.GenerateOverdueBalance"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceSPForConsult" 
+			class="com.powerfin.actions.accountLoan.salePortfolio.GenerateOverdueBalanceForConsult"
 			hidden="true">
 		</action>
 	</controller>
@@ -398,58 +418,158 @@
 		</action>
 	</controller>
 	
-	<controller name="PurchasePortfolioReportController">
-		<action name="printPaymentDividendPurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintPaymentDividendPurchasePortfolio" icon="file-pdf" image="save.gif" >
+	<controller name="LoanPortfolioReportController">
+		<action name="printReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintReceipts" icon="file-pdf" image="save.gif" >
 		</action>
 		<!-- 
 		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
 		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
 		 -->
-		<action name="printOverdueBalancePurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOverdueBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printOverdueBalanceConsolidatePurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceConsolidatePurchasePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalancesConsolidate" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printOvercomeBalancePurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOvercomeBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOvercomeBalances" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printTotalBalancePurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalancePurchasePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
 	</controller>
 	
-	<controller name="SalePortfolioReportController">
-		<action name="printPaymentDividendSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintPaymentDividendSalePortfolio" icon="file-pdf" image="save.gif">
+	<controller name="OriginationPortfolioReportControllerPDF" icon="file-pdf" >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
-		
-		<action name="printOverdueBalanceSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalancesConsolidate" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printOverdueBalanceConsolidateSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOverdueBalanceConsolidateSalePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOvercomeBalances" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printOvercomeBalanceSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintOvercomeBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printTotalBalanceSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+	</controller>
+	
+	<controller name="OriginationPortfolioReportControllerEXCEL" icon="file-pdf" >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
 		</action>
-		<action name="printBalancingPortfolioDividens" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintBalancingPortfolioDividends" icon="file-pdf" image="save.gif">
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalancesConsolidate" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOvercomeBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+	</controller>
+	
+	<controller name="OriginationPortfolioReportController">
+		<action name="printReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintReceipts" icon="file-pdf" image="save.gif" >
 		</action>
 		<!-- 
 		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
 		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalanceSalePortfolio" icon="file-pdf" image="save.gif">
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+		 -->
+		<subcontroller controller="OriginationPortfolioReportControllerPDF"/>
+		<subcontroller controller="OriginationPortfolioReportControllerEXCEL"/>
+	</controller>
+	
+	<controller name="PurchasePortfolioReportControllerPDF" icon="file-pdf" >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalancesConsolidate" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOvercomeBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+	</controller>
+	
+	<controller name="PurchasePortfolioReportControllerEXCEL" icon="file-excel" >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalancesConsolidate" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOvercomeBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+	</controller>
+	
+	<controller name="PurchasePortfolioReportController">
+		<action name="printReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceipts" icon="file-pdf" image="save.gif" >
+		</action>
+		<!-- 
+		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPrepaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+		 -->
+		<subcontroller controller="PurchasePortfolioReportControllerPDF"/>
+		<subcontroller controller="PurchasePortfolioReportControllerEXCEL"/>
+	</controller>
+	
+	<controller name="SalePortfolioReportController">
+		<action name="printPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintPayments" icon="file-pdf" image="save.gif">
+		</action>
+		
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalancesConsolidate" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOvercomeBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printBalancingPortfolioDividens" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintBalancingPortfolioDividends" icon="file-pdf" image="save.gif">
+		</action>
+		<!-- 
+		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printPrepaymentsSalePortfolio" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
 		 -->
 	</controller>
@@ -1584,26 +1704,55 @@
 		</action>
 	</controller>
 	
+	<controller name="ConsultAccountLoanController">
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountOverdueBalance" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountOverdueBalance"  icon="file-pdf">
+		</action>
+		<action name="printAccountReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountReceipts"  icon="file-pdf">
+		</action>
+		<action name="printAccountPrepayment" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountPrepayment"  icon="file-pdf">
+		</action>
+	</controller>
+	
+	<controller name="ConsultOriginationPortfolioController">
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountOverdueBalance" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintAccountOverdueBalance"  icon="file-pdf">
+		</action>
+		<action name="printAccountReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintAccountReceipts"  icon="file-pdf">
+		</action>
+		<action name="printAccountPrepayment" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintAccountPrepayment"  icon="file-pdf">
+		</action>
+	</controller>
+	
 	<controller name="ConsultPurchasePortfolioController">
 		<extends controller="RefreshTXController"/>
 		<action name="printAccountOverdueBalance" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintAccountOverdueBalancePurchasePortfolio"  icon="file-pdf">
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintAccountOverdueBalance"  icon="file-pdf">
 		</action>
-		<action name="printAccountLoanReceipts" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintAccountLoanReceipts"  icon="file-pdf">
+		<action name="printAccountReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintAccountReceipts"  icon="file-pdf">
 		</action>
-		<action name="printPrepaymentPurchasePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintPrepaymentPurchasePortfolio"  icon="file-pdf">
+		<action name="printAccountPrepayment" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintAccountPrepayment"  icon="file-pdf">
 		</action>
 	</controller>
 	
 	<controller name="ConsultSalePortfolioController">
 		<extends controller="RefreshTXController"/>
 		<action name="printAccountOverdueBalance" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintAccountOverdueBalanceSalePortfolio"  icon="file-pdf">
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintAccountOverdueBalance"  icon="file-pdf">
 		</action>
-		<action name="printAccountLoanPayments" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintAccountLoanPayments"  icon="file-pdf">
+		<action name="printAccountPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintAccountPayments"  icon="file-pdf">
+		</action>
+		<action name="printAccountPrepayment" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintAccountPrepayment"  icon="file-pdf">
 		</action>
 	</controller>
 	
@@ -1759,6 +1908,32 @@
 		</action>
 	</controller>
 <!-- END TXPurchasePortfolioPayment ######################################## -->
+
+<!-- BEGIN TXPurchasePortfolioPaymentValueDate ######################################## -->
+	<controller name="AuthorizeTXPurchasePortfolioPaymentValueDateController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPaymentValueDateSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXPurchasePortfolioPaymentValueDateController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPaymentValueDateSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXPurchasePortfolioPaymentValueDate ######################################## -->
 
 <!-- BEGIN TXSalePortfolioPayment ######################################## -->
 	<controller name="AuthorizeTXSalePortfolioPaymentController">

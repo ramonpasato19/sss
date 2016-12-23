@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountLoan.purchasePortfolio;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOverdueBalanceSalePortfolio extends ReportBaseAction {
+public class PrintTotalBalances extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
@@ -20,8 +20,6 @@ public class PrintOverdueBalanceSalePortfolio extends ReportBaseAction {
 		Map parameters = new HashMap();
 		parameters.put("BROKER_PERSON_ID", personId);
 		addDefaultParameters(parameters);
-		
-		AccountLoanHelper.getAllOverdueBalancesSalePortfolioByBroker(personId);
 		return parameters;
 	}
 

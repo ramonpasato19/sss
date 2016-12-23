@@ -67,6 +67,12 @@ import com.powerfin.util.*;
 					+ "interestRate,"
 					+ "totalOverdueBalance;"
 					+ "overdueBalances{accountOverdueBalances}"),
+	@View(name="PurchasePortfolioPaymentValueDate",
+			members="#accountId;"
+					+ "name;"
+					+ "interestRate,"
+					+ "totalOverdueBalance;"
+					+ "overdueBalances{accountOverdueBalances}"),
 	@View(name="SalePortfolioPayment",
 			members="#accountId;"
 					+ "name;"

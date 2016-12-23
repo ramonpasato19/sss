@@ -67,7 +67,11 @@ public class LegalPerson extends AuditEntity implements Serializable {
 	@JoinColumn(name="person_id", nullable=false, insertable=false, updatable=false)
 	private Person person;
 
-
+	//bi-directional many-to-one association to District
+	@ManyToOne
+	@JoinColumn(name="home_district_id")
+	private District homeDistrict;
+	
 	@Transient
 	@DisplaySize(20)
 	@Required
@@ -189,4 +193,14 @@ public class LegalPerson extends AuditEntity implements Serializable {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+
+	public District getHomeDistrict() {
+		return homeDistrict;
+	}
+
+	public void setHomeDistrict(District homeDistrict) {
+		this.homeDistrict = homeDistrict;
+	}
+	
+	
 }

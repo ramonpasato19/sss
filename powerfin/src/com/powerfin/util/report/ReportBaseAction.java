@@ -33,7 +33,11 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 			application.getRealPath("/WEB-INF/classes/")
 		);
 		
-		Report report = ReportHelper.findReportByName(getReportName());
+		String reportName = getReportName();
+		if (!getFormat().equals(JasperReportBaseAction.PDF))
+			reportName = reportName+"_"+getFormat().toUpperCase();
+		
+		Report report = ReportHelper.findReportByName(reportName);
 		setFormat(report.getFormat().toLowerCase());
 		JasperReport jReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
 		Map parameters = getParameters(); // getParameters() before getDatasource()

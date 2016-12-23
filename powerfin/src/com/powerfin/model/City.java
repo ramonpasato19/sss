@@ -19,7 +19,7 @@ public class City implements Serializable {
 	@Column(name="city_id", unique=true, nullable=false)
 	private Integer cityId;
 
-	@Column(length=4)
+	@Column(length=20)
 	private String code;
 
 	@Column(nullable=false, length=100)

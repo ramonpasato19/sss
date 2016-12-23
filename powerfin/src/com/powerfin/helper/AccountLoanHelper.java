@@ -44,7 +44,7 @@ public class AccountLoanHelper {
 		if (accounts!=null && !accounts.isEmpty())
 		{
 			for(Account a:accounts)
-				getOverdueBalances(a, accountingDate);
+				getOverdueBalances(a, accountingDate, false);
 		}
 	}
 	
@@ -77,15 +77,19 @@ public class AccountLoanHelper {
 	}
 	
 	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
-		return getOverdueBalances(account, CompanyHelper.getCurrentAccountingDate());
+		return getOverdueBalances(account, null, false);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate) {
+	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate, boolean forPrepayment) {
 		String schema = CompanyHelper.getSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate == null)
+			projectedAccountingDate = accountingDate;
+		
 		String query = "select * from ( "
+				//overdue quotas in balance
 				+ "select subaccount, "
 				+ "due_date, "
 				+ "sum(capital) capital, "
@@ -101,12 +105,12 @@ public class AccountLoanHelper {
 				+ "last_payment_date_default_int "
 				+ "from ( "
 				+ "select b.subaccount, ap.due_date, "
-				+ "(case when b.category_id = 'CAPITAL' then COALESCE(b.balance,0) else 0 end) capital, "
-				+ "(case when b.category_id = 'INTERESTPR' then COALESCE(b.balance,0) else 0 end) interest, "
-				+ "(case when b.category_id = 'INSURANRE' then COALESCE(b.balance,0) else 0 end) insurance, "
-				+ "(case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end) insurance_mortgage, "
-				+ "(case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end) receivable_fee, "
-				+ "(case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end) legal_fee, "
+				+ "COALESCE((case when b.category_id = 'CAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
+				+ "COALESCE((case when b.category_id = 'INTERESTPR' then COALESCE(b.balance,0) else 0 end),0) interest, "
+				+ "COALESCE((case when b.category_id = 'INSURANRE' then COALESCE(b.balance,0) else 0 end),0) insurance, "
+				+ "COALESCE((case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end),0) insurance_mortgage, "
+				+ "COALESCE((case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end),0) receivable_fee, "
+				+ "COALESCE((case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end),0) legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
 				+ "ap.last_payment_date, "
@@ -121,22 +125,52 @@ public class AccountLoanHelper {
 				+ "and ap.due_date <= :accountingDate "
 				+ "and ap.payment_date is null "
 				+ ") x group by subaccount, due_date, days_overdue, "
-				+ " real_days_overdue, last_payment_date,last_payment_date_collection,last_payment_date_default_int  "
-				+ "union all "
-				+ "select ap.subaccount, ap.due_date, ap.capital, ap.interest, ap.insurance, ap.insurance_mortgage, "
+				+ " real_days_overdue, last_payment_date,last_payment_date_collection,last_payment_date_default_int ";
+		
+		
+		if (projectedAccountingDate.after(accountingDate))
+		{
+				//overdue quota on projected date
+			query +="union all "
+				+"select ap.subaccount, ap.due_date, ap.capital, ap.interest, "
+				+ "ap.insurance, ap.insurance_mortgage, "
 				+ "0 receivable_fee, 0 legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
-				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
 				+ "null last_payment_date, "
 				+ "null last_payment_date_collection, "
 				+ "null last_payment_date_default_int "
 				+ "from "+schema+".account_paytable ap "
 				+ "where ap.account_id = :accountId "
 				+ "and ap.due_date > :accountingDate "
-				+ "and ap.due_date <= :projectedAccountingDate "
-				+ ") z "
-				+ "order by subaccount";
+				+ "and ap.due_date <= :projectedAccountingDate ";
+			
+		}
+		if (forPrepayment)
+		{
+			query +=  "union all "
+				+ "select ap.subaccount, ap.due_date, capital, "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "else "
+				+ "0 "
+				+ "end) interest, "
+				+ "ap.insurance, ap.insurance_mortgage, "
+				+ "0 receivable_fee, 0 legal_fee, "
+				+ "0 days_overdue, "
+				+ "0 real_days_overdue, "
+				+ "null last_payment_date, "
+				+ "null last_payment_date_collection, "
+				+ "null last_payment_date_default_int "
+				+ "from "+schema+".account_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :projectedAccountingDate ";
+				//+ "and (ap.due_date-ap.provision_days) <= :projectedAccountingDate "
+		}
 
+		query+= ") z "
+				+ "order by subaccount ";
+		
 		List<Object[]> balances = XPersistence.getManager()
 				.createNativeQuery(query)
 				.setParameter("accountId", account.getAccountId())
@@ -186,10 +220,8 @@ public class AccountLoanHelper {
 		.executeUpdate();
 		
 		for (AccountOverdueBalance overdueBalance:overdueBalances)
-		{
 			XPersistence.getManager().persist(overdueBalance);
-		}
-		
+		XPersistence.commit();
 		return overdueBalances;
 	}
 	
@@ -211,8 +243,8 @@ public class AccountLoanHelper {
 				+ "last_payment_date "
 				+ "from ( "
 				+ "select b.subaccount, ap.due_date, "
-				+ "(case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end) capital, "
-				+ "(case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end) interest, "
+				+ "COALESCE((case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
+				+ "COALESCE((case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end),0) interest, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "ap.last_payment_date "
 				+ "from "+schema+".balance b, "+schema+".account_sold_paytable ap "
@@ -233,6 +265,20 @@ public class AccountLoanHelper {
 				+ "where ap.account_id = :accountId "
 				+ "and ap.due_date > :accountingDate "
 				+ "and ap.due_date <= :projectedAccountingDate "
+				
+				+ "union all "
+				+ "select ap.subaccount, ap.due_date, 0 capital, "
+				+ "(case when ap.due_date<=:projectedAccountingDate then ap.interest "
+				+ "else "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "end) interest, "
+				+ "0 days_overdue, "
+				+ "null last_payment_date "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :projectedAccountingDate "
+				+ "and (ap.due_date-ap.provision_days) <= :projectedAccountingDate "
+				
 				+ ") z "
 				+ "order by z.subaccount";
 		System.out.println(query);
@@ -507,7 +553,15 @@ public class AccountLoanHelper {
 			AccountLoan accountLoan, Account debitAccount, 
 			BigDecimal transactionValue) throws Exception
 	{
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(accountLoan.getAccount());
+		return getTransactionAccountsForPymentPurchasePortfolio(transaction, accountLoan, debitAccount, transactionValue, null);
+	}
+	
+	public static List<TransactionAccount> getTransactionAccountsForPymentPurchasePortfolio(Transaction transaction, 
+			AccountLoan accountLoan, Account debitAccount, 
+			BigDecimal transactionValue,
+			Date valueDate ) throws Exception
+	{
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(accountLoan.getAccount(),valueDate,false);
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		TransactionAccount ta = null;
 		BigDecimal valueToApply = BigDecimal.ZERO;
@@ -718,6 +772,102 @@ public class AccountLoanHelper {
 			
 		}
 		return transactionAccounts;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void commonPostPurchasePortfolioPaymentSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			System.out.println("POST SAVE ACTION**********************");
+			List<AccountPaytable> accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuotaAndCategory(accountPaytable.getAccountId(), accountPaytable.getSubaccount(), CategoryHelper.CAPITAL_CATEGORY);			
+				
+				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
+				{
+					accountPaytable.setPaymentDate(transaction.getAccountingDate());
+					System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" to cancel");
+				}
+				accountPaytable.setLastPaymentDate(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment = "+transaction.getAccountingDate());
+			}
+			
+			accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.category.categoryId = :categoryId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("categoryId", CategoryHelper.COLLECTION_FEE_IN_CATEGORY)
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				accountPaytable.setLastPaymentDateCollection(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment collection = "+transaction.getAccountingDate());
+			}
+			
+			accountPaytables = XPersistence.getManager()
+					.createQuery("SELECT ap FROM AccountPaytable ap "
+							+ "WHERE ap.accountId = :accountId "
+							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
+							+ "FROM TransactionAccount o "
+							+ "WHERE o.transaction.transactionId = :transactionId "
+							+ "AND o.account.accountId = :accountId "
+							+ "AND o.category.categoryId = :categoryId "
+							+ "AND o.debitOrCredit = :debitOrCredit) "
+							+ "ORDER BY ap.subaccount")
+					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+					.setParameter("transactionId", transaction.getTransactionId())
+					.setParameter("categoryId", CategoryHelper.DEFAULT_INTEREST_IN_CATEGORY)
+					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
+					.getResultList();
+			
+			for (AccountPaytable accountPaytable: accountPaytables)
+			{
+				accountPaytable.setLastPaymentDateDefaultInterest(transaction.getAccountingDate());
+				XPersistence.getManager().merge(accountPaytable);
+				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment default interest = "+transaction.getAccountingDate());
+			}
+			/*
+			if (AccountLoanHelper.getBalanceByaccountLoan(transaction.getCreditAccount().getAccountId()).compareTo(BigDecimal.ZERO)<=0)
+			{
+				Account persistAccount = XPersistence.getManager().find(Account.class, transaction.getCreditAccount().getAccountId());
+				persistAccount.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountLoanHelper.STATUS_LOAN_CANCEL));
+				persistAccount.setCancellationDate(currentDate);
+				AccountHelper.updateAccount(persistAccount);
+			}
+			*/
+			
+			XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
+					+ "WHERE o.accountId=:accountId ")
+			.setParameter("accountId", transaction.getCreditAccount().getAccountId())
+			.executeUpdate();			
+		}
 	}
 	
 	@SuppressWarnings("unchecked")

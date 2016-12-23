@@ -5,7 +5,6 @@ import java.util.*;
 import javax.persistence.*;
 
 import org.openxava.annotations.*;
-import org.openxava.jpa.*;
 
 import com.powerfin.helper.*;
 

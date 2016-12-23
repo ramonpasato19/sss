@@ -105,17 +105,46 @@ public class NegotiationDisbursementLoan {
 	        			{
 	        				try
 		                	{
-		        				//capital
+		        				
 		        				for (AccountPaytable quota: quotas)
 		        				{
-		        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
-		        					ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-		        					transactionAccounts.add(ta);
+		        					//capital
+		        					if (quota.getCapital()!=null && quota.getCapital().compareTo(BigDecimal.ZERO)>0)
+		        					{
+			        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
+			        					ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+			        					
+			        					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(loan.getDisbursementAccount(), quota.getCapital(), transaction);
+			        					ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+			        					totalCapital = totalCapital.add(quota.getCapital());
+		        					}
 		        					
-		        					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(loan.getDisbursementAccount(), quota.getCapital(), transaction);
-		        					ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-		        					transactionAccounts.add(ta);
-		        					totalCapital = totalCapital.add(quota.getCapital());
+		        					//insurance
+		        					if (quota.getInsurance()!=null && quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
+		        					{
+			        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
+			        					ta.setRemark(XavaResources.getString("insurance_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+			        					
+			        					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_PAYABLE_CATEGORY), quota.getDueDate());
+			        					ta.setRemark(XavaResources.getString("insurance_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+		        					}
+		        					
+		        					//insurance_mortgage
+		        					if (quota.getInsuranceMortgage()!=null && quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
+		        					{
+			        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
+			        					ta.setRemark(XavaResources.getString("insurance_mortgage_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+			        					
+			        					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_PAYABLE_CATEGORY), quota.getDueDate());
+			        					ta.setRemark(XavaResources.getString("insurance_mortgage_quota_number", quota.getSubaccount()));
+			        					transactionAccounts.add(ta);
+		        					}
+		        					
 		        				}
 		        				
 		        				//spread_purchase

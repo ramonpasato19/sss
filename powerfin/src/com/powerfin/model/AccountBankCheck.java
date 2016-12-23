@@ -20,7 +20,7 @@ public class AccountBankCheck extends AuditEntity implements Serializable {
 	@EmbeddedId
 	private AccountBankCheckPK id;
 
-	@Column(length=100)
+	@Column(length=4000)
 	private String detail;
 
 	@Column(name="status_check", nullable=false, length=3)

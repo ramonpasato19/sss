@@ -16,6 +16,7 @@ import org.openxava.util.*;
 
 import com.powerfin.actions.transaction.*;
 import com.powerfin.helper.*;
+import com.powerfin.model.types.*;
 
 /**
  * The persistent class for the transaction database table.
@@ -318,6 +319,16 @@ import com.powerfin.helper.*;
 				+ "debitAccount[debitAccount];" 
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
 		
+		//PurchasePortfolio Payment Value Date
+		@View(name = "RequestTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate, projectedAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+		@View(name = "AuthorizeTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+		
 		//Sale Portfolio Payment
 		@View(name = "RequestTXSalePortfolioPayment", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "loanAccount[debitAccount];"
@@ -341,7 +352,7 @@ import com.powerfin.helper.*;
 })
 @Tabs({
 		@Tab(properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, value, transactionStatus.name, requestDate, authorizationDate, accountingDate"),
-		@Tab(name = "TransactionList", properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, value, transactionStatus.name, requestDate, authorizationDate, accountingDate"),
+		@Tab(name = "TransactionList", properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, transactionModule.name, realValue, transactionStatus.name, accountingDate, debitAccount.accountId, creditAccount.accountId"),
 		@Tab(name = "TXGeneral", properties = "voucher, currency.currencyId, remark, transactionModule.name, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001'"),
 		@Tab(name = "TXOpening", properties = "creditAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'OPENING'"),
 		@Tab(name = "TXTransferSent", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERSENT'"),
@@ -877,7 +888,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			)
-	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSalePortfolio", alwaysEnabled=true )
+	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
 	private Account debitAccount;
 
 	@ManyToOne
@@ -947,7 +958,10 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPurchasePortfolioForPayment"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchAccountSaleNegotiation"),
 	})
-	@Action(forViews="RequestTXPurchasePortfolioPayment", value = "AccountLoan.GetOverdueBalance", alwaysEnabled=true )
+	@Actions({
+		@Action(forViews="RequestTXPurchasePortfolioPayment", value = "AccountLoan.GetOverdueBalancePP", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPaymentValueDate", value = "AccountLoan.GetOverdueBalancePPValueDate", alwaysEnabled=true ),
+	})
 	private Account creditAccount;
 
 	@Version
@@ -979,6 +993,11 @@ public class Transaction implements Serializable {
 	@DefaultValueCalculator(com.powerfin.calculators.CurrentAccountingDateCalculator.class)
 	@ReadOnly
 	private Date companyAccountingDate;
+	
+	@Transient
+	@Temporal(TemporalType.DATE)
+	@ReadOnly
+	private Date projectedAccountingDate;
 	
 	@Transient
 	@ManyToOne
@@ -1239,6 +1258,14 @@ public class Transaction implements Serializable {
 		this.secondaryCategory = secondaryCategory;
 	}
 
+	public Date getProjectedAccountingDate() {
+		return projectedAccountingDate;
+	}
+
+	public void setProjectedAccountingDate(Date projectedAccountingDate) {
+		this.projectedAccountingDate = projectedAccountingDate;
+	}
+
 	@PreCreate
 	public void onCreate() throws Exception {
 		accountingDate = CompanyHelper.getCurrentAccountingDate();
@@ -1280,5 +1307,15 @@ public class Transaction implements Serializable {
 			authorizationDate = new Date();
 			userAuthorizing = Users.getCurrent();
 		}
+	}
+	
+	public BigDecimal getRealValue()
+	{
+		BigDecimal realValue = BigDecimal.ZERO;
+		for (TransactionAccount ta : transactionAccounts)
+			if (ta.getDebitOrCredit().equals(Types.DebitOrCredit.CREDIT))
+				realValue = realValue.add(ta.getValue());
+		
+		return realValue;
 	}
 }

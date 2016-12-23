@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountLoan.originationPortfolio;
 
 import java.math.*;
 import java.util.*;
@@ -10,18 +10,18 @@ import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
-public class GenerateOverdueBalanceSalePortfolio extends ViewBaseAction {
+public class GenerateOverdueBalance extends ViewBaseAction {
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void execute() throws Exception {
 		Map keyValues = null;
 		Account account = null;
-		keyValues = getView().getRoot().getSubview("debitAccount").getKeyValuesWithValue();
+		keyValues = getView().getRoot().getSubview("creditAccount").getKeyValuesWithValue();
 		try
 		{
 			account = (Account)
-					MapFacade.findEntity(getView().getRoot().getSubview("debitAccount").getModelName(), keyValues);
+					MapFacade.findEntity(getView().getRoot().getSubview("creditAccount").getModelName(), keyValues);
 		}catch (javax.ejb.ObjectNotFoundException ex)
 		{
 			throw new OperativeException("account_is_required");
@@ -30,16 +30,17 @@ public class GenerateOverdueBalanceSalePortfolio extends ViewBaseAction {
 		BigDecimal totalOverdueBalance = BigDecimal.ZERO;
 		
 		//Obtain list overdue balances
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalancesSalePortfolio(account);
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(account);
 		
 		for (AccountOverdueBalance overdueBalance:overdueBalances)
 			totalOverdueBalance=totalOverdueBalance.add(overdueBalance.getTotal());
 		
-		getView().getRoot().getSubview("debitAccount").setValue("totalOverdueBalance", totalOverdueBalance);
+		getView().getRoot().getSubview("creditAccount").setValue("totalOverdueBalance", totalOverdueBalance);
 		getView().getRoot().setValue("value", totalOverdueBalance);
 		
 		getView().refreshCollections();
-		getView().getRoot().getSubview("debitAccount").setHidden("accountOverdueBalances", false);
+		getView().getRoot().getSubview("creditAccount").setHidden("accountOverdueBalances", false);
+		addMessage("overdue_balances_generated");	
 	}
 
 }
