@@ -22,7 +22,8 @@ public class PrintOverdueBalancesConsolidate extends ReportBaseAction {
 		parameters.put("BROKER_PERSON_ID", personId);
 		addDefaultParameters(parameters);
 		
-		AccountLoanHelper.getAllOverdueBalancesByBroker(personId);
+		AccountLoanHelper.getAllOverdueBalancesSalePortfolioByBroker(personId);
+		
 		return parameters;
 	}
 

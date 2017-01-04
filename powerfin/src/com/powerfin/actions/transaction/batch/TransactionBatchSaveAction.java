@@ -155,11 +155,11 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		XPersistence.getManager().persist(transaction);
 
 		List<TransactionAccount> transactionAccounts = AccountLoanHelper
-				.getTransactionAccountsForPymentPurchasePortfolio(transaction, accountLoan, brokerAccount,
+				.getTransactionAccountsForAccountLoanPayment(transaction, accountLoan, brokerAccount,
 						transactionValue);
 
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
-		AccountLoanHelper.postPurchasePortfolioPaymentSaveAction(transaction);
+		AccountLoanHelper.postAccountLoanPaymentSaveAction(transaction);
 	}
 	
 	private void processSalePortfolioPayment(TransactionBatch transactionBatch, TransactionBatchDetail detail)

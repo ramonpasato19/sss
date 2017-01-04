@@ -9,7 +9,8 @@ import org.openxava.annotations.*;
 
 @View(members="broker;"
 		+ "fromDate;"
-		+ "toDate;")
+		+ "toDate;"
+		+ "projectedAccountingDate")
 public class ViewOriginationPortfolioReport {
 
 	@Column
@@ -17,6 +18,9 @@ public class ViewOriginationPortfolioReport {
 	
 	@Column
 	private Date toDate;
+	
+	@Column
+	private Date projectedAccountingDate;
 	
 	@ManyToOne
 	@NoCreate
@@ -93,6 +97,14 @@ public class ViewOriginationPortfolioReport {
 
 	public void setFinalBalance(BigDecimal finalBalance) {
 		this.finalBalance = finalBalance;
+	}
+
+	public Date getProjectedAccountingDate() {
+		return projectedAccountingDate;
+	}
+
+	public void setProjectedAccountingDate(Date projectedAccountingDate) {
+		this.projectedAccountingDate = projectedAccountingDate;
 	}
 
 }

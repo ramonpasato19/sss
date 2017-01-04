@@ -18,7 +18,7 @@ public class TXPurchasePortfolioPaymentValueDateSaveAction extends TXSaveAction 
 		BigDecimal transactionValue = getValue();
 			
 		List<TransactionAccount> transactionAccounts = AccountLoanHelper
-				.getTransactionAccountsForPymentPurchasePortfolio(transaction, accountLoan, debitAccount, transactionValue);
+				.getTransactionAccountsForAccountLoanPayment(transaction, accountLoan, debitAccount, transactionValue);
 				
 		return transactionAccounts;
 
@@ -53,6 +53,6 @@ public class TXPurchasePortfolioPaymentValueDateSaveAction extends TXSaveAction 
 	
 	public void postSaveAction(Transaction transaction) throws Exception
 	{
-		AccountLoanHelper.postPurchasePortfolioPaymentSaveAction(transaction);
+		AccountLoanHelper.postAccountLoanPaymentSaveAction(transaction);
 	}
 }

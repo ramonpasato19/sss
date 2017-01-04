@@ -320,11 +320,11 @@ import com.powerfin.model.types.*;
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
 		
 		//PurchasePortfolio Payment Value Date
-		@View(name = "RequestTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate, projectedAccountingDate;"
+		@View(name = "RequestTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; valueDate; accountingDate, companyAccountingDate;"
 				+ "loanAccount[creditAccount];"
 				+ "debitAccount[debitAccount];" 
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
-		@View(name = "AuthorizeTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
+		@View(name = "AuthorizeTXPurchasePortfolioPaymentValueDate", members = "#currency; transactionModule, voucher; valueDate; accountingDate, companyAccountingDate;"
 				+ "loanAccount[creditAccount];"
 				+ "debitAccount[debitAccount];" 
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
@@ -385,6 +385,7 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXPurchasePortfolio", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIO'"),
 		@Tab(name = "TXSalePortfolio", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEPORTFOLIO'"),
 		@Tab(name = "TXPurchasePortfolioPayment", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
+		@Tab(name = "TXPurchasePortfolioPaymentValueDate", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
 		@Tab(name = "TXSalePortfolioPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
 		@Tab(name = "TXLoanPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANPAYMENT'"),
 		
@@ -445,6 +446,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			)
@@ -489,6 +491,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			)
@@ -539,6 +542,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			)
@@ -592,6 +596,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			)
@@ -641,6 +646,7 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXPurchaseForexBank,"
 					+ "AuthorizeTXSaleForexBank,"
 					+ "AuthorizeTXPurchasePortfolioPayment,"
+					+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 					+ "AuthorizeTXSalePortfolioPayment,"
 					+ "AuthorizeTXLoanPayment,"
 					)
@@ -677,6 +683,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			)
@@ -706,6 +713,7 @@ public class Transaction implements Serializable {
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchaseForexBank", condition = "${transactionModuleId} = 'PURCHASEFOREXBANK'"),
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSaleForexBank", condition = "${transactionModuleId} = 'SALEFOREXBANK'"),
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPayment", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPaymentValueDate", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSalePortfolioPayment", condition = "${transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
 		
 	})
@@ -745,6 +753,7 @@ public class Transaction implements Serializable {
 							+ "RequestTXPurchaseForexBank,"
 							+ "RequestTXSaleForexBank,"
 							+ "RequestTXPurchasePortfolioPayment,"
+							+ "RequestTXPurchasePortfolioPaymentValueDate,"
 							+ "RequestTXSalePortfolioPayment,"
 							),
 			@DescriptionsList(descriptionProperties = "name", condition = "${transactionStatusId} IN ('001','002','003')", 
@@ -779,6 +788,7 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXPurchaseForexBank,"
 							+ "AuthorizeTXSaleForexBank,"
 							+ "AuthorizeTXPurchasePortfolioPayment,"
+							+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 							+ "AuthorizeTXSalePortfolioPayment,"
 							+ "AuthorizeTXLoanPayment,"
 							) 
@@ -821,12 +831,14 @@ public class Transaction implements Serializable {
 				+ "RequestTXInvoiceSalePayment, "
 				+ "RequestTXInvoicePurchasePayment, "
 				+ "RequestTXInvoicePurchaseCheckPayment, "
+				+ "RequestTXPurchasePortfolioPayment, "
+				+ "RequestTXPurchasePortfolioPaymentValueDate, "
 				+ "AuthorizeTXTransferDue, "
 				+ "AuthorizeTXInvoiceSalePayment, "
 				+ "AuthorizeTXInvoicePurchaseCheckPayment, "
 				+ "AuthorizeTXInvoicePurchasePayment, "
-				+ "RequestTXPurchasePortfolioPayment, "
-				+ "AuthorizeTXPurchasePortfolioPayment, ",
+				+ "AuthorizeTXPurchasePortfolioPayment, "
+				+ "AuthorizeTXPurchasePortfolioPaymentValueDate,",
 				value="simpleBalance"),
 		@ReferenceView(forViews="RequestTXSalePortfolioPayment, AuthorizeTXSalePortfolioPayment", value="SalePortfolioPayment")
 	})
@@ -854,6 +866,7 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXPurchaseForexBank", value="SearchAccount.SearchOfficialBankAccount"),
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchBankAccount"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPayableAccount"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPayableAccount"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchSalePortfolioForPayment"),
 		
 	})
@@ -886,6 +899,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			)
 	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
@@ -899,7 +913,8 @@ public class Transaction implements Serializable {
 	@ReferenceViews({
 		@ReferenceView("simple"),
 		@ReferenceView(forViews="RequestTXInvoiceSalePayment, AuthorizeTXInvoiceSalePayment",value="simpleBalance"),
-		@ReferenceView(forViews="RequestTXPurchasePortfolioPayment, AuthorizeTXPurchasePortfolioPayment", value="PurchasePortfolioPayment")
+		@ReferenceView(forViews="RequestTXPurchasePortfolioPayment, RequestTXPurchasePortfolioPaymentValueDate, "
+				+ "AuthorizeTXPurchasePortfolioPayment, AuthorizeTXPurchasePortfolioPaymentValueDate", value="PurchasePortfolioPayment")
 	})
 	@NoFrame
 	@ReadOnly(forViews = "AuthorizeTXOpening, "
@@ -931,6 +946,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchaseForexBank,"
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
+			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			)
 	@SearchActions({ 
@@ -956,6 +972,7 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXPurchaseForexBank", value="SearchAccount.SearchBankAccount"),
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchOfficialBankAccount"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPurchasePortfolioForPayment"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPurchasePortfolioForPayment"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchAccountSaleNegotiation"),
 	})
 	@Actions({
@@ -971,6 +988,13 @@ public class Transaction implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@ReadOnly(notForViews= "DEFAULT")
 	private Date accountingDate;
+	
+	@Column(name="value_date", nullable=false)
+	@Temporal(TemporalType.DATE)
+	@ReadOnly(notForViews= "DEFAULT, " 
+		+"RequestTXPurchasePortfolioPaymentValueDate,"
+	)
+	private Date valueDate;
 
 	//bi-directional many-to-one association to Category
 	@ManyToOne
@@ -993,11 +1017,6 @@ public class Transaction implements Serializable {
 	@DefaultValueCalculator(com.powerfin.calculators.CurrentAccountingDateCalculator.class)
 	@ReadOnly
 	private Date companyAccountingDate;
-	
-	@Transient
-	@Temporal(TemporalType.DATE)
-	@ReadOnly
-	private Date projectedAccountingDate;
 	
 	@Transient
 	@ManyToOne
@@ -1043,8 +1062,6 @@ public class Transaction implements Serializable {
 	@NoFrame
 	@ReadOnly
 	private AccountLoan accountLoan;
-	
-	
 	
 	public Transaction() {
 	}
@@ -1258,12 +1275,13 @@ public class Transaction implements Serializable {
 		this.secondaryCategory = secondaryCategory;
 	}
 
-	public Date getProjectedAccountingDate() {
-		return projectedAccountingDate;
+	
+	public Date getValueDate() {
+		return valueDate;
 	}
 
-	public void setProjectedAccountingDate(Date projectedAccountingDate) {
-		this.projectedAccountingDate = projectedAccountingDate;
+	public void setValueDate(Date valueDate) {
+		this.valueDate = valueDate;
 	}
 
 	@PreCreate

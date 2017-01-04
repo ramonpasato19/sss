@@ -21,24 +21,18 @@ public class AccountLoanHelper {
 	public final static String PURCHASE_PORTFOLIO_TRANSACTION_MODULE = "PURCHASEPORTFOLIO";
 	
 	@SuppressWarnings("unchecked")
-	public static void getAllOverdueBalancesByBroker(Integer brokerPersonId) {
+	public static void getAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
-		String query = "SELECT DISTINCT(b.account) FROM Balance b  "
-				+ "WHERE b.dueDate <= :accountingDate "
-				+ "AND b.balance > 0 "
-				+ "AND b.toDate = :toDate "
-				+ "AND b.category.categoryId in ('CAPITAL','INTERESTPR','INSURANRE','MORTGAGERE','LEGALFEERE','RECEIFEERE') "
-				+ "AND b.account.accountId IN ( "
-				+ "SELECT a.accountId FROM Account a, AccountPortfolio p, Negotiation n "
+		if (projectedAccountingDate!=null)
+			accountingDate =projectedAccountingDate; 
+		String query = "SELECT a FROM Account a, AccountPortfolio p, Negotiation n "
 				+ "WHERE a.accountId = p.accountId "
 				+ "AND a.accountStatus.accountStatusId  = '002' "
 				+ "AND p.purchaseNegotiation.negotiationId = n.negotiationId "
-				+ "AND n.brokerPerson.personId = :brokerPersonId )";
+				+ "AND n.brokerPerson.personId = :brokerPersonId ";
 		
 		List<Account> accounts = XPersistence.getManager()
 				.createQuery(query)
-				.setParameter("accountingDate", accountingDate)
-				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
 				.setParameter("brokerPersonId", brokerPersonId)
 				.getResultList();
 		if (accounts!=null && !accounts.isEmpty())
@@ -51,17 +45,11 @@ public class AccountLoanHelper {
 	@SuppressWarnings("unchecked")
 	public static void getAllOverdueBalancesSalePortfolioByBroker(Integer brokerPersonId) {
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
-		String query = "SELECT DISTINCT(b.account) FROM Balance b  "
-				+ "WHERE b.dueDate <= :accountingDate "
-				+ "AND b.balance > 0 "
-				+ "AND b.toDate = :toDate "
-				+ "AND b.category.categoryId in ('SCAPITAL','INTERESTIN') "
-				+ "AND b.account.accountId IN ( "
-				+ "SELECT a.accountId FROM Account a, AccountPortfolio p, Negotiation n "
+		String query = "SELECT a FROM Account a, AccountPortfolio p, Negotiation n "
 				+ "WHERE a.accountId = p.accountId "
 				+ "AND a.accountStatus.accountStatusId  = '002' "
 				+ "AND p.saleNegotiation.negotiationId = n.negotiationId "
-				+ "AND n.brokerPerson.personId = :brokerPersonId )";
+				+ "AND n.brokerPerson.personId = :brokerPersonId ";
 		
 		List<Account> accounts = XPersistence.getManager()
 				.createQuery(query)
@@ -234,6 +222,9 @@ public class AccountLoanHelper {
 		String schema = CompanyHelper.getSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate == null)
+			projectedAccountingDate = accountingDate;
+		
 		String query = "select * from ("
 				+ "select subaccount, "
 				+ "due_date, "
@@ -318,9 +309,9 @@ public class AccountLoanHelper {
 		.executeUpdate();
 		
 		for (AccountOverdueBalance overdueBalance:overdueBalances)
-		{
 			XPersistence.getManager().persist(overdueBalance);
-		}
+
+		XPersistence.commit();
 		
 		return overdueBalances;
 	}
@@ -549,19 +540,14 @@ public class AccountLoanHelper {
 		
 	}
 	
-	public static List<TransactionAccount> getTransactionAccountsForPymentPurchasePortfolio(Transaction transaction, 
+	public static List<TransactionAccount> getTransactionAccountsForAccountLoanPayment(Transaction transaction, 
 			AccountLoan accountLoan, Account debitAccount, 
 			BigDecimal transactionValue) throws Exception
 	{
-		return getTransactionAccountsForPymentPurchasePortfolio(transaction, accountLoan, debitAccount, transactionValue, null);
-	}
-	
-	public static List<TransactionAccount> getTransactionAccountsForPymentPurchasePortfolio(Transaction transaction, 
-			AccountLoan accountLoan, Account debitAccount, 
-			BigDecimal transactionValue,
-			Date valueDate ) throws Exception
-	{
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(accountLoan.getAccount(),valueDate,false);
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(
+				accountLoan.getAccount(),
+				transaction.getValueDate()==null?transaction.getAccountingDate():transaction.getValueDate(),
+				false);
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		TransactionAccount ta = null;
 		BigDecimal valueToApply = BigDecimal.ZERO;
@@ -775,8 +761,10 @@ public class AccountLoanHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void commonPostPurchasePortfolioPaymentSaveAction(Transaction transaction) throws Exception
+	public static void postAccountLoanPaymentSaveAction(Transaction transaction) throws Exception
 	{
+		Date paymentDate = transaction.getValueDate()==null?transaction.getAccountingDate():transaction.getValueDate();
+		
 		if (TransactionHelper.isFinancialSaved(transaction))
 		{
 			System.out.println("POST SAVE ACTION**********************");
@@ -800,10 +788,10 @@ public class AccountLoanHelper {
 				
 				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
 				{
-					accountPaytable.setPaymentDate(transaction.getAccountingDate());
+					accountPaytable.setPaymentDate(paymentDate);
 					System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" to cancel");
 				}
-				accountPaytable.setLastPaymentDate(transaction.getAccountingDate());
+				accountPaytable.setLastPaymentDate(paymentDate);
 				XPersistence.getManager().merge(accountPaytable);
 				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment = "+transaction.getAccountingDate());
 			}
@@ -826,7 +814,7 @@ public class AccountLoanHelper {
 			
 			for (AccountPaytable accountPaytable: accountPaytables)
 			{
-				accountPaytable.setLastPaymentDateCollection(transaction.getAccountingDate());
+				accountPaytable.setLastPaymentDateCollection(paymentDate);
 				XPersistence.getManager().merge(accountPaytable);
 				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment collection = "+transaction.getAccountingDate());
 			}
@@ -849,103 +837,7 @@ public class AccountLoanHelper {
 			
 			for (AccountPaytable accountPaytable: accountPaytables)
 			{
-				accountPaytable.setLastPaymentDateDefaultInterest(transaction.getAccountingDate());
-				XPersistence.getManager().merge(accountPaytable);
-				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment default interest = "+transaction.getAccountingDate());
-			}
-			/*
-			if (AccountLoanHelper.getBalanceByaccountLoan(transaction.getCreditAccount().getAccountId()).compareTo(BigDecimal.ZERO)<=0)
-			{
-				Account persistAccount = XPersistence.getManager().find(Account.class, transaction.getCreditAccount().getAccountId());
-				persistAccount.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountLoanHelper.STATUS_LOAN_CANCEL));
-				persistAccount.setCancellationDate(currentDate);
-				AccountHelper.updateAccount(persistAccount);
-			}
-			*/
-			
-			XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
-					+ "WHERE o.accountId=:accountId ")
-			.setParameter("accountId", transaction.getCreditAccount().getAccountId())
-			.executeUpdate();			
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static void postPurchasePortfolioPaymentSaveAction(Transaction transaction) throws Exception
-	{
-		if (TransactionHelper.isFinancialSaved(transaction))
-		{
-			System.out.println("POST SAVE ACTION**********************");
-			List<AccountPaytable> accountPaytables = XPersistence.getManager()
-					.createQuery("SELECT ap FROM AccountPaytable ap "
-							+ "WHERE ap.accountId = :accountId "
-							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
-							+ "FROM TransactionAccount o "
-							+ "WHERE o.transaction.transactionId = :transactionId "
-							+ "AND o.account.accountId = :accountId "
-							+ "AND o.debitOrCredit = :debitOrCredit) "
-							+ "ORDER BY ap.subaccount")
-					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
-					.setParameter("transactionId", transaction.getTransactionId())
-					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
-					.getResultList();
-			
-			for (AccountPaytable accountPaytable: accountPaytables)
-			{
-				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuotaAndCategory(accountPaytable.getAccountId(), accountPaytable.getSubaccount(), CategoryHelper.CAPITAL_CATEGORY);			
-				
-				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
-				{
-					accountPaytable.setPaymentDate(transaction.getAccountingDate());
-					System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" to cancel");
-				}
-				accountPaytable.setLastPaymentDate(transaction.getAccountingDate());
-				XPersistence.getManager().merge(accountPaytable);
-				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment = "+transaction.getAccountingDate());
-			}
-			
-			accountPaytables = XPersistence.getManager()
-					.createQuery("SELECT ap FROM AccountPaytable ap "
-							+ "WHERE ap.accountId = :accountId "
-							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
-							+ "FROM TransactionAccount o "
-							+ "WHERE o.transaction.transactionId = :transactionId "
-							+ "AND o.account.accountId = :accountId "
-							+ "AND o.category.categoryId = :categoryId "
-							+ "AND o.debitOrCredit = :debitOrCredit) "
-							+ "ORDER BY ap.subaccount")
-					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
-					.setParameter("transactionId", transaction.getTransactionId())
-					.setParameter("categoryId", CategoryHelper.COLLECTION_FEE_IN_CATEGORY)
-					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
-					.getResultList();
-			
-			for (AccountPaytable accountPaytable: accountPaytables)
-			{
-				accountPaytable.setLastPaymentDateCollection(transaction.getAccountingDate());
-				XPersistence.getManager().merge(accountPaytable);
-				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment collection = "+transaction.getAccountingDate());
-			}
-			
-			accountPaytables = XPersistence.getManager()
-					.createQuery("SELECT ap FROM AccountPaytable ap "
-							+ "WHERE ap.accountId = :accountId "
-							+ "AND ap.subaccount IN (SELECT DISTINCT(o.subaccount) "
-							+ "FROM TransactionAccount o "
-							+ "WHERE o.transaction.transactionId = :transactionId "
-							+ "AND o.account.accountId = :accountId "
-							+ "AND o.category.categoryId = :categoryId "
-							+ "AND o.debitOrCredit = :debitOrCredit) "
-							+ "ORDER BY ap.subaccount")
-					.setParameter("accountId", transaction.getCreditAccount().getAccountId())
-					.setParameter("transactionId", transaction.getTransactionId())
-					.setParameter("categoryId", CategoryHelper.DEFAULT_INTEREST_IN_CATEGORY)
-					.setParameter("debitOrCredit", DebitOrCredit.CREDIT)
-					.getResultList();
-			
-			for (AccountPaytable accountPaytable: accountPaytables)
-			{
-				accountPaytable.setLastPaymentDateDefaultInterest(transaction.getAccountingDate());
+				accountPaytable.setLastPaymentDateDefaultInterest(paymentDate);
 				XPersistence.getManager().merge(accountPaytable);
 				System.out.println("Update AccountPaytable "+accountPaytable.getAccountId()+"|"+accountPaytable.getSubaccount()+" last payment default interest = "+transaction.getAccountingDate());
 			}

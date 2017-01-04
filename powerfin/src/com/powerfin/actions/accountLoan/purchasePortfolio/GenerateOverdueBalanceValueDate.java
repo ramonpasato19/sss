@@ -30,11 +30,11 @@ public class GenerateOverdueBalanceValueDate extends ViewBaseAction {
 		
 		BigDecimal totalOverdueBalance = BigDecimal.ZERO;
 		
-		accountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
+		accountingDate = (Date)getView().getRoot().getValue("valueDate");
 		if (accountingDate==null)
 		{
 			accountingDate = CompanyHelper.getCurrentAccountingDate();
-			getView().getRoot().setValue("projectedAccountingDate",accountingDate);
+			getView().getRoot().setValue("valueDate",accountingDate);
 		}
 		
 		//Obtain list overdue balances
