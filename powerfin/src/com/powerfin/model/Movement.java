@@ -87,6 +87,13 @@ public class Movement implements Serializable {
 	@JoinColumn(name="financial_id", nullable=false)
 	private Financial financial;
 
+	@Column(name="quantity", nullable=false, precision=19, scale=2)
+	private BigDecimal quantity;
+
+	@ManyToOne
+	@JoinColumn(name="unity_id")
+	private Unity unity;
+
 	public Movement() {
 	}
 
@@ -207,5 +214,20 @@ public class Movement implements Serializable {
 		this.line = line;
 	}
 
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public Unity getUnity() {
+		return unity;
+	}
+
+	public void setUnity(Unity unity) {
+		this.unity = unity;
+	}
 
 }

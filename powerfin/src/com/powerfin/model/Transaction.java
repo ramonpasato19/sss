@@ -220,12 +220,14 @@ import com.powerfin.model.types.*;
 		//Authorize Invoice Purchase
 		@View(name = "AuthorizeTXInvoicePurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
+				+ "unityDetail;"
 				+ "invoice[creditAccount];" 
 				+ "data[accountInvoicePurchase];"),
 		
 		//Authorize Invoice Sale
 		@View(name = "AuthorizeTXInvoiceSale", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
+				+ "unityDetail;"
 				+ "invoice[debitAccount];" 
 				+ "data[accountInvoiceSale];"),
 		
@@ -1063,6 +1065,21 @@ public class Transaction implements Serializable {
 	@ReadOnly
 	private AccountLoan accountLoan;
 	
+	@ManyToOne
+	@JoinColumn(name="origen_unity_id")
+	private Unity unity;
+
+	@Transient
+	@ManyToOne
+	@NoCreate
+	@NoModify
+	@DescriptionsLists({
+		@DescriptionsList(descriptionProperties = "name",
+				forViews = "AuthorizeTXInvoicePurchase,AuthorizeTXInvoiceSale"
+						)
+		})
+	private Unity unityDetail;
+
 	public Transaction() {
 	}
 
@@ -1336,4 +1353,22 @@ public class Transaction implements Serializable {
 		
 		return realValue;
 	}
+
+	public Unity getUnity() {
+		return unity;
+	}
+
+	public void setUnity(Unity unity) {
+		this.unity = unity;
+	}
+
+	public Unity getUnityDetail() {
+		return unityDetail;
+	}
+
+	public void setUnityDetail(Unity unityDetail) {
+		this.unityDetail = unityDetail;
+	}
+
+
 }

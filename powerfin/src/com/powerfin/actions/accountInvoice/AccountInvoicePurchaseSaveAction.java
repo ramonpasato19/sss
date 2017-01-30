@@ -74,6 +74,8 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
      			transaction.setRemark(accountInvoice.getRemark());
      			transaction.setCreditAccount(accountInvoice.getAccount());
      			transaction.setCurrency(accountInvoice.getAccount().getCurrency());
+			Unity unity=XPersistence.getManager().find(Unity.class,"1");
+			transaction.setUnity(unity);
      			
      			XPersistence.getManager().persist(transaction);
             }
@@ -91,6 +93,8 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
      			transaction.setRemark(accountInvoice.getRemark());
      			transaction.setCreditAccount(accountInvoice.getAccount());
      			transaction.setCurrency(accountInvoice.getAccount().getCurrency());
+			Unity unity=XPersistence.getManager().find(Unity.class,"1");
+			transaction.setUnity(unity);
      			
      			XPersistence.getManager().merge(transaction);
             }

@@ -162,6 +162,12 @@
 			icon="magnify">
 			<set value="${productId} = '203'" property="condition"/>
 		</action>
+		<action name="SearchItemProducts"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} in ('104') " property="condition"/>
+		</action>
 	</controller>
 	
 	<controller name="SearchAccountDetail">
@@ -444,7 +450,7 @@
 		</action>
 	</controller>
 	
-	<controller name="OriginationPortfolioReportControllerPDF" icon="file-pdf" >
+	<controller name="OriginationPortfolioReportControllerPDF" >
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
@@ -459,7 +465,7 @@
 		</action>
 	</controller>
 	
-	<controller name="OriginationPortfolioReportControllerEXCEL" icon="file-pdf" >
+	<controller name="OriginationPortfolioReportControllerEXCEL"  >
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
@@ -2013,4 +2019,32 @@
 		</action>
 	</controller>
 <!-- BEGIN TransactionBatch ######################################## -->
+	<controller name="NewAccountItemController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="com.powerfin.actions.inventory.AccountItemSaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S"/>
+	</controller>
+	<controller name="AccountItemActions">
+		<action name="AccountItemPreSaveDetails"
+			class="com.powerfin.actions.inventory.AccountItemPreSaveDetails"
+			hidden="true"
+			icon="library-plus"/>
+	</controller>
+	<controller name="InventoryControlController" >
+
+
+		<action name="printInventoryTotalItems" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryTotalItems" icon="file-pdf" image="save.gif" by-default="if-possible" >
+		</action>
+		<action name="printInventoryMovements" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryAccountItemAction" icon="file-pdf">
+		</action>
+
+	</controller>
+
 </controllers>

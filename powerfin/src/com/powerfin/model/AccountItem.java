@@ -1,11 +1,31 @@
 package com.powerfin.model;
 
 import java.io.Serializable;
-
 import javax.persistence.*;
-
-import java.sql.Timestamp;
 import java.math.BigDecimal;
+import org.openxava.annotations.Action;
+import org.openxava.annotations.AsEmbedded;
+import org.openxava.annotations.CollectionView;
+import org.openxava.annotations.DescriptionsList;
+import org.openxava.annotations.Hidden;
+import org.openxava.annotations.ListProperties;
+import org.openxava.annotations.NewAction;
+import org.openxava.annotations.NoCreate;
+import org.openxava.annotations.NoModify;
+import org.openxava.annotations.ReadOnly;
+import org.openxava.annotations.ReferenceView;
+import org.openxava.annotations.Required;
+import org.openxava.annotations.SearchAction;
+import org.openxava.annotations.SearchActions;
+import org.openxava.annotations.Stereotype;
+import org.openxava.annotations.Tab;
+import org.openxava.annotations.View;
+import org.openxava.annotations.Views;
+import com.powerfin.actions.inventory.AccountItemChangeValues;
+import com.powerfin.model.superclass.AuditEntity;
+import java.util.Collection;
+import java.util.List;
+
 
 
 /**
@@ -15,60 +35,174 @@ import java.math.BigDecimal;
 @Entity
 @Table(name="account_item")
 @NamedQuery(name="AccountItem.findAll", query="SELECT a FROM AccountItem a")
-public class AccountItem implements Serializable {
+
+@Views({
+	@View(members="#accountId;"
+					+ "code;"
+					+ "name;"
+					+ "description;"
+					+ "keywords;"
+					+ "retailPrice;"
+					+ "product{product};"
+					+ "detail {"
+					+ "unitMeasureBean;"
+					+ "countryId;"
+					+ "daysTolerance;"
+					+ "inventoried; brandId;"
+					+ "cellar[ minimalQuantity, maximumQuantity];"
+					+ "}"
+
+					+ "prices{"
+					+ "cost; price;taxPrice;"
+					+ "retailPriceAux"
+					+ "};"
+					+ "taxes{accountItemTax};"
+					+ "categories{accountItemAccountItemType}"
+					+ "Imagen{picture;}"
+					),
+	@View(name="basic",members="#accountId;"
+			+ "code;"
+			+ "name;"
+			+ "description;"
+			)
+})
+@Tab(properties="registrationDate, accountId, code, name, description, retailPrice, countryId.name ")
+public class AccountItem extends AuditEntity implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="account_id", unique=true, nullable=false)
-	private Integer accountId;
+	@ReadOnly
+	@Hidden
+	private String accountId;
 
+	@Required
 	@Column(length=50)
 	private String code;
 
-	@Column(nullable=false, precision=12, scale=3)
+	@Hidden
+	@Column(precision=12, scale=2)
 	private BigDecimal cost;
 
-	@Column(length=400)
+	@Required
+	@Column(length=150)
 	private String description;
 
 	@Column(nullable=false)
 	private Integer inventoried;
 
+	@Required
 	@Column(nullable=false, length=100)
 	private String name;
 
-	@Column(nullable=false, precision=12, scale=3)
+	//@OnChange(AccountItemChangeValues.class)
+	@Required
+	@Column(nullable=false, precision=12, scale=2)
 	private BigDecimal price;
 
-	@Column(name="registration_date", nullable=false)
-	private Timestamp registrationDate;
-
-	@Column(name="user_registering", nullable=false, length=30)
-	private String userRegistering;
-
-	//bi-directional one-to-one association to Account
 	@OneToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
 	private Account account;
 
-	//bi-directional many-to-one association to Tax
-	@ManyToOne
-	@JoinColumn(name="tax_id", nullable=false)
-	private Tax tax;
-
-	//bi-directional many-to-one association to UnitMeasure
+	@DescriptionsList
 	@ManyToOne
 	@JoinColumn(name="unit_measure", nullable=false)
+	@NoCreate
+	@NoModify
 	private UnitMeasure unitMeasureBean;
+
+
+	@Column(name="tax_price", nullable=false, precision=12, scale=2)
+	private BigDecimal taxPrice;
+
+	@Required
+	@Column(name="retail_price", nullable=false, precision=12, scale=2)
+	private BigDecimal retailPrice;
+
+	@Transient
+	@Action(value = "")
+	@Column(name="retail_price_aux", insertable=false)
+	private BigDecimal retailPriceAux;
+
+	@Required
+	@Column(name="minimal_quantity", nullable=false, precision=12, scale=0)
+	private BigDecimal minimalQuantity;
+
+	@Required
+	@Column(name="maximum_quantity", nullable=false, precision=12, scale=0)
+	private BigDecimal maximumQuantity;
+
+	@Stereotype("PHOTO")
+	private byte [] picture;
+
+	@Stereotype("IMAGES_GALLERY")
+	@Column(name="more_picture")
+	private String morePicture;
+
+	@OneToMany(
+			mappedBy="accountItem",
+			cascade=CascadeType.ALL)
+	@AsEmbedded
+	@ListProperties("tax.taxId, tax.name,tax.percentage, expireDate")
+	@CollectionView("addTaxItem")
+	@NewAction(value="AccountItemActions.AccountItemPreSaveDetails")
+	private List<AccountItemTax> accountItemTax;
+
+
+	@OneToMany(
+			mappedBy="accountItem",
+			cascade=CascadeType.ALL)
+	@AsEmbedded
+	@ListProperties("accountItemType.accountItemTypeId ,accountItemType.name")
+	@CollectionView("addTypeItem")
+	@NewAction(value="AccountItemActions.AccountItemPreSaveDetails")
+	private List<AccountItemAccountItemType> accountItemAccountItemType;
+
+	@ManyToOne
+	@JoinColumn(name="brand_id")
+	@NoCreate
+	@NoModify
+	@ReferenceView("Product")
+	private Brand brandId;
+
+	@DescriptionsList
+	@ManyToOne
+	@JoinColumn(name="country_id")
+	private Country countryId;
+
+
+	@Transient
+	@Column(name="alternative_code",length=40)
+	private String alternativeCode;
+
+	@Column(name="days_tolerance")
+	private Integer daysTolerance;
+
+	@Column(name="keywords", length=100)
+	private String keywords;
+
+	@Transient
+	@ManyToOne
+	@Required
+	@NoCreate
+	@NoModify
+	@ReferenceView("Reference")
+	@SearchActions({
+	@SearchAction(value="SearchProduct.SearchItemProducts")
+	})
+	private Product product;
+
 
 	public AccountItem() {
 	}
 
-	public Integer getAccountId() {
+	public String getAccountId() {
 		return this.accountId;
 	}
 
-	public void setAccountId(Integer accountId) {
+	public void setAccountId(String accountId) {
+
 		this.accountId = accountId;
 	}
 
@@ -120,21 +254,6 @@ public class AccountItem implements Serializable {
 		this.price = price;
 	}
 
-	public Timestamp getRegistrationDate() {
-		return this.registrationDate;
-	}
-
-	public void setRegistrationDate(Timestamp registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
-	public String getUserRegistering() {
-		return this.userRegistering;
-	}
-
-	public void setUserRegistering(String userRegistering) {
-		this.userRegistering = userRegistering;
-	}
 
 	public Account getAccount() {
 		return this.account;
@@ -144,13 +263,6 @@ public class AccountItem implements Serializable {
 		this.account = account;
 	}
 
-	public Tax getTax() {
-		return this.tax;
-	}
-
-	public void setTax(Tax tax) {
-		this.tax = tax;
-	}
 
 	public UnitMeasure getUnitMeasureBean() {
 		return this.unitMeasureBean;
@@ -158,6 +270,132 @@ public class AccountItem implements Serializable {
 
 	public void setUnitMeasureBean(UnitMeasure unitMeasureBean) {
 		this.unitMeasureBean = unitMeasureBean;
+	}
+
+	public BigDecimal getRetailPrice() {
+		return retailPrice;
+	}
+
+	public void setRetailPrice(BigDecimal retailPrice) {
+		this.retailPrice = retailPrice;
+	}
+
+	public BigDecimal getTaxPrice() {
+		return taxPrice;
+	}
+
+	public void setTaxPrice(BigDecimal taxPrice) {
+		this.taxPrice = taxPrice;
+	}
+
+	public BigDecimal getMinimalQuantity() {
+		return minimalQuantity;
+	}
+
+	public void setMinimalQuantity(BigDecimal minimalQuantity) {
+		this.minimalQuantity = minimalQuantity;
+	}
+
+	public BigDecimal getMaximumQuantity() {
+		return maximumQuantity;
+	}
+
+	public void setMaximumQuantity(BigDecimal maximumQuantity) {
+		this.maximumQuantity = maximumQuantity;
+	}
+
+	public byte[] getPicture() {
+		return picture;
+	}
+
+	public void setPicture(byte[] picture) {
+		this.picture = picture;
+	}
+
+
+
+	public Brand getBrandId() {
+		return brandId;
+	}
+
+	public void setBrandId(Brand brandId) {
+		this.brandId = brandId;
+	}
+
+	public Country getCountryId() {
+		return countryId;
+	}
+
+	public void setCountryId(Country countryId) {
+		this.countryId = countryId;
+	}
+
+
+	public String getAlternativeCode() {
+		return alternativeCode;
+	}
+
+	public void setAlternativeCode(String alternativeCode) {
+		this.alternativeCode = alternativeCode;
+	}
+
+	public BigDecimal getRetailPriceAux() {
+		return retailPriceAux;
+	}
+
+	public void setRetailPriceAux(BigDecimal retailPriceAux) {
+		this.retailPriceAux = retailPriceAux;
+	}
+
+	public Integer getDaysTolerance() {
+		return daysTolerance;
+	}
+
+	public void setDaysTolerance(Integer daysTolerance) {
+		this.daysTolerance = daysTolerance;
+	}
+
+	public String getKeywords() {
+		return keywords;
+	}
+
+	public void setKeywords(String keywords) {
+		this.keywords = keywords;
+	}
+
+	public String getMorePicture() {
+		return morePicture;
+	}
+
+	public void setMorePicture(String morePicture) {
+		this.morePicture = morePicture;
+	}
+
+	public List<AccountItemTax> getAccountItemTax() {
+		return accountItemTax;
+	}
+
+	public void setAccountItemTax(List<AccountItemTax> accountItemTax) {
+		this.accountItemTax = accountItemTax;
+	}
+
+	public List<AccountItemAccountItemType> getAccountItemAccountItemType() {
+		return accountItemAccountItemType;
+	}
+
+	public void setAccountItemAccountItemType(List<AccountItemAccountItemType> accountItemAccountItemType) {
+		this.accountItemAccountItemType = accountItemAccountItemType;
+	}
+
+	public Product getProduct() {
+		if(account!=null)
+			return account.getProduct();
+		else
+			return null;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 }

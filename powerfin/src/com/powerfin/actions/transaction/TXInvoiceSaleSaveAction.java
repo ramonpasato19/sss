@@ -21,12 +21,12 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 		if (invoice.getDetails()==null || invoice.getDetails().isEmpty() || invoice.getTotal().compareTo(BigDecimal.ZERO)==0)
     		throw new OperativeException("invoice_not_processed_with_out_detail");
     	
-		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(account, invoice.getTotal(), transaction));
+		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(account, invoice.getTotal(),BigDecimal.ZERO,null, transaction));
 		
 		for (AccountInvoiceDetail detail: invoice.getDetails())
 		{
-			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(), transaction));
-			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(invoice.getAccount(), detail.getTaxAmount(), transaction, detail.getTax().getCategory()));
+			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction));
+			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(invoice.getAccount(), detail.getTaxAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction, detail.getTax().getCategory()));
 		}
 
 		return transactionAccounts;

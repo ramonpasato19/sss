@@ -27,6 +27,7 @@ public class FinancialHelper {
 		f.setFinancialStatus(FinancialHelper.getDefaultFinancialStatus());
 		f.setRemark(t.getRemark());
 		f.setVoucher(t.getVoucher());
+		f.setOrigenUnityId(t.getUnity());
 		f.setTransaction(t);
 
 		List<FinancialCategoryDTO> financialCategories = new ArrayList<FinancialCategoryDTO>();
@@ -49,6 +50,8 @@ public class FinancialHelper {
 				m.setDebitOrCredit(ta.getDebitOrCredit());
 				m.setFinancial(f);
 				m.setSubaccount(ta.getSubaccount());
+				m.setQuantity(ta.getQuantity());
+				m.setUnity(ta.getUnity());
 				m.setRemark(ta.getRemark());
 				m.setExchangeRate(ExchangeRateHelper.getExchangeRate(ta.getAccount().getCurrency(), t.getAccountingDate()));
 				m.setValue(ta.getValue().abs());
@@ -62,6 +65,7 @@ public class FinancialHelper {
 
 				if (!bookAccount.getGroupAccount().getDebtorOrCreditor().equals(ta.getDebitOrCredit())) {
 					m.setValue(m.getValue().negate());
+					m.setQuantity(m.getQuantity().negate());
 					m.setOfficialValue(m.getOfficialValue().negate());
 				}
 				
@@ -91,7 +95,7 @@ public class FinancialHelper {
 					m.getValue()+"|"+
 					m.getOfficialValue()+"|"+
 					m.getExchangeRate()+"|"+
-					m.getMovementId());
+					m.getMovementId()+"|"+m.getUnity()+"|"+m.getQuantity());
 		}
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
@@ -268,6 +272,7 @@ public class FinancialHelper {
 						accountMovement.getOfficialValue()+"|"+
 						accountMovement.getMovementId());
 				financialCategory.setValue(financialCategory.getValue().add(accountMovement.getValue()));
+				financialCategory.setStock(financialCategory.getStock().add(accountMovement.getQuantity()));
 				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add(accountMovement.getOfficialValue()));
 			}
 		}

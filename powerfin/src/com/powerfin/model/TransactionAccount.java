@@ -111,6 +111,13 @@ public class TransactionAccount implements Serializable {
 	@JoinColumn(name="transaction_id", nullable=false)
 	private Transaction transaction;
 
+	@Column(name="quantity")
+	private BigDecimal quantity;
+
+	@ManyToOne
+	@JoinColumn(name="unity_id")
+	private Unity unity;
+
 	public TransactionAccount() {
 	}
 
@@ -222,5 +229,22 @@ public class TransactionAccount implements Serializable {
 		if (officialValue==null)
 			officialValue = YesNoIntegerType.NO;
 	}
+
+	public BigDecimal getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(BigDecimal quantity) {
+		this.quantity = quantity;
+	}
+
+	public Unity getUnity() {
+		return unity;
+	}
+
+	public void setUnity(Unity unity) {
+		this.unity = unity;
+	}
+
 
 }

@@ -24,7 +24,10 @@ import org.openxava.annotations.*;
 		+ "category"),
 @View(name="Simple", members="taxId,"
 		+ "name;"
-		+ "percentage;")		
+		+ "percentage;"),
+@View(name="accountItemTax", members="taxId,"
+		+ "name;"
+		+ "percentage;")
 })
 @Tab(properties="taxId, name, percentage, taxType.name, category.categoryId")
 public class Tax implements Serializable {

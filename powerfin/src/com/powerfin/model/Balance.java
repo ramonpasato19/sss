@@ -71,6 +71,9 @@ public class Balance implements Serializable {
 	@Column(name="due_date", unique=true, nullable=true)
 	private Date dueDate;
 	
+	@Column(name="stock")
+	private BigDecimal stock;
+
 	public Balance() {
 	}
 
@@ -171,5 +174,11 @@ public class Balance implements Serializable {
 		this.dueDate = dueDate;
 	}
 
+	public BigDecimal getStock() {
+		return stock;
+	}
+	public void setStock(BigDecimal stock) {
+		this.stock = stock;
+	}
 
 }

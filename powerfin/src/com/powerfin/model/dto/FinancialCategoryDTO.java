@@ -14,6 +14,7 @@ public class FinancialCategoryDTO {
 	private Date accountingDate;
 	private Date dueDate;
 	private BigDecimal value;
+	private BigDecimal stock;
 	private BigDecimal officialValue;
 	private BigDecimal exchangeRate;
 	private Types.YesNoIntegerType updateBalance;
@@ -37,6 +38,7 @@ public class FinancialCategoryDTO {
 		this.bookAccount = bookAccount;
 		this.accountingDate = accountingDate;
 		this.value = BigDecimal.ZERO;
+		this.stock=BigDecimal.ZERO;
 		this.officialValue = BigDecimal.ZERO;
 		this.exchangeRate = exchangeRate;
 		this.updateBalance = updateBalance;
@@ -144,5 +146,14 @@ public class FinancialCategoryDTO {
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
 	}
+
+	public BigDecimal getStock() {
+		return stock;
+	}
+
+	public void setStock(BigDecimal stock) {
+		this.stock = stock;
+	}
+
 	
 }

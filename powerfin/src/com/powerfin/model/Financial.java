@@ -61,6 +61,10 @@ public class Financial extends AuditEntity implements Serializable {
 	@JoinColumn(name = "transaction_id")
 	private Transaction transaction;
 	
+	@ManyToOne
+	@JoinColumn(name="origen_unity_id")
+	private Unity origenUnityId;
+
 	public Financial() {
 	}
 
@@ -140,6 +144,14 @@ public class Financial extends AuditEntity implements Serializable {
 
 	public void setTransaction(Transaction transaction) {
 		this.transaction = transaction;
+	}
+
+	public Unity getOrigenUnityId() {
+		return origenUnityId;
+	}
+
+	public void setOrigenUnityId(Unity origenUnityId) {
+		this.origenUnityId = origenUnityId;
 	}
 
 }
