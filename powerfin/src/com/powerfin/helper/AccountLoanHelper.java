@@ -120,8 +120,8 @@ public class AccountLoanHelper {
 		{
 				//overdue quota on projected date
 			query +="union all "
-				+"select ap.subaccount, ap.due_date, ap.capital, ap.interest, "
-				+ "ap.insurance, ap.insurance_mortgage, "
+				+"select ap.subaccount, ap.due_date, COALESCE(ap.capital,0), COALESCE(ap.interest,0), "
+				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
 				+ "0 receivable_fee, 0 legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
@@ -482,6 +482,9 @@ public class AccountLoanHelper {
 		
 		defaultInterestRate = getDefaultInterestRate(overdueDays);
 
+		if (defaultInterestRate!=null && defaultInterestRate.compareTo(BigDecimal.ZERO)==0)
+			return defaultInterest;
+		
 		if (overdueValue.compareTo(BigDecimal.ZERO)<=0)
 			return defaultInterest;
 		
