@@ -50,7 +50,7 @@ public class FinancialHelper {
 				m.setDebitOrCredit(ta.getDebitOrCredit());
 				m.setFinancial(f);
 				m.setSubaccount(ta.getSubaccount());
-				m.setQuantity(ta.getQuantity());
+				m.setQuantity(ta.getQuantity()!=null?ta.getQuantity():BigDecimal.ZERO);
 				m.setUnity(ta.getUnity());
 				m.setRemark(ta.getRemark());
 				m.setExchangeRate(ExchangeRateHelper.getExchangeRate(ta.getAccount().getCurrency(), t.getAccountingDate()));
@@ -160,6 +160,7 @@ public class FinancialHelper {
 			newBalance.setBalance(financialCategory.getValue());
 			newBalance.setOfficialBalance(financialCategory.getOfficialValue());
 			newBalance.setDueDate(financialCategory.getDueDate());
+			newBalance.setStock(financialCategory.getStock());
 			
 			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.YES))
 				newBalance.setOfficialBalance(BigDecimal.ZERO);			
@@ -193,10 +194,12 @@ public class FinancialHelper {
 						oldBalanceOnDate.getSubaccount()+"|"+
 						oldBalanceOnDate.getCategory().getCategoryId()+"|"+
 						oldBalanceOnDate.getBalance()+"|"+
-						oldBalanceOnDate.getOfficialBalance());
+						oldBalanceOnDate.getOfficialBalance()+"|"+
+						oldBalanceOnDate.getStock());
 				
 				newBalance.setDueDate(oldBalanceOnDate.getDueDate());
 				newBalance.setBalance(newBalance.getBalance().add(oldBalanceOnDate.getBalance()));
+				newBalance.setStock(newBalance.getStock().add(oldBalanceOnDate.getStock()));
 				
 				if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
 					newBalance.setOfficialBalance(newBalance.getOfficialBalance().add(oldBalanceOnDate.getOfficialBalance()));
@@ -230,6 +233,7 @@ public class FinancialHelper {
 						newBalance.getCategory().getCategoryId()+"|"+
 						newBalance.getBalance()+"|"+
 						newBalance.getOfficialBalance()+"|"+
+						newBalance.getStock()+"|"+
 						newBalance.getBalanceId()+"|"+
 						newBalance.getToDate());
 			else
@@ -239,6 +243,7 @@ public class FinancialHelper {
 						newBalance.getCategory().getCategoryId()+"|"+
 						newBalance.getBalance()+"|"+
 						UtilApp.valueToOfficialValue(newBalance.getBalance(), financialCategory.getExchangeRate())+"|"+
+						newBalance.getStock()+"|"+
 						newBalance.getBalanceId()+"|"+
 						newBalance.getToDate());
 		}
@@ -250,6 +255,7 @@ public class FinancialHelper {
 			Date accountingDate) {
 		financialCategory.setValue(BigDecimal.ZERO);
 		financialCategory.setOfficialValue(BigDecimal.ZERO);
+		financialCategory.setStock(BigDecimal.ZERO);
 
 		List<Movement> accountMovements = XPersistence
 				.getManager()
@@ -270,9 +276,10 @@ public class FinancialHelper {
 				System.out.println("Add Movement Value: "+ 
 						accountMovement.getValue()+"|"+ 
 						accountMovement.getOfficialValue()+"|"+
+						accountMovement.getQuantity()+"|"+
 						accountMovement.getMovementId());
 				financialCategory.setValue(financialCategory.getValue().add(accountMovement.getValue()));
-				financialCategory.setStock(financialCategory.getStock().add(accountMovement.getQuantity()));
+				financialCategory.setStock(financialCategory.getStock().add(accountMovement.getQuantity()!=null?accountMovement.getQuantity():BigDecimal.ZERO));
 				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add(accountMovement.getOfficialValue()));
 			}
 		}

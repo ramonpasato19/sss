@@ -141,6 +141,7 @@ public class TransactionAccountHelper {
 		ta.setDebitOrCredit(debitOrCredit);
 		ta.setSubaccount(subaccount);
 		ta.setValue(value);
+		ta.setQuantity(BigDecimal.ZERO);
 		ta.setTransaction(transaction);
 		ta.setDueDate(dueDate);
 		return ta;
