@@ -16,7 +16,7 @@ import org.openxava.annotations.Views;
 @Entity
 @Table(name="account_item_type")
 @Views({
-	@View(name="selectionType",members="accountItemTypeId, name")
+	@View(name="selectionType",members="accountItemTypeId, name, code")
 })
 
 public class AccountItemType {
@@ -29,6 +29,9 @@ public class AccountItemType {
 	@Column(name="name", length=100, nullable=true)
 	private String name;
 
+	@Column(name="code", length=20, nullable=true)
+	private String code;
+	
 	@ManyToOne
 	@JoinColumn(name="parent_account_item_type_id")
 	@ReferenceView("selectionType")
@@ -48,6 +51,22 @@ public class AccountItemType {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public AccountItemType getParent() {
+		return parent;
+	}
+
+	public void setParent(AccountItemType parent) {
+		this.parent = parent;
 	}
 
 

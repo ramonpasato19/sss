@@ -16,10 +16,10 @@ public class AccountInvoiceHelper {
 	public final static String INVOICE_SALE_TRANSACTION_MODULE = "INVOICE_SALE";
 	public final static String INVOICE_PURCHASE_TRANSACTION_MODULE = "INVOICE_PURCHASE";
 	
-	public final static String INVOICE_PURCHASE_PRODUCTID = "202";
-	public final static String RETENTION_PURCHASE_PRODUCTID = "103";
+	public final static String INVOICE_PURCHASE_PRODUCT_TYPE_ID = "102";
+	public final static String INVOICE_SALE_PRODUCT_TYPE_ID = "201";
 	
-	public final static String INVOICE_SALE_PRODUCTID = "102";
+	public final static String RETENTION_PURCHASE_PRODUCTID = "103";	
 	public final static String RETENTION_SALE_PRODUCTID = "203";
 	
 	

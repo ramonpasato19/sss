@@ -527,11 +527,11 @@ public class Person extends AuditEntity implements Serializable {
 	public List<Account> getPurchaseInvoices() {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
-						+ "WHERE o.product.productId=:productId "
+						+ "WHERE o.product.productType.productTypeId=:productTypeId "
 						+ "AND o.accountStatus.accountStatusId in ('002','005') "
 						+ "AND o.person.personId=:personId ")
 				.setParameter("personId", personId)
-				.setParameter("productId", AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCTID)
+				.setParameter("productTypeId", AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID)
 				.getResultList();
 	}
 
@@ -543,11 +543,11 @@ public class Person extends AuditEntity implements Serializable {
 	public List<Account> getSaleInvoices() {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
-						+ "WHERE o.product.productId=:productId "
+						+ "WHERE o.product.productType.productTypeId=:productTypeId "
 						+ "AND o.accountStatus.accountStatusId in ('002','005') "
 						+ "AND o.person.personId=:personId ")
 				.setParameter("personId", personId)
-				.setParameter("productId", AccountInvoiceHelper.INVOICE_SALE_PRODUCTID)
+				.setParameter("productTypeId", AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID)
 				.getResultList();
 	}
 

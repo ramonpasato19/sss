@@ -124,14 +124,14 @@ import com.powerfin.model.types.*;
 	@Tab(properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, subtotal, vat, total"),
 	@Tab(name="TXInvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
-			+ "and ${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCTID+"'"),
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
-		baseCondition = "${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCTID+"'"),
+		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
-			+ "and ${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCTID+"'"),
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
-		baseCondition = "${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCTID+"'"),
+		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 })
 public class AccountInvoice extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;

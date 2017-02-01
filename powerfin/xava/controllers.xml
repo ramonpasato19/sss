@@ -142,13 +142,13 @@
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productId} IN ('202','207')" property="condition"/>
+			<set value="${productType.productTypeId} = '201'" property="condition"/>
 		</action>
 		<action name="SearchInvoiceSale"
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productId} = '102'" property="condition"/>
+			<set value="${productType.productTypeId} = '102'" property="condition"/>
 		</action>
 		<action name="SearchRetentionPurchase"
 			class="com.powerfin.actions.search.SearchProduct"
@@ -166,7 +166,7 @@
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productType.productTypeId} in ('104') " property="condition"/>
+			<set value="${productType.productTypeId} = '104'" property="condition"/>
 		</action>
 	</controller>
 	

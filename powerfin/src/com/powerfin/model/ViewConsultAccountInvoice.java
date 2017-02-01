@@ -34,7 +34,7 @@ public class ViewConsultAccountInvoice {
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
-	@Condition(value="${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCTID+"' "+
+	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"' "+
 			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("ConsultPurchaseInvoice")
 	private List<AccountInvoice> purchaseInvoices;
@@ -59,7 +59,7 @@ public class ViewConsultAccountInvoice {
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
-	@Condition(value="${account.product.productId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCTID+"'"+
+	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"+
 			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("InvoiceSale")
 	private List<AccountInvoice> saleInvoices;
