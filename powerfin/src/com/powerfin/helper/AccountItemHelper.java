@@ -10,6 +10,8 @@ public class AccountItemHelper {
 
 
 
+	public static final String ACCOUNT_ITEM_PRODUCT_TYPE = "104";
+
 	public static AccountItem createAccountItem(
 			Account account, String accountId, String alternateCode,BigDecimal cost,
 			String description,Integer inventoried, BigDecimal maximumQuantity,
