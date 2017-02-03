@@ -15,7 +15,7 @@ public class AccountItemHelper {
 			String description,Integer inventoried, BigDecimal maximumQuantity,
 			BigDecimal minimalQuantity, String name, byte[] picture, BigDecimal price,
 			BigDecimal retailPrice, BigDecimal taxPrice,
-			UnitMeasure unitMeasureBean
+			UnitMeasure unitMeasureBean, BigDecimal averageValue
 			)  throws Exception
 	{
 		AccountItem a = new AccountItem();
@@ -33,7 +33,7 @@ public class AccountItemHelper {
 		a.setRetailPrice(retailPrice);
 		a.setTaxPrice(taxPrice);
 		a.setUnitMeasureBean(unitMeasureBean);
-
+		a.setAverageValue(averageValue);
 		XPersistence.getManager().persist(a);
 		return a;
 	}
@@ -44,7 +44,7 @@ public class AccountItemHelper {
 				accountItem.getDescription(),accountItem.getInventoried(), accountItem.getMaximumQuantity(),
 				accountItem.getMinimalQuantity(), accountItem.getName(), accountItem.getPicture(), accountItem.getPrice(),
 				accountItem.getRetailPrice(), accountItem.getTaxPrice(),
-				accountItem.getUnitMeasureBean());
+				accountItem.getUnitMeasureBean(), accountItem.getAverageValue());
 	}
 
 }

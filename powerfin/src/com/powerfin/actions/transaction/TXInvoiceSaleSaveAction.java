@@ -5,6 +5,7 @@ import java.util.*;
 
 import org.openxava.jpa.*;
 
+import com.powerfin.actions.inventory.UpdateStock;
 import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
@@ -39,6 +40,21 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 			Account a = transaction.getDebitAccount();
 			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
 			AccountHelper.updateAccount(a);
+
+			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
+			for (AccountInvoiceDetail detail: invoice.getDetails())
+			{
+				updateStock(detail.getAccountDetail(),invoice,new BigDecimal(detail.getQuantity()), detail.getAmount().divide(new BigDecimal(detail.getQuantity())), detail.getAmount(), invoice.getRegistrationDate());
+			}
 		}
+	}
+
+	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate){
+
+		AccountItem accountItem=(AccountItem) XPersistence.getManager()
+				.createQuery("from AccountItem where account.accountId='"+item.getAccountId()+"'").getSingleResult();
+		UpdateStock update=new UpdateStock();
+		update.removeItemStock(accountItem, invoice, quantity.negate(), cost, total,registrerDate);
+
 	}
 }

@@ -54,7 +54,7 @@ import java.util.List;
 
 					+ "prices{"
 					+ "cost; price;taxPrice;"
-					+ "retailPriceAux"
+					+ "averageValue;"
 					+ "};"
 					+ "taxes{accountItemTax};"
 					+ "categories{accountItemAccountItemType}"
@@ -184,7 +184,6 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	@Transient
 	@ManyToOne
-	@Required
 	@NoCreate
 	@NoModify
 	@ReferenceView("Reference")
@@ -193,6 +192,8 @@ public class AccountItem extends AuditEntity implements Serializable {
 	})
 	private Product product;
 
+	@Column(name="average_value")
+	private BigDecimal averageValue;
 
 	public AccountItem() {
 	}
@@ -396,6 +397,14 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	public void setProduct(Product product) {
 		this.product = product;
+	}
+
+	public BigDecimal getAverageValue() {
+		return averageValue;
+	}
+
+	public void setAverageValue(BigDecimal averageValue) {
+		this.averageValue = averageValue;
 	}
 
 }
