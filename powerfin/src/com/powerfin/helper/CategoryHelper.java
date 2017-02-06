@@ -48,6 +48,9 @@ public class CategoryHelper {
 	public final static String UTILITY_SALE_PORTFOLIO_PR_CATEGORY = "UTLSPRPR";
 	public final static String UTILITY_SALE_PORTFOLIO_IN_CATEGORY = "UTLSPRIN";
 	
+	public final static String COST_CATEGORY = "COST";
+	public final static String SALE_COST_CATEGORY = "SCOST";
+	
 	public static Category getCategoryById(String categoryId)
 	{
 		return XPersistence.getManager().find(Category.class, categoryId);
@@ -75,7 +78,14 @@ public class CategoryHelper {
 	{
 		return CategoryHelper.getCategoryById(CategoryHelper.EXFOREX_CATEGORY);
 	}
-	
+	public static Category getCostCategory()
+	{
+		return CategoryHelper.getCategoryById(CategoryHelper.COST_CATEGORY);
+	}
+	public static Category getSaleCostCategory()
+	{
+		return CategoryHelper.getCategoryById(CategoryHelper.SALE_COST_CATEGORY);
+	}
 	@SuppressWarnings("rawtypes")
 	public static boolean getAllowsNegativeBalance(Account account, Category category) {
 		

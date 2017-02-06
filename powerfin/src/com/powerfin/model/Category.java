@@ -22,7 +22,8 @@ import com.powerfin.model.types.*;
 			+ "name;"
 			+ "bookAccount;"
 			+ "bookAccountId;"
-			+ "allowsNegativeBalance"),
+			+ "allowsNegativeBalance;"
+			+ "expiresZeroBalance"),
 	@View(name="Reference", members="categoryId, name;")
 })
 @Tab(properties="categoryId, name, bookAccount, bookAccountName")

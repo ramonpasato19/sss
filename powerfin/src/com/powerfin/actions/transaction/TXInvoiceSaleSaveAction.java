@@ -14,6 +14,8 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
+		Category costCategory = CategoryHelper.getCostCategory();
+		Category saleCostCategory = CategoryHelper.getSaleCostCategory();
 		Account account = getDebitAccount();
 		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
 		
@@ -26,7 +28,24 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 		
 		for (AccountInvoiceDetail detail: invoice.getDetails())
 		{
-			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction));
+			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
+			{
+				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction));
+				
+				AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId());
+				if (accountItem == null)
+					throw new InternalException("account_item_not_found");
+				if (accountItem.getAverageValue() == null)
+					throw new OperativeException("average_cost_is_null", accountItem.getAccountId());
+				if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<=0)
+					throw new OperativeException("average_cost_is_negative", accountItem.getAccountId());
+				
+				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, saleCostCategory));
+			}
+			else
+				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction));
+			
 			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(invoice.getAccount(), detail.getTaxAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction, detail.getTax().getCategory()));
 		}
 
@@ -50,8 +69,7 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 
 	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate){
 
-		AccountItem accountItem=(AccountItem) XPersistence.getManager()
-				.createQuery("from AccountItem where account.accountId='"+item.getAccountId()+"'").getSingleResult();
+		AccountItem accountItem=(AccountItem) XPersistence.getManager().find(AccountItem.class, item.getAccountId());
 		UpdateStock update=new UpdateStock();
 		update.removeItemStock(accountItem, invoice, quantity.negate(), cost, total,registrerDate);
 

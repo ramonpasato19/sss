@@ -28,11 +28,10 @@ public class UpdateStock {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private BigDecimal calculeAverageValue(AccountItem accountItem, BigDecimal newCost, BigDecimal newQuantity)	{
-
-		List<Stock> stocks = XPersistence.getManager().createQuery(""
-				+ "select st from Stock st where st.accountId.accountId=:accountItemId"
-				)
+		List<Stock> stocks = XPersistence.getManager()
+				.createQuery("select st from Stock st where st.accountId.accountId=:accountItemId")
 				.setParameter("accountItemId", accountItem.getAccountId())
 				.getResultList();
 		BigDecimal quantityAve=BigDecimal.ZERO;
@@ -42,7 +41,6 @@ public class UpdateStock {
 			valueUnit=st.getQuantity().multiply(st.getAverageValue());
 			valueTot=valueTot.add(valueUnit);
 			quantityAve=quantityAve.add(st.getQuantity());
-
 		}
 		valueTot=valueTot.add(newCost.multiply(newQuantity));
 		quantityAve=quantityAve.add(newQuantity);

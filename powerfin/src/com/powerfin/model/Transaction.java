@@ -32,7 +32,7 @@ import com.powerfin.model.types.*;
 				+ "transactionStatus;"
 				+ "transactionAccounts"),
 		@View(name="TransactionList", members = "transactionId;"
-				+ "voucher;" + "currency; transactionModule;" + "value;"
+				+ "voucher;" + "currency; transactionModule;" + "realValue;"
 				+ "remark;" + "requestDate, userRequesting;"
 				+ "authorizationDate, userAuthorizing;" 
 				+ "accountingDate, documentNumber;"
@@ -354,7 +354,7 @@ import com.powerfin.model.types.*;
 })
 @Tabs({
 		@Tab(properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, value, transactionStatus.name, requestDate, authorizationDate, accountingDate"),
-		@Tab(name = "TransactionList", properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, transactionModule.name, realValue, transactionStatus.name, accountingDate, debitAccount.accountId, creditAccount.accountId"),
+		@Tab(name = "TransactionList", properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, transactionModule.name, transactionStatus.name, accountingDate, debitAccount.accountId, creditAccount.accountId"),
 		@Tab(name = "TXGeneral", properties = "voucher, currency.currencyId, remark, transactionModule.name, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001'"),
 		@Tab(name = "TXOpening", properties = "creditAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'OPENING'"),
 		@Tab(name = "TXTransferSent", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERSENT'"),

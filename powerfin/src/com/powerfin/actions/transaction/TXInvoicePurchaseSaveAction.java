@@ -14,6 +14,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
+		Category costCategory = CategoryHelper.getCostCategory();
 		Account account = getCreditAccount();
 		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
 		
@@ -26,7 +27,11 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 		
 		for (AccountInvoiceDetail detail: invoice.getDetails())
 		{
-			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction));
+			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
+			else
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction));
+			
 			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(invoice.getAccount(), detail.getTaxAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction, detail.getTax().getCategory()));
 		}
 		
@@ -48,8 +53,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 	}
 	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate){
 
-		AccountItem accountItem=(AccountItem) XPersistence.getManager()
-				.createQuery("from AccountItem where account.accountId='"+item.getAccountId()+"'").getSingleResult();
+		AccountItem accountItem=(AccountItem) XPersistence.getManager().find(AccountItem.class, item.getAccountId());
 		UpdateStock update=new UpdateStock();
 		update.updateItemStock(accountItem, invoice, quantity, cost, total,registrerDate);
 
