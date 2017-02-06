@@ -34,11 +34,11 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 				
 				AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId());
 				if (accountItem == null)
-					throw new InternalException("account_item_not_found");
+					throw new InternalException("account_item_not_found", detail.getAccountDetail().getAccountId());
 				if (accountItem.getAverageValue() == null)
-					throw new OperativeException("average_cost_is_null", accountItem.getAccountId());
+					throw new OperativeException("average_cost_is_null", detail.getAccountDetail().getAccountId());
 				if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<=0)
-					throw new OperativeException("average_cost_is_negative", accountItem.getAccountId());
+					throw new OperativeException("average_cost_is_negative", detail.getAccountDetail().getAccountId());
 				
 				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
 				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, saleCostCategory));
