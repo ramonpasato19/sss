@@ -1,9 +1,12 @@
 package com.powerfin.actions.inventory;
 
+import java.util.List;
+
 import org.openxava.actions.SaveAction;
 import org.openxava.jpa.XPersistence;
 import com.powerfin.helper.AccountHelper;
 import com.powerfin.model.Account;
+import com.powerfin.model.Stock;
 import com.powerfin.model.TransactionModule;
 import com.powerfin.model.TransactionModuleAccount;
 
@@ -41,17 +44,17 @@ public class AccountItemSaveAction extends SaveAction {
 			accountModifi.setName(name);
 			accountModifi.setTransactionalName(name);
 			AccountHelper.updateAccount(accountModifi);
-			TransactionModule transactionModule=XPersistence.getManager().find(TransactionModule.class, "INVOICE_PURCHASE");
-			TransactionModuleAccount accountModuleMod=(TransactionModuleAccount) XPersistence.getManager()
-			.createQuery("from TransactionModuleAccount where account.accountId='"+accountModifi.getAccountId()+"' and transactionModule.transactionModuleId='"+transactionModule.getTransactionModuleId()+"') ").getSingleResult();
-			accountModuleMod.setName(name);
-			XPersistence.getManager().persist(accountModuleMod);
 
-			transactionModule=XPersistence.getManager().find(TransactionModule.class, "INVOICE_SALE");
-			accountModuleMod=(TransactionModuleAccount) XPersistence.getManager()
-			.createQuery("from TransactionModuleAccount where account.accountId='"+accountModifi.getAccountId()+"' and transactionModule.transactionModuleId='"+transactionModule.getTransactionModuleId()+"') ").getSingleResult();
-			accountModuleMod.setName(name);
-			XPersistence.getManager().persist(accountModuleMod);
+
+			List<TransactionModuleAccount> accounts_module = XPersistence.getManager().createQuery(""
+					+ "from TransactionModuleAccount where account.accountId=:accountItemId"
+					)
+					.setParameter("accountItemId", accountModifi.getAccountId())
+					.getResultList();
+			for (TransactionModuleAccount accountModuleMod : accounts_module){
+				accountModuleMod.setName(name);
+				XPersistence.getManager().merge(accountModuleMod);
+			}
 		}
 		super.setResetAfter(false);
 		super.execute();
