@@ -16,7 +16,6 @@ import com.powerfin.util.*;
 public class AccountRetentionSaleSaveAction extends SaveAction{
 
 	private String accountStatusId;
-	private boolean isCreateAccount;
 	
 	@SuppressWarnings("unchecked")
 	public void execute() throws Exception {

@@ -18,7 +18,7 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 		Category saleCostCategory = CategoryHelper.getSaleCostCategory();
 		Account account = getDebitAccount();
 		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
-		
+		BigDecimal totalAverageCost = BigDecimal.ZERO;
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		
 		if (invoice.getDetails()==null || invoice.getDetails().isEmpty() || invoice.getTotal().compareTo(BigDecimal.ZERO)==0)
@@ -40,8 +40,10 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 				if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<=0)
 					throw new OperativeException("average_cost_is_negative", detail.getAccountDetail().getAccountId());
 				
-				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), accountItem.getAverageValue(), new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, saleCostCategory));
+				totalAverageCost = accountItem.getAverageValue().multiply(new BigDecimal(detail.getQuantity())).setScale(2, RoundingMode.HALF_UP);
+				
+				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), totalAverageCost, new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), totalAverageCost, new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, saleCostCategory));
 			}
 			else
 				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction));
