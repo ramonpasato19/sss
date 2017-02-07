@@ -24,7 +24,11 @@ public class AccountHelper {
 		
 		Account accountToModify = XPersistence.getManager().find(Account.class, account.getAccountId());
 		accountToModify.setPerson(account.getPerson());
-		accountToModify.setName(account.getPerson().getName());
+		if(account.getName()==null){
+			accountToModify.setName(account.getPerson().getName());
+		}else{
+			accountToModify.setName(account.getName());
+		}
 		accountToModify.setAccountStatus(account.getAccountStatus());
 		XPersistence.getManager().merge(accountToModify);
 		return accountToModify;
