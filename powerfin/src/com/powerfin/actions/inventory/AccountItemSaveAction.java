@@ -6,6 +6,7 @@ import org.openxava.actions.SaveAction;
 import org.openxava.jpa.XPersistence;
 import com.powerfin.helper.AccountHelper;
 import com.powerfin.model.Account;
+import com.powerfin.model.Product;
 import com.powerfin.model.Stock;
 import com.powerfin.model.TransactionModule;
 import com.powerfin.model.TransactionModuleAccount;
@@ -42,6 +43,8 @@ public class AccountItemSaveAction extends SaveAction {
 			Account accountModifi = XPersistence.getManager().find(Account.class, accountId);
 			accountModifi.setCode(code);
 			accountModifi.setName(name);
+			Product product = XPersistence.getManager().find(Product.class, productId);
+			accountModifi.setProduct(product);
 			accountModifi.setTransactionalName(name);
 			AccountHelper.updateAccount(accountModifi);
 
