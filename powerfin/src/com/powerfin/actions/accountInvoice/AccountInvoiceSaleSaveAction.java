@@ -93,6 +93,9 @@ public class AccountInvoiceSaleSaveAction extends SaveAction{
      			transaction.setCurrency(accountInvoice.getAccount().getCurrency());
      			
      			XPersistence.getManager().merge(transaction);
+     			
+     			for (TransactionAccount ta : transaction.getTransactionAccounts())
+     				XPersistence.getManager().remove(ta);
             }
 		}
 		

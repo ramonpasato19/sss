@@ -50,6 +50,7 @@ public class CategoryHelper {
 	
 	public final static String COST_CATEGORY = "COST";
 	public final static String SALE_COST_CATEGORY = "SCOST";
+	public final static String DISCOUNT_CATEGORY = "DISCOUNT";
 	
 	public static Category getCategoryById(String categoryId)
 	{
@@ -85,6 +86,10 @@ public class CategoryHelper {
 	public static Category getSaleCostCategory()
 	{
 		return CategoryHelper.getCategoryById(CategoryHelper.SALE_COST_CATEGORY);
+	}
+	public static Category getDiscountCategory()
+	{
+		return CategoryHelper.getCategoryById(CategoryHelper.DISCOUNT_CATEGORY);
 	}
 	@SuppressWarnings("rawtypes")
 	public static boolean getAllowsNegativeBalance(Account account, Category category) {

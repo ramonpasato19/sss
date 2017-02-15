@@ -73,12 +73,12 @@ public class AccountInvoiceDetail {
 	@JoinColumn(name = "account_invoice_id", nullable = false)
 	private AccountInvoice accountInvoice;
 
-	@Column(name = "unit_price", nullable = false, precision=11, scale=2)
+	@Column(name = "unit_price", nullable = false, precision=12, scale=3)
 	@Required
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal unitPrice;
 
-	@Column(name = "discount", nullable = false, precision=11, scale=2)
+	@Column(name = "discount", nullable = false, precision=12, scale=3)
 	@Required
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
@@ -281,25 +281,31 @@ public class AccountInvoiceDetail {
 	{
 		taxAdjust = BigDecimal.ZERO;
 		taxPercentage = tax.getPercentage();
-		amount = getTotalPrice().setScale(2, RoundingMode.HALF_UP);
-		finalAmount = getFinalAmountCalc();
+		amount = calculateAmount();
+		finalAmount = calculateFinalAmount();
 		taxAmount = finalAmount.subtract(amount);
 	}
 	
 	//@Depends("unitPrice, quantity, discount")
-	public BigDecimal getTotalPrice() {
+	public BigDecimal calculateAmount() {
 		BigDecimal amount = BigDecimal.ZERO;
 		if (getQuantity()!=null)
 			amount = new BigDecimal(getQuantity()).multiply(getUnitPrice());
-		if (getDiscount()!=null)
+		if (hasDiscount())
 			amount = amount.subtract(getDiscount());
 		return amount.setScale(3, RoundingMode.HALF_UP);
 	}
 	
+	public boolean hasDiscount()
+	{
+		if (getDiscount()!=null && getDiscount().compareTo(BigDecimal.ZERO)>0)
+			return true;
+		return false;
+	}
 	//@Depends("unitPrice, quantity, discount, tax.percentage")
-	public BigDecimal getFinalAmountCalc() {
-		BigDecimal finalAmountCalc = getTotalPrice();
-		BigDecimal aux = getTotalPrice();
+	public BigDecimal calculateFinalAmount() {
+		BigDecimal finalAmountCalc = calculateAmount();
+		BigDecimal aux = calculateAmount();
 		if(getTax()!=null)
 		{
 			if(getTax().getPercentage()!=null)

@@ -172,7 +172,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale")
 	private String sequentialCode;
     
-	@Column(name="authorization_code", nullable=true, length=37)
+	@Column(name="authorization_code", nullable=true, length=50)
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale")
 	private String authorizationCode;
 	

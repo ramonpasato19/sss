@@ -15,6 +15,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
 		Category costCategory = CategoryHelper.getCostCategory();
+		Category discountCategory = CategoryHelper.getDiscountCategory();
 		Account account = getCreditAccount();
 		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
 		
@@ -22,13 +23,23 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 		
 		if (invoice.getDetails()==null || invoice.getDetails().isEmpty() || invoice.getTotal().compareTo(BigDecimal.ZERO)==0)
     		throw new OperativeException("invoice_not_processed_with_out_detail");
-    	
-		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, invoice.getTotal(),BigDecimal.ZERO,null, transaction));
-		
+    			
 		for (AccountInvoiceDetail detail: invoice.getDetails())
 		{
+			//Invoice
+			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(invoice.getAccount(), detail.getFinalAmount(), transaction));
+			
+			//AccountItem
 			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
+			{
 				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction, costCategory));
+				if (detail.hasDiscount())
+				{
+					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detail.getDiscount().setScale(2, RoundingMode.HALF_UP), transaction, discountCategory));
+					transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(invoice.getAccount(), detail.getDiscount().setScale(2, RoundingMode.HALF_UP), transaction));
+				}
+			}
+			//AccountAccountant
 			else
 				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction));
 			
