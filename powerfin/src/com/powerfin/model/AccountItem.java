@@ -39,6 +39,7 @@ import java.util.List;
 @Views({
 	@View(members="#accountId;"
 					+ "code;"
+					+ "alternateCode;"
 					+ "name;"
 					+ "description;"
 					+ "keywords;"
@@ -66,7 +67,7 @@ import java.util.List;
 			+ "description;"
 			)
 })
-@Tab(properties="registrationDate, accountId, code, name, description, retailPrice, countryId.name ")
+@Tab(properties="registrationDate, accountId, code, name, description, retailPrice, countryId.name, account.alternateCode ")
 public class AccountItem extends AuditEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -194,6 +195,10 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	@Column(name="average_value")
 	private BigDecimal averageValue;
+
+	@Transient
+	@Column(name="alternate_code")
+	private String alternateCode;
 
 	public AccountItem() {
 	}
@@ -406,5 +411,20 @@ public class AccountItem extends AuditEntity implements Serializable {
 	public void setAverageValue(BigDecimal averageValue) {
 		this.averageValue = averageValue;
 	}
+
+	public String getAlternateCode() {
+		if(account!=null)
+			return account.getAlternateCode();
+		else
+			return null;
+	}
+
+	public void setAlternateCode(String alternateCode) {
+		this.alternateCode = alternateCode;
+	}
+
+
+
+
 
 }

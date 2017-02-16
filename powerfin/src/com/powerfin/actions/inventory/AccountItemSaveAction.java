@@ -15,11 +15,12 @@ public class AccountItemSaveAction extends SaveAction {
 		String accountId = getView().getRoot().getValueString("accountId");
 		String code = getView().getRoot().getValueString("code");
 		String name = getView().getRoot().getValueString("name");
+		String alternateCode=getView().getRoot().getValueString("alternateCode");
 		String productId = getView().getSubview("product").getValueString("productId");
 
 		if (getView().isKeyEditable()) {
 
-			Account accountParent = AccountHelper.createAccount(productId, null, null, name, code, null);
+			Account accountParent = AccountHelper.createAccount(productId, null, null, name, code, alternateCode);
 
 			getView().setValue("accountId", accountParent.getAccountId());
 
@@ -43,6 +44,7 @@ public class AccountItemSaveAction extends SaveAction {
 			Account accountModifi = XPersistence.getManager().find(Account.class, accountId);
 			accountModifi.setCode(code);
 			accountModifi.setName(name);
+			accountModifi.setAlternateCode(alternateCode);
 			Product product = XPersistence.getManager().find(Product.class, productId);
 			accountModifi.setProduct(product);
 			accountModifi.setTransactionalName(name);
