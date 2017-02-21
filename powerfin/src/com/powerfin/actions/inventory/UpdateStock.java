@@ -24,6 +24,7 @@ public class UpdateStock {
 		stock.setAverageValue(averageCalculate);
 		StockHelper.createStock(stock);
 		accountItem.setAverageValue(averageCalculate);
+		accountItem.setCost(value);
 		XPersistence.getManager().merge(accountItem);
 
 	}

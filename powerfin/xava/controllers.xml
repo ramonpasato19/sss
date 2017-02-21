@@ -2044,7 +2044,9 @@
 		<action name="printInventoryMovements" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryAccountItemAction" icon="file-pdf">
 		</action>
-
+		<action name="printInventoryProfitMargin" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryProfitMargin" icon="file-pdf">
+		</action>
 	</controller>
 
 </controllers>
