@@ -1,13 +1,9 @@
 package com.powerfin.actions.inventory;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import com.powerfin.helper.ActionReportHelper;
-import com.powerfin.helper.CompanyHelper;
-import com.powerfin.util.report.ReportBaseAction;
+import com.powerfin.helper.*;
+import com.powerfin.util.report.*;
 
 public class PrintInventoryAccountItemAction extends ReportBaseAction {
 
@@ -16,8 +12,6 @@ public class PrintInventoryAccountItemAction extends ReportBaseAction {
 
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");
-
-		Calendar initialBalanceDate = Calendar.getInstance();
 
 		if (fromDate==null)
 			fromDate = CompanyHelper.getCurrentAccountingDate();
@@ -28,6 +22,8 @@ public class PrintInventoryAccountItemAction extends ReportBaseAction {
 
 		Map parameters = new HashMap();
 
+		addDefaultParameters(parameters);
+		
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		return parameters;

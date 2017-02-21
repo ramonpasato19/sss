@@ -281,7 +281,7 @@ public class AccountInvoiceDetail {
 	{
 		taxAdjust = BigDecimal.ZERO;
 		taxPercentage = tax.getPercentage();
-		amount = calculateAmount();
+		amount = calculateAmount().setScale(2, RoundingMode.HALF_UP);
 		finalAmount = calculateFinalAmount();
 		taxAmount = finalAmount.subtract(amount);
 	}
@@ -295,7 +295,7 @@ public class AccountInvoiceDetail {
 			amount = amount.subtract(getDiscount());
 		return amount.setScale(3, RoundingMode.HALF_UP);
 	}
-	
+		
 	public boolean hasDiscount()
 	{
 		if (getDiscount()!=null && getDiscount().compareTo(BigDecimal.ZERO)>0)
