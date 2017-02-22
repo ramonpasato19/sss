@@ -59,10 +59,11 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStock(detail.getAccountDetail(),invoice,new BigDecimal(detail.getQuantity()), detail.getAmount().divide(new BigDecimal(detail.getQuantity())), detail.getAmount(), invoice.getRegistrationDate());
+					updateStock(detail.getAccountDetail(),invoice,new BigDecimal(detail.getQuantity()), detail.getAmount().divide(new BigDecimal(detail.getQuantity()),2,RoundingMode.HALF_UP), detail.getAmount(), invoice.getRegistrationDate());
 		}
 	}
-	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate){
+	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate) throws Exception 
+	{
 
 		AccountItem accountItem=(AccountItem) XPersistence.getManager().find(AccountItem.class, item.getAccountId());
 		UpdateStock update=new UpdateStock();
