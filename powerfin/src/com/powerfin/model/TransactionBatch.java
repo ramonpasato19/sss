@@ -46,8 +46,8 @@ import com.powerfin.model.superclass.*;
 })
 @Tabs({
 	@Tab(name="NewTransactionBatch",properties="transactionBatchId,accountingDate,transactionModule.name,transactionBatchStatus.name", baseCondition = "${transactionBatchStatus.transactionBatchStatusId} = '001'"),
-	@Tab(name="ProcessTransactionBatch",properties="transactionBatchId,accountingDate,transactionModule.name,transactionBatchStatus.name", baseCondition = "${transactionBatchStatus.transactionBatchStatusId} = '001'"),
-	@Tab(name="ConsultTransactionBatch",properties="transactionBatchId,accountingDate,transactionModule.name,transactionBatchStatus.name", baseCondition = "${transactionBatchStatus.transactionBatchStatusId} in ('001','002')"),
+	@Tab(name="ProcessTransactionBatch",properties="transactionBatchId,accountingDate,transactionModule.name,transactionBatchStatus.name", baseCondition = "${transactionBatchStatus.transactionBatchStatusId} in ('001','002','003')"),
+	@Tab(name="ConsultTransactionBatch",properties="transactionBatchId,accountingDate,transactionModule.name,transactionBatchStatus.name", baseCondition = "${transactionBatchStatus.transactionBatchStatusId} in ('001','002','003','004')"),
 })
 public class TransactionBatch extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -149,6 +149,6 @@ public class TransactionBatch extends AuditEntity implements Serializable {
 	public void onCreate()
 	{
 		setAccountingDate(CompanyHelper.getCurrentAccountingDate());
-		setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthCreateStatus());
+		setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthRequestStatus());
 	}
 }

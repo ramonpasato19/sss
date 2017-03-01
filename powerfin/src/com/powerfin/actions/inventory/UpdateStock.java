@@ -45,8 +45,8 @@ public class UpdateStock {
 		}
 		valueTot=valueTot.add(newCost.multiply(newQuantity));
 		quantityAve=quantityAve.add(newQuantity);
-		BigDecimal valueAverage=valueTot.divide(quantityAve, RoundingMode.HALF_EVEN);
-		return valueAverage.setScale(2, BigDecimal.ROUND_HALF_EVEN);
+		BigDecimal valueAverage=valueTot.divide(quantityAve, 3, RoundingMode.HALF_UP);
+		return valueAverage;
 	}
 
 	public void removeItemStock(AccountItem accountItem, AccountInvoice accountInvoice, BigDecimal quantity, BigDecimal value, BigDecimal total, Date registrerDate) {

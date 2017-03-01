@@ -100,10 +100,7 @@ public class FinancialHelper {
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
 				updateBalance(financialCategory);			
-		/*
-		for (FinancialCategoryDTO financialCategory : financialCategories) 
-			validateNegativeBalance(financialCategory);
-			*/
+
 		System.out.println("End Save Financial -------------------------");
 	}
 
@@ -144,8 +141,8 @@ public class FinancialHelper {
 					financialCategory.getAccount().getAccountId()+"|"+
 					financialCategory.getSubaccount()+"|"+
 					financialCategory.getCategory().getCategoryId()+"|"+
-					date.toString());
-
+					UtilApp.dateToString(date));
+			
 			fillValues(financialCategory, date);
 			
 			Balance newBalance = new Balance();
@@ -235,7 +232,7 @@ public class FinancialHelper {
 						newBalance.getOfficialBalance()+"|"+
 						newBalance.getStock()+"|"+
 						newBalance.getBalanceId()+"|"+
-						newBalance.getToDate());
+						UtilApp.dateToString(newBalance.getToDate()));
 			else
 				System.out.println("Persist New Balance: " + 
 						newBalance.getAccount().getAccountId()+"|"+
@@ -245,42 +242,52 @@ public class FinancialHelper {
 						UtilApp.valueToOfficialValue(newBalance.getBalance(), financialCategory.getExchangeRate())+"|"+
 						newBalance.getStock()+"|"+
 						newBalance.getBalanceId()+"|"+
-						newBalance.getToDate());
+						UtilApp.dateToString(newBalance.getToDate()));
 		}
 
 	}
 
 	@SuppressWarnings("unchecked")
 	private static void fillValues(FinancialCategoryDTO financialCategory,
-			Date accountingDate) {
+			Date accountingDate) throws Exception {
 		financialCategory.setValue(BigDecimal.ZERO);
 		financialCategory.setOfficialValue(BigDecimal.ZERO);
 		financialCategory.setStock(BigDecimal.ZERO);
 
-		List<Movement> accountMovements = XPersistence
-				.getManager()
-				.createQuery(
-						"SELECT o FROM Movement o "
-								+ "WHERE o.financial.accountingDate = :accountingDate "
-								+ "AND o.account = :account "
-								+ "AND o.subaccount = :subaccount "
-								+ "AND o.category = :category")
-				.setParameter("accountingDate", accountingDate)
-				.setParameter("account", financialCategory.getAccount())
-				.setParameter("subaccount", financialCategory.getSubaccount())
-				.setParameter("category", financialCategory.getCategory())
-				.getResultList();
-
-		if (accountMovements != null && !accountMovements.isEmpty()) {
-			for (Movement accountMovement : accountMovements) {
-				System.out.println("Add Movement Value: "+ 
-						accountMovement.getValue()+"|"+ 
-						accountMovement.getOfficialValue()+"|"+
-						accountMovement.getQuantity()+"|"+
-						accountMovement.getMovementId());
-				financialCategory.setValue(financialCategory.getValue().add(accountMovement.getValue()));
-				financialCategory.setStock(financialCategory.getStock().add(accountMovement.getQuantity()!=null?accountMovement.getQuantity():BigDecimal.ZERO));
-				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add(accountMovement.getOfficialValue()));
+		String schema = CompanyHelper.getSchema().toLowerCase();
+		
+		String query = "SELECT "
+		 		+ "SUM(COALESCE(o.value,0)) as value, "
+		 		+ "SUM(COALESCE(o.official_value,0)) as official_value, "
+		 		+ "SUM(COALESCE(o.quantity,0)) as quantity "
+		 		+ "FROM "+schema+".movement o, "+schema+".financial f "
+				+ "WHERE f.accounting_date = :accountingDate "
+				+ "AND o.account_id = :account "
+				+ "AND o.subaccount = :subaccount "
+				+ "AND o.category_id = :category "
+				+ "AND o.financial_id = f.financial_id";
+		
+		 List<Object[]> acumulatedMovements = XPersistence.getManager()
+				 .createNativeQuery(query)
+				 .setParameter("accountingDate", accountingDate)
+				 .setParameter("account", financialCategory.getAccount().getAccountId())
+				 .setParameter("subaccount", financialCategory.getSubaccount())
+				 .setParameter("category", financialCategory.getCategory().getCategoryId())
+				 .getResultList();
+		
+		if (acumulatedMovements != null && !acumulatedMovements.isEmpty()) {
+			
+			Object[] acumulatedValues = (Object[])acumulatedMovements.get(0);
+			if (acumulatedValues!=null) 
+			{
+				System.out.println("Add Movements of Day: "+ 
+						acumulatedValues[0]+"|"+ 
+						acumulatedValues[1]+"|"+
+						acumulatedValues[2]);
+				financialCategory.setValue(financialCategory.getValue().add((BigDecimal) acumulatedValues[0]));
+				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add((BigDecimal) acumulatedValues[1]));
+				financialCategory.setStock(financialCategory.getStock().add((BigDecimal) acumulatedValues[2]));
+				
 			}
 		}
 	}

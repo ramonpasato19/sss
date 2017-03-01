@@ -1,18 +1,13 @@
 package com.powerfin.model;
 
-import java.math.BigDecimal;
-import java.util.Date;
+import java.math.*;
+import java.util.*;
 
-import javax.persistence.Column;
+import javax.persistence.*;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.*;
 
 @Entity
 @Table(name="stock")
@@ -35,19 +30,19 @@ public class Stock {
 	@Column(name="registrer_date")
 	private Date registrerDate;
 
-	@Column(name="quantity")
+	@Column(name="quantity", precision=20, scale=2)
 	private BigDecimal quantity;
 
 	/*@Column(name="stock")
 	private BigDecimal stock;
 	*/
-	@Column(name="value")
+	@Column(name="value", precision=12, scale=3)
 	private BigDecimal value;
 
-	@Column(name="average_value")
+	@Column(name="average_value", precision=12, scale=3)
 	private BigDecimal averageValue;
 
-	@Column(name="total_value")
+	@Column(name="total_value", precision=12, scale=3)
 	private BigDecimal totalValue;
 
 	public String getStockId() {

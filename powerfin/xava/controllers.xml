@@ -334,6 +334,12 @@
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '103' and ${accountStatus.accountStatusId} in ('002') " property="condition"/>
 		</action>
+		<action name="SearchAccountItem"
+			class="com.powerfin.actions.search.SearchAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} = '104'" property="condition"/>
+		</action>
 	</controller>
 		
 	<controller name="SearchBookAccount">

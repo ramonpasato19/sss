@@ -12,7 +12,8 @@ public class PrintInventoryAccountItemAction extends ReportBaseAction {
 
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");
-
+		Boolean all=(Boolean)getView().getValue("all");
+		String accountId=(String)getView().getValue("account.accountId");
 		if (fromDate==null)
 			fromDate = CompanyHelper.getCurrentAccountingDate();
 
@@ -26,6 +27,8 @@ public class PrintInventoryAccountItemAction extends ReportBaseAction {
 		
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
+		parameters.put("ALL", all);
+		parameters.put("ACCOUNT_ID", accountId);
 		return parameters;
 
 	}

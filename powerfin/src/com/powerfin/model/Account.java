@@ -40,6 +40,7 @@ import com.powerfin.util.*;
 	@View(name="simple", members="accountId; transactionalNameForView;"),
 	@View(name="simpleBalance", members="accountId; transactionalNameForView;balance"),
 	@View(name="normal", members="accountId, code; name;"),
+	@View(name="report", members="accountId, alternateCode; name;"),
 	@View(name="Shareholder", 
 			members="person;"
 					+ "product;"
@@ -88,7 +89,7 @@ public class Account extends AuditEntity implements Serializable {
 	
 	@Id
 	@Column(name="account_id", unique=true, nullable=false, length=20)
-	@ReadOnly(notForViews="simple, normal, reference, simpleBalance, Bank, PurchasePortfolioPayment, SalePortfolioPayment")
+	@ReadOnly(notForViews="simple, normal, report, reference, simpleBalance, Bank, PurchasePortfolioPayment, SalePortfolioPayment")
 	@DefaultValueCalculator(DefaultAccountIdCalculator.class)
 	private String accountId;
 

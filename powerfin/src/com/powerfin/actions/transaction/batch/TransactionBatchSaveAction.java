@@ -16,6 +16,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 
 	private String subAction;
 
+	@SuppressWarnings("unchecked")
 	public void execute() throws Exception {
 
 		Integer transactionBatchId = (Integer) getView().getValue("transactionBatchId");
@@ -24,9 +25,13 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		int lineNumber = 1;
 		int row = 0;
 
-		if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_PROCESS_STATUS))
+		if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_FINISH_STATUS))
 			throw new OperativeException("transaction_already_processed");
-		if (subAction.equals("COLLECT")) {
+		if (subAction.equals("COLLECT")) {	
+			
+			transactionBatch.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthCollectedStatus());
+			XPersistence.getManager().merge(transactionBatch);
+			
 			byte[] fileBytes = null;
 
 			File oxfile = XPersistence.getManager().find(File.class, transactionBatch.getFile());
@@ -70,17 +75,30 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 					ex.printStackTrace();
 				}
 			}
+			getView().refresh();
 			getView().refreshCollections();
+
 			addMessage("complete_collection");
 
 		} else if (subAction.equals("PROCESS")) {
+			
+			transactionBatch.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthInProcessStatus());
+			XPersistence.getManager().merge(transactionBatch);
+			
 			String transactionModuleId = transactionBatch.getTransactionModule().getTransactionModuleId();
-			List<TransactionBatchDetail> details = transactionBatch.getTransactionBatchDetails();
-			int transactionBatchDetailCount = 0;
-			for (TransactionBatchDetail detail : details) {
+
+			List<TransactionBatchDetail> details = XPersistence.getManager().createQuery("SELECT tbd FROM TransactionBatchDetail tbd "
+					+ "WHERE transactionBatch.transactionBatchId = :transactionBatchId "
+					+ "AND transactionBatchStatus.transactionBatchStatusId = :transactionBatchStatusId "
+					+ "ORDER by line")
+			.setParameter("transactionBatchId", transactionBatch.getTransactionBatchId())
+			.setParameter("transactionBatchStatusId", TransactionBatchHelper.TRANSACTION_BATCH_DETAIL_CREATE_STATUS)
+			.getResultList();
+			
+			for (TransactionBatchDetail detailIte : details) {
+				TransactionBatchDetail detail = XPersistence.getManager().find(TransactionBatchDetail.class, detailIte.getTransactionBatchDetailId());
 				try {
 					
-
 					if (transactionModuleId.equals("PURCHASEPORTFOLIOPAYMENT"))
 						processPurchasePortfolioPayment(transactionBatch, detail);
 					else if (transactionModuleId.equals("SALEPORTFOLIOPAYMENT"))
@@ -98,15 +116,13 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 					XPersistence.getManager().merge(detail);
 				}
 
-				if (transactionBatchDetailCount % 50 == 0) { // 20, same as the JDBC batch size
-					// flush a batch of inserts and release memory
-					XPersistence.getManager().flush();
-					XPersistence.getManager().clear();
-				}
-				transactionBatchDetailCount++;
+				XPersistence.commit();
 			}
-			transactionBatch.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthProcessStatus());
+			
+			transactionBatch = XPersistence.getManager().find(TransactionBatch.class, transactionBatchId);
+			transactionBatch.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthFinishStatus());
 			XPersistence.getManager().merge(transactionBatch);
+			XPersistence.commit();
 			getView().refreshCollections();
 			getView().refresh();
 			addMessage("complete_process");

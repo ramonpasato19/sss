@@ -41,9 +41,10 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			}
 			//AccountAccountant
 			else
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(),new BigDecimal(detail.getQuantity()), transaction.getUnityDetail(), transaction));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detail.getAmount(), transaction));
 			
-			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(invoice.getAccount(), detail.getTaxAmount(),new BigDecimal(detail.getQuantity()),transaction.getUnityDetail(), transaction, detail.getTax().getCategory()));
+			//Tax
+			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(invoice.getAccount(), detail.getTaxAmount(), transaction, detail.getTax().getCategory()));
 		}
 		
 		return transactionAccounts;
@@ -59,7 +60,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStock(detail.getAccountDetail(),invoice,new BigDecimal(detail.getQuantity()), detail.getAmount().divide(new BigDecimal(detail.getQuantity()),2,RoundingMode.HALF_UP), detail.getAmount(), invoice.getRegistrationDate());
+					updateStock(detail.getAccountDetail(),invoice,new BigDecimal(detail.getQuantity()), detail.calculateAmount().divide(new BigDecimal(detail.getQuantity()),3,RoundingMode.HALF_UP), detail.getAmount(), invoice.getRegistrationDate());
 		}
 	}
 	public void updateStock(Account item,AccountInvoice invoice, BigDecimal quantity, BigDecimal cost,  BigDecimal total, Date registrerDate) throws Exception 

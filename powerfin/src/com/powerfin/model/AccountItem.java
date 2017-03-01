@@ -83,7 +83,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private String code;
 
 	@Hidden
-	@Column(precision=12, scale=2)
+	@Column(nullable=false, precision=12, scale=3)
 	private BigDecimal cost;
 
 	@Required
@@ -99,7 +99,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	//@OnChange(AccountItemChangeValues.class)
 	@Required
-	@Column(nullable=false, precision=12, scale=2)
+	@Column(nullable=false, precision=12, scale=3)
 	private BigDecimal price;
 
 	@OneToOne
@@ -114,11 +114,11 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private UnitMeasure unitMeasureBean;
 
 
-	@Column(name="tax_price", nullable=false, precision=12, scale=2)
+	@Column(name="tax_price", precision=19, scale=2)
 	private BigDecimal taxPrice;
 
 	@Required
-	@Column(name="retail_price", nullable=false, precision=12, scale=2)
+	@Column(name="retail_price", precision=19, scale=2)
 	private BigDecimal retailPrice;
 
 	@Transient
@@ -127,11 +127,11 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private BigDecimal retailPriceAux;
 
 	@Required
-	@Column(name="minimal_quantity", nullable=false, precision=12, scale=0)
+	@Column(name="minimal_quantity", precision=19, scale=2)
 	private BigDecimal minimalQuantity;
 
 	@Required
-	@Column(name="maximum_quantity", nullable=false, precision=12, scale=0)
+	@Column(name="maximum_quantity", precision=19, scale=2)
 	private BigDecimal maximumQuantity;
 
 	@Stereotype("PHOTO")
@@ -193,7 +193,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	})
 	private Product product;
 
-	@Column(name="average_value")
+	@Column(name="average_value", precision=12, scale=3)
 	private BigDecimal averageValue;
 
 	@Transient
