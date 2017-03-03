@@ -287,6 +287,13 @@ public class AccountInvoiceDetail {
 	}
 	
 	//@Depends("unitPrice, quantity, discount")
+	public BigDecimal calculateAmountWithoutDiscount() {
+		BigDecimal amount = BigDecimal.ZERO;
+		if (getQuantity()!=null)
+			amount = new BigDecimal(getQuantity()).multiply(getUnitPrice());
+		return amount.setScale(3, RoundingMode.HALF_UP);
+	}
+	
 	public BigDecimal calculateAmount() {
 		BigDecimal amount = BigDecimal.ZERO;
 		if (getQuantity()!=null)
@@ -302,6 +309,14 @@ public class AccountInvoiceDetail {
 			return true;
 		return false;
 	}
+	
+	public boolean hasTax()
+	{
+		if (getTaxAmount()!=null && getTaxAmount().compareTo(BigDecimal.ZERO)>0)
+			return true;
+		return false;
+	}
+	
 	//@Depends("unitPrice, quantity, discount, tax.percentage")
 	public BigDecimal calculateFinalAmount() {
 		BigDecimal finalAmountCalc = calculateAmount();

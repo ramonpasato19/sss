@@ -19,7 +19,7 @@ public class UpdateStock {
 		stock.setQuantity(quantity);
 		stock.setValue(value);
 		stock.setTotalValue(total);
-		stock.setRegistrerDate(registrerDate);
+		stock.setRegistrerDate(new Date());
 		BigDecimal averageCalculate=calculeAverageValue(accountItem,value, quantity);
 		stock.setAverageValue(averageCalculate);
 		StockHelper.createStock(stock);
