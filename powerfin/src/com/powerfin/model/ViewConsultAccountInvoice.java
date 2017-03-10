@@ -47,7 +47,7 @@ public class ViewConsultAccountInvoice {
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
-	@Condition(value="${account.product.productId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCTID+"' "+
+	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"' "+
 			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> purchaseRetentions;
 	
@@ -72,7 +72,7 @@ public class ViewConsultAccountInvoice {
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
-	@Condition(value="${account.product.productId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCTID+"' "+
+	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"' "+
 			"and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> saleRetentions;
 	

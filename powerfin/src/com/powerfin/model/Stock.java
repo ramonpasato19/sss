@@ -33,16 +33,13 @@ public class Stock {
 	@Column(name="quantity", precision=20, scale=2)
 	private BigDecimal quantity;
 
-	/*@Column(name="stock")
-	private BigDecimal stock;
-	*/
-	@Column(name="value", precision=12, scale=3)
+	@Column(name="value", precision=13, scale=4)
 	private BigDecimal value;
 
-	@Column(name="average_value", precision=12, scale=3)
+	@Column(name="average_value", precision=13, scale=4)
 	private BigDecimal averageValue;
 
-	@Column(name="total_value", precision=12, scale=3)
+	@Column(name="total_value", precision=13, scale=4)
 	private BigDecimal totalValue;
 
 	public String getStockId() {
@@ -109,7 +106,4 @@ public class Stock {
 	public void setQuantity(BigDecimal quantity) {
 		this.quantity = quantity;
 	}
-
-
-
 }

@@ -250,6 +250,7 @@ public class NegotiationProcessLoan {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void deleteAccountLoan()
 	{
 		System.out.println("/////////////////////deleteAccountLoan");

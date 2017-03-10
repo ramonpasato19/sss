@@ -79,6 +79,7 @@ public class Company implements Serializable {
 	}
 
 	public void setName(String name) {
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@ ACTUALIZA NOMBRE: "+this.name+">"+name);
 		this.name = name;
 	}
 
@@ -103,6 +104,7 @@ public class Company implements Serializable {
 	}
 
 	public void setAccountingDate(Date accountingDate) {
+		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@ ACTUALIZA FECHA: "+this.accountingDate+">"+accountingDate);
 		this.accountingDate = accountingDate;
 	}
 

@@ -24,30 +24,28 @@ import org.openxava.annotations.*;
 		+ "unitPrice;"
 		+ "quantity;"
 		+ "discount;"
-		//+ "totalPrice;"
-		//+ "taxAmountCalc;"
-		//+ "taxAdjust;"
-		//+ "finalAmountCalc"
 		),
 @View(name="InvoicePurchase", members = "accountDetail;"
 		+ "tax;"
 		+ "unitPrice;"
 		+ "quantity;"
 		+ "discount;"
-		//+ "totalPrice;"
-		//+ "taxAmountCalc;"
 		+ "taxAdjust;"
-		//+ "finalAmountCalc"
 		),
 @View(name="InvoiceSale", members = "accountDetail;"
 		+ "tax;"
 		+ "unitPrice;"
 		+ "quantity;"
-		+ "discount;"
-		//+ "totalPrice;"
-		//+ "taxAmountCalc;"
-		+ "taxAdjust;"
-		//+ "finalAmountCalc"
+		),
+@View(name="CreditNotePurchase", members = "accountDetail;"
+		+ "tax;"
+		+ "unitPrice;"
+		+ "quantity;"
+		),
+@View(name="CreditNoteSale", members = "accountDetail;"
+		+ "tax;"
+		+ "unitPrice;"
+		+ "quantity;"
 		),
 })
 public class AccountInvoiceDetail {
@@ -73,13 +71,14 @@ public class AccountInvoiceDetail {
 	@JoinColumn(name = "account_invoice_id", nullable = false)
 	private AccountInvoice accountInvoice;
 
-	@Column(name = "unit_price", nullable = false, precision=12, scale=3)
+	@Column(name = "unit_price", nullable = false, precision=13, scale=4)
 	@Required
+	@DecimalMin(value="0.01")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal unitPrice;
 
-	@Column(name = "discount", nullable = false, precision=12, scale=3)
-	@Required
+	@Column(name = "discount", nullable = false, precision=13, scale=4)
+	@DecimalMin(value="0.01")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
 	
@@ -89,10 +88,10 @@ public class AccountInvoiceDetail {
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private Integer quantity;
 
-	@Column(name = "original_cost", nullable = true, precision=12, scale=3)
+	@Column(name = "original_cost", nullable = true, precision=13, scale=4)
 	private BigDecimal originalCost;
 	
-	@Column(name = "original_price", nullable = true, precision=12, scale=3)
+	@Column(name = "original_price", nullable = true, precision=13, scale=4)
 	private BigDecimal originalPrice;
 	
 	@Column(name = "remark", nullable = true)
@@ -102,9 +101,7 @@ public class AccountInvoiceDetail {
 	@AsEmbedded
 	@ListProperties("tax.name, taxBase, taxPercentage, amount")
 	private List<AccountInvoiceDetailTax> taxes;
-	
-	/////
-	
+		
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "tax_id", nullable = false)
 	@Required
@@ -115,11 +112,13 @@ public class AccountInvoiceDetail {
 	@SearchActions({
 		@SearchAction(forViews="InvoicePurchase",value="SearchTax.SearchTaxForInvoicePurchase"),
 		@SearchAction(forViews="InvoiceSale",value="SearchTax.SearchTaxForInvoiceSale"),
+		@SearchAction(forViews="CreditNotePurchase",value="SearchTax.SearchTaxForInvoicePurchase"),
+		@SearchAction(forViews="CreditNoteSale",value="SearchTax.SearchTaxForInvoiceSale"),
 	})
 	private Tax tax;
 	
 	@Column(name = "tax_adjust", nullable = false, precision=11, scale=2)
-	//@Required
+	@DecimalMin(value="0.00")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal taxAdjust;
 	
@@ -135,7 +134,9 @@ public class AccountInvoiceDetail {
 	@Column(name = "final_amount", nullable = false, precision=11, scale=2)
 	private BigDecimal finalAmount;
 	
-	
+	@ManyToOne
+	@JoinColumn(name="unity_id")
+	private Unity unity;
 
 	public String getAccountInvoiceDetailId() {
 		return accountInvoiceDetailId;
@@ -265,15 +266,31 @@ public class AccountInvoiceDetail {
 		this.finalAmount = finalAmount;
 	}
 	
+	public Unity getUnity() {
+		return unity;
+	}
+
+	public void setUnity(Unity unity) {
+		this.unity = unity;
+	}
+
 	@PreCreate
 	public void onCreate()
 	{
+		if (getDiscount()==null)
+			setDiscount(BigDecimal.ZERO);
+		if (getTaxAdjust()==null)
+			setTaxAdjust(BigDecimal.ZERO);
 		updateAmounts();
 	}
 	
 	@PreUpdate
 	public void onUpdate()
 	{
+		if (getDiscount()==null)
+			setDiscount(BigDecimal.ZERO);
+		if (getTaxAdjust()==null)
+			setTaxAdjust(BigDecimal.ZERO);
 		updateAmounts();
 	}
 	
@@ -286,21 +303,13 @@ public class AccountInvoiceDetail {
 		taxAmount = finalAmount.subtract(amount);
 	}
 	
-	//@Depends("unitPrice, quantity, discount")
-	public BigDecimal calculateAmountWithoutDiscount() {
-		BigDecimal amount = BigDecimal.ZERO;
-		if (getQuantity()!=null)
-			amount = new BigDecimal(getQuantity()).multiply(getUnitPrice());
-		return amount.setScale(3, RoundingMode.HALF_UP);
-	}
-	
 	public BigDecimal calculateAmount() {
 		BigDecimal amount = BigDecimal.ZERO;
 		if (getQuantity()!=null)
 			amount = new BigDecimal(getQuantity()).multiply(getUnitPrice());
 		if (hasDiscount())
 			amount = amount.subtract(getDiscount());
-		return amount.setScale(3, RoundingMode.HALF_UP);
+		return amount.setScale(4, RoundingMode.HALF_UP);
 	}
 		
 	public boolean hasDiscount()

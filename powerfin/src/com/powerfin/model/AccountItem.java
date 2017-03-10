@@ -1,30 +1,14 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.math.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.math.BigDecimal;
-import org.openxava.annotations.Action;
-import org.openxava.annotations.AsEmbedded;
-import org.openxava.annotations.CollectionView;
-import org.openxava.annotations.DescriptionsList;
-import org.openxava.annotations.Hidden;
-import org.openxava.annotations.ListProperties;
-import org.openxava.annotations.NewAction;
-import org.openxava.annotations.NoCreate;
-import org.openxava.annotations.NoModify;
-import org.openxava.annotations.ReadOnly;
-import org.openxava.annotations.ReferenceView;
-import org.openxava.annotations.Required;
-import org.openxava.annotations.SearchAction;
-import org.openxava.annotations.SearchActions;
-import org.openxava.annotations.Stereotype;
-import org.openxava.annotations.Tab;
-import org.openxava.annotations.View;
-import org.openxava.annotations.Views;
-import com.powerfin.actions.inventory.AccountItemChangeValues;
-import com.powerfin.model.superclass.AuditEntity;
-import java.util.Collection;
-import java.util.List;
+
+import org.openxava.annotations.*;
+
+import com.powerfin.model.superclass.*;
 
 
 
@@ -83,7 +67,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private String code;
 
 	@Hidden
-	@Column(nullable=false, precision=12, scale=3)
+	@Column(nullable=false, precision=13, scale=4)
 	private BigDecimal cost;
 
 	@Required
@@ -99,7 +83,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	//@OnChange(AccountItemChangeValues.class)
 	@Required
-	@Column(nullable=false, precision=12, scale=3)
+	@Column(nullable=false, precision=13, scale=4)
 	private BigDecimal price;
 
 	@OneToOne
@@ -193,7 +177,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	})
 	private Product product;
 
-	@Column(name="average_value", precision=12, scale=3)
+	@Column(name="average_value", precision=13, scale=4)
 	private BigDecimal averageValue;
 
 	@Transient
@@ -318,8 +302,6 @@ public class AccountItem extends AuditEntity implements Serializable {
 		this.picture = picture;
 	}
 
-
-
 	public Brand getBrandId() {
 		return brandId;
 	}
@@ -422,9 +404,5 @@ public class AccountItem extends AuditEntity implements Serializable {
 	public void setAlternateCode(String alternateCode) {
 		this.alternateCode = alternateCode;
 	}
-
-
-
-
 
 }

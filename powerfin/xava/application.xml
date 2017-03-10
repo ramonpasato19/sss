@@ -259,6 +259,22 @@
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END TXRetentionPurchase ######################################## -->
+<!-- BEGIN TXCreditNotePurchase ######################################## -->
+	<module name="RequestTXCreditNotePurchase">
+		<model name="AccountInvoice" />
+		<controller name="RequestTXCreditNotePurchaseController" />
+		<view name="RequestTXCreditNotePurchase" />
+		<tab name="TXCreditNotePurchase" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXCreditNotePurchase">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXCreditNotePurchaseController" />
+		<view name="AuthorizeTXCreditNotePurchase" />
+		<tab name="TXCreditNotePurchase" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXCreditNotePurchase ######################################## -->
 <!-- BEGIN TXInvoiceSale ######################################## -->
 	<module name="RequestTXInvoiceSale">
 		<model name="AccountInvoice" />
@@ -291,6 +307,22 @@
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END TXRetentionSale ######################################## -->
+<!-- BEGIN TXCreditNoteSale ######################################## -->
+	<module name="RequestTXCreditNoteSale">
+		<model name="AccountInvoice" />
+		<controller name="RequestTXCreditNoteSaleController" />
+		<view name="RequestTXCreditNoteSale" />
+		<tab name="TXCreditNoteSale" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXCreditNoteSale">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXCreditNoteSaleController" />
+		<view name="AuthorizeTXCreditNoteSale" />
+		<tab name="TXCreditNoteSale" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXCreditNoteSale ######################################## -->
 <!-- BEGIN TXDebitBank ######################################## -->
 	<module name="RequestTXDebitBank">
 		<model name="Transaction" />

@@ -229,5 +229,36 @@ public class Movement implements Serializable {
 	public void setUnity(Unity unity) {
 		this.unity = unity;
 	}
+	
+	public String toString()
+	{
+		StringBuffer sb = new StringBuffer();
+		sb.append("Movement");
+		sb.append("|");
+		sb.append(getAccount().getAccountId());
+		sb.append("|");
+		sb.append(getSubaccount());
+		sb.append("|");
+		sb.append(getCategory().getCategoryId());
+		sb.append("|");
+		sb.append(getBookAccount().getGroupAccount().getGroupAccountId());
+		sb.append("|");
+		sb.append(getBookAccount().getBookAccountId());
+		sb.append("|");
+		sb.append(getDebitOrCredit());
+		sb.append("|");
+		sb.append(getValue());
+		sb.append("|");
+		sb.append(getOfficialValue());
+		sb.append("|");
+		sb.append(getExchangeRate());
+		sb.append("|");
+		sb.append(getMovementId());
+		sb.append("|");
+		sb.append(getUnity()!=null?getUnity().getUnityId():"");
+		sb.append("|");
+		sb.append(getQuantity()!=null?getQuantity():"");
+		return sb.toString();
+	}
 
 }

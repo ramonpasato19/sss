@@ -13,15 +13,17 @@ public class AccountInvoiceHelper {
 	public final static String STATUS_INVOICE_WITH_RETENTION = "005";
 	public final static String STATUS_INVOICE_ACTIVE = "002";
 	public final static String STATUS_PROCESS_FINANCIAL = "002";
-	public final static String INVOICE_SALE_TRANSACTION_MODULE = "INVOICE_SALE";
-	public final static String INVOICE_PURCHASE_TRANSACTION_MODULE = "INVOICE_PURCHASE";
+	
+	public final static String STATUS_RETENTION_ACTIVE = "002";
 	
 	public final static String INVOICE_PURCHASE_PRODUCT_TYPE_ID = "201";
 	public final static String INVOICE_SALE_PRODUCT_TYPE_ID = "102";
 	
-	public final static String RETENTION_PURCHASE_PRODUCTID = "103";	
-	public final static String RETENTION_SALE_PRODUCTID = "203";
+	public final static String RETENTION_PURCHASE_PRODUCT_TYPE_ID = "105";
+	public final static String RETENTION_SALE_PRODUCT_TYPE_ID = "205";
 	
+	public final static String CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID = "106";
+	public final static String CREDIT_NOTE_SALE_PRODUCT_TYPE_ID = "206";	
 	
 	public static boolean cancelInvoice(Account account) throws Exception {
 		AccountInvoice accountInvoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());

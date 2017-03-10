@@ -12,13 +12,13 @@ import com.powerfin.model.Stock;
 
 public class UpdateStock {
 
-	public void updateItemStock(AccountItem accountItem, AccountInvoice accountInvoice, BigDecimal quantity, BigDecimal value, BigDecimal total, Date registrerDate) {
+	public void updateItemStock(AccountItem accountItem, AccountInvoice accountInvoice, BigDecimal quantity, BigDecimal value, Date registrerDate) {
 		Stock stock=new Stock();
 		stock.setAccountId(accountItem);
 		stock.setAccountInvoiceId(accountInvoice);
 		stock.setQuantity(quantity);
 		stock.setValue(value);
-		stock.setTotalValue(total);
+		stock.setTotalValue(value.multiply(quantity).setScale(4, RoundingMode.HALF_UP));
 		stock.setRegistrerDate(new Date());
 		BigDecimal averageCalculate=calculeAverageValue(accountItem,value, quantity);
 		stock.setAverageValue(averageCalculate);
@@ -45,18 +45,18 @@ public class UpdateStock {
 		}
 		valueTot=valueTot.add(newCost.multiply(newQuantity));
 		quantityAve=quantityAve.add(newQuantity);
-		BigDecimal valueAverage=valueTot.divide(quantityAve, 3, RoundingMode.HALF_UP);
+		BigDecimal valueAverage=valueTot.divide(quantityAve, 4, RoundingMode.HALF_UP);
 		return valueAverage;
 	}
 
-	public void removeItemStock(AccountItem accountItem, AccountInvoice accountInvoice, BigDecimal quantity, BigDecimal value, BigDecimal total, Date registrerDate) {
+	public void removeItemStock(AccountItem accountItem, AccountInvoice accountInvoice, BigDecimal quantity, BigDecimal value, Date registrerDate) {
 		Stock stock=new Stock();
 		stock.setAccountId(accountItem);
 		stock.setAccountInvoiceId(accountInvoice);
 		stock.setValue(value);
-		stock.setQuantity(quantity);
-		stock.setTotalValue(total);
-		stock.setRegistrerDate(registrerDate);
+		stock.setQuantity(quantity.negate());
+		stock.setTotalValue(value.multiply(quantity.negate()).setScale(4, RoundingMode.HALF_UP));
+		stock.setRegistrerDate(new Date());
 		stock.setAverageValue(accountItem.getAverageValue());
 		StockHelper.createStock(stock);
 

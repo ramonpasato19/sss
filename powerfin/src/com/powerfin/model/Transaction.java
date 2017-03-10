@@ -220,17 +220,31 @@ import com.powerfin.model.types.*;
 		//Authorize Invoice Purchase
 		@View(name = "AuthorizeTXInvoicePurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "unityDetail;"
+				+ "origenUnity;"
 				+ "invoice[creditAccount];" 
 				+ "data[accountInvoicePurchase];"),
 		
 		//Authorize Invoice Sale
 		@View(name = "AuthorizeTXInvoiceSale", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "unityDetail;"
+				+ "origenUnity;"
 				+ "invoice[debitAccount];" 
 				+ "data[accountInvoiceSale];"),
 		
+		//Authorize Credit Note Purchase
+		@View(name = "AuthorizeTXCreditNotePurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "value; transactionStatus;"
+				+ "origenUnity;"
+				+ "creditNote[debitAccount];" 
+				+ "data[accountInvoiceSale];"),
+
+		//Authorize Credit Note Sale
+		@View(name = "AuthorizeTXCreditNoteSale", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "value; transactionStatus;"
+				+ "origenUnity;"
+				+ "creditNote[creditAccount];" 
+				+ "data[accountInvoicePurchase];"),
+				
 		//Authorize Retention on Invoice Purchase
 		@View(name = "AuthorizeTXRetentionPurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
@@ -375,6 +389,8 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXCheckPaymentPayable", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CHECKPAYMENTPAYABLE'"),
 		@Tab(name = "TXInvoicePurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_PURCHASE'"),
 		@Tab(name = "TXInvoiceSale", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_SALE'"),
+		@Tab(name = "TXCreditNotePurchase", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTEPURCHASE'"),
+		@Tab(name = "TXCreditNoteSale", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTESALE'"),
 		@Tab(name = "TXRetentionSale", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_SALE'"),
 		@Tab(name = "TXRetentionPurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_PURCHASE'"),
 		@Tab(name = "TXAccountLoan", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANDISBURSEMENT'"),
@@ -451,6 +467,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	private String remark;
 
@@ -496,6 +514,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	private String documentNumber;
 	
@@ -547,6 +567,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	private BigDecimal value;
 
@@ -601,6 +623,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	private Currency currency;
 	
@@ -651,6 +675,8 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 					+ "AuthorizeTXSalePortfolioPayment,"
 					+ "AuthorizeTXLoanPayment,"
+					+ "AuthorizeTXCreditNotePurchase,"
+					+ "AuthorizeTXCreditNoteSale,"
 					)
 	})
 	@ReadOnly(forViews = "DEFAULT, "
@@ -688,6 +714,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	
 	@DescriptionsLists({ 
@@ -793,6 +821,8 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 							+ "AuthorizeTXSalePortfolioPayment,"
 							+ "AuthorizeTXLoanPayment,"
+							+ "AuthorizeTXCreditNotePurchase,"
+							+ "AuthorizeTXCreditNoteSale,"
 							) 
 			})
 	@ReferenceView(forViews = "DEFAULT, TransactionList", value = "simple")
@@ -903,6 +933,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
 	private Account debitAccount;
@@ -950,6 +982,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
+			+ "AuthorizeTXCreditNotePurchase,"
+			+ "AuthorizeTXCreditNoteSale,"
 			)
 	@SearchActions({ 
 		@SearchAction(forViews="RequestTXOpening", value = "SearchAccount.SearchShareholderAccount"),
@@ -1012,6 +1046,12 @@ public class Transaction implements Serializable {
 	@NoModify
 	private Category secondaryCategory;
 	
+	@ManyToOne
+	@JoinColumn(name="origen_unity_id")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@DescriptionsList(descriptionProperties = "name")
+	private Unity origenUnity;
+	
 	//-------------------------
 	
 	@Transient
@@ -1019,7 +1059,7 @@ public class Transaction implements Serializable {
 	@DefaultValueCalculator(com.powerfin.calculators.CurrentAccountingDateCalculator.class)
 	@ReadOnly
 	private Date companyAccountingDate;
-	
+		
 	@Transient
 	@ManyToOne
 	@NoCreate
@@ -1064,21 +1104,6 @@ public class Transaction implements Serializable {
 	@NoFrame
 	@ReadOnly
 	private AccountLoan accountLoan;
-	
-	@ManyToOne
-	@JoinColumn(name="origen_unity_id")
-	private Unity unity;
-
-	@Transient
-	@ManyToOne
-	@NoCreate
-	@NoModify
-	@DescriptionsLists({
-		@DescriptionsList(descriptionProperties = "name",
-				forViews = "AuthorizeTXInvoicePurchase,AuthorizeTXInvoiceSale"
-						)
-		})
-	private Unity unityDetail;
 
 	public Transaction() {
 	}
@@ -1291,7 +1316,6 @@ public class Transaction implements Serializable {
 	public void setSecondaryCategory(Category secondaryCategory) {
 		this.secondaryCategory = secondaryCategory;
 	}
-
 	
 	public Date getValueDate() {
 		return valueDate;
@@ -1354,21 +1378,12 @@ public class Transaction implements Serializable {
 		return realValue;
 	}
 
-	public Unity getUnity() {
-		return unity;
+	public Unity getOrigenUnity() {
+		return origenUnity;
 	}
 
-	public void setUnity(Unity unity) {
-		this.unity = unity;
+	public void setOrigenUnity(Unity origenUnity) {
+		this.origenUnity = origenUnity;
 	}
-
-	public Unity getUnityDetail() {
-		return unityDetail;
-	}
-
-	public void setUnityDetail(Unity unityDetail) {
-		this.unityDetail = unityDetail;
-	}
-
 
 }

@@ -15,7 +15,7 @@ public class TXRetentionSaleSaveAction extends TXSaveAction {
 	{
 		Account account = getDebitAccount();
 		AccountRetention retention = XPersistence.getManager().find(AccountRetention.class, account.getAccountId());
-		
+
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		
 		if (retention.getDetails()==null || retention.getDetails().isEmpty() || retention.getTotal().compareTo(BigDecimal.ZERO)==0)
@@ -34,7 +34,7 @@ public class TXRetentionSaleSaveAction extends TXSaveAction {
 		if (TransactionHelper.isFinancialSaved(transaction))
 		{
 			Account account = transaction.getDebitAccount();
-			account.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountRetentionHelper.STATUS_RETENTION_ACTIVE));
+			account.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_RETENTION_ACTIVE));
 			AccountHelper.updateAccount(account);
 			
 			AccountRetention retention = XPersistence.getManager().find(AccountRetention.class, account.getAccountId());

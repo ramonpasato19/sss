@@ -30,7 +30,7 @@ import com.powerfin.model.superclass.*;
 @View(name="AuthorizeTXRetentionPurchase", members = "issueDate;"
 		+ "accountInvoice{accountInvoice};"
 		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
-		//+ "product{product};"
+		+ "product{product};"
 		+ "detail{details}"),
 @View(name="RequestTXRetentionSale", members = "accountId, companyAccountingDate;accountStatus;issueDate;"
 		+ "accountInvoice;"
@@ -40,17 +40,17 @@ import com.powerfin.model.superclass.*;
 @View(name="AuthorizeTXRetentionSale", members = "issueDate;"
 		+ "accountInvoice{accountInvoice};"
 		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
-		//+ "product{product};"
+		+ "product{product};"
 		+ "detail{details}")
 })
 @Tabs({
 	@Tab(properties="account.accountId, account.person.name, issueDate, total, account.accountStatus.name"),
 	@Tab(name="TXRetentionPurchase", properties="account.accountId, account.person.name, issueDate, total",
 			baseCondition = "${account.accountStatus.accountStatusId} = '001' "
-					+ "and ${account.product.productId} ='"+AccountRetentionHelper.RETENTION_PURCHASE_PRODUCTID+"'"),
+					+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="TXRetentionSale", properties="account.accountId, account.person.name, issueDate, total",
 			baseCondition = "${account.accountStatus.accountStatusId} = '001' "
-			+ "and ${account.product.productId} ='"+AccountRetentionHelper.RETENTION_SALE_PRODUCTID+"'")
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"'")
 })
 public class AccountRetention extends AuditEntity {
 

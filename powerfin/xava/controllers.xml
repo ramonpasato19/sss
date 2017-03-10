@@ -154,13 +154,25 @@
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productId} = '103'" property="condition"/>
+			<set value="${productType.productTypeId} = '105'" property="condition"/>
 		</action>
 		<action name="SearchRetentionSale"
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productId} = '203'" property="condition"/>
+			<set value="${productType.productTypeId} = '205'" property="condition"/>
+		</action>
+		<action name="SearchCreditNotePurchase"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '106'" property="condition"/>
+		</action>
+		<action name="SearchCreditNoteSale"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '206'" property="condition"/>
 		</action>
 		<action name="SearchItemProducts"
 			class="com.powerfin.actions.search.SearchProduct"
@@ -959,6 +971,7 @@
 			by-default="if-possible"
 			keystroke="F3">
 			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="INVOICE_PURCHASE" />
 		</action>
 	</controller>
 	<controller name="AuthorizeTXInvoicePurchaseController">
@@ -996,9 +1009,37 @@
 			by-default="if-possible"
 			keystroke="F3">
 			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="RETENTION_PURCHASE" />
 		</action>
 	</controller>
 <!-- END TXRetentionPurchase ######################################## -->
+
+<!-- BEGIN TXCreditNotePurchase ######################################## -->
+	<controller name="AuthorizeTXCreditNotePurchaseController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoiceSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXCreditNotePurchaseController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.AccountInvoiceSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="CREDITNOTEPURCHASE" />
+		</action>
+	</controller>
+<!-- END TXCreditNotePurchase ######################################## -->
 
 <!-- BEGIN TXInvoiceSale ######################################## -->
 	<controller name="AuthorizeTXInvoiceSaleController">
@@ -1022,6 +1063,7 @@
 			by-default="if-possible"
 			keystroke="F3">
 			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="INVOICE_SALE" />
 		</action>
 	</controller>
 <!-- END TXInvoiceSale ######################################## -->
@@ -1048,9 +1090,37 @@
 			by-default="if-possible"
 			keystroke="F3">
 			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="RETENTION_SALE" />
 		</action>
 	</controller>
 <!-- END TXRetentionSale ######################################## -->
+
+<!-- BEGIN TXCreditNoteSale ######################################## -->
+	<controller name="AuthorizeTXCreditNoteSaleController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXInvoicePurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXCreditNoteSaleController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.AccountInvoicePurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="CREDITNOTESALE" />
+		</action>
+	</controller>
+<!-- END TXCreditNoteSale ######################################## -->
 
 <!-- BEGIN TXDebitBank ######################################## -->
 	<controller name="AuthorizeTXDebitBankController">

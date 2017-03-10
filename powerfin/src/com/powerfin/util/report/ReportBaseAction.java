@@ -10,7 +10,6 @@ import org.openxava.actions.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 
-import com.common.helper.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
@@ -100,7 +99,7 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void addOrganizationIdParameter(Map parameters)
 	{
-		parameters.put("ORG_ID", CommonHelper.getOrganizationId());
+		parameters.put("ORG_ID", CompanyHelper.getDefaultPerson().getPersonId());
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

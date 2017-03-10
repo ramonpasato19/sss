@@ -16,6 +16,7 @@ import com.powerfin.util.*;
 public class AccountInvoicePurchaseSaveAction extends SaveAction{
 
 	private String accountStatusId;
+	private String transactionModuleId;
 	
 	@SuppressWarnings("unchecked")
 	public void execute() throws Exception {
@@ -58,7 +59,7 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 			accountId = getView().getValueString("accountId");
 			AccountInvoice accountInvoice = XPersistence.getManager().find(AccountInvoice.class, accountId);
 	        
-            TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, AccountInvoiceHelper.INVOICE_PURCHASE_TRANSACTION_MODULE);
+            TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, getTransactionModuleId());
             List<Transaction> transactions =  (List<Transaction>)XPersistence.getManager().createQuery("SELECT o FROM Transaction o "
     				+ "WHERE o.transactionModule=:transactionModule AND o.creditAccount=:accountInvoice")
     				.setParameter("transactionModule", tm)
@@ -74,8 +75,7 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
      			transaction.setRemark(accountInvoice.getRemark());
      			transaction.setCreditAccount(accountInvoice.getAccount());
      			transaction.setCurrency(accountInvoice.getAccount().getCurrency());
-     			Unity unity=XPersistence.getManager().find(Unity.class,"1");
-     			transaction.setUnity(unity);
+     			transaction.setOrigenUnity(accountInvoice.getUnity());
      			
      			XPersistence.getManager().persist(transaction);
             }
@@ -93,13 +93,14 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
      			transaction.setRemark(accountInvoice.getRemark());
      			transaction.setCreditAccount(accountInvoice.getAccount());
      			transaction.setCurrency(accountInvoice.getAccount().getCurrency());
-     			Unity unity=XPersistence.getManager().find(Unity.class,"1");
-     			transaction.setUnity(unity);
+     			transaction.setOrigenUnity(accountInvoice.getUnity());
      			
      			XPersistence.getManager().merge(transaction);
-     			
-     			for (TransactionAccount ta : transaction.getTransactionAccounts())
-     				XPersistence.getManager().remove(ta);
+
+     			XPersistence.getManager().createQuery("DELETE FROM TransactionAccount ta "
+     					+ "WHERE ta.transaction.transactionId = :transactionId")
+     				.setParameter("transactionId", transaction.getTransactionId())
+     				.executeUpdate();
             }
         }
 		getView().refresh();
@@ -113,5 +114,16 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 			if (accountStatusId==null)
 				throw new OperativeException("accountStatus_is_required",accountStatusId);
 		
+		if (getTransactionModuleId() == null || getTransactionModuleId().isEmpty())
+			throw new InternalException("property_transactionModuleId_is_required");
 	}
+
+	public String getTransactionModuleId() {
+		return transactionModuleId;
+	}
+
+	public void setTransactionModuleId(String transactionModuleId) {
+		this.transactionModuleId = transactionModuleId;
+	}
+	
 }

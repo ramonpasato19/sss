@@ -27,7 +27,7 @@ public class FinancialHelper {
 		f.setFinancialStatus(FinancialHelper.getDefaultFinancialStatus());
 		f.setRemark(t.getRemark());
 		f.setVoucher(t.getVoucher());
-		f.setOrigenUnityId(t.getUnity());
+		f.setOrigenUnityId(t.getOrigenUnity());
 		f.setTransaction(t);
 
 		List<FinancialCategoryDTO> financialCategories = new ArrayList<FinancialCategoryDTO>();
@@ -86,16 +86,7 @@ public class FinancialHelper {
 		for (Movement m : movements) {
 			m.setFinancial(f);
 			XPersistence.getManager().persist(m);
-			System.out.println("Movement|" + m.getAccount().getAccountId()+"|"+
-					m.getSubaccount()+"|"+
-					m.getCategory().getCategoryId()+"|"+
-					m.getBookAccount().getGroupAccount().getGroupAccountId()+"|"+
-					m.getBookAccount().getBookAccountId()+"|"+
-					m.getDebitOrCredit()+"|"+
-					m.getValue()+"|"+
-					m.getOfficialValue()+"|"+
-					m.getExchangeRate()+"|"+
-					m.getMovementId()+"|"+m.getUnity()+"|"+m.getQuantity());
+			System.out.println(m.toString());
 		}
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
@@ -196,7 +187,7 @@ public class FinancialHelper {
 				
 				newBalance.setDueDate(oldBalanceOnDate.getDueDate());
 				newBalance.setBalance(newBalance.getBalance().add(oldBalanceOnDate.getBalance()));
-				newBalance.setStock(newBalance.getStock().add(oldBalanceOnDate.getStock()));
+				newBalance.setStock(newBalance.getStock().add(oldBalanceOnDate.getStock()!=null?oldBalanceOnDate.getStock():BigDecimal.ZERO));
 				
 				if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
 					newBalance.setOfficialBalance(newBalance.getOfficialBalance().add(oldBalanceOnDate.getOfficialBalance()));
@@ -219,6 +210,13 @@ public class FinancialHelper {
 							financialCategory.getSubaccount(),
 							financialCategory.getCategory().getCategoryId(),
 							newBalance.getBalance());
+				
+				if (newBalance.getStock().compareTo(BigDecimal.ZERO)<0)
+					throw new OperativeException("the_account_stock_can_not_be_negative",
+							financialCategory.getAccount().getAccountId(),
+							financialCategory.getSubaccount(),
+							financialCategory.getCategory().getCategoryId(),
+							newBalance.getStock());
 			}
 			
 			XPersistence.getManager().persist(newBalance);
@@ -383,10 +381,7 @@ public class FinancialHelper {
 		System.out.println("Validate AccountingEquation...");
 		System.out.println("D:"+debits+"|C:"+credits);
 		if (credits.compareTo(debits)!=0)
-		{
-			throw new InternalException("transaction_unbalanced", debits, credits);
-		}
-		
+			throw new InternalException("transaction_unbalanced", debits, credits);	
 	}
 
 	public static FinancialStatus getDefaultFinancialStatus() throws Exception {

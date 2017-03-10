@@ -16,6 +16,7 @@ import com.powerfin.util.*;
 public class AccountRetentionPurchaseSaveAction extends SaveAction{
 
 	private String accountStatusId;
+	private String transactionModuleId;
 	
 	@SuppressWarnings("unchecked")
 	public void execute() throws Exception {
@@ -56,7 +57,7 @@ public class AccountRetentionPurchaseSaveAction extends SaveAction{
 			accountId = getView().getValueString("accountId");
 	        AccountRetention accountRetention = XPersistence.getManager().find(AccountRetention.class, accountId);
 	        
-            TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, AccountRetentionHelper.RETENTION_PURCHASE_TRANSACTION_MODULE);
+            TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, getTransactionModuleId());
             List<Transaction> transactions =  (List<Transaction>)XPersistence.getManager().createQuery("SELECT o FROM Transaction o "
     				+ "WHERE o.transactionModule=:transactionModule AND o.creditAccount=:account")
     				.setParameter("transactionModule", tm)
@@ -91,6 +92,11 @@ public class AccountRetentionPurchaseSaveAction extends SaveAction{
      			transaction.setCurrency(accountRetention.getAccount().getCurrency());
      			
      			XPersistence.getManager().merge(transaction);
+     			
+     			XPersistence.getManager().createQuery("DELETE FROM TransactionAccount ta "
+     					+ "WHERE ta.transaction.transactionId = :transactionId")
+     				.setParameter("transactionId", transaction.getTransactionId())
+     				.executeUpdate();
             }
 		}
 		getView().refresh();
@@ -103,5 +109,15 @@ public class AccountRetentionPurchaseSaveAction extends SaveAction{
 		if (!getView().isKeyEditable() && accountStatusId==null)
 			throw new OperativeException("accountStatus_is_required");
 		
+		if (getTransactionModuleId() == null || getTransactionModuleId().isEmpty())
+			throw new InternalException("property_transactionModuleId_is_required");
+	}
+
+	public String getTransactionModuleId() {
+		return transactionModuleId;
+	}
+
+	public void setTransactionModuleId(String transactionModuleId) {
+		this.transactionModuleId = transactionModuleId;
 	}
 }

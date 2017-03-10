@@ -29,6 +29,7 @@ public class NegotiationReadFile {
 		 
 	}
 	
+	@SuppressWarnings("unused")
 	private String convertHexToString(String hex){
 
 		  StringBuilder sb = new StringBuilder();
