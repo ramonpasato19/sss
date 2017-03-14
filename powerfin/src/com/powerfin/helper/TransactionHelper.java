@@ -63,9 +63,12 @@ public class TransactionHelper {
 			return processTransaction(transaction);
 
 		List<TransactionAccount> transactionAccountSaved = new ArrayList<TransactionAccount>();
+		
 		//Clean Transaction Accounts
-		for (TransactionAccount ta : transaction.getTransactionAccounts())
-			XPersistence.getManager().remove(ta);
+		XPersistence.getManager().createQuery("DELETE FROM TransactionAccount ta "
+					+ "WHERE ta.transaction.transactionId = :transactionId")
+				.setParameter("transactionId", transaction.getTransactionId())
+				.executeUpdate();
 		
 		//Save Transaction Accounts
 		if (transactionAccounts!=null && !transactionAccounts.isEmpty())
@@ -74,12 +77,8 @@ public class TransactionHelper {
 			for (TransactionAccount ta : transactionAccounts)
 			{
 				ta.setTransaction(transaction);
-				ta.setValue(ta.getValue().abs());
-				if (ta.getValue().compareTo(BigDecimal.ZERO)!=0)
-				{
-					XPersistence.getManager().persist(ta);
-					transactionAccountSaved.add(ta);
-				}
+				XPersistence.getManager().persist(ta);
+				transactionAccountSaved.add(ta);
 			}
 		}
 		else

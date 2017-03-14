@@ -17,12 +17,12 @@ public class FinancialHelper {
 	public final static String DEFAULT_FIANCIAL_STATUS = "N";
 	public final static String REVERSE_FIANCIAL_STATUS = "R";
 	
+	@SuppressWarnings("unchecked")
 	public static void saveFinancial(Transaction t) throws Exception {
 		System.out.println("Begin Save Financial -------------------------");
 		System.out.println("Transaction: "+t.getTransactionId());
 		int line = 0;
 		Financial f = new Financial();
-		//f.setAccountingDate(t.getAccountingDate());
 		f.setAccountingDate(CompanyHelper.getCurrentAccountingDate());
 		f.setFinancialStatus(FinancialHelper.getDefaultFinancialStatus());
 		f.setRemark(t.getRemark());
@@ -32,8 +32,15 @@ public class FinancialHelper {
 
 		List<FinancialCategoryDTO> financialCategories = new ArrayList<FinancialCategoryDTO>();
 
+		List<TransactionAccount> transactionAccounts = XPersistence.getManager()
+				.createQuery("SELECT ta FROM TransactionAccount ta "
+					+ "WHERE ta.transaction.transactionId = :transactionId "
+					+ "ORDER BY ta.transactionAccountId ")
+				.setParameter("transactionId", t.getTransactionId())
+				.getResultList();
+		
 		List<Movement> movements = new ArrayList<Movement>();
-		for (TransactionAccount ta : t.getTransactionAccounts()) {
+		for (TransactionAccount ta : transactionAccounts) {
 			String bookAccountParametrized = BookAccountHelper.getBookAccountParametrized(
 					ta.getAccount(), ta.getCategory());
 			
@@ -50,11 +57,11 @@ public class FinancialHelper {
 				m.setDebitOrCredit(ta.getDebitOrCredit());
 				m.setFinancial(f);
 				m.setSubaccount(ta.getSubaccount());
-				m.setQuantity(ta.getQuantity()!=null?ta.getQuantity():BigDecimal.ZERO);
+				m.setQuantity(ta.getQuantity()!=null?ta.getQuantity().abs():BigDecimal.ZERO);
 				m.setUnity(ta.getUnity());
 				m.setRemark(ta.getRemark());
 				m.setExchangeRate(ExchangeRateHelper.getExchangeRate(ta.getAccount().getCurrency(), t.getAccountingDate()));
-				m.setValue(ta.getValue().abs());
+				m.setValue(ta.getValue()!=null?ta.getValue().abs():BigDecimal.ZERO);
 				m.setOfficialValue(UtilApp.valueToOfficialValue(ta.getValue(), m.getExchangeRate()));
 
 				if (ta.getOfficialValue().equals(Types.YesNoIntegerType.YES))
@@ -69,7 +76,7 @@ public class FinancialHelper {
 					m.setOfficialValue(m.getOfficialValue().negate());
 				}
 				
-				if (m.getValue().add(m.getOfficialValue()).compareTo(BigDecimal.ZERO)!=0)
+				if (m.getValue().add(m.getOfficialValue()).compareTo(BigDecimal.ZERO)!=0 || m.getQuantity().compareTo(BigDecimal.ZERO)!=0)
 				{
 					movements.add(m);
 					addFinancialCategory(financialCategories, m, ta.getUpdateBalance(), ta.getOfficialValue(), bookAccount.getAllowCurrencyAdjustment(), ta.getDueDate());
@@ -128,11 +135,14 @@ public class FinancialHelper {
 
 		for (Date date = start.getTime(); start.before(end); start.add(
 				Calendar.DATE, 1), date = start.getTime()) {
-			System.out.println("Updating Balance: " + 
-					financialCategory.getAccount().getAccountId()+"|"+
-					financialCategory.getSubaccount()+"|"+
-					financialCategory.getCategory().getCategoryId()+"|"+
-					UtilApp.dateToString(date));
+			System.out.println(new StringBuffer("Updating Balance: ") 
+					.append(financialCategory.getAccount().getAccountId())
+					.append("|")
+					.append(financialCategory.getSubaccount())
+					.append("|")
+					.append(financialCategory.getCategory().getCategoryId())
+					.append("|")
+					.append(UtilApp.dateToString(date)));
 			
 			fillValues(financialCategory, date);
 			
@@ -178,12 +188,18 @@ public class FinancialHelper {
 				oldToDate.add(Calendar.DAY_OF_YEAR, -1);
 				oldBalanceOnDate.setToDate(oldToDate.getTime());
 				XPersistence.getManager().merge(oldBalanceOnDate);
-				System.out.println("Old Balance expired: "+oldBalanceOnDate.getAccount().getAccountId()+"|"+
-						oldBalanceOnDate.getSubaccount()+"|"+
-						oldBalanceOnDate.getCategory().getCategoryId()+"|"+
-						oldBalanceOnDate.getBalance()+"|"+
-						oldBalanceOnDate.getOfficialBalance()+"|"+
-						oldBalanceOnDate.getStock());
+				System.out.println(new StringBuffer("Old Balance expired: ")
+						.append(oldBalanceOnDate.getAccount().getAccountId())
+						.append("|")
+						.append(oldBalanceOnDate.getSubaccount())
+						.append("|")
+						.append(oldBalanceOnDate.getCategory().getCategoryId())
+						.append("|")
+						.append(oldBalanceOnDate.getBalance())
+						.append("|")
+						.append(oldBalanceOnDate.getOfficialBalance())
+						.append("|")
+						.append(oldBalanceOnDate.getStock()));
 				
 				newBalance.setDueDate(oldBalanceOnDate.getDueDate());
 				newBalance.setBalance(newBalance.getBalance().add(oldBalanceOnDate.getBalance()));
@@ -222,25 +238,39 @@ public class FinancialHelper {
 			XPersistence.getManager().persist(newBalance);
 			
 			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
-				System.out.println("Persist New Balance: " + 
-						newBalance.getAccount().getAccountId()+"|"+
-						newBalance.getSubaccount()+"|"+
-						newBalance.getCategory().getCategoryId()+"|"+
-						newBalance.getBalance()+"|"+
-						newBalance.getOfficialBalance()+"|"+
-						newBalance.getStock()+"|"+
-						newBalance.getBalanceId()+"|"+
-						UtilApp.dateToString(newBalance.getToDate()));
+				System.out.println(new StringBuffer("Persist New Balance: ") 
+						.append(newBalance.getAccount().getAccountId())
+						.append("|")
+						.append(newBalance.getSubaccount())
+						.append("|")
+						.append(newBalance.getCategory().getCategoryId())
+						.append("|")
+						.append(newBalance.getBalance())
+						.append("|")
+						.append(newBalance.getOfficialBalance())
+						.append("|")
+						.append(newBalance.getStock())
+						.append("|")
+						.append(newBalance.getBalanceId())
+						.append("|")
+						.append(UtilApp.dateToString(newBalance.getToDate())));
 			else
-				System.out.println("Persist New Balance: " + 
-						newBalance.getAccount().getAccountId()+"|"+
-						newBalance.getSubaccount()+"|"+
-						newBalance.getCategory().getCategoryId()+"|"+
-						newBalance.getBalance()+"|"+
-						UtilApp.valueToOfficialValue(newBalance.getBalance(), financialCategory.getExchangeRate())+"|"+
-						newBalance.getStock()+"|"+
-						newBalance.getBalanceId()+"|"+
-						UtilApp.dateToString(newBalance.getToDate()));
+				System.out.println(new StringBuffer("Persist New Balance: ")
+						.append(newBalance.getAccount().getAccountId())
+						.append("|")
+						.append(newBalance.getSubaccount())
+						.append("|")
+						.append(newBalance.getCategory().getCategoryId())
+						.append("|")
+						.append(newBalance.getBalance())
+						.append("|")
+						.append(UtilApp.valueToOfficialValue(newBalance.getBalance(), financialCategory.getExchangeRate()))
+						.append("|")
+						.append(newBalance.getStock())
+						.append("|")
+						.append(newBalance.getBalanceId())
+						.append("|")
+						.append(UtilApp.dateToString(newBalance.getToDate())));
 		}
 
 	}
@@ -278,10 +308,12 @@ public class FinancialHelper {
 			Object[] acumulatedValues = (Object[])acumulatedMovements.get(0);
 			if (acumulatedValues!=null) 
 			{
-				System.out.println("Add Movements of Day: "+ 
-						acumulatedValues[0]+"|"+ 
-						acumulatedValues[1]+"|"+
-						acumulatedValues[2]);
+				System.out.println(new StringBuffer("Add Movements of Day: ") 
+						.append(acumulatedValues[0])
+						.append("|")
+						.append(acumulatedValues[1])
+						.append("|")
+						.append(acumulatedValues[2]));
 				financialCategory.setValue(financialCategory.getValue().add((BigDecimal) acumulatedValues[0]));
 				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add((BigDecimal) acumulatedValues[1]));
 				financialCategory.setStock(financialCategory.getStock().add((BigDecimal) acumulatedValues[2]));
@@ -378,8 +410,8 @@ public class FinancialHelper {
 			else
 				credits = credits.add(m.getOfficialValue().abs());
 		}
-		System.out.println("Validate AccountingEquation...");
-		System.out.println("D:"+debits+"|C:"+credits);
+		System.out.println("Validate Accounting Equation...");
+		System.out.println(new StringBuffer("D:").append(debits).append("|C:").append(credits));
 		if (credits.compareTo(debits)!=0)
 			throw new InternalException("transaction_unbalanced", debits, credits);	
 	}

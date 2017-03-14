@@ -30,7 +30,6 @@ import org.openxava.annotations.*;
 		+ "unitPrice;"
 		+ "quantity;"
 		+ "discount;"
-		+ "taxAdjust;"
 		),
 @View(name="InvoiceSale", members = "accountDetail;"
 		+ "tax;"
@@ -73,7 +72,7 @@ public class AccountInvoiceDetail {
 
 	@Column(name = "unit_price", nullable = false, precision=13, scale=4)
 	@Required
-	@DecimalMin(value="0.01")
+	@DecimalMin(value="0.00")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal unitPrice;
 
