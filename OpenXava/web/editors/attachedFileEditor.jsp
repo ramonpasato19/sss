@@ -21,7 +21,7 @@ long dif=System.currentTimeMillis();
 AttachedFile file = null;
 if (!Is.emptyString(fvalue)) file = FilePersistorFactory.getInstance().find(fvalue);
 %>
-<a href='<%=request.getContextPath()%>/xava/xfile?application=<%=applicationName%>&module=<%=module%>&fileId=<%=fvalue%>&dif=<%=dif%>' target="_blank" tabindex="1">
+<a href='<%=request.getContextPath()%>/xava/xfile?application=<%=applicationName%>&module=<%=module%>&schema=<%=org.openxava.jpa.XPersistence.getDefaultSchema()%>&fileId=<%=fvalue%>&dif=<%=dif%>' target="_blank" tabindex="1">
 	<% if ( file != null ) { %>
 		<span class="<%=style.getAttachedFile()%>"><%=file.getName()%></span>
 	<% } %>

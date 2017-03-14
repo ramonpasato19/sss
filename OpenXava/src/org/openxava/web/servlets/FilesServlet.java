@@ -75,7 +75,7 @@ public class FilesServlet extends HttpServlet {
 	private void setDefaultSchema(HttpServletRequest request) {
 		//ModuleContext context = (ModuleContext) request.getSession().getAttribute("context");
 		//String defaultSchema = (String) context.get(request, "xava_defaultSchema");
-		String defaultSchema = (String) request.getSession().getAttribute("naviox.organization");
+		String defaultSchema = (String) request.getParameter("schema");
 		if (!Is.emptyString(defaultSchema)) XPersistence.setDefaultSchema(defaultSchema);
 	}
 }
