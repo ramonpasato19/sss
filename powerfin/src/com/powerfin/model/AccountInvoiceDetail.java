@@ -78,7 +78,7 @@ public class AccountInvoiceDetail {
 	private BigDecimal unitPrice;
 
 	@Column(name = "discount", nullable = false, precision=13, scale=4)
-	@DecimalMin(value="0.01")
+	@DecimalMin(value="0.00")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
 	
