@@ -118,6 +118,10 @@ public class TransactionAccount implements Serializable {
 	@JoinColumn(name="unity_id")
 	private Unity unity;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="registration_date", nullable=false)
+	private Date registrationDate;
+	
 	public TransactionAccount() {
 	}
 
@@ -228,6 +232,7 @@ public class TransactionAccount implements Serializable {
 			updateBalance = YesNoIntegerType.YES;
 		if (officialValue==null)
 			officialValue = YesNoIntegerType.NO;
+		setRegistrationDate(new Date());
 	}
 
 	public BigDecimal getQuantity() {
@@ -246,5 +251,12 @@ public class TransactionAccount implements Serializable {
 		this.unity = unity;
 	}
 
+	public Date getRegistrationDate() {
+		return registrationDate;
+	}
+
+	public void setRegistrationDate(Date registrationDate) {
+		this.registrationDate = registrationDate;
+	}
 
 }

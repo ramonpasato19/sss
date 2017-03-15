@@ -35,7 +35,7 @@ public class FinancialHelper {
 		List<TransactionAccount> transactionAccounts = XPersistence.getManager()
 				.createQuery("SELECT ta FROM TransactionAccount ta "
 					+ "WHERE ta.transaction.transactionId = :transactionId "
-					+ "ORDER BY ta.transactionAccountId ")
+					+ "ORDER BY ta.registrationDate ")
 				.setParameter("transactionId", t.getTransactionId())
 				.getResultList();
 		
