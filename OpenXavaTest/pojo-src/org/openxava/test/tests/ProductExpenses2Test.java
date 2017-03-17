@@ -19,7 +19,7 @@ public class ProductExpenses2Test extends ModuleTestBase {
 		
 		assertValueInCollection("expenses", 0, "invoice.KEY", "");
 		assertValueInCollection("expenses", 0, "product.number", ""); 				
-		setValueInCollection("expenses", 0, "carrier.number", "3");
+		setValueInCollection("expenses", 0, "carrier.number", "3"); 
 		assertValueInCollection("expenses", 0, "invoice.KEY", "[.1.2002.]");
 		assertValueInCollection("expenses", 0, "product.number", "2");		
 	}

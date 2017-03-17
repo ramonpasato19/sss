@@ -26,7 +26,7 @@ for (Iterator it= modulesList.iterator(); it.hasNext();) {
 		break;
 	}
 	MetaModule module = (MetaModule) it.next();
-	String selected = module.getName().equals(modules.getCurrent())?"selected":"";
+	String selected = module.getName().equals(modules.getCurrent(request))?"selected":""; 
 	String label = module.getLabel(request.getLocale()); 
 	String description = module.getDescription(request.getLocale());
 	String normalizedLabel = Strings.removeAccents(label.toLowerCase()); 

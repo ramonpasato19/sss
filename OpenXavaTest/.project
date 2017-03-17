@@ -3,6 +3,7 @@
 	<name>OpenXavaTest</name>
 	<comment></comment>
 	<projects>
+		<project>OpenXava</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

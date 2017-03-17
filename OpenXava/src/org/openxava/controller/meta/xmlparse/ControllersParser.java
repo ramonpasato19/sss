@@ -37,16 +37,18 @@ public class ControllersParser extends ParserBase {
 	private MetaController createController(Node n) throws XavaException {
 		Element el = (Element) n;
 		MetaController result = new MetaController();
-		result.setName(el.getAttribute(xname[lang]));		
+		result.setName(el.getAttribute(xname[lang]));
 		String context = el.getAttribute(xcontext[lang]);
 		if (!isContextComun(context) && !context.equals(this.context)) return null;		
 		result.setLabel(el.getAttribute(xlabel[lang]));
 		result.setClassName(el.getAttribute(xclass[lang]));
+		fillControllerElements(el, result);
 		fillExtends(el, result);		
 		fillActions(el, result);
 		fillSubcontroller(el, result);
 		return result;
 	}
+	
 	private boolean isContextComun(String context) {
 		return "comun".equals(context) || Is.emptyString(context);		
 	}
@@ -194,6 +196,27 @@ public class ControllersParser extends ParserBase {
 		int c = l.getLength();
 		for (int i = 0; i < c; i++){
 			container.addMetaSubcontroller(createSubcontroller(l.item(i)));
+		}
+	}
+
+	private void fillControllerElements(Element el, MetaController result){
+		// actions and subcontroller order by occurrence
+		NodeList l = el.getChildNodes();
+		int c = l.getLength();
+		for (int i = 0; i < c; i++){
+			Node m = l.item(i);
+			String nodeName = m.getNodeName();
+			if (xaction[lang].equals(nodeName) || xsubcontroller[lang].equals(nodeName)){
+				if (nodeName.equals(xaction[lang])) {
+					MetaAction action = createAction(m);
+					action.setMetaController(result);
+					result.addMetaControllerElement(action);
+				}
+				else if (nodeName.equals(xsubcontroller[lang])){
+					MetaSubcontroller subcontroller = createSubcontroller(m);
+					result.addMetaControllerElement(subcontroller);
+				}
+			}
 		}
 	}
 	

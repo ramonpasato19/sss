@@ -1,8 +1,7 @@
 package org.openxava.test.model;
 
 import java.util.*;
-
-import org.hibernate.validator.*;
+import javax.validation.constraints.*;
 import org.openxava.annotations.*;
 
 /**

@@ -93,7 +93,10 @@ public class Liferay6Style extends Liferay51Style {
 	public String getLabel() {  	
 		return super.getLabel() + " liferay6-xava-label";
 	} 
-
+	
+	public String getDetail() {  
+		return super.getDetail() + getBrowserClass(); 
+	}
 	
 	public String getTotalCell() { 
 		return "";

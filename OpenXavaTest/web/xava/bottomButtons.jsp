@@ -26,7 +26,7 @@ while (it.hasNext()) {
 	MetaAction action = (MetaAction) it.next();
 	if (action.isHidden()) continue;
 	if (action.getQualifiedName().equals(defaultAction)) continue;
-	if (action.appliesToMode(mode) && (!buttonBar || !action.hasImage())) {   
+	if (action.appliesToMode(mode) && (!buttonBar || !(action.hasImage() ||  action.hasIcon()))) { 	
 	%>
 	<xava:button action="<%=action.getQualifiedName()%>"/>
 	<%
@@ -34,6 +34,13 @@ while (it.hasNext()) {
 }
 %>
 
+<%  
+MetaAction defaultMetaAction = manager.getDefaultMetaAction();
+if (defaultMetaAction != null) {
+%>
 <button name="xava.DEFAULT_ACTION" type="submit" 
-	onclick="openxava.executeAction('<%=request.getParameter("application")%>', '<%=request.getParameter("module")%>', '', false, '<%=manager.getDefaultActionQualifiedName()%>')"
+	onclick="openxava.executeAction('<%=request.getParameter("application")%>', '<%=request.getParameter("module")%>', '<%=defaultMetaAction.getConfirmMessage(request)%>', <%=defaultMetaAction.isConfirm()%>, '<%=manager.getDefaultActionQualifiedName()%>')"
 	style="padding: 0; border: none; background-color:transparent; size: 0"></button>
+<%
+}
+%>	

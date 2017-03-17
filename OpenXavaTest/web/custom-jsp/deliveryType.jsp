@@ -2,17 +2,13 @@
 
 <table>
 <tr>
-	<td>Number: </td><td>
-
+	<td><xava:label key="number"/>: </td><td>
 	<xava:editor property="number"/>	
-	
 	</td>
 </tr>
 <tr>
-	<td>Description: </td><td>
-	
+	<td><xava:label key="description"/>: </td><td>
 	<xava:editor property="description"/>
-	
 	</td>
 </tr>
 </table>

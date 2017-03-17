@@ -46,7 +46,7 @@ public class Carrier {
 	// In order to do it, we create drivingLicence_level and drivingLicence_type
 	// We make JoinColumns not insertable nor updatable, we modify the get/setDrivingLincence methods
 	// and we create a drivingLicenceConversion() method.
-	@DescriptionsList(notForViews="WithSections") // notForViews="WithSections" needed for testing a bug with the new renderer 
+	@DescriptionsList(notForViews="WithSections") // notForViews="WithSections" needed for testing a bug with the new renderer	
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumns({ 
 		@JoinColumn(name="DRIVINGLICENCE_LEVEL", referencedColumnName="LEVEL", insertable=false, updatable=false),  

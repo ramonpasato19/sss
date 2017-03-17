@@ -5,6 +5,8 @@ import java.util.*;
 
 import org.openxava.tests.*;
 
+import com.gargoylesoftware.htmlunit.html.*;
+
 
 
 /**
@@ -17,7 +19,7 @@ public class ClerkTest extends ModuleTestBase {
 		super(testName, "Clerk");		
 	}
 	
-	public void testTextFieldsWithQuotationMarks() throws Exception {
+	public void testTextFieldsWithQuotationMarks_generateCustomExcel() throws Exception {
 		assertListNotEmpty();
 		execute("Mode.detailAndFirst");
 		String name = getValue("name");		
@@ -32,9 +34,14 @@ public class ClerkTest extends ModuleTestBase {
 		setValue("name", name);
 		execute("CRUD.save");
 		assertNoErrors();
+		
+		// Custom Excel
+		execute("Clerk.createMyExcel");
+		assertNoErrors(); 
+		assertContentTypeForPopup("application/vnd.ms-excel");
 	}
 	
-	public void testTimeStereotypeAndSqlTimeAndStringAsByteArrayInDB_i18nOverXmlLabeInXmlComponents() throws Exception {
+	public void testTimeStereotypeAndSqlTimeAndStringAsByteArrayInDB_i18nOverXmlLabeInXmlComponents_generateRealExcel() throws Exception {
 		assertListNotEmpty();
 		execute("Mode.detailAndFirst");
 		assertLabel("arrivalTime", "Arrival time"); // Only has sense in XML components
@@ -57,10 +64,28 @@ public class ClerkTest extends ModuleTestBase {
 		
 		// Asserting that java.sql.Time works in JasperReport
 		execute("Print.generatePdf"); 		
-		assertContentTypeForPopup("application/pdf");		
+		assertContentTypeForPopup("application/pdf");	
+		
+		// Real Excel
+		execute("TypicalRealExcel.generateExcel");
+		assertNoErrors(); 
+		assertContentTypeForPopup("application/vnd.ms-excel");				
+	}
+	
+	public void testListFormatSelectedButtonStyle() throws Exception { 
+		HtmlAnchor listLink = getHtmlPage().getAnchorByHref("javascript:openxava.executeAction('OpenXavaTest', 'Clerk', '', false, 'ListFormat.select', 'editor=List')");
+		assertTrue(listLink.getAttribute("class").contains("ox-selected-list-format"));
+		HtmlAnchor chartsLink = getHtmlPage().getAnchorByHref("javascript:openxava.executeAction('OpenXavaTest', 'Clerk', '', false, 'ListFormat.select', 'editor=Charts')");
+		assertFalse(chartsLink.getAttribute("class").contains("ox-selected-list-format"));
+		
+		HtmlElement iCharts = chartsLink.getHtmlElementsByTagName("i").get(0);
+		iCharts.click();		
+		assertFalse(listLink.getAttribute("class").contains("ox-selected-list-format"));
+		assertTrue(chartsLink.getAttribute("class").contains("ox-selected-list-format"));
 	}
 
 	private String getCurrentTime() {
 		return new SimpleDateFormat("HH:mm").format(new Date());
 	}
+	
 }

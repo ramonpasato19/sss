@@ -15,6 +15,7 @@ import com.gargoylesoftware.htmlunit.html.*;
 
 
 /**
+ * 
  * @author Javier Paniza
  */
 public class FormulaTest extends ModuleTestBase {
@@ -201,7 +202,7 @@ public class FormulaTest extends ModuleTestBase {
 		execute("Collection.new", "viewObject=xava_view_section0_ingredients");
 		execute("ImageEditor.changeImage", "newImageProperty=image"); 
 		assertNoErrors();
-		assertAction("LoadImage.loadImage");		
+		assertAction("LoadImage.loadImage"); 		
 		String imageUrl = System.getProperty("user.dir") + "/test-images/cake.gif";
 		setFileValue("newImage", imageUrl);
 		execute("LoadImage.loadImage");
@@ -256,7 +257,7 @@ public class FormulaTest extends ModuleTestBase {
 		
 		setValue("ingredient.oid", "03C6E1ADC0A8011600000000498BC537");
 		assertValidValues("ingredient.oid", ingredients);
-		assertValidValues("accentuate.oid", cafeConLeche);
+		assertValidValues("accentuate.oid", cafeConLeche); 
 	}
 	
 	public void testHtmlTextStereotype() throws Exception {		

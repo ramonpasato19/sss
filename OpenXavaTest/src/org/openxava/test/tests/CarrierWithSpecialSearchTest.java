@@ -10,7 +10,7 @@ public class CarrierWithSpecialSearchTest extends CarrierTestBase {
 		super(testName, "CarrierWithSpecialSearch");		
 	}
 		
-	public void testSearchCarrierWithDefaultValue() throws Exception {
+	public void testSearchCarrierWithDefaultValue() throws Exception { 
 		execute("CRUD.new");
 		execute("CRUD.refresh");
 		assertNoErrors();

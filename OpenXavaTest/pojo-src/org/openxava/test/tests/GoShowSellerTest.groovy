@@ -12,7 +12,7 @@ class GoShowSellerTest extends ModuleTestBase {
 		super(testName, "GoShowSeller")		
 	}
 	
-	void testTwoLevelDialogFromJSPViewCalledFromAnotherModule() {
+	void testTwoLevelDialogFromJSPViewCalledFromAnotherModule() { 
 		assertNotExists "number" 
 		assertNoAction "ShowSeller.show"
 		execute "ShowSeller.goShowSeller"
@@ -20,7 +20,7 @@ class GoShowSellerTest extends ModuleTestBase {
 		setValue "number", "1"		
 		execute "ShowSeller.show"
 		assertDialog()
-		assertValue "number", "1"
+		assertValue "number", "1" 
 		assertValue "name", "MANUEL CHAVARRI"
 		assertAction "ModifySeller.modify"
 		execute "Reference.modify", "model=SellerLevel,keyProperty=level.id"

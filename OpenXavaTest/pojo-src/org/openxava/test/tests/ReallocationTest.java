@@ -18,6 +18,7 @@ public class ReallocationTest extends ModuleTestBase {
 	public void testDefaultValueCalculatorForReferencesInElementCollections() throws Exception {
 		execute("Mode.detailAndFirst");
 		assertCollectionRowCount("details", 3);
+		assertValueInCollection("details", 0, "place", "Valencia Office"); // To verify @Editor
 		setValueInCollection("details", 3, "place", "4MATIC");
 		assertValueInCollection("details", 3, "product.number", "1");
 		assertValueInCollection("details", 3, "product.description", "MULTAS DE TRAFICO");

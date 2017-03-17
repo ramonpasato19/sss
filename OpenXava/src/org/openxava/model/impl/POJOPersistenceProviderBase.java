@@ -5,9 +5,9 @@ import java.rmi.*;
 import java.util.*;
 
 import javax.ejb.*;
-import javax.persistence.*;
 
 import org.apache.commons.logging.*;
+import org.hibernate.Hibernate;
 import org.openxava.mapping.*;
 import org.openxava.model.meta.*;
 import org.openxava.util.*;
@@ -126,6 +126,19 @@ abstract public class POJOPersistenceProviderBase implements IPersistenceProvide
 			log.error(ex.getMessage(), ex);
 			throw new PersistenceProviderException( 
 					XavaResources.getString("find_error", metaModel.getName()));
+		}
+	}
+	
+	public void moveCollectionElement(MetaModel metaModel, Map keyValues, String collectionName, int from, int to) throws FinderException, XavaException {
+		try {
+			Object container = find(metaModel, keyValues);
+			PropertiesManager pm = new PropertiesManager(container); 
+			List elements = (List) pm.executeGet(collectionName);
+			XCollections.move(elements, from, to);
+		}
+		catch (Exception ex) {
+			log.error(XavaResources.getString("move_collection_element_error", collectionName), ex); 
+			throw new XavaException("move_collection_element_error", collectionName); 
 		}
 	}
 	
@@ -346,6 +359,12 @@ abstract public class POJOPersistenceProviderBase implements IPersistenceProvide
 		}
 	}
 	
-	
+	/**
+	 * @since 5.6
+	 */
+	public String getModelName(Object modelObject) { 
+		if (modelObject == null) return null;
+		return Hibernate.getClass(modelObject).getSimpleName();
+	}
 
 }

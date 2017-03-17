@@ -50,7 +50,7 @@ public class EditorTag extends TagSupport {
 			viewObject = (viewObject == null || viewObject.equals("") || viewObject.equals("null"))?"xava_view":viewObject; 
 			View view = (View) context.get(request, viewObject);
 
-			MetaProperty metaProperty = view.getMetaProperty(property); 
+			MetaProperty metaProperty = view.getMetaProperty(property);
 
 			String propertyPrefix = request.getParameter("propertyPrefix");
 			if (propertyPrefixSet) {
@@ -93,7 +93,9 @@ public class EditorTag extends TagSupport {
 
 			boolean editable = explicitEditable?this.editable:view.isEditable(property);  
 			
-			StringBuffer editorURL = new StringBuffer(org.openxava.web.WebEditors.getUrl(metaProperty, view.getViewName()));
+			boolean inElementCollection = property.contains(".");
+			String viewName = inElementCollection?"":view.getViewName();
+			StringBuffer editorURL = new StringBuffer(org.openxava.web.WebEditors.getUrl(metaProperty, viewName)); 
 			char nexus = editorURL.toString().indexOf('?') < 0?'?':'&';
 			String maxSize = "";
 			int displaySize = view.getDisplaySizeForProperty(property);
@@ -112,8 +114,8 @@ public class EditorTag extends TagSupport {
 				.append("&viewObject=")
 				.append(viewObject);			
 			
-			if (org.openxava.web.WebEditors.mustToFormat(metaProperty, view.getViewName())) {
-				Object fvalue = org.openxava.web.WebEditors.formatToStringOrArray(request, metaProperty, value, errors, view.getViewName(), false);
+			if (org.openxava.web.WebEditors.mustToFormat(metaProperty, viewName)) { 
+				Object fvalue = org.openxava.web.WebEditors.formatToStringOrArray(request, metaProperty, value, errors, viewName, false); 
 				request.setAttribute(propertyKey + ".fvalue", fvalue); 
 			}
 						
@@ -123,7 +125,7 @@ public class EditorTag extends TagSupport {
 			pageContext.getOut().print("' value='");
 			pageContext.getOut().print(editable);
 			pageContext.getOut().println("'/>");
-			if (org.openxava.web.WebEditors.hasMultipleValuesFormatter(metaProperty, view.getViewName())) {
+			if (org.openxava.web.WebEditors.hasMultipleValuesFormatter(metaProperty, viewName)) { 
 				pageContext.getOut().print("<input type='hidden' name='");
 				pageContext.getOut().print(Ids.decorate(application, module, "xava_multiple"));
 				pageContext.getOut().print("' value='");
@@ -145,8 +147,7 @@ public class EditorTag extends TagSupport {
 			}								
 		}
 		catch (Exception ex) {
-			log.error(ex.getMessage(), ex);
-			throw new JspException(XavaResources.getString("editor_tag_error", property));
+			throw new JspException(XavaResources.getString("editor_tag_error", property), ex); 
 		}	
 		return SKIP_BODY;
 	}

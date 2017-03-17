@@ -22,15 +22,17 @@ String oxVersion = org.openxava.controller.ModuleManager.getVersion();
 <!DOCTYPE html>
 
 <head>
-	<title><%=modules.getCurrentModuleDescription(request)%></title> 
-	<link href="<%=request.getContextPath()%>/naviox/style/naviox.css" rel="stylesheet" type="text/css">
+	<title><%=modules.getCurrentModuleDescription(request)%></title>
+	<link href="<%=request.getContextPath()%>/xava/style/layout.css?ox=<%=oxVersion%>" rel="stylesheet" type="text/css"> 
+	<link href="<%=request.getContextPath()%>/naviox/style/naviox.css?ox=<%=oxVersion%>" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="<%=request.getContextPath()%>/xava/style/materialdesignicons.css?ox=<%=oxVersion%>">
 	<script type='text/javascript' src='<%=request.getContextPath()%>/xava/js/dwr-engine.js?ox=<%=oxVersion%>'></script>
 	<script type='text/javascript' src='<%=request.getContextPath()%>/dwr/interface/Modules.js?ox=<%=oxVersion%>'></script>
 	<script type='text/javascript' src='<%=request.getContextPath()%>/dwr/interface/Folders.js?ox=<%=oxVersion%>'></script>
 </head>
 
 <body <%=NaviOXStyle.getBodyClass(request)%>>
-	
+
 	<div id="main_navigation">
 		<jsp:include page="mainNavigation.jsp"/>
 	</div>
@@ -62,19 +64,26 @@ String oxVersion = org.openxava.controller.ModuleManager.getVersion();
 						<a href="javascript:naviox.bookmark()" title="<xava:message key='<%=modules.isCurrentBookmarked()?"unbookmark_module":"bookmark_module"%>'/>">
 							<img id="bookmark" src="<%=request.getContextPath()%>/naviox/images/bookmark-<%=modules.isCurrentBookmarked()?"on":"off"%>.png"/>
 						</a>
-					</div>					
-					<jsp:include page='<%="../xava/module.jsp?application=" + app + "&module=" + module + "&htmlHead=false"%>'/>
+					</div>				
+					<div id="module"> 	
+						<jsp:include page='<%="../xava/module.jsp?application=" + app + "&module=" + module + "&htmlHead=false"%>'/>
+					</div> 
 					<% } %>
 				</div>
 			</td>
 		</tr>
 	</table>
 	
-	<script type='text/javascript' src='<%=request.getContextPath()%>/naviox/js/typewatch.js'></script>
-	<script type='text/javascript' src='<%=request.getContextPath()%>/naviox/js/naviox.js'></script>
+	<%@include file="indexExt.jsp"%>
+
+	<script type='text/javascript' src='<%=request.getContextPath()%>/naviox/js/naviox.js?ox=<%=oxVersion%>'></script> 
 	
 	<script>
 	$(function() {
+		naviox.lockSessionMilliseconds = <%=com.openxava.naviox.model.Configuration.getInstance().getLockSessionMilliseconds()%>; 
+		naviox.application = "<%=app%>";
+		naviox.module = "<%=module%>";
+		naviox.locked = <%=context.get(request, "naviox_locked")%>;
 		naviox.init();
 	});
 	</script>

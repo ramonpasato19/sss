@@ -6,6 +6,7 @@ import org.openxava.annotations.*;
 
 @Entity
 @View(members="value1; asEmbed2")
+@Tab(properties="value1, asEmbed2.value2, container.value") 
 class AsEmbed1 extends Identifiable {
 
 	@ManyToOne(fetch = FetchType.LAZY)

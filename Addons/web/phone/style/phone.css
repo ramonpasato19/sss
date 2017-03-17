@@ -301,19 +301,26 @@ input {
 	text-shadow: 0px 1px 0 #7C1A18;
 }
 
-
-.ox-errors {
-	color: #CF0000;	
+.ox-errors, .ox-messages, .ox-infos, .ox-warnings {
 	font-weight: bold;
 	font-size: 140%;
 	text-shadow:0px 2px 1px #E8E8E9;
 }
 
+.ox-errors {
+	color: #CF0000;	
+}
+
 .ox-messages {
 	color: #2160DD;	
-	font-weight: bold;
-	font-size: 140%;
-	text-shadow:0px 2px 1px #E8E8E9;
+}
+
+.ox-infos {	
+	color: #a1a4a5;
+}
+
+.ox-warnings {	
+	color: orange;
 }
 
 .ox-filter-cell {
@@ -325,7 +332,12 @@ input {
 }
 
 .editor {
-	width: 98%; 
+	width: 98%;  
+	width: calc(100% - 4px);
+}
+
+input[type="text"], input[type="password"] {
+	height: 25px;
 }
 
 .phone-date-editor .editor {
@@ -611,23 +623,12 @@ input {
 /* To adjust calendar position for dates */
 input[type="text"] + a {
 	float: right;
-	top: -30px;
+	top: -26px;
 	left: -7px;
 }
-.iphone [type="text"] + a {
-	top: -26px;
-	left: -10px;
-}
 
-input[type="text"] + input[type="hidden"] + b, input[type="text"] + b {
-	position: relative;
-	top: -27px;
-	left: 7px;
-}
-.iphone input[type="text"] + input[type="hidden"] + b, .iphone input[type="text"] + b {
-	position: relative;
-	top: -23px;
-	left: 5px;
+.iphone [type="text"] + a {
+	left: -10px;
 }
 
 .phone-list-element a {
@@ -649,3 +650,23 @@ input[type="text"] + input[type="hidden"] + b, input[type="text"] + b {
 #loading_more_elements {
 	color: #6F6F6F;
 }
+
+i {
+	color: #7C7A77;
+}
+
+.ox-descriptions-list a {	
+	font-size: 180%;
+	float: right;
+	position: relative;
+	top: -34px;
+}
+
+.ox-money b {
+	width: 0px; 
+	position: relative;
+	left: 5px;
+	top: 5px;
+	float: left; 
+}
+

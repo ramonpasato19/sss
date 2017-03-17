@@ -23,6 +23,14 @@ In the context configuration, located in ${tomcat}/conf/context.xml
     	url="jdbc:hsqldb:hsql://localhost:1555" 
     	username="sa"/>
 ==============================
+Configure the Tomcat server
+==============================
+You must add the default language to the Tomcat Server.
+Edit the server configuration and open its launch parameters.
+Add the following jvm startup properties:
+-Duser.country=es -Duser.language=ES
+
+==============================
 Running the tests
 ==============================
 You can run the tests individually using Eclipse IDE.

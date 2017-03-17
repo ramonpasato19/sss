@@ -28,8 +28,8 @@ if (!Is.emptyString(fvalue)) {
 			<span class="<%=style.getAttachedFile()%>"><%=file.getName()%></span>		
 	  </a>
 	  <%if(editable) {%>
-	  	  <span valign='middle'>	
-		    <xava:image action='AttachedFiles.remove' argv='<%="fileId=" + file.getId()%>'/>
+	  	  <span valign='middle'>
+		    <xava:action action='AttachedFiles.remove' argv='<%="fileId=" + file.getId()%>'/>
 		  </span>
 	  <%} %>
 	  &nbsp;&nbsp;
@@ -38,7 +38,7 @@ if (!Is.emptyString(fvalue)) {
 if(editable) {
 %>
 	<span valign='middle'>
-	  <xava:image action='AttachedFiles.add' argv='<%="newFilesetProperty=" + Ids.undecorate(propertyKey)%>'/>
+	  <xava:action action='AttachedFiles.add' argv='<%="newFilesetProperty=" + Ids.undecorate(propertyKey)%>'/>
 	  <%if(isEmpty) { %>			
 		<xava:link action='AttachedFiles.add' argv='<%="newFilesetProperty=" + Ids.undecorate(propertyKey)%>'/>
 	  <%} %>

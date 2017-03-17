@@ -59,7 +59,14 @@ public class RouteTest extends ModuleTestBase {
 		assertValueInCollection("visits", 1, "carrier.name", "UNO");
 		setValueInCollection("visits", 0, "carrier.number", "13");
 		assertValueInCollection("visits", 0, "carrier.number", "3");
-		assertValueInCollection("visits", 0, "carrier.name", "TRES");		
+		assertValueInCollection("visits", 0, "carrier.name", "TRES");	
+	}
+	
+	public void testElementCollectionWithOnChangesThatChangesRootViewRefreshesOnResetView() throws Exception { 
+		execute("Mode.detailAndFirst");
+		execute("CRUD.save");
+		execute("CRUD.new"); // It failed at the second action call
+		assertExists("description"); // In the bug the view goes away, so this detects the bug
 	}
 		
 }

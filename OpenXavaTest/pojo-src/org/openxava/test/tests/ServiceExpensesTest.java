@@ -2,6 +2,8 @@ package org.openxava.test.tests;
 
 import org.openxava.tests.*;
 
+import com.gargoylesoftware.htmlunit.html.*;
+
 /**
  *  
  * @author Javier Paniza
@@ -18,6 +20,7 @@ public class ServiceExpensesTest extends ModuleTestBase {
 		assertLabelInCollection("expenses", 4, "Receptionist");
 		setValue("description", "JUNIT EXPENSES");
 		setValueInCollection("expenses", 0, "invoice.year", "2007");
+		assertValueInCollection("expenses", 0, "invoice.year", "2007"); 
 		assertValueInCollection("expenses", 0, "invoice.amount", "");
 		setValueInCollection("expenses", 0, "invoice.number", "2");
 		assertValueInCollection("expenses", 0, "invoice.amount", "1,730.00");
@@ -38,7 +41,7 @@ public class ServiceExpensesTest extends ModuleTestBase {
 			{ "1", "PEPE" },
 			{ "4", "PEPE" }
 		};
-		assertValidValuesInCollection("expenses", 0, "receptionist.oid", receptionistValidValues);
+		assertValidValuesInCollection("expenses", 0, "receptionist.oid", receptionistValidValues); 
 		setValueInCollection("expenses", 0, "receptionist.oid", "3");		
 		
 		assertValueInCollection("expenses", 1, "invoice.year", "");
@@ -46,7 +49,7 @@ public class ServiceExpensesTest extends ModuleTestBase {
 		assertValueInCollection("expenses", 1, "invoice.amount", "");
 		execute("Reference.search", "keyProperty=expenses.1.invoice.number");
 		execute("ReferenceSearch.choose", "row=0");
-		assertValueInCollection("expenses", 1, "invoice.year", "2007");
+		assertValueInCollection("expenses", 1, "invoice.year", "2007"); 
 		assertValueInCollection("expenses", 1, "invoice.number", "1");
 		assertValueInCollection("expenses", 1, "invoice.amount", "790.00");
 
@@ -84,6 +87,31 @@ public class ServiceExpensesTest extends ModuleTestBase {
 		
 		execute("CRUD.delete");
 		assertNoErrors();
+		
+		execute("CRUD.new");
+		assertNoErrors();
+		setValueInCollection("expenses", 0, "invoice.year", "2015");
+		assertNoErrors();
+		setValueInCollection("expenses", 0, "invoice.number", "15"); // It does not exist
+		assertErrorsCount(1);
+	}
+	
+	public void testAdding3RowsWithDescriptionsListAndTextFieldInElementCollection() throws Exception { 
+		getWebClient().getOptions().setCssEnabled(true);
+		execute("CRUD.new");
+		assertComboOpens(0, 1);
+		setValueInCollection("expenses", 0, 0, "2016");
+		assertComboOpens(1, 2);
+		setValueInCollection("expenses", 1, 0, "2016");
+		assertComboOpens(2, 7); 
+	}
+
+	private void assertComboOpens(int row, int uiId) throws Exception {
+		HtmlElement editor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ServiceExpenses__reference_editor_expenses___" + row + "___receptionist");
+		HtmlElement handler = editor.getElementsByTagName("i").get(0);
+		assertTrue(!getHtmlPage().getHtmlElementById("ui-id-" + uiId).isDisplayed());
+		handler.click();
+		assertTrue(getHtmlPage().getHtmlElementById("ui-id-" + uiId).isDisplayed());		
 	}
 			
 }

@@ -13,7 +13,7 @@ import org.openxava.validators.*;
  * @author Javier Paniza
  */
 
-public class SaveAction extends ViewBaseAction {
+public class SaveAction extends TabBaseAction {
 		
 	private boolean resetAfter = true;
 	private boolean refreshAfter = true; 
@@ -33,6 +33,7 @@ public class SaveAction extends ViewBaseAction {
 					getView().clear(); 
 					values = MapFacade.getValues(getModelName(), keyValues, getView().getMembersNamesWithHidden());
 				}
+				getTab().reset(); 
 			}
 			else {
 				// Modify				

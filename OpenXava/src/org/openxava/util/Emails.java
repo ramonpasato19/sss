@@ -9,6 +9,7 @@ import javax.mail.internet.*;
 
 /**
  * @author Janesh Kodikara
+ * @author Denis Torres 
  */
 
 public class Emails {
@@ -146,7 +147,8 @@ public class Emails {
     }
 
     private static Session getMailSession() {
-
+    	Session session = null;
+    	
         String mailUser;
         String mailUserPassword;
         String smtpHost;
@@ -157,21 +159,28 @@ public class Emails {
 
         mailUser = XavaPreferences.getInstance().getSMTPUserID();
         mailUserPassword = XavaPreferences.getInstance().getSMTPUserPassword();
-
+        
         java.util.Properties props = new java.util.Properties();
-        props.put("mail.smtp.user", mailUser);
         props.put("mail.smtp.host", smtpHost);
         props.put("mail.smtp.port", "" + smtpPort);
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.auth", "true");
+        
+        if(XavaPreferences.getInstance().isSMTPStartTLSEnable()){
+        	props.put("mail.smtp.starttls.enable", "true");
+        }
         
         if (XavaPreferences.getInstance().isSMTPHostTrusted()) {
         	props.put("mail.smtp.ssl.trust", smtpHost);
 		}
+        
+        if(!Is.empty(mailUser) || !Is.empty(mailUserPassword)){
+        	props.put("mail.smtp.user", mailUser);
+        	props.put("mail.smtp.auth", "true");
+        	Authenticator auth = new SMTPAuthenticator(mailUser, mailUserPassword);
+        	session = Session.getDefaultInstance(props, auth);
+        } else {
+        	session = Session.getDefaultInstance(props);
+        }
 
-        Authenticator auth = new SMTPAuthenticator(mailUser, mailUserPassword);
-
-        Session session = Session.getDefaultInstance(props, auth);
         return session;
     }
 

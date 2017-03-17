@@ -52,7 +52,9 @@ public class Users {
 	 * @throws BackingStoreException  Some problem on load preferences.
 	 */
 	public static Preferences getCurrentPreferences() throws BackingStoreException {
-		return UserPreferences.getForUser(getCurrent());
+		String organization = getCurrentUserInfo().getOrganization();
+		String key = Is.emptyString(organization)?getCurrent():organization + "__" + getCurrent();
+		return UserPreferences.getForUser(key);
 	}
 	
 	/**

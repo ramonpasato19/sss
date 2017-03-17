@@ -3,16 +3,16 @@ package com.openxava.naviox.web.dwr;
 import javax.servlet.http.*;
 
 import org.apache.commons.logging.*;
+import org.openxava.controller.*;
 import org.openxava.util.*;
 import org.openxava.web.servlets.*;
-
 import com.openxava.phone.web.*;
 
 /**
  * 
  * @author Javier Paniza
  */
-public class Folders {  
+public class Folders { 
 	
 	private static Log log = LogFactory.getLog(Folders.class);
 	
@@ -28,6 +28,9 @@ public class Folders {
 		catch (Exception ex) {
 			log.error(XavaResources.getString("go_folder_error"), ex);
 			return null; 
+		}
+		finally {
+			ModuleManager.commit();
 		}
 	}
 	

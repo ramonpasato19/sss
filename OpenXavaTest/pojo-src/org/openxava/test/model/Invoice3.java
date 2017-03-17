@@ -3,9 +3,9 @@ package org.openxava.test.model;
 import java.math.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.validator.*;
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
 
@@ -33,7 +33,7 @@ public class Invoice3 {
 	@DefaultValueCalculator(CurrentDateCalculator.class)
 	private java.util.Date date;
 	
-	@Digits(integerDigits=2, fractionalDigits=1) 
+	@Digits(integer=2, fraction=1)
 	@Required
 	private BigDecimal vatPercentage;
 	

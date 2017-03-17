@@ -14,7 +14,7 @@
 		</id>
 		
 		<property name="galleryOid" column="GALLERY"/>
-		<property name="image" column="IMAGE"/>
+		<property name="image" column="IMAGE" length="16777216"/>
 				
 	</class>
 

@@ -16,7 +16,7 @@ public class ViewProductFromInvoiceDetailAction
 	@Inject
 	private Map invoiceValues;
 
-	public void execute() throws Exception {				
+	public void execute() throws Exception {
 		try {			
 			setInvoiceValues(getView().getValues());
 			Object number = getCollectionElementView().getValue("product.number");
@@ -37,7 +37,7 @@ public class ViewProductFromInvoiceDetailAction
 		catch (Exception ex) {
 			ex.printStackTrace();
 			addError("system_error");			
-		}								
+		}		
 	}
 
 	public String[] getNextControllers() {		

@@ -40,7 +40,7 @@ class MotorVehicleTest extends ModuleTestBase {
 		execute "Mode.detailAndFirst"
 		assertValue "licensePlate", "L2-0002"
 		execute "Reference.search", "keyProperty=driver.name"
-		assertListRowCount 1
+		assertListRowCount 1 
 		execute "ReferenceSearch.choose", "row=0"
 		execute "CRUD.save"
 		assertError "MOTORBIKE plate L2-0002 is not roadworthy. " +

@@ -85,12 +85,13 @@ package org.openxava.actions;
 public class SimpleHTMLReportAction extends SimpleTemplaterAction 
 implements IForwardAction { 
 		
-	public String getForwardURI() {		
-		return "/xava/report.html?time=" + System.currentTimeMillis();
-	}
+	public String getForwardURI() {
+        String uri = "/" + getRequest().getParameter("application") + "/xava/report.html?time=" + System.currentTimeMillis();
+        return "javascript:void(window.open('" + uri + "'))";
+    }
 
-	public boolean inNewWindow() {
-		return true;
-	}	
+    public boolean inNewWindow() {
+        return false;
+    }  	
 	
 }

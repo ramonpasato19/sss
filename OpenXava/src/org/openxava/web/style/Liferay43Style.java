@@ -45,7 +45,7 @@ public class Liferay43Style extends PortalStyle {
 	}					
 	
 	public String getModule() {
-		return ""; 				
+		return getBrowserClass(); 
 	}
 	
 	public String getModuleSpacing() {
@@ -142,7 +142,7 @@ public class Liferay43Style extends PortalStyle {
 	
 	
 	public String getFrameContentEndDecoration() { 		
-		return "\n</div></div></div></td></tr></table>";		
+		return "\n</div></div></div>"; 
 	}
 		
 	public String getListPairSelected() { 
@@ -153,10 +153,21 @@ public class Liferay43Style extends PortalStyle {
 		return "liferay-list-selected"; 
 	}	
 
-	public String getFrameHeaderStartDecoration(int width) { 
-		String widthAttribute = width == 0?"":"width=\"" + width+ "%\" ";				
-		return "<table " + widthAttribute + "style='float:left; clear:none'><tr><td>\n" +
-			"<div class='portlet'><div class='portlet-topper' style='position: static; padding-right: 8px;'><table width='100%'><tr>"; // position: static needed for ie7 + liferay 4.3
+	public String getFrameHeaderStartDecoration(int width) {
+		String rightMargin = width == 100?"":"style='margin-right: 7px;'";
+		String frameClass = null; 
+		switch (width) {
+			case 0:
+				frameClass = "ox-frame-sibling";
+				break;
+			case 50:
+				frameClass = "ox-frame-sibling ox-two-collections-in-a-row";
+				break;
+			default: // 100	
+				frameClass = "ox-frame";				
+		}
+		
+		return "<div class='portlet " + frameClass + "' " + rightMargin +"><div class='portlet-topper' style='position: static; padding-right: 8px;'><table width='100%'><tr>"; // position: static needed for ie7 + liferay 4.3
 	}	
 	
 	public String getFrameHeaderEndDecoration() { 
@@ -195,14 +206,6 @@ public class Liferay43Style extends PortalStyle {
 	
 	public String getButton() {
 		return ""; 
-	}
-	
-	public String getAscendingImage() {
-		return "ascending.gif";
-	}
-	
-	public String getDescendingImage() {
-		return "descending.gif";
 	}
 	
 	public String getSection() {
@@ -247,10 +250,6 @@ public class Liferay43Style extends PortalStyle {
 		
 	public String getRestoreImage() { 
 		return getLiferayImagesFolder() + "portlet/restore.png";
-	}
-	
-	public String getMaximizeImage() {
-		return getLiferayImagesFolder() + "portlet/maximize.png"; 
 	}
 	
 	public String getMinimizeImage() {

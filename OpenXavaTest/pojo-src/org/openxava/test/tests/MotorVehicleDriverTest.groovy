@@ -32,7 +32,7 @@ class MotorVehicleDriverTest extends ModuleTestBase {
 		execute "CRUD.new"
 		setValue "name", "MAGALI AVILA"
 		execute "CRUD.save"
-		assertError "Driver MAGALI AVILA can not be registered: " +
+		assertError "Driver MAGALI AVILA can not be registered: " + 
 			"must approved the driving test"
 		setValue "approvedDrivingTest", "true"
 		execute "CRUD.save"
@@ -63,7 +63,7 @@ class MotorVehicleDriverTest extends ModuleTestBase {
 		execute "Collection.add", "viewObject=xava_view_vehicles"
 		assertListRowCount 1
 		execute "AddToCollection.add", "row=0"
-		assertError "AUTO plate L1-0001 is not roadworthy. " +
+		assertError "AUTO plate L1-0001 is not roadworthy. " + 
 			"It can not be assigned to the driver MAGALI AVILA"
 		execute "Mode.list"
 		execute "CRUD.deleteRow", "row=0"

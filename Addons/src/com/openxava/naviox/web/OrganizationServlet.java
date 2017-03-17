@@ -3,8 +3,11 @@ package com.openxava.naviox.web;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+
+import org.openxava.jpa.*;
 import org.openxava.util.*;
 import com.openxava.naviox.model.*;
+import com.openxava.naviox.util.*;
 
 /**
  * 
@@ -29,9 +32,11 @@ public class OrganizationServlet extends HttpServlet {
 		if (originalURI.equals("phone")) originalURI = originalURI + "/"; 
 		String url = ("/" + originalURI).replace("/m/", "/modules/") + separator + "organization=" + organization;
 		Organization.setUp();
-		Configuration.getInstance(); // To init Configuration before changing schema 
-		RequestDispatcher dispatcher = request.getRequestDispatcher(url);				
-		dispatcher.forward(request, response);
+		Configuration.getInstance(); // To init Configuration before changing schema
+		XPersistence.commit(); 
+		RequestDispatcher dispatcher = request.getRequestDispatcher(url);
+		Organizations.init(request, organization); 
+		dispatcher.forward(new SecureRequest(request), response);
 	}
 	
 	

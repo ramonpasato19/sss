@@ -3,6 +3,7 @@ package org.openxava.test.tests;
 import org.openxava.tests.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -19,7 +20,7 @@ class ExperienceTest extends ModuleTestBase {
 		execute "Reference.search", "keyProperty=programmer.name"
 		assertListRowCount 3
 		execute "List.orderBy", "property=name"
-		assertValueInList 1, 0, "JAVI"
+		assertValueInList 1, 0, "JAVI" 
 		execute "ReferenceSearch.choose", "row=1"
 		assertValue "programmer.name", "JAVI"
 		execute "TypicalNotResetOnSave.save"
@@ -41,7 +42,7 @@ class ExperienceTest extends ModuleTestBase {
 		
 	}
 	
-	void testNavigatingForObjectsWithPolymorphicReference() {
+	void testNavigatingForObjectsWithPolymorphicReference() { 
 		assertListRowCount 1 
 		execute "CRUD.new"
 		setValue "name", "OPENXAVA"

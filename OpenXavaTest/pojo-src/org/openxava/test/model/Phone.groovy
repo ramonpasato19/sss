@@ -25,7 +25,7 @@ public class Phone {
 	int phoneId 
 	
 	@ManyToOne(optional = false) @NoCreate @NoModify 
-	@DescriptionsList 
+	@DescriptionsList
 	Country phoneCountry 
 	
 	@Column(length = 20) @Required 

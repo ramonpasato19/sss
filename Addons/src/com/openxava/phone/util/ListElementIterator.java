@@ -6,6 +6,7 @@ import java.util.*;
 import javax.servlet.http.*;
 import javax.swing.table.*;
 
+import org.openxava.formatters.*;
 import org.openxava.model.meta.*;
 import org.openxava.tab.*;
 import org.openxava.util.*;
@@ -27,6 +28,7 @@ public class ListElementIterator implements Iterator {
 	private Collection<String> propertiesNames;
 	private int headerColumn = -1;
 	private int subheaderColumn = -1;
+	private BooleanFormatter booleanFormatter; 
 	
 	public ListElementIterator(Tab tab, View view, HttpServletRequest request, Messages errors) {
 		this.tab = tab;
@@ -80,9 +82,19 @@ public class ListElementIterator implements Iterator {
 		if (p.hasValidValues()) {
 			return p.getValidValueLabel(value);
 		}
+		else if (p.getType().equals(boolean.class) || p.getType().equals(Boolean.class)) {
+			return getBooleanFormatter().format(null, value);
+		}
 		else {
 			return WebEditors.format(request, p, value, errors, view.getViewName(), true);
 		}
+	}
+	
+	public BooleanFormatter getBooleanFormatter() {
+		if (booleanFormatter == null) {
+			booleanFormatter = new BooleanFormatter();
+		}
+		return booleanFormatter;
 	}
 
 	private int getHeaderColumn() {

@@ -22,7 +22,8 @@ public class UserInfo implements java.io.Serializable {
 	private int birthDateYear;
 	private int birthDateMonth;
 	private int birthDateDay;
-	
+	private String organization; 
+
 	public String getId() {
 		return id;
 	}
@@ -102,5 +103,11 @@ public class UserInfo implements java.io.Serializable {
 		if (value == null) return 0;
 		return Integer.parseInt(value.toString());
 	}
-
+	
+	public String getOrganization() {
+		return organization;
+	}
+	public void setOrganization(String organization) {
+		this.organization = organization;
+	}
 }

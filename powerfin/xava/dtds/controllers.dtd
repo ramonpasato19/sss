@@ -58,7 +58,7 @@
  controller CDATA #REQUIRED
 >
 
-<!ELEMENT controller (extends*, action*, subcontroller*)>
+<!ELEMENT controller (extends*, (action|subcontroller)*)>
 <!ATTLIST controller
  name CDATA #REQUIRED
  label CDATA #IMPLIED

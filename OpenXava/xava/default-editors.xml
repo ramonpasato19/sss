@@ -183,6 +183,12 @@
 		<for-stereotype stereotype="HTML_TEXT" />
 		<for-stereotype stereotype="TEXTO_HTML" />
 	</editor>
+	
+	<editor name="SimpleHtmlText" url="htmlEditor.jsp" frame="true">
+		<property name="config" value="simple" />
+		<for-stereotype stereotype="SIMPLE_HTML_TEXT" />
+		<for-stereotype stereotype="TEXTO_HTML_SIMPLE" />
+	</editor>	
 
 	<!-- 
 	It shows an image localized in /xava/images of your web applications,
@@ -219,6 +225,8 @@
 	<editor url="textEditor.jsp">
 		<for-model-property model="MyReportColumn" property="label" /> 
 		<for-model-property model="MyReportColumn" property="value" />
+		<for-model-property model="DiscussionComment" property="userName" />
+		<for-model-property model="WithRequiredLongName" property="name" />
 	</editor>
 		
 	<editor url="myReportColumnNameEditor.jsp" always-reload="true">
@@ -247,6 +255,17 @@
 	<editor name="AttachedFiles" url="attachedFilesEditor.jsp" always-reload="true">
 		<for-stereotype stereotype="FILES" />
 		<for-stereotype stereotype="ARCHIVOS" />
+	</editor>
+	
+	<editor name="Discussion" url="discussionEditor.jsp" frame="true">
+		<for-stereotype stereotype="DISCUSSION" />
+		<for-stereotype stereotype="DISCUSION" />
+	</editor>
+	
+	<editor name="Icon" url="iconEditor.jsp">
+		<list-formatter class="org.openxava.formatters.IconListFormatter"/>
+		<for-stereotype stereotype="ICON" />
+		<for-stereotype stereotype="ICONO" />
 	</editor>
 	
 	<editor url="chartDataEditor.jsp">

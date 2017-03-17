@@ -68,10 +68,10 @@ else {
 	%>
 	<%
 	if (isString) {
-	%>						
+	%>				
+	<option value="<%=Tab.CONTAINS_COMPARATOR%>" <%=contains%>><xava:message key="<%=Tab.CONTAINS_COMPARATOR%>"/></option>		
 	<option value="<%=Tab.STARTS_COMPARATOR%>" <%=startsWith%>><xava:message key="<%=Tab.STARTS_COMPARATOR%>"/></option>
 	<option value="<%=Tab.ENDS_COMPARATOR%>" <%=endsWith%>><xava:message key="<%=Tab.ENDS_COMPARATOR%>"/></option>
-	<option value="<%=Tab.CONTAINS_COMPARATOR%>" <%=contains%>><xava:message key="<%=Tab.CONTAINS_COMPARATOR%>"/></option>	
 	<option value="<%=Tab.NOT_CONTAINS_COMPARATOR%>" <%=notContains%>><xava:message key="<%=Tab.NOT_CONTAINS_COMPARATOR%>"/></option>
 	<option value="<%=Tab.EMPTY_COMPARATOR%>" <%=empty%>><xava:message key="<%=Tab.EMPTY_COMPARATOR%>"/></option>
 	<option value="<%=Tab.NOT_EMPTY_COMPARATOR%>" <%=notEmpty%>><xava:message key="<%=Tab.NOT_EMPTY_COMPARATOR%>"/></option>

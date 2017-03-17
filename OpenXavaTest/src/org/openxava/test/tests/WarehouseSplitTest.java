@@ -19,7 +19,7 @@ public class WarehouseSplitTest extends WarehouseSplitTestBase {
 		assertAction("List.filter"); // List is shown
 		assertExists("zoneNumber"); // Detail is shown
 
-		super.testSplitMode();
+		super.testSplitMode(); 
 	}
 	
 	public void testCheckedRows() throws Exception {

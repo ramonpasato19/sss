@@ -14,7 +14,7 @@ public class CreateNewElementInManyToManyCollectionAction extends CollectionBase
     	showDialog();    	
         getView().setModelName(collectionModel);
         getView().setMemberName(collection);
-        setControllers("ManyToManyNewElement", "Dialog");
+        setControllers("ManyToManyNewElement", "Dialog");  
     }
 	
 }

@@ -4,6 +4,7 @@ import org.openxava.tests.*;
 
 
 /**
+ * 
  * @author Javier Paniza
  */ 
 public class ShipmentSeparatedTimeTest extends ModuleTestBase {
@@ -19,7 +20,7 @@ public class ShipmentSeparatedTimeTest extends ModuleTestBase {
 		String [] time = { "5/27/09", "11:59 AM" };
 		setValues("time", time);
 		execute("CRUD.save");
-		assertValues("time", emptyTime);
+		assertValues("time", emptyTime); 
 		execute("Mode.list");
 		execute("Mode.detailAndFirst");
 		assertValues("time", time);

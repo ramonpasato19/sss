@@ -315,6 +315,24 @@
 		</members>
 	</view>
 	
+	<view name="Simple">
+	
+		<reference-view reference="invoice" view="Simple"/>
+		
+		<reference-view reference="type">	
+			<descriptions-list order="${number} desc"/>
+		</reference-view>
+							
+		<members>
+			invoice;			
+			<group name="deliveryData">
+				type, number;			
+				date;
+				description;														
+			</group>
+		</members>
+	</view>	
+	
 	<view name="FullInvoice">
 		
 		<reference-view reference="invoice" frame="false"/>

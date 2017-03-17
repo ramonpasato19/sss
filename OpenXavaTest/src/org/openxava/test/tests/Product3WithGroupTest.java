@@ -36,7 +36,7 @@ public class Product3WithGroupTest extends ModuleTestBase {
 		execute("CRUD.new");
 		assertNoErrors();
 		execute("Product3.showDescription"); // description is hide in a init action for test purpose
-		setValue("description", "HOLA");
+		setValue("description", "HOLA"); 
 		execute("Product3.changeFamily");
 		assertValue("description", "HOLA");
 	}

@@ -12,11 +12,21 @@ import org.openxava.jpa.*;
  * @author Jeromy Altuna
  */
 @Entity
+@View(members=
+    "user ["            +
+    "   name; nickname" +
+    "], " +
+    "attachments; "     +
+    "listOfNicknamesThatAreUsedByOthersUsers"
+) 
 public class UserWithNickname extends Nameable {
 	
 	@OneToOne @ReferenceView("OnlyNickname")
 	@AsEmbedded @NoFrame
 	private Nickname nickname;	
+	
+	@Embedded
+	private Attachments attachments;
 	
 	public Collection<Nickname> getListOfNicknamesThatAreUsedByOthersUsers() {
 		TypedQuery<Nickname> query = XPersistence.getManager().createQuery(
@@ -30,5 +40,13 @@ public class UserWithNickname extends Nameable {
 
 	public void setNickname(Nickname nickname) {
 		this.nickname = nickname;
+	}
+
+	public Attachments getAttachments() {
+		return attachments;
+	}
+
+	public void setAttachments(Attachments attachments) {
+		this.attachments = attachments;
 	}	
 }

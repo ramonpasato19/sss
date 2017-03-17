@@ -1,6 +1,6 @@
 package org.openxava.model.meta;
 
-
+import java.util.*;
 
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
@@ -14,6 +14,23 @@ abstract public class MetaMember extends MetaElement implements Comparable {
 	private String labelId;
 	private String qualifiedName;
 	
+	private String label;
+	
+	public String getLabel(Locale locale) {
+		return Is.emptyString(label) || Labels.exists(getLabelId(), locale)?super.getLabel(locale):label;
+	}
+		
+	public void setLabel(String newLabel) {
+		super.setLabel(newLabel);
+		label = newLabel;
+	}
+	
+	/** @since 5.6 */
+	static public <T extends MetaMember> List<String> toQualifiedNames(Collection<T> metaMembers) { 
+		List<String> result = new ArrayList<String>();
+		for (MetaMember m: metaMembers) result.add(m.getQualifiedName());
+		return result;
+	}
 
 	public int compareTo(Object o) { 	
 		return getName().compareTo(((MetaMember) o).getName());

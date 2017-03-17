@@ -18,6 +18,19 @@
 	<view>
 		<reference-view reference="delivery" view="MoreSections"/>
 	</view>
+	
+	<view name="WithDescriptionsListShowingReferenceView" >
+		<reference-view reference="delivery" view="Simple">
+			<descriptions-list description-properties="description, date" 
+				condition="${invoice.year} = 2004" 
+				show-reference-view="true"/>
+		</reference-view>	
+		<members>
+			delivery;
+			<section name="one">amount</section>
+			<section name="two"></section> 
+		</members>
+	</view>
 
 	<tab>
 		<properties>delivery.invoice.year, delivery.invoice.number, delivery.number, amount</properties>

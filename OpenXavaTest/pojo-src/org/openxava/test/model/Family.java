@@ -5,7 +5,6 @@ import javax.persistence.Entity;
 import javax.validation.constraints.*;
 
 import org.hibernate.annotations.*;
-import org.hibernate.validator.*;
 import org.hibernate.validator.constraints.*;
 import org.openxava.annotations.*;
 
@@ -29,10 +28,10 @@ public class Family {
 	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	private String oid;
 	
-	@Max(999) @Required
+	@Max(999) @Required 
 	private int number;
 	
-	@Length(max=40) @Required
+	@Length(max=40) @Required 
 	private String description;
 	
 	@Transient @Stereotype("PRODUCT3")

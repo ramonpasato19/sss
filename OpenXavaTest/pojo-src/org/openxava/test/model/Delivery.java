@@ -3,17 +3,17 @@ package org.openxava.test.model;
 import java.util.*;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
+import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Columns;
 import org.hibernate.annotations.Parameter;
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
-import org.openxava.jpa.*;
 import org.openxava.test.actions.*;
 import org.openxava.test.calculators.*;
 import org.openxava.test.validators.*;
+import org.openxava.jpa.*;
 
 /**
  * This is an example of using references as part of a composite key.<p>
@@ -94,6 +94,14 @@ import org.openxava.test.validators.*;
 		"	details" +
 		"}"					
 	),
+	@View(name="Simple", members=
+		"invoice;" +			
+		"deliveryData ["  +
+		"	type, number;" +			
+		"	date;" +
+		"	description;" +				
+		"]"
+	),
 	@View(name="FullInvoice", members= "invoice; number; description"),
 	@View(name="Search", members= "invoice; type; number; date;	description;")
 })
@@ -129,7 +137,7 @@ public class Delivery {
 	@Id @ManyToOne(fetch=FetchType.LAZY)	
 	@JoinColumn(name="TYPE")
 	@DescriptionsLists({		
-		@DescriptionsList(forViews="DEFAULT, MoreSections, Search", order="${number} desc"),
+		@DescriptionsList(forViews="DEFAULT, MoreSections, Search, Simple", order="${number} desc"), 
 		@DescriptionsList(forViews="GroupsInSections")
 	})
 	@Action(forViews="DEFAULT, MoreSections", value="Delivery.setDefaultType")
@@ -185,7 +193,7 @@ public class Delivery {
 	private String incidents;	
 	
 	@OneToMany (mappedBy="delivery", cascade=CascadeType.REMOVE)
-	@org.hibernate.validator.Size(max=3)
+	@Size(max=3) 
 	@NewAction(forViews="DEFAULT, MoreSections", value="DeliveryDetail.new")
 	@SaveAction(forViews="DEFAULT, MoreSections", value="DeliveryDetail.save")
 	@DetailAction(forViews="DEFAULT, MoreSections", value="DeliveryDetail.saveFailing") 

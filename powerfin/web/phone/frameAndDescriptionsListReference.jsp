@@ -50,11 +50,12 @@ else {
 	if (subview.isRepresentsEntityReference()) subview.setKeyEditable(false);
 	context.put(request, viewName, subview);
 	String propertyInReferencePrefix = view.getPropertyPrefix() + ref.getName() + ".";	 
+	boolean editable = view.isEditable(ref); 
 %>
 <div id="<%=labelKey%>" class="phone-frame-header"> 
 	<span class="phone-frame-title"><%=label%></span>
 <% 
-	if (subview.isRepresentsEntityReference() && view.isEditable()) {
+	if (subview.isRepresentsEntityReference() && editable) { 
 		if (subview.isSearch()) {
 			MetaAction searchAction = MetaControllers.getMetaAction(subview.getSearchAction());
 %>	

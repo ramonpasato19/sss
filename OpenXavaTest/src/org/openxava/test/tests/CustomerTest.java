@@ -1,18 +1,11 @@
 package org.openxava.test.tests;
 
-import java.net.URL;
-
 import javax.persistence.NoResultException;
 
 import org.openxava.model.meta.MetaModel;
 import org.openxava.test.model.Customer;
 import org.openxava.test.model.Warehouse;
 import org.openxava.util.Is;
-import org.openxava.util.Strings;
-
-import com.gargoylesoftware.htmlunit.WebResponse;
-import com.gargoylesoftware.htmlunit.html.HtmlImage;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 /**
  * 
@@ -36,6 +29,8 @@ public class CustomerTest extends CustomizeListTestBase {
 		"List.orderBy",
 		"List.viewDetail",
 		"List.hideRows",
+		"List.changeConfigurationName", 
+		"ListFormat.select", 
 		"Customer.hideSellerInList",
 		"Customer.showSellerInList"
 	};
@@ -51,11 +46,19 @@ public class CustomerTest extends CustomizeListTestBase {
 		this.section = section?"_section0":"";		
 	}
 	
-	public void testReloadModuleInsideHtml() throws Exception { // NaviOX with a special group combination, address with a group for city 		
+	public void testDescriptionsListInListForSecondLevelReferences() throws Exception { 
+		assertListRowCount(5); 
+		assertLabelInList(4, "Seller level");
+		setConditionValues("", "", "", "", "A");
+		execute("List.filter");
+		assertListRowCount(3);
+	}
+	
+	public void testReloadModuleInsideHtml_iconsInViewAction() throws Exception { // NaviOX with a special group combination, address with a group for city 		
 		execute("CRUD.new");
 		assertAction("EditableOnOff.setOn"); 
 		reload();
-		assertAction("EditableOnOff.setOn"); 		
+		assertAction("EditableOnOff.setOn");
 	}
 	
 	public void testPdfReportInNestedCollection() throws Exception { 
@@ -87,7 +90,7 @@ public class CustomerTest extends CustomizeListTestBase {
 		assertCollectionRowCount("receptionists", 2);
 	}
 				
-	public void testObtainAggregateValues() throws Exception {
+	public void testObtainAggregateValues() throws Exception { 
 		String city = getValueInList(0, "address.city");
 		assertTrue("Value for city in first customer is required for run this test", !Is.emptyString(city));
 		execute("Mode.detailAndFirst");
@@ -116,7 +119,7 @@ public class CustomerTest extends CustomizeListTestBase {
 	}
 		
 	public void testFilterByMemberOfAggregate() throws Exception {  
-		assertListRowCount(5);
+		assertListRowCount(5); 
 		String [] totalCondition = { "", "", "", "V" };		
 		setConditionValues(totalCondition);		
 		execute("List.filter");
@@ -167,7 +170,7 @@ public class CustomerTest extends CustomizeListTestBase {
 		assertValue("remarks", "RELATION WITH SELLER JUNIT");
 	}
 	
-	public void testFilterByValidValues() throws Exception {
+	public void testFilterByValidValues() throws Exception { 
 		int total = Customer.findAll().size();
 		int normalOnes = Customer.findNormalOnes().size();
 		int steadyOnes = Customer.findSteadyOnes().size();
@@ -212,63 +215,7 @@ public class CustomerTest extends CustomizeListTestBase {
 		assertNoErrors();
 		assertListRowCount(total);		
 	}
-	
-	protected void addImage() throws Exception{ 
-		execute("CRUD.new");		
-		execute("ImageEditor.changeImage", "newImageProperty=photo"); 
-		assertNoErrors();
-		assertAction("LoadImage.loadImage");		
-		String imageUrl = System.getProperty("user.dir") + "/test-images/foto_javi.jpg";
-		setFileValue("newImage", imageUrl);
-		assertAction("LoadImage.cancel");
-		execute("LoadImage.loadImage");
-		assertNoErrors();
-	}
 		
-	public void testChangeImage() throws Exception { 		
-		addImage();
-		
-		HtmlPage page = (HtmlPage) getWebClient().getCurrentWindow().getEnclosedPage();		
-		URL url = page.getWebResponse().getWebRequest().getUrl(); 
-		
-		String urlPrefix = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-		
-		HtmlImage image = (HtmlImage) page.getElementsByName(decorateId("photo")).get(0); 
-		String imageURL = null;
-		if (image.getSrcAttribute().startsWith("/")) {
-			imageURL = urlPrefix + image.getSrcAttribute();
-		}
-		else {
-			String urlBase = Strings.noLastToken(url.getPath(), "/");
-			imageURL = urlPrefix + urlBase + image.getSrcAttribute();
-		}		
-		WebResponse response = getWebClient().getPage(imageURL).getWebResponse();		
-		assertTrue("Image not obtained", response.getContentAsString().length() > 0);
-		assertEquals("Result is not an image", "image", response.getContentType());
-	}
-			
-	public void testDeleteImage() throws Exception { 
-		addImage();
-		
-		execute("ImageEditor.deleteImage", "newImageProperty=photo");
-		assertNoErrors();
-		HtmlPage page = (HtmlPage) getWebClient().getCurrentWindow().getEnclosedPage();		
-		URL url = page.getWebResponse().getWebRequest().getUrl(); 
-		String urlPrefix = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
-		
-		HtmlImage image = (HtmlImage) page.getElementsByName(decorateId("photo")).get(0); 
-		String imageURL = null;
-		if (image.getSrcAttribute().startsWith("/")) {
-			imageURL = urlPrefix + image.getSrcAttribute();
-		}
-		else {
-			String urlBase = Strings.noLastToken(url.getPath(), "/");
-			imageURL = urlPrefix + urlBase + image.getSrcAttribute();
-		}	
-		WebResponse response = getWebClient().getPage(imageURL).getWebResponse();
-		assertTrue("Image obtained", response.getContentAsString().length() == 0);
-	}
-	
 	public void testHideShowGroup() throws Exception {		
 		execute("CRUD.new");
 		assertExists("seller.number");
@@ -302,22 +249,21 @@ public class CustomerTest extends CustomizeListTestBase {
 		// OX3 uses Java 5 enums, and enums have base 0. OX2 valid-value has base 1  
 		boolean base0 = usesAnnotatedPOJO();
 		String [][] validValues = { 
-			{ base0?"":"0", "" },
-			{ base0?"0":"1", "Normal" },
+			{ base0?"0":"1", "Normal" }, 
 			{ base0?"1":"2", "Steady" },
 			{ base0?"2":"3", "Special" }	
 		};
 		
-		assertValue("type", base0?"0":"1");		
+		assertValue("type", base0?"2":"3");		
 		assertValidValues("type", validValues);
 	}
 	
 	public void testOnChangeAction() throws Exception {
 		execute("Mode.split"); // To test a case
 		execute("CRUD.new");		
-		assertValue("type", usesAnnotatedPOJO()?"0":"1");		
+		assertValue("type", usesAnnotatedPOJO()?"2":"3");		
 		setValue("name", "PEPE");
-		assertValue("type", usesAnnotatedPOJO()?"0":"1");
+		assertValue("type", usesAnnotatedPOJO()?"2":"3");
 		setValue("name", "JAVI");
 		assertValue("type", usesAnnotatedPOJO()?"1":"2"); 		
 	}	
@@ -358,7 +304,7 @@ public class CustomerTest extends CustomizeListTestBase {
 
 		execute("CRUD.new"); 
 		assertValue("number", "");
-		assertValue("type", usesAnnotatedPOJO()?"0":"1");
+		assertValue("type", usesAnnotatedPOJO()?"2":"3");
 		assertValue("name", "");
 		assertValue("address.street", "");
 		assertValue("address.zipCode", "");
@@ -392,7 +338,7 @@ public class CustomerTest extends CustomizeListTestBase {
 		assertNoErrors();
 		execute("CRUD.new");
 		assertValue("number", "");
-		assertValue("type", usesAnnotatedPOJO()?"0":"1");
+		assertValue("type", usesAnnotatedPOJO()?"2":"3");
 		assertValue("name", "");
 		
 		// Verifying modified
@@ -545,7 +491,7 @@ public class CustomerTest extends CustomizeListTestBase {
 		assertValue("relationWithSeller", "HOLA"); // That implies that 'new' not was executed		
 	}
 		
-	public void testPropertiesOfEntityReferenceAndAggregateInList() throws Exception {
+	public void testPropertiesOfEntityReferenceAndAggregateInList() throws Exception {  
 		setConditionValues(new String [] { "JAVI", "" });
 		execute("List.filter");
 		assertListRowCount(1);
@@ -737,12 +683,10 @@ public class CustomerTest extends CustomizeListTestBase {
 	
 	public void testDescriptionValidValuesEditor() throws Exception { 
 		execute("CRUD.new");
-		assertValue("type", usesAnnotatedPOJO()?"0":"1");
+		assertValue("type", usesAnnotatedPOJO()?"2":"3");
 		setValue("type", usesAnnotatedPOJO()?"1":"2");
 		assertValue("type", usesAnnotatedPOJO()?"1":"2");
 		setValue("type", usesAnnotatedPOJO()?"2":"3");
 		assertValue("type", usesAnnotatedPOJO()?"2":"3");		
 	}
-			
-
 }

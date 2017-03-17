@@ -1,8 +1,9 @@
 package com.openxava.naviox.web.dwr;
 
 import javax.servlet.http.*;
-
+import org.openxava.web.dwr.*;
 import org.apache.commons.logging.*;
+import org.openxava.controller.*;
 import org.openxava.util.*;
 import org.openxava.web.servlets.*;
 
@@ -17,11 +18,14 @@ public class Modules {
 	public String displayModulesList(HttpServletRequest request, HttpServletResponse response) { 
 		try {
 			RequestReseter.reset(request); 
-			return Servlets.getURIAsString(request, response, "/naviox/modulesList.jsp"); 
+			return Servlets.getURIAsString(request, response, "/naviox/modulesList.jsp");
 		}
 		catch (Exception ex) {
 			log.error(XavaResources.getString("display_modules_error"), ex); 
 			return null; 
+		}
+		finally {
+			ModuleManager.commit();
 		}
 	}
 	
@@ -34,6 +38,9 @@ public class Modules {
 			log.error(XavaResources.getString("display_modules_error"), ex); 
 			return null; 
 		}
+		finally {
+			ModuleManager.commit();
+		}
 	}
 
 	
@@ -45,6 +52,9 @@ public class Modules {
 		catch (Exception ex) {
 			log.error(XavaResources.getString("display_modules_error"), ex);
 			return null; 
+		}
+		finally {
+			ModuleManager.commit();
 		}
 	}
 

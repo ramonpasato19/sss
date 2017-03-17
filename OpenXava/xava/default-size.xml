@@ -24,6 +24,10 @@
 	<for-stereotype name="EMAIL_LIST" size="200"/>
 	<for-stereotype name="LISTA_EMAIL" size="200"/>
 	<for-stereotype name="MAC" size="17"/>
+	<for-stereotype name="ICON" size="40"/> 
+	<for-stereotype name="ICONO" size="40"/>
+	<for-stereotype name="DISCUSSION" size="32"/> 
+	<for-stereotype name="DISCUSION" size="32"/> 
 	<for-type class="java.sql.Time" size="5"/>
 	<for-type class="java.util.Date" size="10"/>
 	<for-type class="java.sql.Timestamp" size="19"/>

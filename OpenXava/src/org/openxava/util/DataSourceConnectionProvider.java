@@ -10,7 +10,6 @@ import javax.sql.*;
 import javax.xml.parsers.*;
 
 import org.apache.commons.logging.*;
-import org.hibernate.*;
 import org.hibernate.internal.*;
 import org.openxava.component.*;
 import org.openxava.hibernate.*;
@@ -33,7 +32,8 @@ public class DataSourceConnectionProvider implements IConnectionProvider, Serial
 	private static Properties datasourcesJNDIByPackage;
 	private static Map providers;
 	private static boolean useHibernateConnection = false;
-	private static Map jpaDataSources; 
+	private static Map jpaDataSources;
+	private static IConnectionRefiner connectionRefiner; 
 			
 	private String dataSourceJNDI;	
 	private String user;
@@ -42,7 +42,7 @@ public class DataSourceConnectionProvider implements IConnectionProvider, Serial
 	public static IConnectionProvider createByComponent(String componentName) throws XavaException {
 		MetaComponent component =MetaComponent.get(componentName); 				
 		String jndi = null;		
-		if (!component.getMetaEntity().isAnnotatedEJB3()) {
+		if (component.getMetaEntity().isXmlComponent()) { 
 			String packageName = component.getPackageNameWithSlashWithoutModel();
 			jndi = getDatasourcesJNDIByPackage().getProperty(packageName);			
 			if (Is.emptyString(jndi)) {
@@ -160,18 +160,39 @@ public class DataSourceConnectionProvider implements IConnectionProvider, Serial
 			return con;
 		}			
 		try {
+			Connection con = null;
 			if (Is.emptyString(getUser())) {
-				return getDataSource().getConnection();
+				con = getDataSource().getConnection();
 			}
 			else {
-				return getDataSource().getConnection(getUser(), getPassword());
-			}
+				con = getDataSource().getConnection(getUser(), getPassword());
+			}		
+			refine(con);
+			return con;
 		}
-		catch (NamingException ex) {
+		catch (SQLException ex) {
+			throw ex;			
+		}
+		catch (Exception ex) {
+			log.error(XavaResources.getString("get_connection_error"), ex); 
 			throw new SQLException(ex.getLocalizedMessage());			
-		}
+		}			
 	}
 	
+	private void refine(Connection con) throws Exception { 
+		IConnectionRefiner refiner = getConnectionRefiner();
+		if (refiner != null) refiner.refine(con);		
+	}
+
+	private static IConnectionRefiner getConnectionRefiner() throws Exception { 
+		if (connectionRefiner == null) {
+			String refinerClass = XavaPreferences.getInstance().getConnectionRefinerClass();
+			if (Is.emptyString(refinerClass)) return null;
+			connectionRefiner = (IConnectionRefiner) Class.forName(refinerClass).newInstance();
+		}
+		return connectionRefiner;
+	}
+
 	public Connection getConnection(String dataSourceName) throws SQLException {		
 		return getConnection();
 	}

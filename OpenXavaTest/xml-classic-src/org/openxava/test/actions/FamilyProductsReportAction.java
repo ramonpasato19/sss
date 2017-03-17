@@ -52,15 +52,7 @@ public class FamilyProductsReportAction extends JasperReportBaseAction implement
 	private ISubfamily2 getSubfamily() throws Exception {
 		if (subfamily == null) {
 			int subfamilyNumber = getView().getValueInt("subfamily.number");
-			// We show here JPA and Hibernate, but in real life you will use one of them only
-			if (XavaPreferences.getInstance().isJPAPersistence()) {
-				// EJB3 JPA
-				subfamily = (ISubfamily2) XPersistence.getManager().find(Subfamily2.class, new Integer(subfamilyNumber));
-			}
-			else {
-				// Hibernate
-				subfamily = (ISubfamily2) XHibernate.getSession().get(Subfamily2.class, new Integer(subfamilyNumber));
-			}
+			subfamily = (ISubfamily2) XHibernate.getSession().get(Subfamily2.class, new Integer(subfamilyNumber));
 		}
 		return subfamily;
 	}

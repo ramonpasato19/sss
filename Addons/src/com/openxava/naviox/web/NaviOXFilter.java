@@ -45,13 +45,7 @@ public class NaviOXFilter implements Filter {
 			session.setAttribute("xava.user", session.getAttribute("naviox.user")); // We use naviox.user instead of working only
 						// with xava.user in order to prevent some security hole using UrlParameters.setUser
 			
-			HttpServletRequest secureRequest = new HttpServletRequestWrapper((HttpServletRequest)request) {
-				
-				public String getRemoteUser() {				
-					return (String) ((HttpServletRequest) getRequest()).getSession().getAttribute("naviox.user");
-				}
-				
-			};
+			HttpServletRequest secureRequest = new SecureRequest(request);
 			
 			Users.setCurrent(secureRequest);
 		
@@ -63,8 +57,9 @@ public class NaviOXFilter implements Filter {
 				String originalURI = secureRequest.getRequestURI();
 				String organization = Organizations.getCurrent(request);
 				if (organization != null) originalURI = originalURI.replace("/modules/", "/o/" + organization + "/m/");
-				RequestDispatcher dispatcher = request.getRequestDispatcher("/" + base + "/SignIn?originalURI=" + originalURI);
-				dispatcher.forward(request, response);
+				String userAccessModule = modules.getUserAccessModule(request);
+				RequestDispatcher dispatcher = request.getRequestDispatcher("/" + base + "/" + userAccessModule + "?originalURI=" + originalURI);
+				dispatcher.forward(secureRequest, response); 
 			}
 		} 
 		finally {

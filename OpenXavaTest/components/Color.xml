@@ -75,7 +75,7 @@ Number (the key) can be 0
 				label-format="NO_LABEL"/>
 		</reference-view>
 		<reference-view reference="usedTo">
-			<descriptions-list not-for-tabs="DEFAULT"/>
+			<descriptions-list not-for-tabs="DEFAULT" order="${name} desc"/>
 		</reference-view>
 		<reference-view reference="anotherCT">
 			<descriptions-list condition="${thing.number} = (SELECT idthing FROM ${Thing} WHERE name = 'CAR')"/>

@@ -3,8 +3,8 @@ package org.openxava.test.model;
 import java.math.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
-import org.hibernate.validator.*;
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
 import org.openxava.jpa.*;
@@ -36,13 +36,13 @@ import org.openxava.test.validators.*;
 })
 @Views({
 	@View( members=
-		"#number, description;" +
+		"#number, description;" + // Don't remove #, it's needed to test some bugs
 		"color, photos;" +
 		"family, subfamily;" +
 		"warehouse, zoneOne;" +
 		"unitPrice, unitPriceInPesetas;" +
 		"unitPriceWithTax"
-	),
+	),	
 	@View( name="ColorWithFrame", members= 
 		"number;" +
 		"description;" +

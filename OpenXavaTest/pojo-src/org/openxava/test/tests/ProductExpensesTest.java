@@ -2,6 +2,8 @@ package org.openxava.test.tests;
 
 import org.openxava.tests.*;
 
+import com.gargoylesoftware.htmlunit.html.*;
+
 /**
  *  
  * @author Javier Paniza
@@ -13,7 +15,7 @@ public class ProductExpensesTest extends ModuleTestBase {
 		super(testName, "ProductExpenses");		
 	}
 		
-	public void testDescriptionsListInElementCollection() throws Exception { 
+	public void testDescriptionsListInElementCollection() throws Exception {
 		execute("CRUD.new");
 		setValue("description", "JUNIT EXPENSES");
 		
@@ -29,7 +31,7 @@ public class ProductExpensesTest extends ModuleTestBase {
 			{ "[.1.2009.]", "2009 1" },
 			{ "[.1.2011.]", "2011 1" }			
 		};		
-		assertValidValuesInCollection("expenses", 0, "invoice.KEY", invoiceValidValues);
+		assertValidValuesInCollection("expenses", 0, "invoice.KEY", invoiceValidValues); 
 		String [][] productValidValues = {
 			{ "", "" },
 			{ "4", "CUATRE" },
@@ -98,9 +100,20 @@ public class ProductExpensesTest extends ModuleTestBase {
 		assertValueInCollection("expenses", 0, "family.number", "1"); 
 		assertValueInCollection("expenses", 0, "subfamily.number", "3"); 
 
-		
 		execute("CRUD.delete");
 		assertNoErrors();
+	}
+	
+	
+	public void testChoosingInADescriptionsListComboAddsLineInAnElementCollection() throws Exception {   
+		execute("CRUD.new");
+		HtmlElement editor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ProductExpenses__reference_editor_expenses___0___invoice");
+		HtmlElement handler = editor.getElementsByTagName("i").get(0);
+		assertCollectionRowCount("expenses", 0); 
+		handler.click();
+		HtmlElement combo = getHtmlPage().getHtmlElementById("ui-id-1");
+		((HtmlElement) combo.getFirstElementChild()).click();
+		assertCollectionRowCount("expenses", 1);
 	}
 			
 }

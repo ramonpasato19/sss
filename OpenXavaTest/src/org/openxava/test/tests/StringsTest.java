@@ -11,6 +11,10 @@ import junit.framework.*;
 
 public class StringsTest extends TestCase {
 	
+	public void testNaturalLabelToIdentifier() throws Exception {
+		assertEquals("LeonEspana", Strings.naturalLabelToIdentifier("León, España"));
+	}
+		
 	public void testJavaIdentifierToNaturalLabel() throws Exception {
 		assertEquals("Number", Strings.javaIdentifierToNaturalLabel("number"));
 		assertEquals("Product number", Strings.javaIdentifierToNaturalLabel("productNumber"));

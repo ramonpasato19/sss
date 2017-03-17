@@ -41,7 +41,7 @@ public class Product4Test extends ModuleTestBase {
 		assertErrorsCount(1);		
 		setValue("description", "WEBSPHERE");
 		execute("CRUD.save");
-		assertError("666 is not a valid value for Number of Product 4: It's number of man");
+		assertError("666 is not a valid value for Number of Product 4: It's number of man"); 
 		assertErrorsCount(1);
 	}
 	

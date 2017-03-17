@@ -1,12 +1,10 @@
 package com.openxava.naviox.impl;
 
 import java.util.*;
-
-import javax.persistence.*;
-
-import org.openxava.annotations.parse.*;
+import org.apache.commons.logging.*;
 import org.openxava.application.meta.*;
 import org.openxava.util.*;
+import com.openxava.naviox.util.*;
 
 /**
  * 
@@ -14,6 +12,8 @@ import org.openxava.util.*;
  */
 
 public class MetaModuleFactory {
+	
+	private static Log log = LogFactory.getLog(MetaModuleFactory.class); 
 	
 	private static String application; 
 
@@ -23,33 +23,29 @@ public class MetaModuleFactory {
 	
 	public static List<MetaModule> createAll() {
 		MetaApplication app = MetaApplications.getMetaApplication(application);
-		createDefaultMetaModules(app);
-		createAdditionalMetaModules(app);
-		return new ArrayList<MetaModule>(app.getMetaModules());
-	}
-
-	private static void createDefaultMetaModules(MetaApplication app) {
-		for (String className: AnnotatedClassParser.getManagedClassNames()) {
-			if (className.endsWith(".GalleryImage") || className.endsWith(".AttachedFile")) continue;
-			if (isEmbeddable(className)) continue;
-			app.getMetaModule(Strings.lastToken(className, "."));
+		List<MetaModule> metaModules = new ArrayList<MetaModule>();	
+		for (String moduleName: createNamesProvider().getAllModulesNames(app)) {
+			addMetaModule(app, metaModules, moduleName);
 		}		
+		return metaModules;
 	}
 	
-	private static void createAdditionalMetaModules(MetaApplication app) {
-		for (String moduleName: AdditionalModules.get()) {
-			app.getMetaModule(moduleName);
-		}		
-	}
-	
-
-	private static boolean isEmbeddable(String className) {
+	private static IAllModulesNamesProvider createNamesProvider() {
 		try {
-			return Class.forName(className).isAnnotationPresent(Embeddable.class);
-		} 
-		catch (ClassNotFoundException e) {
-			return false;
-		}		
+			return (IAllModulesNamesProvider) Class.forName(NaviOXPreferences.getInstance().getAllModulesNamesProviderClass()).newInstance();
+		}
+		catch (Exception ex) {
+			log.error(XavaResources.getString("all_modules_names_provider_error"), ex); 
+			throw new XavaException("all_modules_names_provider_error");
+		}
+	}
+	
+	private static void addMetaModule(MetaApplication app, List<MetaModule> metaModules, String name) { 
+		MetaModule module = new MetaModule();
+		module.setMetaApplication(app);
+		module.setName(name);			
+		module.setModelName(name);
+		metaModules.add(module);
 	}
 
 	public static String getApplication() {  

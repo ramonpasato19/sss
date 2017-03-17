@@ -14,7 +14,7 @@ public class Office2Test extends ModuleTestBase {
 		super(testName, "Office2");		
 	}
 	
-	public void testOverlappedKeyReference() throws Exception {
+	public void testOverlappedKeyReference() throws Exception { 
 		// Creating
 		execute("CRUD.new");
 		setValue("number", "1");

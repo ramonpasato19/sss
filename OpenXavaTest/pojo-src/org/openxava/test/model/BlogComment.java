@@ -1,7 +1,5 @@
 package org.openxava.test.model;
 
-import java.util.*;
-
 import javax.persistence.*;
 
 import org.openxava.annotations.*;

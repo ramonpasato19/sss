@@ -1,6 +1,191 @@
 Change Log for OpenXava project
 ===============================
 
+OpenXava 5.6.1 (2017-1-27)
+--------------------------
+- Each browser tab has its own independent session state by module.
+- New icon for WebURL editor, now embedded inside the fields, as in the date case.
+- New method moveCollectionElement() in MapFacade to move collection elements programmatically.
+- New method Servlets.getCookie() to get a cookie from the request.
+- New method toList(Iterable it) in XCollections utility class.
+- Some new common use labels to be used in applications.
+- GoToURLAction removed, it was used only by WebURL editor that now uses a direct link.
+- Improved stacktraces thrown from an editor for easier debugging.
+- Method reload() removed from MetaComponent. 
+- MetaComponent has a new boolean property called metaDataCached, to determine if the metadata is cached for that component.
+- Fix: Opening the same module in several browser tabs produces unpredictable behavior.
+- Fix: Closing a dialog scroll up to the beginning of the page.
+- Fix: Controllers do not overwrite repeated actions.
+- Fix: Impossible to add new lines in an @ElementCollection with only @DescriptionsLists.
+- Fix: Combo for @DescriptionsList does not open for third line in @ElementCollection.  
+- Fix: Impossible to delete elements from @OrderColumn collections.
+- Fix: Money symbol in MONEY stereotype is not shown in @ElementCollection.
+- Fix: After removing a row in an @ElementCollection searching a reference with a dialog changes the incorrect row.
+- Fix: @DescriptionsList annotated with @ReadOnly in a @ElementCollection can be edited.
+- Fix: Pressing Cancel when adding columns to the list used for search a reference fails.
+- Fix: Remove column icon is not shown when the column is too narrow.
+- Fix: Customization icons for list columns in several lines with Liferay 6.1.
+- Fix: Using setControllers() inside an action to show a dialog with several levels removes the actions on come back.
+- Fix: Closing the dialog to add a new element in ManyToMany collections removes the actions of current dialog.
+- Fix: Second nested dialog for adding a new ManyToMany element does not show its actions.
+- Fix: @Required in enum for @ElementCollection gives incorrect validation errors on save.
+- Fix: Newly created entity is not available when navigating with left/right arrows. 
+- Fix: Dialogs with collections with many properties are bigger than screen.
+- Fix: Searching a reference produces a dialog bigger that the page if there are many properties in the list.
+- Fix: Calculated properties with @Depends do not work when in the same view of a polymorphic reference.
+- Fix: Two collections in the same row are wrapped by a very ugly frame inside and outside Liferay.
+- Fix: @DescriptionsList combos in @ElementCollection are not well aligned. 
+- Fix: Reference annotated with @DescriptionsList(showReferenceView=true) and @NoFrame alone inside a section breaks the layout.
+- Fix: Ugly spacing in @DescriptionsList with showReferenceView=true. 
+- Fix: When mouse hover an option of a @DescriptionsList combo and click outside the selected value is lost.
+- Fix: When mouse hover an option of a @DescriptionsList combo inside a dialog and click outside the option is shown but not selected. 
+- Fix: When a group, section or main view is aligned by column with @NoFrame references inside not aligned by column the layout is broken.
+- Fix: @Editor in a property of an @Embeddable used in a @ElementCollection does not work if the view name of the module is no the default one.
+- Fix: Calling an action after saving with element collection fails if an event changes the main view.
+- Fix: Properties placed on right of the UI when the next element has a frame, fails when @NoFrame is used. 
+- Fix: assertLabel()/getLabel() of ModuleTestBase do no work with members with frame.
+- Fix: NullPointerException with JDBCTabProvider when the keys contains null.
+- Fix: Current user lost in jUnit tests under certain circumstances.
+- Fix: Editors are cut when their columns are resized in @ElementCollection inside Liferay. 
+- Fix: View.isEditable(String member) does not work with references.
+- Fix: assertEditableInCollection() and assertNoEditableInCollection() from ModuleTestBase do not work with @DescriptionsList.
+- Fix: ICON stereotype editor is not correctly aligned in some cases.
+- Fix: URLs without http:// prefix do not work in WebURL editor.
+- Fix: Icon for going to the URL is not shown in WebURL editor inside element collections.
+- Fix: GenerateReportAction does not work for XLS and MyReports.
+- Fix: In Jxls utility classes when using some characters ( [ ] * / \ ? : ) in sheet names fail creating the POI sheet.
+
+OpenXava 5.6 (2016-10-28)
+-------------------------
+- List remembers filters and ordering done by user to be re-executed choosing from a combo, you can rename the filter/ordering configurations produced.
+- New DISCUSSION stereotype to include a discussion thread as a property of an entity.
+- New SIMPLE_HTML_TEXT stereotype to edit rich text with a simplified user interface.
+- CKEditor look & feel adapted to NaviOX and Liferay 6.1 look & feels.
+- CKEditor upgraded to 4.5.9.
+- Partial query from FROM allowed in @Tab(baseCondition=) of JPA entities and base-condition of XML components.
+- New indexExt.jsp in naviox/web to add elements to the main HTML page that wraps the application.
+- 'My reports' action is no longer available by default, though it is still in OpenXava.
+- New TypicalExtendedPrint controller that includes 'My report' action.
+- The combination XML components + JPA persistence no longer supported. 
+- Main window is not refreshed when generating a SimpleHTMLReport.
+- New helpAvailable property in xava.properties to enable/disable the help icon in modules.
+- Eclipse workspace in distribution upgraded to Eclipse Neon, though it still works with all 4.x versions.
+- MetaController.containsMetaAction() receives a not qualified action name as argument.
+- New method validateViewValues() in ViewBaseAction.
+- New WithRequiredLongName class for using as generic transient class for dialogs.
+- New method move() in XArrays utility class.
+- New booleanWithSuffixEditor.jsp editor that allows put a suffix label after the field checkbox.
+- Some new common use labels to be used in applications.
+- New toString(Object [] array) method in Strings utility class.
+- ModuleTestBase.setLocale() no longer reset the module.
+- New methods selectListConfiguration(), assertListSelectedConfiguration() and assertListAllConfigurations() in ModuleTestBase.
+- New method clearCondition() in ModuleTestBase to simulate clicking on the clear list condition button.
+- New method anyEqual() in Is utility class.
+- New method naturalLabelToIdentifier() in Strings utility class.
+- New methods assertDiscussionCommentText(), assertDiscussionCommentsCount() and postDiscussionComment() in ModuleTestBase.
+- IExplicitModifyPersistenceProvider to define persistence providers that needs an explicit command to modify data.
+- New property connectionRefinerClass in xava.properties for defining an IConnectionRefiner to refine JDBC connections.
+- Each component type has its own IPersistenceProvider, there is no longer a unique IPersistenceProvider for the whole application.
+- Properties jpaCodeInPOJOs and persistenceProviderClass in xava.properties no longer have effect.
+- Methods isEJB2Persistence(), isJPAPersistence(), isJPACodeInPOJOs() and getPersistenceProviderClass() removed from XavaPreferences.
+- Pluggable component parser by means of IComponentParser implementations declared in xava.properties.
+- Improvements for English, German and French translations of labels and messages.
+- New property smtpStartTLSEnable in xava.properties to configure the behavior of Emails. 
+- Servlet mapping to generate custom Excel files included by default in web.xml.
+- Fix: Labels.getQualified(String id) does not return the qualified label.
+- Fix: Changes in custom.css lost when upgrading OpenXava version. 
+- Fix: On hover style for default action button does not work.
+- Fix: Schema tool does not add schema for CREATE INDEX sentences.
+- Fix: The order of subcontrollers in the user interface is not the declared one in controllers.xml.
+- Fix: In a module with 'ListOnly' or 'Void' for mode-controller with subcontrollers but no actions, the subcontrollers are not displayed.
+
+OpenXava 5.5.1 (2016-6-13)
+--------------------------
+- CSS for layout instead of HTML tables.
+- In the validation message values of the properties of the current entity can be used.
+- Some new common use labels to be used in applications.
+- Fix: Bad layout with nested @NoFrame.
+- Fix: Collection inside a section is duplicate in some cases.
+- Fix: Two groups in the same row in @View not possible.
+- Fix: @NoFrame elements not aligned with outside elements.
+- Fix: Constraint exception produces a blank message.
+- Fix: Duplicate buttons after generating PDF or refreshing the page in a view aligned by column (with # in @View).
+- Fix: The files welcome.jsp and firstSteps.jsp overwritten when deployWar or updateOX.
+- Fix: Controller in controladores.xml with contexto=web sometimes does not show the actions.
+- Fix: Combo handle for @DescriptionsList is displaced inside a dialog when it is narrowed.
+- Fix: Moving with the cursor in a @DescriptionsList combo shows the key in the textfield instead of description.
+- Fix: Required and error icon displaced in Android tablets and iPad.
+- Fix: Changing the schema with JPA or Hibernate inside a test has lateral effects in next tests.
+- Fix: @DescriptionsList inside a dialog is not displayed completely when opened, it is cut on dialog limit. 
+- Fix: @DescriptionsList does not close the list when you click in other place.
+- Fix: @DescriptionsList with " in the data breaks the module.
+- Fix: @DescriptionsList with showReferenceView=true and composite key loses non-key data on action call.
+- Fix: Editors with frame=true adds a little space before editor.
+- Fix: Editors with frame=true adds a blank line if the editor is wrapped in a HTML table.
+- Fix: Required icon not in correct position in text areas.
+- Fix: JxlsSheet needs setFreezePane().
+- Fix: createPOIWorkbook() can not be called twice on the same JxlsWorkbook.
+- Fix: JxlsWorkbook.getSheet() does not check if the index is valid.
+- Fix: JUnit tests do not find actions in some circumstances.
+- Fix: Elements inside sign in box are not centered.
+
+OpenXava 5.5 (2016-4-26)
+------------------------
+- @DescriptionsList combos have autocomplete functionality.
+- showReferenceView=true in descriptions list to show a combo and a detail view at the same time for a reference.
+- Pressing ENTER in the filter part of a collection executes the filter of the collection.
+- "contains" instead of "starts" as default value in filters for string values in list and collections.
+- Real Excel exporting by means of type=xls in GenerateReportAction or using the TypicalRealExcel controller.
+- New ICON stereotype to store an icon of Material Design Icon into a property of an entity.
+- Delete buttons are red only on hover.
+- Delete icons are red on hover.
+- There is no special icon for key, just the required icon if applies.
+- Icon instead of image for sorting rows in collections with @OrderColumn.
+- Icons instead of images for messages.
+- Icons instead of images for sort indicators in list and collections.
+- Icon instead of image to reset filter values in list and collections.
+- Icon instead of image for boolean values in list and collections.
+- Icons instead of images for date and date/time editors and list filtering.
+- Icon to throw calendar in DateTimeCalendar editor inside textfield.
+- Icons instead of images in new created project from templates.
+- New icon for going to first record in detail mode.
+- Icons instead of images for page navigation in lists.
+- Material Design Icons upgraded to 1.4.57.
+- Icon instead of image for help.
+- Icons instead of images for closing and opening frames.
+- Icons for customizing list are of the same color (green).
+- Icon for showing and hiding filter in list is in the same place.
+- Icons instead of images for customizing list and collections.
+- Icons instead of images for validation error and required.
+- Better alignment for icons in button bar.
+- Property showApplicationName in naviox.properties to hide or show the application name in header.
+- New xava:label taglib to include i18n labels in custom JSPs.
+- German translation improved.
+- Documentation in xava.properties for new projects improved. 
+- Documentation about module navigation improved.
+- Default renderer now is JSP based instead of Java based.
+- ValidValuesRadioButton and ValidValuesVerticalRadioButton editors look improved. 
+- Table created by default for images gallery allows big images. 
+- New method XObjects.execute() to call dynamically methods with three arguments.
+- View.setEditable(member, state) works for references and collection in addition of plain properties.
+- Stereotype FILE supports multischema.
+- Fix: Clear button in IE is on top of calendar icon in date fields.
+- Fix: Generate schema tool fails when the dialect is not specified.
+- Fix: Internet Explorer CSS adjustments ignored for IE11.
+- Fix: Icon in date fields hides some part of the date in some browsers. 
+- Fix: Text field font size and family inside dialogs are not the same than in a regular view.
+- Fix: If view is not initialized View.setEditable(member, state) is not propagate to groups. 
+- Fix: Generating PDF in list fails with Android.
+- Fix: ValidValuesVerticalRadioButton editor does not align the first option well. 
+- Fix: Properties inside a group within a section are not cleared or saved.
+- Fix: Label style does not work.
+- Fix: referenceEditor.jsp name ignored in editors.xml.
+- Fix: Editors with frame=true composite=true do not work correctly.
+- Fix: Textfields are not aligned when there are validation errors.
+- Fix: Frames not aligned with element collections.
+- Fix: Pressing enter in a filter text box in split view causes action to be triggered in detail view.
+- Fix: @SearchAction without image or icon does not shown the link, just is missing.
+ 
 OpenXava 5.4.1 (2015-12-15)
 ---------------------------
 - Fix: Default action fired pressing ENTER ignores confirm=true and takes-long=true.
@@ -24,6 +209,7 @@ OpenXava 5.4.1 (2015-12-15)
 - Fix: Incorrect row height in add columns dialog.
 - Fix: Editors of type select multiple have fixed height.
 - Fix: Spanish messages not uniform for tú/usted usage.
+- Fix: @NoFrame references show the frame after choose a value searching in a polymorphic resultset.
 
 OpenXava 5.4 (2015-11-9)
 ------------------------
@@ -207,6 +393,7 @@ OpenXava 5.1.1 (2014-11-24)
 - Fix: Totals in element collections are not recalculated after removing a row.
 - Fix: After removing a line from an element collection events and calculated properties do not work in the collection. 
 - Fix: Reloading page after removing a line from an element collection leaves a blank line.
+- Fix: Error on searching and adding references in embedded classes with sections.
 
 OpenXava 5.1 (2014-10-21)
 -------------------------

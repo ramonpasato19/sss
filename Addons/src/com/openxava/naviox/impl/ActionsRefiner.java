@@ -24,6 +24,7 @@ public class ActionsRefiner {
 		String currentUser = Users.getCurrent();
 		if (currentUser == null) return;
 		User user = User.find(currentUser);
+		if (user == null) return; 
 		Collection<MetaAction> excludedActions =  user.getExcludedMetaActionsForMetaModule(metaModule);	
 		for (MetaAction action: excludedActions) {		
 			metaActions.remove(action);

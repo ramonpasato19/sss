@@ -4,6 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.Collections;
 
 import javax.servlet.http.*;
 import javax.swing.*;
@@ -117,6 +118,7 @@ public class Module extends DWRBase {
 		}		
 		finally {			
 			if (manager != null) manager.commit(); // If hibernate, jpa, etc is used to render some value here is commit
+			cleanRequest();   
 		}
 	}
 	
@@ -135,10 +137,20 @@ public class Module extends DWRBase {
 		// Http session is used instead of ox context because context may not exist at this moment
 		return request.getSession().getAttribute(PAGE_RELOADED_LAST_TIME) != null;
 	}
-	
-	public Map getStrokeActions(HttpServletRequest request, HttpServletResponse response, String application, String module) throws Exception { 
-		this.manager = (ModuleManager) getContext(request).get(application, module, "manager");
-		return getStrokeActions();
+	 
+	public Map getStrokeActions(HttpServletRequest request, HttpServletResponse response, String application, String module) {
+		try {
+			ModuleContext.setCurrentWindowId(request); 
+			this.manager = (ModuleManager) getContext(request).get(application, module, "manager");
+			return getStrokeActions();		
+		}
+		catch (Exception ex) {
+			log.warn(XavaResources.getString("stroke_actions_errors"), ex); 
+			return Collections.EMPTY_MAP;
+		}
+		finally {
+			cleanRequest(); 
+		}
 	}
 
 	private Map getStrokeActions() {  
@@ -193,7 +205,7 @@ public class Module extends DWRBase {
 	}	
 	
 	public void requestMultipart(HttpServletRequest request, HttpServletResponse response, String application, String module) throws Exception {
-		request(request, response, application, module, null, null, null, null, null, false, null);   		
+		request(request, response, application, module, null, null, null, null, null, false, null);
 		memorizeLastMessages();
 		manager.setResetFormPostNeeded(true);
 	}
@@ -248,7 +260,8 @@ public class Module extends DWRBase {
 			int row = (Integer) getContext(request).get(application, module, "xava_row");
 			result.setCurrentRow(row);
 		}
-		getView().resetCollectionsCache();		
+		getView().resetCollectionsCache();
+		if (result.isHideDialog()) result.setFocusPropertyId(null); // To avoid scrolling to the beginning of the page on closing a dialog, something ugly in long pages working on the bottom part.
 	}
 
 	private void setDialogLevel(Result result) {
@@ -264,7 +277,7 @@ public class Module extends DWRBase {
 		}
 		else if (manager.isHideDialog()) { 
 			result.setHideDialog(true);
-			restoreDialogTitle(result); 						
+			restoreDialogTitle(result); 			
 		}		
 		result.setResizeDialog(manager.getDialogLevel() > 0 && (getView().isReloadNeeded() || manager.isReloadViewNeeded()));		
 	}
@@ -349,18 +362,14 @@ public class Module extends DWRBase {
 			for (Iterator it=lastErrors.iterator(); it.hasNext(); ) {
 				String member = (String) it.next();
 				if  (view.getQualifiedNameForDisplayedPropertyOrReferenceWithNotCompositeEditor(member) != null) { 
-					put(result, "error_image_" + member, null);
+					put(result, "error_image_" + member, "html:<i class='" + Style.getInstance().getErrorIcon() + " mdi mdi-alert-circle' style='visibility:hidden;'></i>"); 
 				}				
 			}
 			getContext(request).remove(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST);
 		}
 			
 		Messages errors = (Messages) request.getAttribute("errors");
-		String errorImageClass = "";
-		if (!Is.emptyString(Style.getInstance().getErrorImage())) {
-			errorImageClass = "class='" + Style.getInstance().getErrorImage() + "' ";
-		}
-		String imageHTML = "html:<img " + errorImageClass  + "src='" + request.getContextPath() +"/xava/images/error.gif'/>";
+		String imageHTML = "html:<i class='" + Style.getInstance().getErrorIcon() + " mdi mdi-alert-circle'></i>"; // If modify this we have to change DefaultLayoutPainter too
 		if (!errors.isEmpty()) {
 			View view = getView();
 			Collection members = new HashSet();
@@ -381,12 +390,17 @@ public class Module extends DWRBase {
 
 	private void fillChangedPropertiesActionsAndReferencesWithNotCompositeEditor(Map result) { 		
 		View view = getView();			
-		Collection changedMembers = view.getChangedPropertiesActionsAndReferencesWithNotCompositeEditor().entrySet();		
+		Collection changedMembers = view.getChangedPropertiesActionsAndReferencesWithNotCompositeEditor().entrySet();
 		for (Iterator it = changedMembers.iterator(); it.hasNext(); ) {
 			Map.Entry en = (Map.Entry) it.next();
 			String qualifiedName = (String) en.getKey();
 			String name = qualifiedName.substring(qualifiedName.lastIndexOf('.') + 1);
 			View containerView = (View) en.getValue();
+			String referenceAsDescriptionsListParam = "";
+			if (containerView.displayAsDescriptionsListAndReferenceView() && !qualifiedName.contains(".")) {
+				containerView = containerView.getParent(); 
+				referenceAsDescriptionsListParam = "&descriptionsList=true"; 
+			}
 			MetaModel metaModel = containerView.getMetaModel();
 			boolean isReference = metaModel.containsMetaReference(name);
 			boolean isInsideElementCollection = false;
@@ -412,6 +426,7 @@ public class Module extends DWRBase {
 				request.setAttribute(referenceKey, metaReference);
 				put(result, "reference_editor_" + qualifiedName,   
 					"reference.jsp?referenceKey=" + referenceKey + 
+					referenceAsDescriptionsListParam + 
 					"&onlyEditor=true&viewObject=" + containerView.getViewObject());
 			}
 			else {

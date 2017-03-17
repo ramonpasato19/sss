@@ -2,11 +2,11 @@ package org.openxava.test.tests;
 
 import org.openxava.jpa.*;
 import org.openxava.test.model.*;
-import org.openxava.util.*;
 
 import com.gargoylesoftware.htmlunit.html.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -26,11 +26,13 @@ public class CustomerWithSectionTest extends CustomerTest {
 		"List.viewDetail",
 		"List.customize", // It does not exist since 5.2, we put here to verify that ModuleTestBase ignore it 
 		"List.hideRows",
+		"List.changeConfigurationName", 
+		"ListFormat.select",
 		"Customer.hideSellerInList",
 		"Customer.showSellerInList"
 	};
 
-	public CustomerWithSectionTest(String testName) {
+	public CustomerWithSectionTest(String testName) { 
 		super(testName, "CustomerWithSection", true);		
 	}
 	
@@ -144,7 +146,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertPopupPDFLinesCount(5);
 		assertTrue(getPopupPDFLine(3).startsWith("Javi Steady"));
 				
-		execute("ExtendedPrint.myReports"); 		
+		execute("ExtendedPrint.myReports");  		
 		execute("MyReport.remove", "xava.keyProperty=name");
 	}
 	
@@ -198,11 +200,11 @@ public class CustomerWithSectionTest extends CustomerTest {
 	public void testForwardToAbsoluteURL() throws Exception { 
 		execute("CRUD.new");
 		assertValue("website", "");
-		execute("WebURL.go", "property=website,viewObject=xava_view_section0");
+		execute("CustomWebURL.go", "property=website,viewObject=xava_view_section0"); 
 		assertError("Empty URL, so you cannot go to it");
-		setValue("website", "http://www.example.com/");
-		execute("WebURL.go", "property=website,viewObject=xava_view_section0");		
-		assertTrue(getHtml().indexOf("This domain is established to be used for illustrative examples") >= 0); 
+		setValue("website", "http://www.example.org/"); 
+		execute("CustomWebURL.go", "property=website,viewObject=xava_view_section0");
+		assertTrue(getHtml().indexOf("This domain is established to be used for illustrative examples") >= 0);  
 		
 	}
 	
@@ -211,7 +213,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 		HtmlElement console = getHtmlPage().getHtmlElementById("xava_console"); 
 		assertTrue(!console.asText().contains("[CustomerWithSection.testForwardToJavaScript()] javascript: works"));
 		setValue("website", "javascript:openxava.log('[CustomerWithSection.testForwardToJavaScript()] javascript: works');"); 
-		execute("WebURL.go", "property=website,viewObject=xava_view_section0");		
+		execute("CustomWebURL.go", "property=website,viewObject=xava_view_section0"); 
 		assertTrue(console.asText().contains("[CustomerWithSection.testForwardToJavaScript()] javascript: works"));
 	}
 	
@@ -254,17 +256,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertNoDialog();
 	}
 	
-	public void testCancelActionAfterChangeImageAction() throws Exception {   
-		addImage();
-		assertExists("telephone");
-		assertAction("EditableOnOff.setOn");
-		execute("Reference.createNew", "model=Seller,keyProperty=seller.number");		
-		execute("NewCreation.cancel");
-		assertExists("telephone");
-		assertAction("EditableOnOff.setOn");		
-	}
-				
-	public void testTELEPHONE_EMAIL_WEBURLstereotypes() throws Exception {
+	public void testTELEPHONE_EMAIL_EMAIL_LIST_WEBURLstereotypes() throws Exception { 
 		assertTrue("website column must have a clickable link", getHtml().contains("<a href=\"http://www.openxava.org\">"));
 		execute("Mode.detailAndFirst");
 		setValue("telephone", "asf");
@@ -276,15 +268,19 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertError("Web site must be a valid url");
 		setValue("telephone", "123");
 		setValue("email", "pepe@mycompany");
+		setValue("additionalEmails", "pepe@myproject.org, pepe@yahoo"); 
 		setValue("website", "www.openxava.org");
 		execute("Customer.save");
 		assertError("Telephone must be at least 8 Digits long");
 		assertError("eMail must be a valid email address");
 		assertError("Web site must be a valid url");
+		assertError("Additional emails should contain valid emails separated by commas"); 
 		assertValue("email", "pepe@mycompany"); // not converted to uppercase
+		assertValue("additionalEmails", "pepe@myproject.org, pepe@yahoo"); // not converted to uppercase 
 		assertValue("website", "www.openxava.org"); // not converted to uppercase
 		setValue("telephone", "961112233");
 		setValue("email", "pepe@mycompany.com");
+		setValue("additionalEmails", "pepe@myproject.org, pepe@yahoo.com"); 
 		setValue("website", "http://www.openxava.org");
 		execute("Customer.save");
 		assertNoErrors();
@@ -388,6 +384,14 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertValue("address.street", "DOCTOR PESSET");		
 		execute("Customer.prefixStreet", "xava.keyProperty=address.street"); 
 		assertValue("address.street", "C/ DOCTOR PESSET");
+		assertIconsInViewAction(); 
+	}
+	
+	private void assertIconsInViewAction() { 
+		String actionsXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_CustomerWithSection__property_actions_seller___number").asXml();
+		assertTrue(actionsXml.contains("<i class=\"mdi mdi-magnify"));
+		assertTrue(actionsXml.contains("<i class=\"mdi mdi-library-plus"));
+		assertFalse(actionsXml.contains("images/"));		
 	}
 	
 	public void testAddingToManyToManyCollectionFromANewObject() throws Exception { 
@@ -498,7 +502,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertFalse(getElementById("list_filter_list").isDisplayed());
 		getElementById("show_filter_list").click();
 		Thread.sleep(500); 
-		assertFalse(getElementById("show_filter_list").isDisplayed());
+		assertFalse(getElementById("show_filter_list").isDisplayed()); 
 		assertTrue(getElementById("hide_filter_list").isDisplayed());
 		assertTrue(getElementById("list_filter_list").isDisplayed());
 	}
@@ -517,10 +521,10 @@ public class CustomerWithSectionTest extends CustomerTest {
 		return getHtmlPage().getHtmlElementById(decorateId(id));
 	}
 	
-	public void testCustomizeList() throws Exception {
-		doTestCustomizeList_moveAndRemove();
+	public void testCustomizeList() throws Exception { 
+		doTestCustomizeList_moveAndRemove(); 
 		tearDown();	setUp();
-		doTestCustomizeList_generatePDF();
+		doTestCustomizeList_generatePDF(); 
 		tearDown();	setUp();
 		doTestRestoreColumns_addRemoveTabColumnsDynamically();
 	}
@@ -679,7 +683,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 	}
 	
 	public void testCustomizeList_addAndResetModule() throws Exception {   
-		assertListColumnCount(7);
+		assertListColumnCount(7); 
 		String value = getValueInList(0, 0);
 		execute("List.addColumns");		
 		checkRow("selectedProperties", "number"); 		
@@ -688,11 +692,11 @@ public class CustomerWithSectionTest extends CustomerTest {
 		assertValueInList(0, 0, value);
 				
 		resetModule();
-		assertListColumnCount(8);
+		assertListColumnCount(8); 
 		assertValueInList(0, 0, value);
 		
 		removeColumn(7); 
-		assertListColumnCount(7);
+		assertListColumnCount(7); 
 	}	
 	
 	public void testRowStyle() throws Exception {
@@ -713,7 +717,7 @@ public class CustomerWithSectionTest extends CustomerTest {
 				found_red = true;
 			}
 			else { 
-				assertNoRowStyleInList(i);				
+				assertNoRowStyleInList(i);	
 			}						
 		}
 		if (!found) {
@@ -722,16 +726,6 @@ public class CustomerWithSectionTest extends CustomerTest {
 		if (!found_red) {
 			fail("It is required at least one Customer of 'Special' type for run this test");
 		}
-	}
-	
-	public void testImageEditorFromAnotherModule() throws Exception {  	
-		// started from a different module because there was a bug in imageEditor when run from a module
-		//	that was not the initial
-		changeModule("BeforeGoingToCustomer");
-		execute("ChangeModule.goCustomer");
-		
-		// 
-		testChangeImage(); 
 	}
 		
 }

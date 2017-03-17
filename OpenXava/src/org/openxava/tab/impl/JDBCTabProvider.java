@@ -126,7 +126,7 @@ public class JDBCTabProvider extends TabProviderBase {
 			resultSet = nextBlock(ps);
 			List data = new ArrayList();
 			int f = 0;
-			int nc = resultSet.getMetaData().getColumnCount();
+			int nc = resultSet == null?0:resultSet.getMetaData().getColumnCount(); 
 			while (resultSet != null && resultSet.next()) {
 				if (++f > getChunkSize()) {
 					setCurrent(getCurrent() + getChunkSize());

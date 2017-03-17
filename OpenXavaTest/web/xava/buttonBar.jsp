@@ -1,3 +1,4 @@
+<%@page import="org.openxava.controller.meta.MetaControllerElement"%>
 <%@ include file="imports.jsp"%>
 
 <%@ page import="org.openxava.controller.meta.MetaAction" %>
@@ -16,53 +17,69 @@ manager.setSession(session);
 boolean onBottom = false;
 String mode = request.getParameter("xava_mode");
 if (mode == null) mode = manager.isSplitMode()?"detail":manager.getModeName();
-boolean headerButtonBar = !manager.isSplitMode() || mode.equals("list");  
+boolean headerButtonBar = !manager.isSplitMode() || mode.equals("list");
+boolean listFormats = !manager.isSplitMode() && mode.equals("list"); 
 
 if (manager.isButtonBarVisible()) {
 %>
 	<div class="<%=style.getButtonBar()%>">
-	<div id="<xava:id name='controllers'/>">
+	<div id="<xava:id name='controllerElement'/>">
 	<span style="float: left">
 	<%
-	java.util.Iterator it = manager.getMetaActions().iterator();
-	boolean showLabels = XavaPreferences.getInstance().isShowLabelsForToolBarActions(); 
-	while (it.hasNext()) {
-		MetaAction action = (MetaAction) it.next();
-		if (action.isHidden()) continue;
-		if (action.appliesToMode(mode) && action.hasImage()) {
-		%>
-		<jsp:include page="barButton.jsp">
-			<jsp:param name="action" value="<%=action.getQualifiedName()%>"/>
-		</jsp:include>		
-		<%
-		} 
+	Collection<MetaControllerElement> elements = manager.getMetaControllerElements(); 
+	for (MetaControllerElement element : elements){
+		if (!element.appliesToMode(mode)) continue;
+		if (element instanceof MetaAction){
+			MetaAction action = (MetaAction) element;
+			if (action.isHidden()) continue;
+			if (action.hasImage() || action.hasIcon()) {	
+			%>
+			<jsp:include page="barButton.jsp">
+				<jsp:param name="action" value="<%=action.getQualifiedName()%>"/>
+			</jsp:include>		
+			<%
+			}
+		}
+		else if (element instanceof MetaSubcontroller){
+			MetaSubcontroller subcontroller = (MetaSubcontroller) element;
+			if (subcontroller.hasActionsInThisMode(mode)){
+			%>
+			<jsp:include page="subButton.jsp">
+				<jsp:param name="controller" value="<%=subcontroller.getControllerName()%>"/>
+				<jsp:param name="image" value="<%=subcontroller.getImage()%>"/>
+				<jsp:param name="icon" value="<%=subcontroller.getIcon()%>"/>
+			</jsp:include>
+			<%
+			}
+		}
 	}
 	%>
 	</span>
 	</div>
-	
-	<div id="<xava:id name='subcontrollers'/>">
-	<span style="float:left">	
+
+	<div id="<xava:id name='modes'/>">
+	<span style="float: right">
+	<span style="float: left;" class="<%=style.getListFormats()%>">
 	<%
-			Collection metaSubcontrollers = manager.getSubcontrollers();
-			java.util.Iterator metaSubcontrollersIt = metaSubcontrollers.iterator();
-			while(metaSubcontrollersIt.hasNext()){
-				MetaSubcontroller m = (MetaSubcontroller) metaSubcontrollersIt.next();
-				if (m.appliesToMode(mode) && m.hasActionsInThisMode(mode)){
-		%>
-		<jsp:include page="subButton.jsp">
-			<jsp:param name="controller" value="<%=m.getControllerName()%>"/>
-			<jsp:param name="image" value="<%=m.getImage()%>"/>
-		</jsp:include>
-		<%
-				}
-			}
+	if (listFormats) { 	
+		String tabObject = request.getParameter("tabObject");
+		tabObject = (tabObject == null || tabObject.equals(""))?"xava_tab":tabObject;
+		org.openxava.tab.Tab tab = (org.openxava.tab.Tab) context.get(request, tabObject);
+		Collection<String> editors = org.openxava.web.WebEditors.getEditors(tab.getMetaTab());
+		for (String editor: editors) {
+			String icon = editor.equals("Charts")?"chart-line":"table-large";
+			String selected = editor.equals(tab.getEditor())?style.getSelectedListFormat():"";
+			if (Is.emptyString(editor)) editor = "__NONAME__"; 
+	%>
+	<xava:link action="ListFormat.select" argv='<%="editor=" + editor%>' cssClass="<%=selected%>">	
+		<i class="mdi mdi-<%=icon%>" onclick="openxava.onSelectListFormat(event)"></i>
+	</xava:link>			
+	<%				
+		}
+	}	
 	%>
 	</span>
-	</div>
-	
-	<div id="<xava:id name='modes'/>">
-	<span style="float: right">	
+		
 	<%
 	java.util.Stack previousViews = (java.util.Stack) context.get(request, "xava_previousViews"); 
 	if (headerButtonBar && previousViews.isEmpty()) { 
@@ -139,11 +156,18 @@ if (manager.isButtonBarVisible()) {
 			"_" + language + 
 			suffix;
 	} 	
-	if (style.isHelpAvailable()) {
-		String helpImage = !style.getHelpImage().startsWith("/")?request.getContextPath() + "/" + style.getHelpImage():style.getHelpImage();
+	if (XavaPreferences.getInstance().isHelpAvailable() && style.isHelpAvailable()) { 	
+		String helpImage = null;
+		if (style.getHelpImage() != null) helpImage = !style.getHelpImage().startsWith("/")?request.getContextPath() + "/" + style.getHelpImage():style.getHelpImage();
 	%>
 		<span class="<%=style.getHelp()%>">  
-			<a href="<%=href%>" target="<%=target%>"><img src="<%=helpImage%>"/></a>
+			<a href="<%=href%>" target="<%=target%>">
+				<% if (helpImage == null) { %>
+				<i class="mdi mdi-help-circle"/></i>
+				<% } else { %>
+				<a href="<%=href%>" target="<%=target%>"><img src="<%=helpImage%>"/></a>
+				<% } %>
+			</a>
 		</span>
 	<%
 	}

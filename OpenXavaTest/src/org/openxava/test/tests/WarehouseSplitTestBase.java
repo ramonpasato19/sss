@@ -15,13 +15,11 @@ abstract public class WarehouseSplitTestBase extends ModuleTestBase {
 	public void testSplitMode() throws Exception {
 		// Selecting rows
 		assertListRowCount(10);
-		assertValue("zoneNumber", "");
-		assertValue("number", "");
-		assertValue("name", "");
 		assertNoEditable("zoneNumber");
 		assertNoEditable("number");
-		assertNoEditable("name");		
-		assertSelectRow(0);
+		assertEditable("name");
+		assertRowInDetail(0); 
+		assertSelectRow(1); 
 		assertSelectRow(3);
 		assertListRowCount(10); // Still the list is there
 		

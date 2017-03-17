@@ -5,7 +5,6 @@ import javax.servlet.http.*;
 import org.openxava.web.style.*;
 
 /**
- * 
  * @author Javier Paniza
  */
 
@@ -23,7 +22,7 @@ public class NaviOXStyle extends Style {
 	public static String getBodyClass(HttpServletRequest request) {
 		String browser = request.getHeader("user-agent");
 		if (browser == null) return "";
-		if (browser.contains("MSIE")) return "class='ie'";
+		if (browser.contains("Trident") || browser.contains("MSIE")) return "class='ie'"; 
 		if (browser.contains("iPad")) return "class='ipad'";
 		if (browser.contains("Firefox")) return "class='firefox'"; 
 		return "";
@@ -38,7 +37,7 @@ public class NaviOXStyle extends Style {
 	}
 
 	public String getHelpImage() {
-		return "xava/images/help.png";
+		return null; 
 	}
 	
 	public String getLoadingImage() {
@@ -51,23 +50,18 @@ public class NaviOXStyle extends Style {
 	public String getProcessingImage() { 
 		return "naviox/images/processing.gif"; 
 	}
-	
+
 	public String getMinimizeImage() {
-		return "naviox/images/minimize.gif"; 
-	}
-	
-	public String getMaximizeImage() {
-		return "naviox/images/maximize.gif";  
+		return null;
 	}
 	
 	public String getRemoveImage() {
 		return getImagesFolder() +  "/delete.gif"; 
 	}
 
-
 	@Override
 	public String getRestoreImage() {
-		return "naviox/images/restore.gif";
+		return null; 
 	}
 	
 	public String getFrame() { 
@@ -77,13 +71,7 @@ public class NaviOXStyle extends Style {
 	public String getModuleSpacing() {
 		return "";		
 	}
-	
-	
-	
-	public String getFrameHeaderStartDecoration(int width) {
-		return getFrameHeaderStartDecoration(width, false);  		
-	}
-	
+		
 	/**
 	 * @since 5.1.1
 	 */
@@ -98,41 +86,18 @@ public class NaviOXStyle extends Style {
 		return -40;		
 	}
 
-	/**
-	 * @since 5.1.1
-	 */		
-	public String getCollectionFrameHeaderStartDecoration(int width) { 
-		return getFrameHeaderStartDecoration(width, false, true);  		
-	}
-	
-	public String getFrameHeaderStartDecoration(int width, boolean sibling) { 
-		return getFrameHeaderStartDecoration(width, sibling, false);
-	}
-	
-	private String getFrameHeaderStartDecoration(int width, boolean sibling, boolean collection) { 
+	public String getFrameHeaderStartDecoration(int width) {  
 		StringBuffer r = new StringBuffer();
-		r.append("<table style='float:left;'"); 
-		if (width != 0 && !collection) {		
-			r.append(" width='");
-			r.append(width);
-			r.append("%'");
-		}
-		r.append("><tr><td>");
 		r.append("<div ");
 		r.append(" class='");
-		if (!(width > 0 && width < 100)) { // For several collections in a row	
-			r.append(getFrame());
+		r.append(getFrame());
+		r.append("'"); 
+		if (width == 100) { 
+			r.append(" style='width: calc(100% - 15px);'");			
 		}
-		if (sibling) {
-			r.append(" ");
-			r.append(getFrameSibling());
+		else if (width == 50) { // Two collections in a row
+			r.append(" style='overflow: auto; display: block; width: calc(50% - 29px);'"); 
 		}
-		r.append("' style='margin-right:4px;");
-		if (!sibling) {
-			if (collection) r.append("width: calc(100% - 15px);");
-			else r.append("width: calc(100% - 20px);"); 
-		}
-		r.append("'");
 		r.append(getFrameSpacing());
 		r.append(">");
 		r.append("<div class='");
@@ -141,6 +106,7 @@ public class NaviOXStyle extends Style {
 		r.append("\n");						
 		return r.toString();
 	}
+
 		
 	public String getFrameTitleStartDecoration() {
 		StringBuffer r = new StringBuffer();
@@ -172,9 +138,8 @@ public class NaviOXStyle extends Style {
 	}
 		
 	public String getFrameContentEndDecoration() { 
-		return "\n</div></div></div></td></tr></table>";
+		return "\n</div></div></div>"; 
 	}
-	
 		
 	public String getSectionBarStartDecoration() { 
 		return "<td>";
@@ -185,7 +150,7 @@ public class NaviOXStyle extends Style {
 	}
 
 	public String getErrorStartDecoration () {  
-		return "<div class='ox-message-box'>";
+		return "<div class='ox-message-box'><i class='mdi mdi-close-octagon'></i>"; 
 	}
 	
 	public String getErrorEndDecoration () { 
@@ -193,11 +158,25 @@ public class NaviOXStyle extends Style {
 	}
 	
 	public String getMessageStartDecoration () {  
-		return "<div class='ox-message-box'>";
+		return "<div class='ox-message-box'><i class='mdi mdi-checkbox-marked-circle'></i>"; 
 	}
-	
+		
 	public String getMessageEndDecoration () { 
 		return "</div>";
 	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getWarningStartDecoration() { 
+		return "<div class='ox-message-box'><i class='mdi mdi-alert'></i>";
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	public String getInfoStartDecoration() { 
+		return "<div class='ox-message-box'><i class='mdi mdi-information'></i>";
+	}	
 
 }

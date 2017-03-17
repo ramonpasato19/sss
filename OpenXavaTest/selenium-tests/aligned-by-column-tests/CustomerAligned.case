@@ -64,6 +64,11 @@
 </tr>
 <!--Store first element position-->
 <tr>
+	<td>pause</td>
+	<td>600</td>
+	<td></td>
+</tr>
+<tr>
 	<td>storeElementPositionLeft</td>
 	<td>id=ox_OpenXavaTest_CustomerAligned__number</td>
 	<td>left1</td>

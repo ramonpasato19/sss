@@ -9,7 +9,7 @@ import com.openxava.naviox.util.*;
  * @since 5.2.1
  * @author Javier Paniza
  */
-class RequestReseter { 
+public class RequestReseter { 
 	
 	public static void reset(HttpServletRequest request) {
 		Users.setCurrent(request);

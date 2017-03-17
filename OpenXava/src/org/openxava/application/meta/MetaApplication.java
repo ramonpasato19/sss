@@ -4,8 +4,8 @@ package org.openxava.application.meta;
 import java.util.*;
 
 import org.apache.commons.logging.*;
-import org.openxava.annotations.parse.*;
 import org.openxava.component.*;
+import org.openxava.component.parse.*;
 import org.openxava.controller.meta.*;
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
@@ -96,7 +96,7 @@ public class MetaApplication extends MetaElement implements java.io.Serializable
 				if (!metaModules.containsKey(modelName) && generateDefaultModules) {
 					createDefaultModule(modelName);
 				}			
-			}							
+			}		
 		}
 		catch (Exception ex) {
 			log.error(ex);
@@ -109,7 +109,7 @@ public class MetaApplication extends MetaElement implements java.io.Serializable
 	 *  
 	 * @return of <tt>String</tt>. Not null.
 	 */	
-	public Collection getModulesNames() {
+	public Collection getModulesNames() { 
 		return modulesNames;
 	}
 	

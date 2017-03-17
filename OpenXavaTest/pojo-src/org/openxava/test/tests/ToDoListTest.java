@@ -2,6 +2,9 @@ package org.openxava.test.tests;
 
 import org.openxava.tests.*;
 
+import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.html.*;
+
 
 
 /**
@@ -64,6 +67,54 @@ public class ToDoListTest extends ModuleTestBase {
 		assertRowCollectionUnchecked("tasks", 1);
 		execute("List.orderBy", "property=name,collection=components");
 		assertAllCollectionUnchecked("components");
+	}
+	
+	public void testENTERForFilteringInListAndCollections() throws Exception { 
+		assertListRowCount(1);
+		assertValueInList(0, 0, "THE TO DO LIST");
+		HtmlTextInput filterListText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ToDoList__conditionValue___0");
+		filterListText.type("LISTA");
+		filterListText.type('\r');
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);	
+		assertListRowCount(0);
+		filterListText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ToDoList__conditionValue___0");
+		filterListText.setText("LIST");
+		assertEquals("LIST", filterListText.getAttribute("value"));
+		filterListText.type('\r');
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);	
+		assertListRowCount(1);
+		assertValueInList(0, 0, "THE TO DO LIST");
+				
+		execute("Mode.detailAndFirst");
+		assertCollectionRowCount("tasks", 2);
+		assertValueInCollection("tasks", 0, 0, "TASK 1");
+		assertValueInCollection("tasks", 1, 0, "TASK 2");
+		assertCollectionRowCount("components", 2);
+		assertValueInCollection("components", 0, 0, "COMPONENT 1");
+		assertValueInCollection("components", 1, 0, "COMPONENT 2");
+		
+		HtmlElement filterTasksText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ToDoList__xava_collectionTab_tasks_conditionValue___0");
+		filterTasksText.type("2");
+		filterTasksText.type('\r');
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);		
+		assertCollectionRowCount("tasks", 1);
+		assertValueInCollection("tasks", 0, 0, "TASK 2");
+		assertCollectionRowCount("components", 2);
+		assertValueInCollection("components", 0, 0, "COMPONENT 1");
+		assertValueInCollection("components", 1, 0, "COMPONENT 2");
+		
+		HtmlElement filterCompomentsText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_ToDoList__xava_collectionTab_components_conditionValue___0");
+		filterCompomentsText.type("1");
+		filterCompomentsText.type('\r');
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);		
+		assertCollectionRowCount("tasks", 1);
+		assertValueInCollection("tasks", 0, 0, "TASK 2");
+		assertCollectionRowCount("components", 1);
+		assertValueInCollection("components", 0, 0, "COMPONENT 1");
+	}
+	
+	protected BrowserVersion getBrowserVersion() throws Exception {
+		return BrowserVersion.INTERNET_EXPLORER_11;
 	}
 	
 }

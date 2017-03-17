@@ -6,7 +6,7 @@ import org.openxava.test.annotations.*;
 import org.openxava.test.model.*;
 
 /**
- * An example of JSR-303 Bean Validation validator.
+ * An example of Bean Validation validator.
  * 
  * @author Javier Paniza 
  */

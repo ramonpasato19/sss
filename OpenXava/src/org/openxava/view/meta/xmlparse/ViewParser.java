@@ -415,6 +415,7 @@ public class ViewParser extends XmlElementsNames {
 		m.setCondition(el.getAttribute(xcondition[lang]));
 		m.setOrderByKey(ParserUtil.getAttributeBoolean(el, xorder_by_key[lang]));
 		m.setOrder(el.getAttribute(xorder[lang]));
+		m.setShowReferenceView(ParserUtil.getAttributeBoolean(el, xshow_reference_view[lang])); 
 		m.setForTabs(el.getAttribute(xfor_tabs[lang]));
 		m.setNotForTabs(el.getAttribute(xnot_for_tabs[lang]));
 		

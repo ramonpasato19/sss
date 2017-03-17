@@ -7,6 +7,7 @@ import com.gargoylesoftware.htmlunit.html.*;
 
 
 /**
+ *
  * @author Javier Paniza
  */
 
@@ -36,6 +37,7 @@ public class QuoteTest extends ModuleTestBase {
 		assertNoEditableInCollection("details", 0, "amount");
 
 		setValueInCollection("details", 0, "product.number", "1");
+		assertNoErrors(); 
 		assertValueInCollection("details", 0, "product.description", "MULTAS DE TRAFICO");
 		assertValueInCollection("details", 0, "unitPrice", "11.00");		
 		setValueInCollection("details", 0, "unitPrice", "100");
@@ -121,17 +123,58 @@ public class QuoteTest extends ModuleTestBase {
 		assertTotalInCollection("details", 0, "amount", "200.00");
 		assertTotalInCollection("details", 1, "amount",  "42.00");
 		assertTotalInCollection("details", 2, "amount", "242.00");
-		
 		execute("Mode.list");
 		execute("Mode.detailAndFirst");
 		assertValue("year", "2015");
 		assertValue("number", "66");		
 		
+		assertRemoveActionInElementCollection(); 
+		
 		execute("CRUD.delete");
 		assertNoErrors();
 	}
+
+	private void assertRemoveActionInElementCollection() throws Exception {
+		// Annotated remove action on elementCollection
+		changeModule("QuoteWithRemoveElementCollection"); 
+		execute("CRUD.new");
+		execute("Mode.list");
+		execute("Mode.detailAndFirst");
+		assertValue("year", "2015");
+		assertValue("number", "66");
+
+		assertCollectionRowCount("details", 2);
+		assertValueInCollection("details", 0, "product.number", "1");
+		assertValueInCollection("details", 0, "product.description", "MULTAS DE TRAFICO");
+		assertValueInCollection("details", 0, "unitPrice", "100.00");
+		assertValueInCollection("details", 0, "quantity", "2");
+		assertValueInCollection("details", 0, "amount", "200.00");		
+		assertValueInCollection("details", 1, "product.number", "2");
+		assertValueInCollection("details", 1, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 1, "unitPrice", "7,000.00");
+		assertValueInCollection("details", 1, "quantity", "1");
+		assertValueInCollection("details", 1, "amount", "7,000.00");		
+		assertTotalInCollection("details", 0, "amount", "7,200.00");
+		assertTotalInCollection("details", 1, "amount", "1,512.00");
+		assertTotalInCollection("details", 2, "amount", "8,712.00");
+		
+		assertAction("Quote.removeDetail", "row=0,viewObject=xava_view_section0_details"); // Important, inside a section
+		execute("Quote.removeDetail", "row=0,viewObject=xava_view_section0_details");
+		assertNoErrors();
+		assertNoMessages();
+		
+		assertCollectionRowCount("details", 1);
+		assertValueInCollection("details", 0, "product.number", "2");
+		assertValueInCollection("details", 0, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 0, "unitPrice", "7,000.00");
+		assertValueInCollection("details", 0, "quantity", "1");
+		assertValueInCollection("details", 0, "amount", "7,000.00");		
+		assertTotalInCollection("details", 0, "amount", "7,000.00");
+		assertTotalInCollection("details", 1, "amount", "1,470.00");
+		assertTotalInCollection("details", 2, "amount", "8,470.00");
+	}
 	
-	public void testDependentDefaultValueCalculatorInElementCollection() throws Exception { 
+	public void testDependentDefaultValueCalculatorInElementCollection() throws Exception {  
 		execute("CRUD.new");		
 
 		setValueInCollection("details", 0, "product.number", "1");
@@ -174,29 +217,46 @@ public class QuoteTest extends ModuleTestBase {
 		assertTotalInCollection("details", 2, "amount", "88.33");		
 	}
 	
-	public void testRemovingRowUpdatesTotals() throws Exception {  
+	public void testElementCollectionGetEntity_removingRowUpdatesTotals_addingSeveralRowsAfterRemoving_referenceSearchCorrectIndexAfterRemoving() throws Exception {  
 		execute("Mode.detailAndFirst");
 		assertValue("year", "2014"); // This one ...
 		assertValue("number", "1");  // ... has 3 details
+		
+		execute("Quote.showProducts");
+		assertNoErrors();
+		assertMessage("MULTAS DE TRAFICO, IBM ESERVER ISERIES 270, XAVA");
+		
 		assertTotalInCollection("details", 0, "amount", "162.00");
 		assertTotalInCollection("details", 1, "amount",  "34.02");
 		assertTotalInCollection("details", 2, "amount", "196.02");
 		
 		HtmlElement row = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Quote__details___1"); 
-		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("img").get(0);
+		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("i").get(0);  
 		removeIcon.click();		
 		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
 		
 		assertTotalInCollection("details", 0, "amount", "102.00");
 		assertTotalInCollection("details", 1, "amount",  "21.42");
-		assertTotalInCollection("details", 2, "amount", "123.42");
-		
+		assertTotalInCollection("details", 2, "amount", "123.42");		
 		
 		setValueInCollection("details", 1, "quantity", "5");
 		assertValueInCollection("details", 1, "amount", "100.00");
 		assertTotalInCollection("details", 0, "amount", "122.00");
 		assertTotalInCollection("details", 1, "amount",  "25.62");
 		assertTotalInCollection("details", 2, "amount", "147.62");
-	}
 		
+		setValueInCollection("details", 2, "product.number", "1");
+		assertValueInCollection("details", 2, "product.description", "MULTAS DE TRAFICO");
+		assertNoErrors();
+		setValueInCollection("details", 3, "product.number", "2");
+		assertValueInCollection("details", 3, "product.description", "IBM ESERVER ISERIES 270");
+		assertNoErrors();
+		
+		HtmlElement row1 = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Quote__details___1");
+		HtmlElement input = row1.getElementsByTagName("input").get(1);
+		assertEquals("ox_OpenXavaTest_Quote__details___1___product___number", input.getAttribute("id"));
+		HtmlElement searchActionLink = row1.getElementsByTagName("a").get(1);
+		assertEquals("javascript:openxava.executeAction('OpenXavaTest', 'Quote', '', false, 'Reference.search', 'keyProperty=details.1.product.number')", searchActionLink.getAttribute("href"));
+	}
+					
 }

@@ -16,7 +16,7 @@ public class ReallocationDetailsReadOnlyTest extends ModuleTestBase {
 		super(testName, "ReallocationDetailsReadOnly");		
 	}	
 	
-	public void testDefaultValueCalculatorForReferencesInElementCollections() throws Exception {
+	public void testReadOnlyElementCollections() throws Exception {
 		execute("Mode.detailAndFirst");
 		assertValue("description", "THE BIG REALLOCATION");
 		assertNoErrors();
@@ -48,6 +48,16 @@ public class ReallocationDetailsReadOnlyTest extends ModuleTestBase {
 		String html = getHtml(); 
 		assertFalse(html.contains("elementCollectionEditor.removeRow("));
 		assertFalse(html.contains("Reference.search"));
+		
+		execute("CRUD.save");
+		execute("Mode.list");
+		execute("Mode.detailAndFirst");
+		assertValue("description", "THE BIG REALLOCATION");
+		assertCollectionRowCount("details", 3);
+		assertValueInCollection("details", 0, "place", "VALENCIA OFFICE");
+		assertValueInCollection("details", 2, "place", "CASA EN MICHIGAN");		
 	}
+	
+	
 	
 }

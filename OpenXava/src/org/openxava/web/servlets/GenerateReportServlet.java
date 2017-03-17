@@ -20,6 +20,7 @@ import org.openxava.model.meta.*;
 import org.openxava.tab.*;
 import org.openxava.tab.impl.*;
 import org.openxava.util.*;
+import org.openxava.util.jxls.*;
 import org.openxava.web.*;
 
 /**
@@ -164,7 +165,7 @@ public class GenerateReportServlet extends HttpServlet {
 			}						
 			request.getParameter("application"); // for a bug in websphere 5.1 
 			request.getParameter("module"); // for a bug in websphere 5.1
-			Tab tab = (Tab) request.getSession().getAttribute("xava_reportTab");			
+			Tab tab = (Tab) request.getSession().getAttribute("xava_reportTab");
 			int [] selectedRowsNumber = (int []) request.getSession().getAttribute("xava_selectedRowsReportTab");
 			Map [] selectedKeys = (Map []) request.getSession().getAttribute("xava_selectedKeysReportTab");
 			int [] selectedRows = getSelectedRows(selectedRowsNumber, selectedKeys, tab);			
@@ -214,6 +215,24 @@ public class GenerateReportServlet extends HttpServlet {
 					tab.setRequest(request);
 					response.getWriter().print(TableModels.toCSV(getTableModel(request, tab, selectedRows, true, false, columnCountLimit)));
 				}
+			}
+			else if (uri.endsWith(".xls")) {    
+                synchronized (tab) {
+                	tab.setRequest(request);
+                    JxlsWorkbook wb = new JxlsWorkbook(getTableModel(request, tab, selectedRows, true, false, columnCountLimit), 
+                            getFileName(tab));
+                    JxlsSheet sheet = wb.getSheet(0);
+                    int lastRow = sheet.getLastRowNumber();
+                    JxlsStyle sumStyle = wb.addStyle(JxlsConstants.FLOAT)
+                            .setBold()
+                            .setBorder(JxlsConstants.TOP, JxlsConstants.BORDER_THIN);
+                    for (int column=0; column<tab.getTableModel().getColumnCount(); column++) {
+                        MetaProperty property = tab.getMetaProperty(column);
+                        if (!property.isNumber() || !tab.hasTotal(column)) continue;
+                        sheet.setFormula(column+1, lastRow+1, "=SUM(R2C" + (column+1) + ":R" + lastRow + "C"  + (column+1) + ")", sumStyle);
+                    }
+                    wb.write(response);
+                }
 			}
 			else {
 				throw new ServletException(XavaResources.getString("report_type_not_supported", "", ".pdf .csv"));

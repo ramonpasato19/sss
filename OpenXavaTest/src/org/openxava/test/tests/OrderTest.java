@@ -21,6 +21,28 @@ public class OrderTest extends ModuleTestBase {
 		super(testName, "Order");		
 	}
 	
+	public void testActionsNotLostAfterOpenDialogTwiceFromCollectionElement() throws Exception { 
+		execute("CRUD.new");		
+		execute("Collection.new", "viewObject=xava_view_details");		
+
+		assertAction("Collection.save");
+		assertNoAction("ReferenceSearch.choose");		
+		execute("Reference.search", "keyProperty=product.number");
+		assertNoAction("Collection.save");
+		assertAction("ReferenceSearch.choose");				
+		execute("ReferenceSearch.choose", "row=0");
+
+		assertAction("Collection.save");
+		assertNoAction("ReferenceSearch.choose");		
+		execute("Reference.search", "keyProperty=product.number");
+		assertNoAction("Collection.save");
+		assertAction("ReferenceSearch.choose");				
+		execute("ReferenceSearch.choose", "row=0");
+
+		assertAction("Collection.save");
+		assertNoAction("ReferenceSearch.choose");		
+	}
+	
 	public void testCalculatedPropertiesFromCollection_generatedValueOnPersistRefreshedInView_rowAction() throws Exception {
 		String nextNumber = getNextNumber();
 		execute("CRUD.new");

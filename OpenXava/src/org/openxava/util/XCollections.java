@@ -72,14 +72,30 @@ public class XCollections {
 	/**
 	 * Returns a collection from a enumeration. <p>
 	 * 
+	 * @param e  If null then returns a empty collection.
 	 * @return  Not null.
-	 * @param e  If null then returns a empty collection
 	 */
 	public static Collection toCollection(Enumeration e) {
 		Collection result = new ArrayList();
 		if (e == null) return result;
 		while (e.hasMoreElements()) {
 			result.add(e.nextElement());
+		}	
+		return result;
+	}
+	
+	/**
+	 * Returns a List from an Iterable. <p>
+	 * 
+	 * @param it  If null then returns a empty list.
+	 * @return  Not null.
+	 * @since 5.6.1
+	 */
+	public static List toList(Iterable it) { 
+		List result = new ArrayList();
+		if (it == null) return result;
+		for (Object e: it) {
+			result.add(e);
 		}	
 		return result;
 	}

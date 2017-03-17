@@ -119,12 +119,12 @@
 		<ant antfile="../OpenXava/build.xml" target="deployWar"/>
 	</target>
 	
-	<!-- Update schema against current database -->
+	<!-- Updates schema against current database -->
 	<target name="updateSchema">
 		
 		<ant antfile="../OpenXava/build.xml" target="updateSchemaJPA">			
 			<property name="persistence.unit" value="junit"/>
-			<property name="schema.path" value="../OpenXavaTest/lib/hsqldb.jar"/>
+			<property name="schema.path" value="../OpenXava/lib/hsqldb.jar"/>
 		</ant>
 
 		<!-- Below some foreign keys is dropped.
@@ -149,11 +149,12 @@
 		</sql>
 	</target>
 	
-	<!-- Generate the schema from scratch. Show it in log, but does not execute it -->
+	<!-- Generates the schema from scratch. Shows it in console, but does not execute it -->
 	<target name="generateSchema">
 		
 		<ant antfile="../OpenXava/build.xml" target="generateSchemaJPA">
 			<property name="persistence.unit" value="junit"/>
+			<property name="schema.path" value="../OpenXava/lib/hsqldb.jar"/> 
 		</ant>
 				
 	</target>	
@@ -164,7 +165,7 @@
 	
 	<target name="runTests">
 		<junit fork="true"  printsummary="true">
-			<jvmarg value="-Xmx1024m"/>
+			<jvmarg value="-Xmx1024m -Duser.country=es -Duser.language=ES"/>
 			<formatter type="plain" usefile="false" />
 			<classpath>
 				<pathelement location="../OpenXava/lib/junit.jar"/>
@@ -192,6 +193,6 @@
 			    </fileset>
 			</batchtest>			
 		</junit>
-	</target>	
-						
+	</target>			
+	
 </project>

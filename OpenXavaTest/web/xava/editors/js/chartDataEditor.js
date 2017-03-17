@@ -3,6 +3,7 @@ if (chartDataEditor == null) var chartDataEditor = {};
 openxava.addEditorInitFunction(function() { 
 	if ($('#xava_application').length &&
 			$('#xava_module').length) {
+		if (navigator.userAgent.indexOf("HtmlUnit") >= 0) return; 
 		var applicationName = $('#xava_application').val();
 		var moduleName = $('#xava_module').val();
 		var xavaChartPrefix = openxava.decorateId(applicationName, moduleName, "xava_chart__");

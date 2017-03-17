@@ -59,7 +59,7 @@
  controlador CDATA #REQUIRED
 >
 
-<!ELEMENT controlador (hereda-de*, accion*, subcontrolador*)>
+<!ELEMENT controlador (hereda-de*, (accion|subcontrolador)*)>
 <!ATTLIST controlador
  nombre CDATA #REQUIRED
  etiqueta CDATA #IMPLIED

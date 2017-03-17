@@ -3,12 +3,13 @@ package org.openxava.test.model;
 import java.math.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
-import org.hibernate.validator.*;
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
 import org.openxava.test.calculators.*;
 import org.openxava.test.validators.*;
+import org.openxava.util.*;
 
 /**
  * As Product2 but uses property-based access. <p>
@@ -27,6 +28,14 @@ import org.openxava.test.validators.*;
 		"warehouse, zoneOne;" +
 		"unitPrice, unitPriceInPesetas;"		
 	),
+	@View( name= "NoDescriptionsLists", members=
+		"number, description, photos;" +
+		"datos [#" + // Don't change this group to test a layout case
+			"family, subfamily;" +
+			"warehouse, unitPrice;" +
+		"];"	+
+		"zoneOne, unitPriceInPesetas;"		
+	),	
 	@View( name="NotAligned", members=
 		"number, description, photos;" + 
 		"family, subfamily;" +
@@ -56,26 +65,17 @@ public class Product4 {
 			throw new javax.validation.ValidationException("eclipse_not_saleable"); 
 		}
 		if (getNumber() == 666) {
-			throw new InvalidStateException(
-				new InvalidValue [] {
-					new InvalidValue(
-						"number_of_man", getClass(), "number",
-						getNumber(), this)
-				}
-			);
+			throw new javax.validation.ValidationException(
+				XavaResources.getString("invalid_state", 
+					Labels.get("number"), Labels.get(getClass().getSimpleName()), 
+					XavaResources.getString("number_of_man"), getNumber()));
 		}
 	}
 	
 	@PreRemove
 	public void validateOnRemove() { 		
 		if (number == 1) {
-			throw new InvalidStateException(
-				new InvalidValue [] {
-					new InvalidValue(
-						"one_not_deletable", getClass(), "number", 
-						getNumber(), this)
-				}
-			);
+			throw new javax.validation.ValidationException("one_not_deletable");			
 		}		
 		if (number == 2) {
 			throw new javax.validation.ValidationException("two_not_deletable");
@@ -138,7 +138,9 @@ public class Product4 {
 	@DefaultValueCalculator(value=IntegerCalculator.class, properties=
 		@PropertyValue(name="value", value="2")
 	)
-	@DescriptionsList(orderByKey=true)	
+	@DescriptionsList(notForViews="NoDescriptionsLists", orderByKey=true)
+	@ReferenceView(forViews="NoDescriptionsLists", value="Number") 
+	@NoFrame(forViews="NoDescriptionsLists") 
 	public Family2 getFamily() {
 		return family;
 	}
@@ -148,11 +150,13 @@ public class Product4 {
 	}
 
 	@ManyToOne(optional=false, fetch=FetchType.LAZY) @JoinColumn(name="SUBFAMILY") @NoCreate
-	@DescriptionsList(
-		descriptionProperties="description", // In this case descriptionProperties can be omited
+	@DescriptionsList(notForViews="NoDescriptionsLists",
+		descriptionProperties="description", // In this case descriptionProperties can be omitted
 		depends="family",
 		condition="${family.number} = ?"
-	)	
+	)
+	@ReferenceView(forViews="NoDescriptionsLists", value="Number") 
+	@NoFrame(forViews="NoDescriptionsLists") 
 	public Subfamily2 getSubfamily() {
 		return subfamily;
 	}
@@ -167,7 +171,9 @@ public class Product4 {
 		@JoinColumn(name="WAREHOUSE", referencedColumnName="NUMBER") 
 	})
 	@DefaultValueCalculator(DefaultWarehouseCalculator.class)
-	@DescriptionsList
+	@DescriptionsList(notForViews="NoDescriptionsLists")
+	@ReferenceView(forViews="NoDescriptionsLists", value="Number") 
+	@NoFrame(forViews="NoDescriptionsLists") 
 	@OnChange(org.openxava.test.actions.OnChangeWarehouseAction.class)	
 	public Warehouse getWarehouse() {
 		// In this way because the columns for warehouse can contain
@@ -207,7 +213,7 @@ public class Product4 {
 	}
 	
 	@Transient @Depends("unitPrice")  
-	@Digits(integerDigits=18, fractionalDigits=0) 
+	@Digits(integer=18, fraction=0) 
 	public BigDecimal getUnitPriceInPesetas() {
 		if (unitPrice == null) return null;
 		return unitPrice.multiply(new BigDecimal("166.386")).setScale(0, BigDecimal.ROUND_HALF_UP);

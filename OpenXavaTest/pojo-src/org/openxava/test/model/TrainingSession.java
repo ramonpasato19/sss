@@ -19,7 +19,7 @@ public class TrainingSession {
 	private String description;
 	
 	@javax.validation.constraints.Min(2) 
-	@org.hibernate.validator.Max(50)	
+	@javax.validation.constraints.Max(50) 	
 	private int kms;
 	
 	@DefaultValueCalculator(CurrentDateCalculator.class) 

@@ -18,21 +18,20 @@ import com.gargoylesoftware.htmlunit.html.*;
 public class SeveralModulesTest extends ModuleTestBase {
 	
 	public SeveralModulesTest(String testName) {
-		super(testName, "Carrier"); // getModuleURL() is override, so we do not go to Carrier module		
+		super(testName, "Carrier"); // getModuleURL() is override, so we do not go to Carrier module
 	}
 		
 	public void testSeveralModulesInSamePage() throws Exception {
-		assertActions();
-		assertOnChangeEvent();				
-		assertFocusOn("relationWithSeller");		
-		assertSections();
-		assertCollections();		
-		assertUploadFiles(); 				
+		assertActions();	
+		assertOnChangeEvent();
+		assertFocusOn("relationWithSeller");
+		assertSections();		
+		assertCollections();
+		assertUploadFiles();		 				
 	}
 
-	private void assertUploadFiles() throws Exception, IOException,
-			MalformedURLException {
-		selectModuleInPage("Customer");
+	private void assertUploadFiles() throws Exception, IOException, MalformedURLException {
+		selectModuleInPage("Customer");		
 		execute("ImageEditor.changeImage", "newImageProperty=photo");
 		assertNoErrors();
 		assertAction("LoadImage.loadImage");		
@@ -45,7 +44,7 @@ public class SeveralModulesTest extends ModuleTestBase {
 		URL url = page.getWebResponse().getWebRequest().getUrl(); 
 		String urlPrefix = url.getProtocol() + "://" + url.getHost() + ":" + url.getPort();
 				
-		HtmlImage image = (HtmlImage) page.getElementsByName(Ids.decorate("OpenXavaTest", "Customer", "photo")).get(0);		
+		HtmlImage image = (HtmlImage) page.getElementsByName(Ids.decorate("OpenXavaTest", "Customer", "photo")).get(0);				
 		String imageURL = null;
 		if (image.getSrcAttribute().startsWith("/")) {
 			imageURL = urlPrefix + image.getSrcAttribute();

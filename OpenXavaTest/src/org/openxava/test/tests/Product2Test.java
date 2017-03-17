@@ -2,9 +2,14 @@ package org.openxava.test.tests;
 
 import java.math.*;
 
+import javax.persistence.*;
+
 import org.openxava.jpa.*;
 import org.openxava.test.model.*;
 import org.openxava.tests.*;
+
+import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.javascript.host.*;
 
 
 /**
@@ -17,10 +22,10 @@ public class Product2Test extends ModuleTestBase {
 		super(testName, "Product2");		
 	}
 	
-	public void testCustomDialog() throws Exception { 
+	public void testCustomDialog() throws Exception {
 		// In detail mode
 		execute("CRUD.new");
-		assertCustomDialog();
+		assertCustomDialog(); 
 		
 		// In list mode
 		execute("Mode.list");
@@ -43,7 +48,7 @@ public class Product2Test extends ModuleTestBase {
 		assertContentTypeForPopup("application/vnd.ms-excel"); 
 		assertDialog(); 
 		assertNoAction("Product2.reportBySubfamily");
-		assertAction("FamilyProductsReport.generateExcel");				
+		assertAction("FamilyProductsReport.generateExcel");
 	}
 	
 	private void assertCustomDialog() throws Exception { 
@@ -61,15 +66,15 @@ public class Product2Test extends ModuleTestBase {
 		assertNoErrors(); // If it does not find the font try to set net.sf.jasperreports.awt.ignore.missing.font=true in jasperreports jar
 		assertContentTypeForPopup("application/pdf");
 		assertNoDialog();
-		assertAction("Product2.reportBySubfamily");
-		assertNoAction("FamilyProductsReport.generatePdf");		
+		assertAction("Product2.reportBySubfamily"); // As secondary effect it tests a bug when we reload a page in an aligned by column view, the buttons disappeared 
+		assertNoAction("FamilyProductsReport.generatePdf");
 	}
 		
 	public void testFormula() throws Exception {
 		assertValueInList(0, "unitPrice", "11.00");
 		assertValueInList(0, "unitPriceWithTax", "12.76");
 		
-		assertListRowCount(7); // We rely in that there are 7 products, 
+		assertListRowCount(7); // We rely in that there are 7 products,  
 								// you can adapt this number if needed 
 		setConditionValues(new String [] {"", "", "", "", "", "12.76"});
 		execute("List.filter");
@@ -164,7 +169,7 @@ public class Product2Test extends ModuleTestBase {
 		assertValue("number", "2");
 		execute("Gallery.edit", "galleryProperty=photos");
 		assertNoErrors();
-		assertMessage("No images");
+		assertMessage("No images"); 
 		assertNoAction("Gallery.maximizeImage");
 		assertNoAction("Gallery.minimizeImage");
 		assertNoAction("Gallery.removeImage");
@@ -188,7 +193,7 @@ public class Product2Test extends ModuleTestBase {
 		// Maximizing the image
 		execute("Gallery.maximizeImage", "oid="+imageOid);
 		assertNoErrors();
-		assertNoAction("Gallery.maximizeImage");
+		assertNoAction("Gallery.maximizeImage"); 
 		assertAction("Gallery.minimizeImage");
 		assertNoAction("Gallery.removeImage");		
 		
@@ -207,7 +212,7 @@ public class Product2Test extends ModuleTestBase {
 		assertNoErrors();
 		assertNoMessages();
 		assertNoAction("Gallery.addImage");
-		assertAction("Gallery.maximizeImage");
+		assertAction("Gallery.maximizeImage"); 
 		assertNoAction("Gallery.minimizeImage");
 		assertNoAction("Gallery.removeImage");
 		assertEquals("Images count does not match", 1, getForm().getInputsByName("xava.GALLERY.images").size());
@@ -268,7 +273,7 @@ public class Product2Test extends ModuleTestBase {
 		assertValue("warehouse.KEY", "[.4.4.]");
 	}
 	
-	public void testFocusMoveToReferenceAsDescriptionsList() throws Exception {
+	public void testFocusMoveToReferenceAsDescriptionsList() throws Exception { 
 		execute("CRUD.new");
 		setValue("family.number", "1");
 		assertFocusOn("subfamily.number");
@@ -311,7 +316,7 @@ public class Product2Test extends ModuleTestBase {
 		setValue("warehouse.KEY", toKeyString(warehouseKeyZone2));
 		assertNotExists("zoneOne");
 		
-		createProduct(66, "JUNIT ZONE 1", 1);
+		createProduct(66, "JUNIT ZONE 1", 1); 
 		createProduct(67, "JUNIT ZONE 2", 2);
 		
 		setValue("number", "66");
@@ -324,7 +329,7 @@ public class Product2Test extends ModuleTestBase {
 		setValue("number", "67");		
 		execute("CRUD.refresh");		
 		assertNoErrors();		
-		assertValue("description", "JUNIT ZONE 2");
+		assertValue("description", "JUNIT ZONE 2"); 
 		assertNotExists("zoneOne");
 		
 		setValue("warehouse.KEY", "");
@@ -414,7 +419,7 @@ public class Product2Test extends ModuleTestBase {
 		assertNoErrors();
 		assertNoEditable("unitPriceInPesetas");
 		execute("CRUD.save");				
-		assertNoErrors();
+		assertNoErrors(); 
 				
 		// Search for verify
 		setValue("number", "66");
@@ -510,6 +515,143 @@ public class Product2Test extends ModuleTestBase {
 		execute("CRUD.save");				
 		assertError("Value for Family in Product is required");
 		assertError("Value for Subfamily in Product is required");
+	}
+	
+	public void testAutocompleteInDescriptionsList() throws Exception { 
+		createWarehouseWithQuote(); // To test a bug with quotes
+
+		getWebClient().getOptions().setCssEnabled(true);
+		execute("CRUD.new");
+		
+		getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_warehouse"); // Warehouse combo must be to test the "quotes" bug
+		
+		HtmlElement familyList = getHtmlPage().getHtmlElementById("ui-id-1");
+		assertFalse(familyList.isDisplayed());
+		assertEquals(0, familyList.getChildElementCount());
+		
+		HtmlElement familyEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_family");
+		HtmlElement openFamilyListIcon = familyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		HtmlElement closeFamilyListIcon = familyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-up");
+		assertTrue(openFamilyListIcon.isDisplayed());
+		assertFalse(closeFamilyListIcon.isDisplayed());
+		openFamilyListIcon.click();
+		assertTrue(familyList.isDisplayed());
+		assertEquals(3, familyList.getChildElementCount());
+		assertFalse(openFamilyListIcon.isDisplayed());
+		assertTrue(closeFamilyListIcon.isDisplayed());	
+		
+		closeFamilyListIcon.click();
+		assertFalse(familyList.isDisplayed());
+		assertTrue(openFamilyListIcon.isDisplayed());
+		assertFalse(closeFamilyListIcon.isDisplayed());	
+		
+		HtmlElement familyTextField = familyEditor.getOneHtmlElementByAttribute("input", "class", "xava_select editor ui-autocomplete-input");
+		assertEquals("HARDWARE", familyTextField.getAttribute("value"));
+		familyTextField.setAttribute("value", "");
+		assertEquals("", familyTextField.getAttribute("value"));
+		familyTextField.type("ware");
+		assertEquals("ware", familyTextField.getAttribute("value"));
+		Thread.sleep(500);
+		assertTrue(familyList.isDisplayed());
+		assertFalse(openFamilyListIcon.isDisplayed());
+		assertTrue(closeFamilyListIcon.isDisplayed());
+		assertEquals(2, familyList.getChildElementCount());
+		assertEquals("SOFTWARE", familyList.getFirstChild().asText());
+		assertEquals("HARDWARE", familyList.getLastChild().asText());
+		
+		((HtmlElement) familyList.getFirstChild()).click(); // SOFTWARE
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
+		HtmlElement subfamilyEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_subfamily");
+		HtmlElement openSubfamilyListIcon = subfamilyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		openSubfamilyListIcon.click();
+		HtmlElement subfamilyList = getHtmlPage().getHtmlElementById("ui-id-9");
+		assertTrue(subfamilyList.isDisplayed());
+		assertEquals(3, subfamilyList.getChildElementCount());
+		assertEquals("DESARROLLO", subfamilyList.getFirstChild().asText());
+		assertEquals("SISTEMA", subfamilyList.getLastChild().asText());	
+		
+		((HtmlElement) subfamilyList.getFirstChild()).click(); // DESARROLLO
+		HtmlElement subfamilyTextField = subfamilyEditor.getOneHtmlElementByAttribute("input", "class", "xava_select editor ui-autocomplete-input");
+		assertEquals("DESARROLLO", subfamilyTextField.getAttribute("value"));
+
+		setValue("number", "66");
+		setValue("description", "JUNIT PRODUCT");
+		setValue("unitPrice", "66");
+		execute("CRUD.save");
+		assertNoErrors(); 
+		execute("Mode.list");
+		execute("List.orderBy", "property=number");
+		execute("List.orderBy", "property=number");
+		assertValueInList(0, "number", "66");
+		assertValueInList(0, "description", "JUNIT PRODUCT");
+		assertValueInList(0, "family.description", "SOFTWARE");
+		assertValueInList(0, "subfamily.description", "DESARROLLO");
+		
+		execute("Mode.detailAndFirst");
+		assertValue("number", "66");
+		assertValue("family.number", "1");
+		assertDescriptionValue("family.number", "SOFTWARE");
+		familyTextField =  getDescriptionsListTextField("family");
+		assertEquals("SOFTWARE", familyTextField.getAttribute("value"));
+		assertValue("subfamily.number", "1");
+		assertDescriptionValue("subfamily.number", "DESARROLLO");
+		subfamilyTextField = getDescriptionsListTextField("subfamily");
+		assertEquals("DESARROLLO", subfamilyTextField.getAttribute("value"));		
+		execute("CRUD.delete");
+		assertNoErrors();
+		
+		execute("CRUD.new");
+		familyTextField = getDescriptionsListTextField("family");
+		familyTextField.setAttribute("value", "");
+		familyTextField.type("ware");
+		assertEquals("ware", familyTextField.getAttribute("value"));
+		familyTextField.blur();
+		assertEquals("", familyTextField.getAttribute("value")); 
+		
+		execute("CRUD.new");
+		familyList = getHtmlPage().getHtmlElementById("ui-id-27");
+		assertFalse(familyList.isDisplayed());
+		assertEquals(0, familyList.getChildElementCount());
+		familyTextField = getDescriptionsListTextField("family");
+		familyTextField.setAttribute("value", "");
+		familyTextField.type(" \b");
+		Thread.sleep(500); 
+		assertTrue(familyList.isDisplayed());
+		assertEquals(3, familyList.getChildElementCount());
+				
+		familyEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_family");
+		openFamilyListIcon = familyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		closeFamilyListIcon = familyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-up");		
+		subfamilyEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_subfamily");
+		openSubfamilyListIcon = subfamilyEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		closeFamilyListIcon.click();
+		openFamilyListIcon.click();
+		assertTrue(familyList.isDisplayed());
+		openSubfamilyListIcon.click();
+		assertFalse(familyList.isDisplayed());
+		
+		
+		removeWarehouseWithQuote(); 
+	}
+	
+	private void createWarehouseWithQuote() {
+		Warehouse warehouse = new Warehouse();
+		warehouse.setZoneNumber(10);
+		warehouse.setNumber(11);
+		warehouse.setName("ALMACEN \"EL REBOLLAR\"");
+		XPersistence.getManager().persist(warehouse);
+		XPersistence.commit();
+	}
+
+	private void removeWarehouseWithQuote() { 
+ 		Query query = XPersistence.getManager().createQuery("from Warehouse as o where o.zoneNumber = 10 and number = 11"); // We don't use Warehouse.findByZoneNumberNumber(10, 11) in order to work with XML/Hibernate version 
+ 		Warehouse warehouse = (Warehouse) query.getSingleResult();
+		XPersistence.getManager().remove(warehouse);
+	}
+
+	private HtmlElement getDescriptionsListTextField(String reference) {
+		HtmlElement familyEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Product2__reference_editor_" + reference);
+		return  familyEditor.getOneHtmlElementByAttribute("input", "class", "xava_select editor ui-autocomplete-input");
 	}
 	
 	private void createProduct(int number, String description, int zone) throws Exception {

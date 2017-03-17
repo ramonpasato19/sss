@@ -14,7 +14,9 @@ import org.openxava.annotations.*;
 @Entity
 @Views({
 	@View(members="code; model; make; state, city"), 
-	@View(name="Simple", members="code, model, make")
+	@View(name="Simple", members="code, model, make"),
+	@View(name="WithGroupAndSection", members="code; model [model]; make { make }"),
+	@View(name="ReadOnly", extendsView="WithGroupAndSection")
 })
 public class Vehicle {
 	
@@ -23,12 +25,15 @@ public class Vehicle {
 	private String oid;
 	
 	@Column(length=5)
+	@ReadOnly(forViews="ReadOnly") 
 	private String code;
 	
 	@Column(length=40)
+	@ReadOnly(forViews="ReadOnly") 
 	private String model;
 	
 	@Column(length=20)
+	@ReadOnly(forViews="ReadOnly") 
 	private String make;
 
 	/**

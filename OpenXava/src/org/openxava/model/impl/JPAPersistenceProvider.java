@@ -7,7 +7,6 @@ import javax.ejb.*;
 import javax.persistence.*;
 
 import org.apache.commons.logging.*;
-import org.hibernate.cfg.*;
 import org.openxava.jpa.*;
 import org.openxava.model.meta.*;
 import org.openxava.tab.impl.*;
@@ -21,6 +20,14 @@ import org.openxava.util.*;
 public class JPAPersistenceProvider extends POJOPersistenceProviderBase {
 	
 	private static Log log = LogFactory.getLog(JPAPersistenceProvider.class);
+	
+	private JPAPersistenceProvider() {
+	}
+	private static JPAPersistenceProvider instance;
+	public static JPAPersistenceProvider getInstance() {
+		if (instance == null) instance = new JPAPersistenceProvider();
+		return instance;
+	}
 	
 	protected Object find(Class pojoClass, Serializable key) {
 		try {

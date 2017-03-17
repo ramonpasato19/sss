@@ -1,6 +1,5 @@
 package org.openxava.test.tests;
 
-import org.openxava.tests.*;
 import com.gargoylesoftware.htmlunit.html.*;
 
 /**
@@ -17,7 +16,7 @@ public class InvoiceDetailsWithTotalsTest extends CustomizeListTestBase {
 	public void testTotalsInCollection() throws Exception { 	
 		execute("Mode.detailAndFirst");		
 		
-		assertTotalsInCollection("details", "");		
+		assertTotalsInCollection("details", "");  		
 		assertTotalsInCollection("calculatedDetails", "Amounts sum");
 		
 		assertNoAction("List.removeColumnSum");		
@@ -37,7 +36,7 @@ public class InvoiceDetailsWithTotalsTest extends CustomizeListTestBase {
 		
 		execute("Navigation.previous");
 		
-		removeColumn("details", 2); 
+		removeColumn("details", 2);  
 		
 		assertTotalInCollection("details", 1, 3,   "400.00");
 		assertTotalInCollection("details", 2, 3, "2,900.00");		
@@ -47,12 +46,15 @@ public class InvoiceDetailsWithTotalsTest extends CustomizeListTestBase {
 		
 		removeColumn("details", 3);
 		assertTotalInCollection("details", "deliveryDate", "12/15/10");			
+		
+		execute("List.addColumns", "collection=details");
+		execute("AddColumns.restoreDefault");
 	}
 	
 	public void testTotalsAndAddActionInCollectionFrame() throws Exception { 
 		execute("Mode.detailAndFirst");
 		execute("List.sumColumn", "property=quantity,collection=details");
-		assertTotalsInFrameOfCollection("details", "(2)    Delivery date: 12/15/10    Product unit price sum: 20.00    Amounts sum: 2,500.00    V.A.T.: 400.00    Total: 2,900.00    Sum of Quantity: 150", false);
+		assertTotalsInFrameOfCollection("details", "(2)    Delivery date: 12/15/10    Product unit price sum: 20.00    Amounts sum: 2,500.00    V.A.T.: 400.00    Total: 2,900.00    Sum of Quantity: 150", false);    
 		execute("List.removeColumnSum", "property=quantity,collection=details");
 		assertTotalsInFrameOfCollection("calculatedDetails", "(2)    Delivery date: 12/15/10    Product unit price sum: 20.00    Amounts sum: 2,500.00    V.A.T.: 400.00    Total: 2,900.00", true); 
 		
@@ -63,18 +65,19 @@ public class InvoiceDetailsWithTotalsTest extends CustomizeListTestBase {
 		assertEquals("", header.asText());
 	}
 		
-	public void testFrameTotalsUpdated() throws Exception { 
+	public void testFrameTotalsUpdated() throws Exception {  
 		execute("CRUD.new");
 		execute("CRUD.search");
 		setValue("year", "2004");
 		setValue("number", "10");
 		execute("Search.search");
-		assertTotalInCollection("details", 2, "amount", "1,403.02");
+		assertTotalInCollection("details", 2, "amount", "1,403.02"); 
 		hideCollection("details");
 		HtmlElement header = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader"); 
-		assertTrue(header.asText().endsWith("1,403.02"));
+		assertTrue(header.asText().endsWith("1,403.02"));  
 		showCollection("details");
-		execute("Collection.edit", "row=0,viewObject=xava_view_details");
+		execute("List.orderBy", "property=quantity,collection=details"); 
+		execute("Collection.edit", "row=2,viewObject=xava_view_details"); 
 		setValue("quantity", "65");
 		execute("Collection.save");		
 		assertTotalInCollection("details", 2, "amount", "1,390.04");
@@ -82,7 +85,7 @@ public class InvoiceDetailsWithTotalsTest extends CustomizeListTestBase {
 		header = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_InvoiceDetailsWithTotals__frame_detailsheader"); 
 		assertTrue("Unexpected end: " + header.asText(),  header.asText().endsWith("1,390.04"));
 		showCollection("details");
-		execute("Collection.edit", "row=0,viewObject=xava_view_details");
+		execute("Collection.edit", "row=2,viewObject=xava_view_details"); 
 		setValue("quantity", "66");
 		execute("Collection.save");
 		assertTotalInCollection("details", 2, "amount", "1,403.02");

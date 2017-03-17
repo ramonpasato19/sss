@@ -14,14 +14,17 @@ import org.openxava.model.*;
 
 @Entity
 @Views({
-	@View(members="name; employees {employees}"),
+	@View(members="name, icon; employees {employees}"), 
 	@View(name="Simple", members="name")
 })
 public class Corporation extends Identifiable {
 
 	@Required
 	private String name;
-
+	
+	@Stereotype("ICON") @Column(length=40)
+	private String icon; 
+	
 	@OneToMany(mappedBy="corporation", cascade=CascadeType.ALL)
 	private Collection<CorporationEmployee> employees;
 	
@@ -39,6 +42,14 @@ public class Corporation extends Identifiable {
 
 	public Collection<CorporationEmployee> getEmployees() {
 		return employees;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 	
 }

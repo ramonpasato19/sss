@@ -176,16 +176,16 @@ public class EntityTab implements IEntityTabImpl, java.io.Serializable {
 			if (Is.emptyString(componentName)) {
 				throw new InitException("tab_component_required");
 			}
-			tabProvider = PersistenceProviderFactory.getInstance().createTabProvider();			
+			metaModel = metaTab.getMetaModel();
+			modelName = metaModel.getQualifiedName();
+			tabProvider = metaModel.getMetaComponent().getPersistenceProvider().createTabProvider(); 
 			table = new TableModelBean();
 			table.setTranslateHeading(false);
 			this.mapping = null;
 			this.indexesPK = null;
 			if (this.metaTab == null) {			
 				this.metaTab = MetaComponent.get(componentName).getMetaTab(tabName);
-			}			
-			this.metaModel = metaTab.getMetaModel();
-			this.modelName = metaModel.getQualifiedName();			
+			}
 			table.setHeading(getHeading());
 			table.setColumnsClasses(getColumnsClasses());
 			table.setPropertiesNames(getPropertiesNames()); 

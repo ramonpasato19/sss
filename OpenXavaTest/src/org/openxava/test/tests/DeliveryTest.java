@@ -13,18 +13,14 @@ import org.openxava.test.model.Shipment;
 import org.openxava.tests.ModuleTestBase;
 import org.openxava.util.Is;
 
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlImage;
-import com.gargoylesoftware.htmlunit.html.HtmlSelect;
+import com.gargoylesoftware.htmlunit.html.*;
 
 /**
+ * 
  * @author Javier Paniza
+ * @author Federico Alcántara
  */
 
-/**
- * @author federico
- *
- */
 public class DeliveryTest extends ModuleTestBase {
 
 	private static Log log = LogFactory.getLog(DeliveryTest.class);
@@ -32,7 +28,7 @@ public class DeliveryTest extends ModuleTestBase {
 	private String [] listActions = {
 		"Print.generatePdf",
 		"Print.generateExcel",
-		"ExtendedPrint.myReports",		
+		"ExtendedPrint.myReports",
 		"CRUD.new",
 		"CRUD.deleteSelected", 
 		"CRUD.deleteRow",
@@ -43,14 +39,16 @@ public class DeliveryTest extends ModuleTestBase {
 		"List.orderBy",
 		"List.viewDetail",
 		"List.hideRows",
-		"List.sumColumn"
+		"List.sumColumn",
+		"List.changeConfigurationName",  
+		"ListFormat.select" 
 	};
 		
 	public DeliveryTest(String testName) {
 		super(testName, "Delivery");		
 	}
-	
-	public void testFilterDescriptionsListAndEnumLetterType_myReportConditionWithDescriptionsListAndValidValues() throws Exception {
+		
+	public void testFilterDescriptionsListAndEnumLetterType_myReportConditionWithDescriptionsListAndValidValues() throws Exception { 
 		assertLabelInList(3, "Description of Type");
 		assertLabelInList(7, "Distance");
 		if (usesAnnotatedPOJO()) { 
@@ -69,7 +67,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValueInList(1, 2, "1");
 		
 		execute("ExtendedPrint.myReports");
-		assertValueInCollection("columns", 3, 0, "Description of Type");
+		assertValueInCollection("columns", 3, 0, "Description of Type"); 
 		assertValueInCollection("columns", 3, 1, "=");
 		assertValueInCollection("columns", 3, 2, "FACTURABLE MODIFIED");
 		execute("MyReport.editColumn", "row=3,viewObject=xava_view_columns");
@@ -104,7 +102,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValueInCollection("columns", 7, 2, "Nachional");
 	}
 	
-	public void testFocusOnlyInEditors() throws Exception {
+	public void testFocusOnlyInEditors() throws Exception { 
 		execute("CRUD.new");
 		assertFocusOn("invoice.year");
 		getHtmlPage().tabToNextElement();
@@ -125,14 +123,14 @@ public class DeliveryTest extends ModuleTestBase {
 		assertFocusOn("customer.number");
 	}
 	
-	public void testModifyEmptyReferenceFromADialog() throws Exception { 
+	public void testModifyEmptyReferenceFromADialog() throws Exception {  
 		execute("CRUD.new");
 		setValue("deliveredBy", usesAnnotatedPOJO()?"1":"2");
 		setValue("carrier.number", "1");
 		execute("Reference.modify", "model=Carrier,keyProperty=carrier.number");
 		assertDialog();
 		assertValue("drivingLicence.KEY", "");
-		assertExists("warehouse.name"); // We are in the Carrier dialog
+		assertExists("warehouse.name"); // We are in the Carrier dialog 
 		assertNoAction("CRUD.new");
 		assertAction("Modification.update");
 		execute("Reference.modify", "model=DrivingLicence,keyProperty=drivingLicence__KEY__");
@@ -143,7 +141,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertAction("Modification.update");		
 	}
 	
-	public void testSaveElementInCollectionWithUseObjectView() throws Exception {  
+	public void testSaveElementInCollectionWithUseObjectView() throws Exception {   
 		execute("CRUD.new");
 		execute("Sections.change", "activeSection=2");
 		execute("DeliveryDetail.new", "viewObject=xava_view_section2_details_details");
@@ -151,7 +149,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertNotExists("invoice.year");
 	}
 	
-	public void testSearchUsesSearchView() throws Exception { 
+	public void testSearchUsesSearchView() throws Exception {  
 		execute("CRUD.new");
 		execute("CRUD.search");
 		assertDialog();
@@ -221,22 +219,22 @@ public class DeliveryTest extends ModuleTestBase {
 	}
 	
 	
-	public void testCreateEntityWithCollectionFromReference_secondLevelDialog() throws Exception {    
+	public void testCreateEntityWithCollectionFromReference_secondLevelDialog() throws Exception {     
 		execute("CRUD.new");
 		execute("Reference.createNew", "model=Invoice,keyProperty=xava.Delivery.invoice.number");		
 		assertDialog();
 		
 		setValue("year", "2002");
-		setValue("number", "1");		
+		setValue("number", "1");
 		execute("Reference.search", "keyProperty=customer.number");		
-		execute("ReferenceSearch.choose", "row=1"); 
+		execute("ReferenceSearch.choose", "row=1");
 		assertValue("customer.name", "Juanillo"); 
 		setValue("customer.number", "1");
 		assertValue("customer.name", "Javi"); 
 		execute("Sections.change", "activeSection=2");
 		setValue("vatPercentage", "16");
-		execute("NewCreation.saveNew");
-		assertError("Impossible to create: an object with that key already exists");
+		execute("NewCreation.saveNew"); 
+		assertError("Impossible to create: an object with that key already exists"); 
 		
 		setValue("year", "2009");
 		setValue("number", "66");
@@ -299,7 +297,7 @@ public class DeliveryTest extends ModuleTestBase {
 		execute("DeliveryDetail.removeSelected", "viewObject=xava_view_section2_details_details");
 		assertNoErrors();
 		assertMessage("Delivery detail deleted from database");
-		assertMessage("Delivery detail 13 deleted successfully"); // This message is by the override action for removeSelected 		
+		assertMessage("Delivery detail 13 deleted successfully"); // This message is by the override action for removeSelected  		
 		assertCollectionRowCount("details", 2);
 		
 		execute("DeliveryDetail.new", "viewObject=xava_view_section2_details_details");
@@ -351,8 +349,8 @@ public class DeliveryTest extends ModuleTestBase {
 		assertFocusOn("remarks");		
 	}
 	
-	public void testZeroValueOnChange() throws Exception { 
-		createDeliveryType(0, "JUNIT DELIVERY TYPE 0");
+	public void testZeroValueOnChange_accedingDescriptionsListDescriptionUsingGetEntity() throws Exception { 
+		createDeliveryType(0, "JUNIT DELIVERY TYPE 0"); 
 		execute("CRUD.new");
 		assertMessage("type=null");
 		setValue("invoice.year", "2002");
@@ -360,54 +358,16 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValue("invoice.date", "1/1/02");  						
 		setValue("type.number", "0");
 		assertMessage("type=0"); // Verifies zero as value for on change action
+		assertMessage("type.description=JUNIT DELIVERY TYPE 0 CREATED"); // Obtained with getEntity()
 		deleteDeliveryType(0);
 	}
-	
 		
-	public void testNonExistentReferenceUsedAsKey() throws Exception {
-		if (usesAnnotatedPOJO()) { // This case is not supported since 4m6, because Hibernate 3.6 does not support it 
-			log.warn("testNonExistentReferenceUsedAsKey() case not supported in JPA version");
-			return;
-		}
-		createDeliveryType(0, "JUNIT DELIVERY TYPE 0"); 
-		execute("CRUD.new");
-		assertMessage("type=null");
-		setValue("invoice.year", "2002");
-		setValue("invoice.number", "1");
-		assertValue("invoice.date", "1/1/02");						
-		setValue("type.number", "0");
-		setValue("number", "66");
-		setValue("description", "JUNIT");		
-		execute("CRUD.save");
-		assertNoErrors();
-		
-		setValue("invoice.year", "2002");
-		setValue("invoice.number", "1");							
-		setValue("type.number", "0");
-		setValue("number", "66");
-		execute("CRUD.refresh");
-		assertNoErrors();
-		assertValue("description", "JUNIT"); 
-		
-		execute("CRUD.refresh");
-		assertNoErrors();
-		assertValue("description", "JUNIT");
-
-		deleteDeliveryType(0);
-		execute("CRUD.refresh");
-		assertNoErrors(); 
-		assertValue("description", "JUNIT");
-
-		execute("CRUD.delete");
-		assertMessage("Delivery deleted successfully");
-	}
-	
-
 	private void createDeliveryType(int number, String description) {
 		DeliveryType type = new DeliveryType();
 		type.setNumber(number);
 		type.setDescription(description);		
 		XPersistence.getManager().persist(type);
+		XPersistence.getManager().flush(); // Needed for XML versions, in order that Hibernate events work with JPA manager
 		XPersistence.commit();
 	}
 	
@@ -534,7 +494,7 @@ public class DeliveryTest extends ModuleTestBase {
 		setValue("number", "66");
 		setValue("description", "JUNIT DELIVERY DETAIL");
 		execute("DeliveryDetail.save");		
-		assertNoErrors();				
+		assertNoErrors(); 				
 		assertCollectionRowCount("details", 1);
 		
 		execute("CRUD.delete");
@@ -571,7 +531,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertEquals(date, dateAsLabel);
 	}
 	
-	public void testSecondLevelCalculatedPropertyAndDependenOf3LevelPropertyInList() throws Exception {
+	public void testSecondLevelCalculatedPropertyAndDependenOf3LevelPropertyInList_chartsWithNumericPropertyFromReferenceAsFirstColumn() throws Exception { 
 		int c = getListRowCount();
 		boolean withoutDiscount = false;
 		boolean withDiscount = true;
@@ -579,15 +539,20 @@ public class DeliveryTest extends ModuleTestBase {
 			String value = getValueInList(i, "invoice.sellerDiscount");			
 			if ("0.00".equals(value)) withoutDiscount = true;
 			else if ("20.00".equals(value)) withDiscount = true;
-			else fail("Only 0.00 or 20.00 are valid values for invoice.sellerDiscount"); 
+			else fail("Only 0.00 or 20.00 are valid values for invoice.sellerDiscount");  
 		}
 		assertTrue("It's required deliveries with invoices with and without seller discount", withDiscount && withoutDiscount);
+		
+		assertLabelInList(0, "Year of Invoice"); // We need Year to test this case, because is a numeric property of a reference in the first column
+		execute("ListFormat.select", "editor=Charts"); 
+		assertNoErrors();
+		assertExists("xColumn"); 
 	}
 		
 	public void testUseListWithOtherModelAndReturnToModuleList() throws Exception {
 		execute("CRUD.new");
 		execute("Delivery.viewCurrentYearInvoices");
-		assertNoErrors();
+		assertNoErrors(); 
 		execute("Return.return");
 		assertNoErrors();
 		execute("Mode.list");
@@ -595,7 +560,7 @@ public class DeliveryTest extends ModuleTestBase {
 	
 	public void testCreateObjectInvalidateDescriptionsCache() throws Exception {
 		execute("CRUD.new");
-		assertNoType("66");
+		assertNoType("66"); 
 		changeModule("DeliveryType");
 		execute("CRUD.new");
 		setValue("number", "66");
@@ -603,7 +568,7 @@ public class DeliveryTest extends ModuleTestBase {
 		execute("CRUD.save");
 		assertNoErrors();
 		changeModule("Delivery");
-		assertType("66");
+		assertType("66"); 
 		changeModule("DeliveryType");
 		setValue("number", "66");
 		execute("CRUD.refresh");
@@ -733,7 +698,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertActions(initialActions);  
 		
 		execute("Delivery.hideActions");
-		assertActions(minimumActions);
+		assertActions(minimumActions); 
 		
 		execute("Reference.createNew", "model=DeliveryType,keyProperty=xava.Delivery.type.number");
 		assertActions(creatingNewActions);
@@ -883,13 +848,13 @@ public class DeliveryTest extends ModuleTestBase {
 		assertActions(listActions); 
 		execute("List.orderBy", "property=invoice.year"); // ascending
 		execute("List.orderBy", "property=invoice.year"); // descending
-		assertNoErrors();
+		assertNoErrors(); 
 		
 		// Delete					
 		assertValueInList(0, "invoice.year", "2009"); 
 		assertValueInList(0, "invoice.number", "1");
 		assertValueInList(0, "type.number", "1");
-		assertValueInList(0, "number", "1");
+		assertValueInList(0, "number", "1"); 
 		
 		checkRow(0);
 		
@@ -918,7 +883,7 @@ public class DeliveryTest extends ModuleTestBase {
 		execute("CRUD.new");		
 		setValue("invoice.year", "2004"); // We supose that not exists 		
 		setValue("invoice.number", "907"); // We supose that not exists		
-		assertError("Invoice with key {year=2004, number=907} not found"); 		
+		assertError("Invoice with key {year=2004, number=907} not found"); 	
 				
 		// The reference datas are deleted in screen
 		assertValue("invoice.year", "");
@@ -1019,7 +984,7 @@ public class DeliveryTest extends ModuleTestBase {
 		setValue("type.number", "1");
 		setValue("number", "61");
 		execute("CRUD.refresh");		
-		assertValue("description", "JUNIT WITHOUT DELIVEREDBY");		
+		assertValue("description", "JUNIT WITHOUT DELIVEREDBY"); 
 		assertNotExists("carrier.number");
 		assertNotExists("employee");
 						
@@ -1056,7 +1021,7 @@ public class DeliveryTest extends ModuleTestBase {
 		setValue("date", "2/22/97");
 		setValue("description", "JUNIT");
 		execute("CRUD.save");
-		assertNoErrors();  
+		assertNoErrors(); 
 		assertValue("invoice.year", "");
 		assertValue("invoice.number", "");						
 		assertValue("type.number", "");	
@@ -1095,7 +1060,7 @@ public class DeliveryTest extends ModuleTestBase {
 			}			
 		}
 		if (!found) {
-			fail("It is necessary that exists delivery 66 in list and there are al least 11 deliveries");		
+			fail("It is necessary that exists delivery 66 in list and there are al least 11 deliveries"); 		
 		}
 				
 		execute("List.viewDetail", "row=" + i);
@@ -1146,7 +1111,7 @@ public class DeliveryTest extends ModuleTestBase {
 		
 		// Searching with reference search button		
 		setValue("remarks", "");
-		searchInvoiceWithList("2004", "2");
+		searchInvoiceWithList("2004", "2"); 
 		assertValue("invoice.year", "2004");		
 		assertValue("invoice.number", "2"); 
 		assertValue("remarks", "No remarks");
@@ -1158,7 +1123,7 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValue("remarks", "First invoice of year");
 		setValue("remarks", "");
 		
-		searchInvoiceWithList("2004", "2");
+		searchInvoiceWithList("2004", "2"); 
 		assertValue("invoice.year", "2004"); 		
 		assertValue("invoice.number", "2"); 
 		assertValue("remarks", "No remarks");							
@@ -1183,7 +1148,7 @@ public class DeliveryTest extends ModuleTestBase {
 		execute("Remarks.hideRemarks");
 		assertNotExists("remarks");
 		execute("Remarks.showRemarks");
-		assertExists("remarks");
+		assertExists("remarks"); 
 		
 		execute("Remarks.hideRemarks");
 		assertNoErrors();
@@ -1218,16 +1183,36 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValidValues("distance", distanceValues);
 		
 		// DescriptionsList order			
-		String [] types = getKeysValidValues("type.number");		
+		String [] types = getKeysValidValues("type.number"); 	
 		int previous = Integer.MAX_VALUE;
 		for (int i=1; i<types.length; i++) { // 0 position is empty
 			int current = Integer.parseInt(types[i]);
 			assertTrue("delivery types must be in descending order by number", current < previous);
 			previous = current;
 		}
-		
+		assertOrderCorrectInAutocomplete(); 
 	}
 	
+	private void assertOrderCorrectInAutocomplete() throws Exception { 
+		HtmlElement typeList = getHtmlPage().getHtmlElementById("ui-id-1");		
+		HtmlElement typeEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Delivery__reference_editor_type");
+		HtmlElement openTypeListIcon = typeEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		openTypeListIcon.click();
+		assertEquals(6, typeList.getChildElementCount());
+		int i=0;
+		String [] expectedValues = { // In reverser order as specified in @DescriptionsList
+			"NOVO CREAD MODIFIED",
+			"ROJITO",
+			"NO DEFINIDO MODIFIED",
+			"NEGRO MODIFIED",
+			"INTERNOX MODIFIED",
+			"FACTURABLE MODIFIED"				
+		};
+		for (DomElement item: typeList.getChildElements()) {
+			assertEquals(expectedValues[i++], item.asText());
+		}
+	}
+
 	public void testViewPropertyInSectionDefaultCalcultarAndValidators() throws Exception { 
 		execute("CRUD.new");		
 		assertExists("advice");
@@ -1255,7 +1240,7 @@ public class DeliveryTest extends ModuleTestBase {
 		values.add("Internachional");
 		boolean thereIsOne = false;
 		for (int i=0; i<quantity; i++) {
-			String value = getValueInList(i, "distance");			
+			String value = getValueInList(i, "distance"); 			
 			if (Is.emptyString(value)) continue;
 			if (values.contains(value)) {
 				thereIsOne = true;
@@ -1276,11 +1261,6 @@ public class DeliveryTest extends ModuleTestBase {
 		assertValue("remarks", "Hell in your eyes");	
 	}
 	
-	public void testGeneratePdf() throws Exception { 
-		execute("Print.generatePdf");		
-		assertContentTypeForPopup("application/pdf");
-	}
-		
 	private String getCurrentDate() {
 		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 		return df.format(new java.util.Date());
@@ -1319,11 +1299,11 @@ public class DeliveryTest extends ModuleTestBase {
 	}
 
 	public void testDescriptionsListHiddenAfterClearCondition() throws Exception {
-		HtmlSelect select = getHtmlPage().getElementByName("ox_OpenXavaTest_Delivery__conditionValue___3");
+		HtmlSelect select = getHtmlPage().getElementByName("ox_OpenXavaTest_Delivery__conditionValue___3"); 
 		String s = select.getAttribute("style");
 		assertFalse(s.contains("display: none") || s.contains("display:none"));
 		// clear condition
-		HtmlImage c = (HtmlImage) getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Delivery__xava_clear_condition"); 
+		HtmlElement c = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Delivery__xava_clear_condition");  
 		c.click();
 
 		select = getHtmlPage().getElementByName("ox_OpenXavaTest_Delivery__conditionValue___3");

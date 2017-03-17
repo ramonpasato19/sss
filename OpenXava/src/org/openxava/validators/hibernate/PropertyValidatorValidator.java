@@ -2,12 +2,12 @@ package org.openxava.validators.hibernate;
 
 import javax.validation.*; 
 import org.openxava.annotations.*;
-import org.openxava.annotations.parse.*;
+import org.openxava.component.parse.*;
 import org.openxava.validators.*;
 import org.openxava.validators.meta.*;
 
 /**
- * Implements a PropertyValidator of OpenXava as a Hibernate validator. <p>
+ * Implements a PropertyValidator of OpenXava as a Bean Validation Constraint. <p>
  *  
  * @author Javier Paniza
  */
@@ -29,8 +29,11 @@ public class PropertyValidatorValidator implements ConstraintValidator<PropertyV
 			return true;
 		}
 		catch (IllegalStateException ex) {
-			if (FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) return false;
-			throw ex;
+			if (!FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) throw ex;
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ex.getCause().getMessage())
+				   .addConstraintViolation();
+			return false;			
 		}
 		catch (RuntimeException ex) {
 			throw ex;

@@ -83,7 +83,7 @@ public class XPersistence {
 	private static Map entityManagerFactories = new HashMap();
 	final private static ThreadLocal currentPersistenceUnitProperties = new ThreadLocal();
 	private static Map defaultPersistenceUnitProperties;
-	private static boolean hibernateEventsRegistered = false; 
+	private static boolean hibernateEventsRegistered = false;
 
 	/**
 	 * <code>EntityManager</code> associated to current thread. <p>
@@ -96,7 +96,7 @@ public class XPersistence {
 		EntityManager s = (EntityManager) currentManager.get();
 		if (s == null || !s.isOpen()) {
 			s = openManager();
-		}				
+		}	
 		return s;
 	}
 	
@@ -292,7 +292,7 @@ public class XPersistence {
 	 * or EJB3 entity is mapping to a table named 'ISSUE' when OX and JPA engine
 	 * try to execute SQL they will use 'COMPANYA.ISSUE' as table name.<br>
 	 */
-	public static void setDefaultSchema(String defaultSchema) {	
+	public static void setDefaultSchema(String defaultSchema) {
 		Map properties = new HashMap(getPersistenceUnitProperties());
 		if (Is.emptyString(defaultSchema)) properties.remove(HIBERNATE_DEFAULT_SCHEMA);
 		else properties.put(HIBERNATE_DEFAULT_SCHEMA, defaultSchema);

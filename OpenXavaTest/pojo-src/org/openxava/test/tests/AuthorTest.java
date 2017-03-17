@@ -1,10 +1,7 @@
 package org.openxava.test.tests;
 
-import org.openxava.tests.ModuleTestBase; 
-
-import com.gargoylesoftware.htmlunit.html.*;
-
 /**
+ * 
  * Create on 09/06/2011 (16:04:34)
  * @author Ana Andres
  */
@@ -22,7 +19,7 @@ public class AuthorTest extends CustomizeListTestBase {
 		assertListRowCount(1);
 		removeColumn(1); 
 		assertListRowCount(1);
-		assertListColumnCount(1);
+		assertListColumnCount(1); 
 		execute("List.addColumns");
 		execute("AddColumns.restoreDefault");
 		assertListColumnCount(2);

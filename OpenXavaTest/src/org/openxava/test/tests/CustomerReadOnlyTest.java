@@ -16,7 +16,7 @@ public class CustomerReadOnlyTest extends ModuleTestBase {
 		setConditionValues("Cuatrero");
 		execute("List.filter");
 		execute("List.viewDetail", "row=0");
-		assertValue("number", "4");
+		assertValue("number", "4"); 
 		assertValue("name", "Cuatrero");
 		assertNoEditable("number");
 		assertNoEditable("name");

@@ -18,8 +18,7 @@ public class Strings {
 	private static Log log = LogFactory.getLog(Strings.class);
 	private final static String XSS_REGEXP_PATTERN = "(?i)<[\\s]*/?script.*?>|<[\\s]*/?embed.*?>|<[\\s]*/?object.*?>|<[\\s]*/?iframe.*?>|window.location|<[\\s]*a[\\s]*href[^>]*javascript[\\s]*:[^(^)^>]*[(][^)]*[)][^>]*>[^<]*(<[\\s]*/[\\s]*a[^>]*>)*";
 	private final static Pattern XSS_PATTERN = Pattern.compile(XSS_REGEXP_PATTERN);
-	private static Map separatorsBySpaces;
-	
+	private static Map separatorsBySpaces;	
 	
 	/**
 	 * The space, comma, dot, + and - are considered as numeric. 
@@ -391,8 +390,8 @@ public class Strings {
    * For example, a collection of 3 elements with 3 names 
    * is converted to the string <i>Angel, Manolo, Antonia</i> <br>
    *
-   * @param collection  Collection with the elements. If null return a empty string
-   * @return Not null, including the case <tt>list == null</tt>.
+   * @param collection  Collection with the elements. If null return an empty string
+   * @return Not null, including the case <tt>collection == null</tt>.
    */
   public final static String toString(Collection collection) {
   	return toString(collection, ",");
@@ -405,9 +404,9 @@ public class Strings {
    * For example, a collection of 3 elements with this 3 names
    * is converted to a string of 3 elements with this 3 names and colon (for example).<br>
    *
-   * @param collection  A collection of objects. If null return a empty string
+   * @param collection  A collection of objects. If null return an empty string
    * @param separator  The character used as separator.
-   * @return Not null, including the case <tt>list == null</tt>.
+   * @return Not null, including the case <tt>collection == null</tt>.
    */
   public final static String toString(Collection collection, String separator) {
 		Assert.arg(separator);
@@ -422,6 +421,38 @@ public class Strings {
 		}	
 		return cad.toString();
   }
+  
+  /**
+   * Converts an array of objects in a string of comma separated elements. <p> 
+   *
+   * For example, an array of 3 elements with 3 names 
+   * is converted to the string <i>Angel, Manolo, Antonia</i> <br>
+   *
+   * @param array  Array with the elements. If null return a empty string
+   * @return Not null, including the case <tt>array == null</tt>.
+   * @since 5.6
+   */
+  public final static String toString(Object [] array) {
+	  return toString(array, ","); 
+  }
+  
+  /**
+   * Converts an array of objects in string of elements separated by a 
+   * arbitrary character . <p> 
+   *
+   * For example, an array of 3 elements with this 3 names
+   * is converted to a string of 3 elements with this 3 names and colon (for example).<br>
+   *
+   * @param array  An array of objects. If null return an empty string
+   * @param separator  The character used as separator.
+   * @return Not null, including the case <tt>array == null</tt>.
+   * @since 5.6
+   */
+  public final static String toString(Object [] array, String separator) {
+	  if (array == null) return ""; 
+	  return toString(Arrays.asList(array), separator);
+  }
+
      
   /**
    * Converts a string a object of the specified type. <p>
@@ -774,6 +805,27 @@ public class Strings {
             }
         }        		
 		return result.toString();
+	}
+	
+	/**
+	 * Convert a string with a label natural for a human into a identifier valid to use as URL, file name, internal id, etc. <p>
+	 * 
+	 * If you send "León, España" it returns "LeonEspana". <br>
+	 * 
+	 * @since 5.6
+	 */
+	public static String naturalLabelToIdentifier(String naturalLabel) { 
+		int length = naturalLabel.length();
+		StringBuffer sb = new StringBuffer();		
+		for (int i=0; i<length; i++) {
+			char c = naturalLabel.charAt(i);
+			if (Character.isLetter(c) || Character.isDigit(c)) {
+				sb.append(c);
+			}
+		}
+		String result = removeAccents(sb.toString()); 
+		return result.replace("\u00D1", "N").replace("\u00F1", "n");
+
 	}
 	
 	/**

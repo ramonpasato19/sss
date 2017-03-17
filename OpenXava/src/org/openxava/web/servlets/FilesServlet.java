@@ -34,6 +34,7 @@ public class FilesServlet extends HttpServlet {
 				AttachedFile file = FilePersistorFactory.getInstance().find(fileId);
 				
 				registerMimeDetector();
+				
 				MimeType mimeType = MimeUtil.getMostSpecificMimeType(MimeUtil.getMimeTypes(file.getName()));
 				String mime = mimeType.getMediaType() + "/" + mimeType.getSubType();
 								
@@ -73,9 +74,7 @@ public class FilesServlet extends HttpServlet {
 	}
 	
 	private void setDefaultSchema(HttpServletRequest request) {
-		//ModuleContext context = (ModuleContext) request.getSession().getAttribute("context");
-		//String defaultSchema = (String) context.get(request, "xava_defaultSchema");
-		String defaultSchema = (String) request.getParameter("schema");
+		String defaultSchema = request.getParameter("schema");
 		if (!Is.emptyString(defaultSchema)) XPersistence.setDefaultSchema(defaultSchema);
 	}
 }

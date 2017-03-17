@@ -31,7 +31,7 @@ public class Product2WithFormulaTest extends ModuleTestBase {
 		assertValue("formula.name", "JUNIT FORMULA FROM PRODUCT");
 		
 		execute("CRUD.save");
-		assertNoErrors();
+		assertNoErrors(); 
 		
 		// Searching to verify
 		assertValue("description", "");
@@ -51,8 +51,7 @@ public class Product2WithFormulaTest extends ModuleTestBase {
 		assertFormulaExist("JUNIT FORMULA FROM PRODUCT");
 		deleteFormula("JUNIT FORMULA FROM PRODUCT");
 	}
-
-
+	
 	private void deleteFormula(String name) throws Exception {
 		Query query = XPersistence.getManager().createQuery("from Formula as o where o.name = :name"); 
 		query.setParameter("name", name); 

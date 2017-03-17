@@ -38,7 +38,7 @@ public class ImagesServlet extends HttpServlet {
 	
 	private View getCurrentView( HttpServletRequest request, String propertyKey) {  		 
 		ModuleContext context = (ModuleContext) request.getSession().getAttribute("context"); 
-		return (View)context.get(request, "xava_view" ); 	
+		return (View) context.get(request, "xava_view");
 	}
 		
 }

@@ -7,6 +7,7 @@ import javax.persistence.*;
 import org.openxava.annotations.*;
 import org.openxava.controller.meta.*;
 import org.openxava.jpa.*;
+import org.openxava.model.meta.*;
 import org.openxava.util.*;
 
 /**
@@ -17,8 +18,7 @@ import org.openxava.util.*;
 @Entity
 @Table(name="OXROLES_OXMODULES")
 @IdClass(ModuleRightsKey.class)
-@View(members="module; excludedActions")
-@Tab(properties="role.name, module.name, excludedActions") 
+@View(members="module; excludedActions; excludedMembers; readOnlyMembers") 
 public class ModuleRights {
 	
 	public static int countForApplication(String application) {
@@ -40,8 +40,15 @@ public class ModuleRights {
 	@ReferenceView("OnlyName") @NoFrame
 	private Module module;
 	
-	@Column(length=500)
+	@Column(length=1000)
 	private String excludedActions;
+	
+	@Column(length=1000)
+	private String excludedMembers; 
+	
+	@Column(length=1000)
+	private String readOnlyMembers; 
+
 	
 	@PostPersist @PostUpdate @PostRemove 
 	private void resetCache() { 
@@ -79,6 +86,41 @@ public class ModuleRights {
 			result.add(MetaControllers.getMetaAction(action));
 		}
 		return result;
+	}
+	
+	public Collection<MetaMember> getExcludedMetaMembers() { 
+		return toMetaMembers(excludedMembers);
+	}
+	
+	public Collection<MetaMember> getReadOnlyMetaMembers() { 
+		return toMetaMembers(readOnlyMembers);
+	}
+
+	private Collection<MetaMember> toMetaMembers(String members) { 
+		if (Is.emptyString(members)) return Collections.EMPTY_LIST;
+		Collection<MetaMember> result = new ArrayList<MetaMember>();
+		MetaModel metaModel = null;
+		for (String member: members.split(",")) {
+			if (metaModel == null) metaModel = MetaModel.get(member);
+			else result.add(metaModel.getMetaMember(member));
+		}
+		return result;
+	}
+
+	public String getExcludedMembers() {
+		return excludedMembers;
+	}
+
+	public void setExcludedMembers(String excludedMembers) {
+		this.excludedMembers = excludedMembers;
+	}
+
+	public String getReadOnlyMembers() {
+		return readOnlyMembers;
+	}
+
+	public void setReadOnlyMembers(String readOnlyMembers) {
+		this.readOnlyMembers = readOnlyMembers;
 	}
 
 }

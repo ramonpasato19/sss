@@ -28,7 +28,7 @@ class ProductWithViewPropertyTest extends ModuleTestBase {
 		setValue "subfamilyNumber", "1"
 		setValue "warehouseKey", "[.1.1.]"
 		execute "CRUD.save"				
-		assertNoErrors()
+		assertNoErrors() 
 		
 		setValue("number", "66");
 		execute("CRUD.refresh");

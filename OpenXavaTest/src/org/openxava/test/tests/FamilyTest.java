@@ -3,6 +3,7 @@ package org.openxava.test.tests;
 import org.openxava.tests.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -12,7 +13,6 @@ public class FamilyTest extends ModuleTestBase {
 	private String [] listActions = {
 		"Print.generatePdf",
 		"Print.generateExcel",
-		"ExtendedPrint.myReports",
 		"CRUD.new",
 		"CRUD.deleteSelected",
 		"CRUD.deleteRow",
@@ -22,7 +22,9 @@ public class FamilyTest extends ModuleTestBase {
 		"List.orderBy",
 		"List.viewDetail",
 		"List.hideRows",
-		"List.sumColumn"
+		"List.sumColumn",
+		"List.changeConfigurationName", 
+		"ListFormat.select" 
 	};
 
 	public FamilyTest(String testName) {
@@ -36,7 +38,7 @@ public class FamilyTest extends ModuleTestBase {
 	}
 	
 	public void testCreateReadUpdateDelete() throws Exception {
-		assertListRowCount(3);
+		assertListRowCount(3); 
 		// Create
 		execute ("CRUD.new");
 		setValue("number","66");
@@ -75,7 +77,7 @@ public class FamilyTest extends ModuleTestBase {
 	
 	public void testDependOnHiddenKey() throws Exception {
 		execute("Mode.detailAndFirst");
-		assertNoErrors();
+		assertNoErrors(); 
 		
 		String [][] productsOfFamily1 = {
 				{ "", "" },				

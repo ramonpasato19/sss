@@ -4,6 +4,7 @@ import java.util.*;
 
 import javax.servlet.http.*;
 
+import org.openxava.hibernate.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 import org.openxava.view.*;
@@ -24,6 +25,7 @@ public class SignInHelper {
 		if (!Is.emptyString(organization)) {
 			Organizations.setCurrent(request, organization);
 			XPersistence.setDefaultSchema(organization);
+			XHibernate.setDefaultSchema(organization); 
 		}
 	}
 	
@@ -34,8 +36,10 @@ public class SignInHelper {
 	public static void signIn(HttpSession session, String userName) {		
 		session.setAttribute("naviox.user", userName);
 		session.setAttribute("xava.user", userName); 
-		session.setAttribute("xava.portal.userinfo", toUserInfo(userName));
-		Users.setCurrent(userName); 
+		UserInfo userInfo = toUserInfo(userName);
+		userInfo.setOrganization(Organizations.getCurrent(session));
+		session.setAttribute("xava.portal.userinfo", userInfo);
+		Users.setCurrentUserInfo(userInfo);
 		Modules modules = (Modules) session.getAttribute("modules");
 		modules.reset();		
 		User user = User.find(userName);
@@ -61,7 +65,10 @@ public class SignInHelper {
 	 */	
 	public static boolean isAuthorized(String userName, String password, Messages errors, String unauthorizedMessage) { 
 		User user = User.find(userName);
-		if (user == null) return false;
+		if (user == null) {
+			errors.add(unauthorizedMessage);
+			return false;
+		}
 		boolean authorized = user.isAuthorized(password);
 		if (!authorized) errors.add(unauthorizedMessage);
 		if (Configuration.getInstance().getLoginAttemptsBeforeLocking() > 0) {
@@ -85,7 +92,8 @@ public class SignInHelper {
 			}
 		}
 		if (Configuration.getInstance().getInactiveDaysBeforeDisablingUser() > 0) {
-			if (Dates.daysInterval(user.getLastLoginDate(), new Date(), false) > Configuration.getInstance().getInactiveDaysBeforeDisablingUser()) {
+			Date lastDate = user.getLastLoginDate() == null?user.getCreationDate():user.getLastLoginDate();
+			if (Dates.daysInterval(lastDate, new Date(), false) > Configuration.getInstance().getInactiveDaysBeforeDisablingUser()) {
 				user.setActive(false);
 				errors.add("user_blocked");
 				authorized = false;

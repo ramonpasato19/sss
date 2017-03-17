@@ -41,6 +41,19 @@ public class Configuration implements java.io.Serializable {
 	@Max(999)
 	private int inactiveDaysBeforeDisablingUser;  
 	
+	@org.hibernate.annotations.Type(type="org.hibernate.type.YesNoType")
+	@Column(columnDefinition="varchar(1) default 'Y' not null")
+	private boolean guestCanCreateAccount;  
+	
+	@org.hibernate.annotations.Type(type="org.hibernate.type.YesNoType")
+	@Column(columnDefinition="varchar(1) default 'Y' not null")
+	private boolean guestCanCreateAccountInOrganizations;  
+	
+	@org.hibernate.annotations.Type(type="org.hibernate.type.YesNoType")
+	@Column(columnDefinition="varchar(1) default 'N' not null")
+	private boolean sharedUsersBetweenOrganizations; 
+	
+
 	@Hidden
 	public int getLockSessionMilliseconds() {  
 		// Negative minutes are treated as seconds, a trick for testing purposes
@@ -134,6 +147,35 @@ public class Configuration implements java.io.Serializable {
 	public void setInactiveDaysBeforeDisablingUser(
 			int inactiveDaysBeforeDisablingUser) {
 		this.inactiveDaysBeforeDisablingUser = inactiveDaysBeforeDisablingUser;
+	}
+
+
+	public boolean isGuestCanCreateAccount() {
+		return guestCanCreateAccount;
+	}
+
+
+	public void setGuestCanCreateAccount(boolean guestCanCreateAccount) {
+		this.guestCanCreateAccount = guestCanCreateAccount;
+	}
+	
+	public boolean isGuestCanCreateAccountInOrganizations() {
+		return guestCanCreateAccountInOrganizations;
+	}
+
+
+	public void setGuestCanCreateAccountInOrganizations(boolean guestCanCreateAccountInOrganizations) {
+		this.guestCanCreateAccountInOrganizations = guestCanCreateAccountInOrganizations;
+	}
+
+
+	public boolean isSharedUsersBetweenOrganizations() {
+		return sharedUsersBetweenOrganizations;
+	}
+
+
+	public void setSharedUsersBetweenOrganizations(boolean sharedUsersBetweenOrganizations) {
+		this.sharedUsersBetweenOrganizations = sharedUsersBetweenOrganizations;
 	}
 
 }

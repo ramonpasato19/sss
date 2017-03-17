@@ -56,9 +56,9 @@ public class EditElementInCollectionAction extends CollectionElementViewBaseActi
 		while (itDetailActions.hasNext()) {		
 			addActions(itDetailActions.next().toString());			
 		}
-		addActions(getCollectionElementView().getHideCollectionElementAction());					
+		addActions(getCollectionElementView().getHideCollectionElementAction());
 	}
-	
+		
 	public int getRow() {
 		return row;
 	}

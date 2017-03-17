@@ -23,7 +23,6 @@
 			class="org.openxava.formatters.MultipleValuesByPassFormatter" />
 	</editor>
 	
-
 	<!-- For work only in uppercase -->
 	<editor url="textEditor.jsp">
 		<formatter class="org.openxava.formatters.UpperCaseFormatter" />
@@ -33,6 +32,11 @@
 	<editor url="textEditor.jsp">
 		<for-stereotype stereotype="NO_FORMATING_STRING" />
 	</editor>
+	
+	<editor url="textEditor.jsp">
+		<list-formatter class="org.openxava.formatters.HTMLFilterListFormatter" />
+		<for-stereotype stereotype="NO_HTML_IN_LIST" />
+	</editor>	
 		
 	<editor url="currentTimeMillisEditor.jsp" always-reload="true">
 		<for-stereotype stereotype="CURRENT_TIME_MILLIS"/>
@@ -45,6 +49,13 @@
 		</formatter>
 		<for-stereotype stereotype="PERSON_NAME" />
 	</editor>
+	
+	<editor name="PlaceName" url="textEditor.jsp">
+		<formatter
+			class="org.openxava.test.formatters.NameFormatter">
+			<set property="firstLetterInUpperCase" value="true" />
+		</formatter>
+	</editor>	
 	
 	<editor name="CityName" url="textEditor.jsp">
 		<formatter
@@ -187,6 +198,10 @@
 		<property name="reader" value="org.openxava.test.web.editors.impl.TreeViewReaderTestImpl" />
 	</editor>
 	
-	<editor name="Important" url="importantEditor.jsp"/>	
+	<editor name="Important" url="importantEditor.jsp"/>
+	
+	<editor name="CustomWebURL" url="customWebURLEditor.jsp">
+    	<list-formatter class="org.openxava.formatters.WebURLFormatter"/>
+    </editor>    
 	
 </editors>

@@ -29,6 +29,7 @@ public class ModelParser extends XmlElementsNames {
 		else {
 			e.setPojoGenerated(true);
 		}
+		e.setXmlComponent(true); 
 
 		fillMembers(el, e, lang);
 		return e;

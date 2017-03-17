@@ -20,6 +20,8 @@ public class OnChangeGroupInColorAction extends OnChangePropertyBaseAction imple
 
 		getView().setHidden("group1", group != Color.Group.GROUP1);
 		getView().setHidden("group2", group != Color.Group.GROUP2);
+		
+		getView().setFocus("property1"); 
 	}
 
 	public String[] getNextControllers() throws Exception {

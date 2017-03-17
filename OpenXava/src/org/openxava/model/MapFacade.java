@@ -890,6 +890,40 @@ public class MapFacade {
 		}		
 	}	
 	
+	/** 
+	 * Move an element in a collection. <p>
+	 * 
+	 * The collection must be sortable, in JPA it means to be a List with @OrderColumn.
+	 * 
+	 * @param modelName  OpenXava model name. Not null.
+	 * @param keyValues  Key value of the container of the collection. Not null. <i>By value</i> semantics.
+	 * @param collectionName  Collection name of the container collection of element to move. Not null.
+	 * @param from  Original position of the element in the collection. Zero based.
+	 * @param to  Position in the collection where the element will be moved. Zero based.
+	 * @exception ObjectNotFoundException  If object with this key does not exist 
+	 * @exception FinderException  Logic problem on find.	
+	 * @exception XavaException  Any problem related to OpenXava. Rollback transaction.
+	 * @exception SystemException  System problem. Rollback transaction. 
+	 * @since 5.6.1
+	 */	
+	public static void moveCollectionElement(String modelName, Map keyValues, String collectionName, int from, int to) 
+		throws ObjectNotFoundException, FinderException, XavaException, SystemException 
+	{
+		Assert.arg(modelName, keyValues, collectionName);
+		try {
+			getImpl(modelName).moveCollectionElement(Users.getCurrentUserInfo(), modelName, keyValues, collectionName, from, to);
+		}
+		catch (RemoteException ex) {
+			annulImpl(modelName);
+			try {
+				getImpl(modelName).moveCollectionElement(Users.getCurrentUserInfo(), modelName, keyValues, collectionName, from, to);
+			}
+			catch (RemoteException rex) {
+				throw new SystemException(rex);
+			}
+		}		
+	}	
+	
 
 	private static boolean usesEJB() {
 		if (!usesEJBObtained) {

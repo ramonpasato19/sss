@@ -43,7 +43,9 @@ public class ProductTest extends ModuleTestBase {
 		"List.orderBy",
 		"List.viewDetail",
 		"List.hideRows",
-		"List.sumColumn"
+		"List.sumColumn",
+		"List.changeConfigurationName",  
+		"ListFormat.select", 
 	};
 		
 	public ProductTest(String testName) {
@@ -127,7 +129,7 @@ public class ProductTest extends ModuleTestBase {
 		assertValidValues("warehouseKey", zone1WarehouseValues);
 	}
 
-	public void testDepedentsStereotypesAndDescriptionsEditor_someDescriptions_and_formatters() throws Exception {
+	public void testDepedentsStereotypesAndDescriptionsEditor_someDescriptions_and_formatters() throws Exception { 
 		assertActions(listActions);
 		
 		execute("CRUD.new");
@@ -142,7 +144,7 @@ public class ProductTest extends ModuleTestBase {
 		};
 		
 		assertValue("familyNumber", "");		
-		assertValidValues("familyNumber", familyValues);
+		assertValidValues("familyNumber", familyValues); 
 		
 		String [][] emptyValues = {
 			{ "", "" }

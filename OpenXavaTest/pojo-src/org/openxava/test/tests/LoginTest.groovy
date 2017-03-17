@@ -25,7 +25,7 @@ class LoginTest extends ModuleTestBase {
 		setValue "user", "JAVI"
 		setValue "password", "x942JlmkK"
 		execute "Login.login"
-		assertErrorsCount 1
+		assertErrorsCount 1 
 		
 		setValue "user", "JAVI"
 		setValue "password", "x8Hjk37mm"

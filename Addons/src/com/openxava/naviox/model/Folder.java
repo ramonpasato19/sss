@@ -16,11 +16,15 @@ import org.openxava.util.*;
 
 @Entity
 @Table(name="OXFOLDERS")
-@View(members="name; parent; calculatedSubfolders; calculatedModules") 
+@View(members="name, parent, icon; calculatedSubfolders; calculatedModules") 
 public class Folder extends Identifiable implements java.io.Serializable {
 		
 	@Column(length=25) @Required
 	private String name;
+	
+	@Column(length=40) 
+	@Stereotype("ICON") 
+	private String icon; 
 	
 	@ManyToOne 
 	@DescriptionsList
@@ -57,7 +61,9 @@ public class Folder extends Identifiable implements java.io.Serializable {
 	
 	@Hidden
 	public String getLabel() {
-		return Labels.get(getName());
+		String id = Strings.naturalLabelToIdentifier(getName());
+		if (Labels.existsExact(id, Locales.getCurrent())) return Labels.get(id);
+		return getName();
 	}
 	
 	public static Folder find(String oid) {
@@ -165,6 +171,14 @@ public class Folder extends Identifiable implements java.io.Serializable {
 
 	public void setOrderInFolder(Integer orderInFolder) {
 		this.orderInFolder = orderInFolder;
+	}
+
+	public String getIcon() {
+		return Is.emptyString(icon)?"folder":icon; 
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
 	}
 	
 }

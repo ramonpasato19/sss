@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.prefs.*;
 
+import javax.servlet.*;
 import javax.servlet.http.*;
 
 import org.apache.commons.logging.*;
@@ -39,18 +40,19 @@ public class Modules implements Serializable {
 		MetaModuleFactory.setApplication(applicationName);
 		DB.init();
 		createFirstStepsModule(applicationName);
+		ModulesHelper.init(applicationName);  
 	}	
 	
 	private static void createFirstStepsModule(String applicationName) {
 		MetaApplication app = MetaApplications.getMetaApplication(applicationName);
 		MetaModule firstStepsModule = new MetaModule();
-		firstStepsModule.setName(FIRST_STEPS); 
+		firstStepsModule.setName(FIRST_STEPS);
 		firstStepsModule.setModelName("SignIn"); // The model does not matter
 		firstStepsModule.setWebViewURL("/naviox/firstSteps.jsp");
 		firstStepsModule.setModeControllerName("Void");
 		app.addMetaModule(firstStepsModule);		
 	}
-	
+		
 	public void reset() {
 		all = null;
 		topModules = null;
@@ -95,10 +97,14 @@ public class Modules implements Serializable {
 		storeTopModules();
 	}
 		
+	public boolean showsIndexLink() { 
+		return ModulesHelper.showsIndexLink(); 
+	}
 
-	public String getCurrent() {
+	public String getCurrent(HttpServletRequest request) { 
 		try {
-			return getPreferences().get("current", FIRST_STEPS);
+			String current = ModulesHelper.getCurrent(request);
+			return current == null?getPreferences().get("current", FIRST_STEPS):current;
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("current_module_problem"), ex); 
@@ -108,9 +114,10 @@ public class Modules implements Serializable {
 	
 	public String getCurrentModuleDescription(HttpServletRequest request) { 
 		try {
-			String organization = Organizations.getCurrentName(request); 		
-			String prefix = organization == null?"":organization + " - ";																				
-			return prefix + current.getMetaApplication().getLabel() + " - " +  current.getLabel();
+			String organization = Organizations.getCurrentName(request); 	
+			String prefix = organization == null?"":organization + " - ";
+			String application = NaviOXPreferences.getInstance().isShowApplicationName()?current.getMetaApplication().getLabel() + " - ":"";
+			return prefix + application + current.getLabel();
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("module_description_problem"), ex);			
@@ -118,6 +125,10 @@ public class Modules implements Serializable {
 		}
 	}
 	
+	public String getCurrentModuleName() { 
+		return current.getName();
+	}
+
 	public void bookmarkCurrentModule() { 
 		if (bookmarkModules == null) loadBookmarkModules();	
 		int idx = indexOf(bookmarkModules, current); 
@@ -190,7 +201,7 @@ public class Modules implements Serializable {
 					request.getRequestURI().startsWith(request.getContextPath() + "/modules/"))) return true;
 			String [] uri = request.getRequestURI().split("/");
 			if (uri.length < 4) return false;			
-			return isModuleAuthorized(MetaModuleFactory.create(uri[1], uri[3]));
+			return isModuleAuthorized(request, MetaModuleFactory.create(uri[1], uri[3])); 
 		}
 		catch (Exception ex) {			
 			log.warn(XavaResources.getString("module_not_authorized"), ex); 
@@ -206,7 +217,11 @@ public class Modules implements Serializable {
 	}
 	
 	boolean isModuleAuthorized(MetaModule module) {
-		if (module.getName().equals(FIRST_STEPS)) return true; 
+		return isModuleAuthorized(null, module); 
+	}
+	
+	private boolean isModuleAuthorized(HttpServletRequest request, MetaModule module) {   
+		if (request != null && ModulesHelper.isPublic(request, module.getName())) return true; 
 		return Collections.binarySearch(getAll(), module, comparator) >= 0;
 	}
 
@@ -271,10 +286,14 @@ public class Modules implements Serializable {
 	
 	public List getAll() {
 		if (all == null) {			
-			all = ModulesProvider.getAll();
+			all = ModulesHelper.getAll();
 			Collections.sort(all, comparator);
 		}
 		return all;
+	}
+
+	public String getUserAccessModule(ServletRequest request) { 
+		return ModulesHelper.getUserAccessModule(request);
 	}
 
 	private int indexOf(Collection<MetaModule> topModules, MetaModule current) { 
@@ -320,5 +339,5 @@ public class Modules implements Serializable {
 			return XavaResources.getString("unknow_module");
 		}
 	}
-
+	
 }

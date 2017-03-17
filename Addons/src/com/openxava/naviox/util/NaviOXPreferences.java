@@ -7,6 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openxava.util.*;
 
+import com.openxava.naviox.impl.*;
+
 /**
  * To get the preferences from naviox.properties
  * 
@@ -71,6 +73,11 @@ public class NaviOXPreferences {
 		return getProperties().getProperty("initialPasswordForAdmin", "admin").trim();
 	}
 
+	/** @since 5.6 */
+	public String getAllModulesNamesProviderClass() { 
+		return getProperties().getProperty("allModulesNamesProviderClass", AllModulesNamesProvider.class.getName()).trim();
+	}
+
 	
 	private String getCreateSchema() {
 		return getProperties().getProperty("createSchema", "CREATE SCHEMA ${schema}").trim();
@@ -84,6 +91,13 @@ public class NaviOXPreferences {
 	}
 	
 	/**
+	 * @since 5.6
+	 */
+	public boolean isShowOrganizationOnSignIn() { 
+		return "true".equalsIgnoreCase(getProperties().getProperty("showOrganizationOnSignIn", "true").trim());
+	}
+		
+	/**
 	 * @since 5.3
 	 */
 	public boolean isStartInLastVisitedModule() { 
@@ -95,6 +109,13 @@ public class NaviOXPreferences {
 	 */
 	public boolean isRememberVisitedModules() { 
 		return "true".equalsIgnoreCase(getProperties().getProperty("rememberVisitedModules", "true").trim());
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public boolean isShowApplicationName() { 
+		return "true".equalsIgnoreCase(getProperties().getProperty("showApplicationName", "true").trim());
 	}
 		
 }

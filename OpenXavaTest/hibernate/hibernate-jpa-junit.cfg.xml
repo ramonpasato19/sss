@@ -1,4 +1,4 @@
-<!DOCTYPE hibernate-configuration PUBLIC 	"-//Hibernate/Hibernate Configuration DTD//EN"	"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">	
+<!DOCTYPE hibernate-configuration PUBLIC 	"-//Hibernate/Hibernate Configuration DTD//EN"	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">	
 <hibernate-configuration>
 	<session-factory>
 		<!-- Hypersonic -->       		<property name="hibernate.connection.driver_class">org.hsqldb.jdbcDriver</property>		<property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>		<property name="hibernate.connection.url">jdbc:hsqldb:hsql://localhost:1555</property>						<!-- AS/400         

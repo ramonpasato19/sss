@@ -2,19 +2,13 @@ package org.openxava.controller.meta;
 
 import java.util.*;
 
-import org.openxava.util.*;
-
 /**
- * 
  * Create on 25/04/2013 (08:30:35)
  * @author Ana Andres
  */
-public class MetaSubcontroller {
+public class MetaSubcontroller extends MetaControllerElement{
 	
-	private String image;
-	private String icon; 
 	private String controllerName;
-	private String mode;
 
 	public boolean hasActionsInThisMode(String mode){
 		Collection<MetaAction> actions = getMetaActions();
@@ -22,11 +16,6 @@ public class MetaSubcontroller {
 			if (action.appliesToMode(mode)) return true;
 		}
 		return false;
-	}
-	
-	public boolean appliesToMode(String mode) {
-		if ("NONE".equals(getMode())) return false;
-		return Is.emptyString(getMode()) || getMode().equals(mode);
 	}
 	
 	/**
@@ -40,14 +29,6 @@ public class MetaSubcontroller {
 		return getMetaController().getMetaActions(); 
 	}
 	
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
 	public String getControllerName() {
 		return controllerName;
 	}
@@ -56,20 +37,9 @@ public class MetaSubcontroller {
 		this.controllerName = controllerName;
 	}
 
-	public String getMode() {
-		return mode;
-	}
-
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
-
-	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
+	@Override
+	public String getId() {
+		return getControllerName();
 	}
 
 }

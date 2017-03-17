@@ -36,6 +36,7 @@ public class PortalStyle extends Style {
 	
 	protected Collection<String> createAdditionalCssFiles() {		
 		Collection<String> result = new ArrayList(super.createAdditionalCssFiles());
+		result.add("/xava/style/layout.css"); 
 		result.add("/xava/style/portal.css");
 		result.add("/xava/style/materialdesignicons.css");
 		return result;
@@ -77,8 +78,13 @@ public class PortalStyle extends Style {
 		return "/xava/style/ui-lightness/jquery-ui.css";
 	}
 
-	public String getModule() {
-		return "portlet-font";		
+	public String getModule() {		
+		return "portlet-font";  
+	}
+	
+	/** @since 5.5.1 */
+	protected String getBrowserClass() { 
+		return isIE()?" ie":""; 
 	}
 										
 	public String getDetail() {
@@ -349,8 +355,6 @@ public class PortalStyle extends Style {
 	
 	public String getSectionBarEndDecoration() {
 		return "";
-	}
+	}	
 	
-
-		
 }

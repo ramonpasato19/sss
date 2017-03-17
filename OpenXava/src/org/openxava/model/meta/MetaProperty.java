@@ -61,12 +61,9 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	private DateFormat timeFormat = new SimpleDateFormat("HH:mm"); // 24 hours for all locales
 	private boolean _transient;
 	private String requiredMessage = "required";
+	
 	private String label;
 	
-	public String getLabel(Locale locale) {
-		return Is.emptyString(label) || Labels.exists(getLabelId(), locale)?super.getLabel(locale):label;
-	}
-		
 	public void setLabel(String newLabel) {
 		super.setLabel(newLabel);
 		label = newLabel;
@@ -644,14 +641,14 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	private boolean calculateIfReadOnly() { 
 		try {			
 			if (getMetaModel() == null) return false;
-			if (getMetaModel().isPojoGenerated()) return false;
+			if (!getMetaModel().isAnnotatedEJB3()) return false; 
 			PropertiesManager man = new PropertiesManager(
 				getMetaModel().getPropertiesClass());
 			return !man.hasSetter(getName());
 		}
 		catch (Exception ex) {
 			log.error(XavaResources.getString("read_only_property_warning", getName(), getMetaModel().getName()), ex);
-			return true;			
+			return true; 		
 		}
 	}
 	

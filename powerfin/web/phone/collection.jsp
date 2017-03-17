@@ -15,6 +15,10 @@ viewObject = (viewObject == null || viewObject.equals(""))?"xava_view":viewObjec
 View view = (View) context.get(request, viewObject);
 String collectionName = request.getParameter("collectionName");
 MetaCollection collection = view.getMetaModel().getMetaCollection(collectionName);
+if (!(collection.hasCalculator() || collection.isSortable())) {
+%>
+
+<% 
 View subview = view.getSubview(collectionName);
 String viewName = viewObject + "_" + collectionName;
 String idCollection = org.openxava.web.Collections.id(request, collectionName);
@@ -80,4 +84,8 @@ context.put(request, tabObject, tab);
 	<jsp:param name="tabObject" value="<%=tabObject%>"/>
 	<jsp:param name="viewObject" value="<%=viewName%>"/>
 </jsp:include>
+
+<%
+} // of: if (!(collection.hasCalculator() || collection.isSortable())) { 
+%>
 

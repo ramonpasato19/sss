@@ -111,8 +111,7 @@ while (itCollections.hasNext()) {
 	if (col.hasCondition()) {
 # 
 	public java.util.Collection get#(colName)#() throws RemoteException {
-		if (XavaPreferences.getInstance().isJPAPersistence()) return get#(colName)#_jpa();
-		else return get#(colName)#_hibernate();
+		return get#(colName)#_hibernate();
 	}
 	
 	private java.util.Collection get#(colName)#_hibernate() throws RemoteException {
@@ -133,34 +132,6 @@ while (itCollections.hasNext()) {
 		return query.list();
 	}	
 
-	private java.util.Collection get#(colName)#_jpa() throws RemoteException {
-		# if (!XavaPreferences.getInstance().isJPACodeInPOJOs()) { # 
-		throw new RuntimeException(XavaResources.getString("jpa_code_not_generated"));
-		/*
-		// The next code is commented in order to compile this code in Java 1.4
-		// If you want to use JPA put in xava.properties:
-		// jpaCodeInPOJOs=true
-		// and regenerate code		
-		# } #
-		javax.persistence.Query query = org.openxava.jpa.XPersistence.getManager().createQuery("#(col.getJPACondition())#");		
-# 
-		i=0;
-		for (Iterator it = col.getMetaPropertiesFinderArguments(true).iterator(); it.hasNext(); i++) {
-			MetaProperty parameter = (MetaProperty) it.next();
-			String argument = Generators.convertPropertyNameInPropertyCall(parameter.getName());
-			if (parameter.getType().isPrimitive()) {
-				argument = Generators.generatePrimitiveWrapper(parameter.getTypeName(), argument);
-			}
-#
-		query.setParameter(#(i)#, #(argument)#);
-# 		
-		}
-# 
-		return query.getResultList();
-		# if (!XavaPreferences.getInstance().isJPACodeInPOJOs()) { # 
-		*/
-		# } # 
-	}	
 # 
 	}
 	else if (col.hasCalculator()) {
@@ -207,16 +178,10 @@ while (itCollections.hasNext()) {
  	String exception = finder.isCollection()?"":"throws javax.ejb.ObjectNotFoundException";
 # 	
  	public static #(type)# find#(finderName)#(#(arguments)#) #(exception)# {
- 		if (XavaPreferences.getInstance().isJPAPersistence()) {
- 			# if (!XavaPreferences.getInstance().isJPACodeInPOJOs()) { # 
-			throw new RuntimeException(XavaResources.getString("jpa_code_not_generated"));
-			/*
-			// The next code is commented in order to compile this code in Java 1.4
-			// If you want to use JPA put in xava.properties:
-			// jpaCodeInPOJOs=true
-			// and regenerate code		
-			# } # 			
- 			javax.persistence.Query query = org.openxava.jpa.XPersistence.getManager().createQuery("#(finder.getHQLCondition())#");
+		org.hibernate.Query query = org.openxava.hibernate.XHibernate.getSession().createQuery("#(finder.getHQLCondition())#");
+ 		# if (finder.isCollection()) { # 
+ 			org.hibernate.Query sizeQuery = org.openxava.hibernate.XHibernate.getSession().createQuery("#(finder.getHQLCountSentence())#");
+ 		# } #
 # 
 		int i=0;
 		for (Iterator it = finder.getMetaPropertiesArguments().iterator(); it.hasNext(); i++) {
@@ -226,48 +191,9 @@ while (itCollections.hasNext()) {
 				argument = Generators.generatePrimitiveWrapper(parameter.getTypeName(), argument);
 			}
 # 
-			query.setParameter("arg#(i)#", #(argument)#);
-# 
-		}
-# 
- 		# if (finder.isCollection()) { # 
- 			return query.getResultList();
- 		# } else { # 
- 			try {
-				return (#(name)#) query.getSingleResult();
-			}
-			catch (Exception ex) {
-				// In this way in order to work with Java pre 5 
-				if (ex.getClass().getName().equals("javax.persistence.NoResultException")) {
-					throw new javax.ejb.ObjectNotFoundException(XavaResources.getString("object_not_found", "#(name)#"));
-				}
-				else {
-					ex.printStackTrace();
-					throw new RuntimeException(ex.getMessage());
-				}
-			}
- 		# } # 
- 		# if (!XavaPreferences.getInstance().isJPACodeInPOJOs()) { # 
-			*/
-		# } #  		
- 		}
- 		else {
- 			org.hibernate.Query query = org.openxava.hibernate.XHibernate.getSession().createQuery("#(finder.getHQLCondition())#");
- 		# if (finder.isCollection()) { # 
- 			org.hibernate.Query sizeQuery = org.openxava.hibernate.XHibernate.getSession().createQuery("#(finder.getHQLCountSentence())#");
- 		# } #
-# 
-		i=0;
-		for (Iterator it = finder.getMetaPropertiesArguments().iterator(); it.hasNext(); i++) {
-			MetaProperty parameter = (MetaProperty) it.next();
-			String argument = parameter.getName();
-			if (parameter.getType().isPrimitive()) {
-				argument = Generators.generatePrimitiveWrapper(parameter.getTypeName(), argument);
-			}
-# 
-			query.setParameter("arg#(i)#", #(argument)#);
+		query.setParameter("arg#(i)#", #(argument)#);
 			# if (finder.isCollection()) { # 
-			sizeQuery.setParameter("arg#(i)#", #(argument)#);
+		sizeQuery.setParameter("arg#(i)#", #(argument)#);
 			# } # 
 # 
 		}
@@ -275,15 +201,13 @@ while (itCollections.hasNext()) {
  		# if (finder.isCollection()) { # 
  			return new org.openxava.hibernate.impl.FastSizeList(query, sizeQuery);
  		# } else { # 
-			#(name)# r = (#(name)#) query.uniqueResult();
-			if (r == null) {
-				throw new javax.ejb.ObjectNotFoundException(XavaResources.getString("object_not_found", "#(name)#"));
-			}
-			return r;
- 		# } # 
- 		}
+		#(name)# r = (#(name)#) query.uniqueResult();
+		if (r == null) {
+			throw new javax.ejb.ObjectNotFoundException(XavaResources.getString("object_not_found", "#(name)#"));
+		}
+		return r;
+		# } # 
  	}
- 	
 # 
  }
 # 

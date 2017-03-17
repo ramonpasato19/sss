@@ -14,6 +14,7 @@ for (Iterator it= folders.getSubfolders().iterator(); it.hasNext();) {
 	<a  href="javascript:naviox.goFolder('<%=folder.getId()%>')">
 	<div class="folder-row " >	
 		<div class="folder-name">
+			<i class="mdi mdi-<%=folder.getIcon()%>"></i>
 			<%=folder.getLabel()%>
 			<span class="folder-icon">&nbsp;&nbsp;&nbsp;</span>
 		</div>		

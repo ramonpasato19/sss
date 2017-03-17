@@ -1,12 +1,6 @@
 package org.openxava.test.tests;
 
-import java.text.*;
-import java.util.*;
-
-import org.openxava.hibernate.*;
-import org.openxava.model.meta.*;
 import org.openxava.util.*;
-
 import com.gargoylesoftware.htmlunit.html.*;
 
 /**
@@ -23,7 +17,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 	public void testToolTip_defaultListLabels() throws Exception { 
 		assertLabelInList(0, "Zone");
 		assertLabelInList(1, "Warehouse number");
-		assertLabelInList(2, "Name");
+		assertLabelInList(2, "Name"); 
 		execute("CRUD.new");	
 		assertToolTip("number", "Id number of the warehouse");
 		assertToolTip("zoneNumber", "Zone");
@@ -50,7 +44,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 
 		execute("List.orderBy", "property=zoneNumber");
 		assertValueInList(0, 0, "10"); assertValueInList(0, 1, "10");
-		assertValueInList(1, 0, "7"); assertValueInList(1, 1, "1");
+		assertValueInList(1, 0, "7"); assertValueInList(1, 1, "1"); 
 		assertValueInList(2, 0, "7"); assertValueInList(2, 1, "2");
 		assertValueInList(3, 0, "7"); assertValueInList(3, 1, "3");
 		assertValueInList(4, 0, "7"); assertValueInList(4, 1, "4");
@@ -85,12 +79,12 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		assertValueInList(9, 0, "7"); assertValueInList(9, 1, "9");		
 	}
 	
-	public void testChangePageRowCount() throws Exception {
+	public void testChangePageRowCount() throws Exception { 
 		assertChangeRowCount(10, 5);		
 		tearDown(); setUp();
-		assertChangeRowCount(5, 10);
+		assertChangeRowCount(5, 10); 
 		
-		String value5 = getValueInList(5, 2);
+		String value5 = getValueInList(5, 2); 
 		String value9 = getValueInList(9, 2);
 		execute("List.goNextPage");
 				
@@ -102,7 +96,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		
 		execute("List.goPage", "page=6");
 		execute("List.goPage", "page=7");
-		assertListRowCount(3);
+		assertListRowCount(3); 
 		String value60 = getValueInList(0, 2);
 		String value62 = getValueInList(2, 2);
 		execute("List.goPage", "page=6");
@@ -110,7 +104,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		assertChangeRowCount(10, 5);
 		execute("List.goPage", "page=11");
 		
-		assertChangeRowCount(5, 10, 3);
+		assertChangeRowCount(5, 10, 3); 
 		assertValueInList(0, 2, value60);
 		assertValueInList(2, 2, value62);		
 	}
@@ -126,7 +120,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		String comboRowCount = combo.getSelectedOptions().get(0).getAttribute("value");
 		assertEquals(String.valueOf(initialRowCount), comboRowCount);
 		combo.setSelectedAttribute(String.valueOf(finalRowCount), true);
-		Thread.sleep(3000);
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000); 
 		assertListRowCount(finalRowCountWithData);
 		comboRowCount = combo.getSelectedOptions().get(0).getAttribute("value");
 		assertEquals(String.valueOf(finalRowCount), comboRowCount);
@@ -163,7 +157,19 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		assertAction("Mode.list");
 		assertAction("Mode.split");
 		assertNoAction("List.filter"); // List is not shown
-		assertExists("zoneNumber"); // Detail is shown		
+		assertExists("zoneNumber"); // Detail is shown
+		
+		execute("Navigation.next");
+		String name = getValue("name");
+		execute("Mode.split");
+		assertValue("name", name);
+		
+		execute("Mode.list");
+		execute("ListFormat.select", "editor=Charts");
+		execute("Mode.split");
+		assertNoAction("ListFormat.select");
+		assertAction("List.filter"); // List is shown
+		assertExists("zoneNumber"); // Detail is shown
 	}
 	
 	public void testDefaultAction() throws Exception {
@@ -189,7 +195,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 	public void testPage7InList() throws Exception {
 		execute("List.goPage", "page=6");
 		execute("List.goPage", "page=7");
-		assertListRowCount(3);
+		assertListRowCount(3); 
 		execute("CRUD.new");
 		execute("Mode.list");
 		assertListRowCount(3);
@@ -264,7 +270,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		execute("List.goPage", "page=6");
 		assertListRowCount(10);
 		execute("List.goNextPage");
-		assertListRowCount(3); // It assumes 63 objects
+		assertListRowCount(3); // It assumes 63 objects  
 	}
 				
 	public void testNotLoseFilterOnChangeMode() throws Exception {
@@ -365,7 +371,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 
 		String zoneNumber = getValueInList(3, "zoneNumber");
 		String number = getValueInList(3, "number");
-		String name = getValueInList(3, "name");
+		String name = getValueInList(3, "name"); 
 		execute("List.viewDetail", "row=3");
 		assertNoAction("Warehouse.toLowerCase");
 		assertAction("Warehouse.changeZone");
@@ -380,7 +386,7 @@ public class WarehouseTest extends WarehouseSplitTestBase {
 		assertNoAction("Warehouse.changeZone");
 		String zoneNumber1 = getValueInList(0, "zoneNumber");
 		String number1 = getValueInList(0, "number");
-		String name1 = getValueInList(0, "name");
+		String name1 = getValueInList(0, "name"); 
 		checkRow(0);
 		execute("List.goNextPage");
 		String zoneNumber2 = getValueInList(0, "zoneNumber");

@@ -4,7 +4,6 @@ import java.io.*;
 import java.sql.*;
 
 import org.hibernate.*;
-import org.hibernate.engine.*;
 import org.hibernate.engine.spi.*;
 import org.hibernate.type.*;
 import org.hibernate.usertype.*;
@@ -52,7 +51,7 @@ public class Date3Type implements CompositeUserType {
 				Dates.setMonth(date, intValue);
 				break;
 			case 2:
-				Dates.setYear(date, intValue);
+				Dates.setYear(date, intValue); 
 				break;
 		}
 		throw new HibernateException(XavaResources.getString("date3_type_only_3_properties"));	

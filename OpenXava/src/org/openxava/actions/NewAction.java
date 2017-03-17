@@ -1,6 +1,5 @@
 package org.openxava.actions;
 
-
 /**
  * @author Javier Paniza
  */
@@ -15,7 +14,7 @@ public class NewAction extends ViewBaseAction implements IChangeModeAction, IMod
 		getView().setKeyEditable(true);
 		getView().setEditable(true);
 		getView().reset();
-		if (getView().hasSections()) getView().setActiveSection(0);		
+		if (getView().hasSections()) getView().setActiveSection(0);
 	}
 	
 	public String getNextMode() {

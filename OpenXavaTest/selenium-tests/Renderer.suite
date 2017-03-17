@@ -29,6 +29,7 @@
 <tr><td><a href="FurnitureSetWithRequiredDescriptionsList.case">FurnitureSetWithRequiredDescriptionsList</a></td></tr>
 <tr><td><a href="CarrierComplexSimpleTopPosition.case">CarrierComplexSimpleTopPosition</a></td></tr>
 <tr><td><a href="CarrierWithTwoCollectionsTogether.case">CarrierWithTwoCollectionsTogether</a></td></tr>
+<tr><td><a href="charts/InvoiceChartTest.case">InvoiceChartTest</a></td></tr>
 <tr><td><a href="aligned-by-column-tests/Readme.case">Readme for test Aligned by Columns</a></td></tr>
 <tr><td><a href="aligned-by-column-tests/CustomerAligned.case">CustomerAligned</a></td></tr>
 <tr><td><a href="aligned-by-column-tests/CustomerNotAligned_TRUE_state.case">CustomerNotAligned_TRUE_state</a></td></tr>

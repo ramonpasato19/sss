@@ -17,13 +17,14 @@
 				<valid-value value="special"/>     
 			</valid-values>  			
 			<default-value-calculator class="org.openxava.calculators.IntegerCalculator">
-				<set property="value" value="1"/>
+				<set property="value" value="3"/>
 			</default-value-calculator>     
 		</property>
 		
 		<property name="photo" required="false" stereotype="PHOTO"/>
 		<property name="telephone" stereotype="TELEPHONE"/>        		
 		<property name="email" stereotype="EMAIL"/>
+		<property name="additionalEmails" stereotype="EMAIL_LIST" /> 
 		<property name="website" stereotype="WEBURL"/>
 		<property name="remarks"
 				stereotype="MEMO"
@@ -222,12 +223,15 @@
 			<on-change class="org.openxava.test.actions.OnChangeCustomerNameAction"/>
 		</property-view>	
 		
-		<property-view property="email" display-size="30"/>	
+		<property-view property="email" display-size="30"/>
+		<property-view property="additionalEmails" display-size="50"/> 
 		
 		<property-view property="alternateSeller.number">
 			<on-change class="org.openxava.test.actions.OnChangeVoidAction"/>
 		</property-view>
 
+		<property-view property="website" editor="CustomWebURL"/>
+		
 		<reference-view reference="seller" frame="false">
 			<search-action action="MyReference.search"/>
 		</reference-view>			
@@ -248,7 +252,7 @@
 				type; 
 				name, <action action="Customer.changeNameLabel"/>;
 				photo;
-				telephone, email;
+				telephone, email, additionalEmails;
 				website; 
 				address; 
 				city;
@@ -277,6 +281,8 @@
 			address;
 		</members>
 	</view>
+	
+	<view name="SimpleWithCity" extends="Simple" members="; city"/>
 	
 	<view name="SimpleWithDeliveryPlaces" members="number; type; name; address; deliveryPlaces"/>
 	
@@ -349,7 +355,32 @@
 				address;
 			</group>
 		</members>
-	</view>	
+	</view>
+	
+	<view name="SellerAsDescriptionsListShowingReferenceView">
+		<reference-view reference="seller" view="Simple">
+			<descriptions-list show-reference-view="true"/>
+			<action action="Customer.hideSeller"/>
+		</reference-view>	
+		<members>
+			number; 
+			name; 
+			type; 
+			seller
+		</members>
+	</view>
+	
+	<view name="SellerAsDescriptionsListShowingReferenceViewNoKey">
+		<reference-view reference="seller" view="SimpleNoNumber">
+			<descriptions-list show-reference-view="true"/>
+		</reference-view>	
+		<members>
+			number; 
+			name; 
+			type; 
+			seller
+		</members>
+	</view>				
 					 				
 	<view model="Address">
 				
@@ -420,6 +451,19 @@
 	<tab name="Cards" editor="CustomerCardList">
 		<properties>number, name, type, address.city, address.state.name</properties>	
 	</tab>	
+	
+	<tab name="FromAlaska">
+		<base-condition>
+			from XAVATEST.CUSTOMER 
+			inner join XAVATEST.CUSTOMER_STATE states1_ 
+				on XAVATEST.CUSTOMER.NUMBER=states1_.CUSTOMER 
+			inner join XAVATEST.STATE state2_ 
+				on states1_.STATE=state2_.ID 
+			inner join XAVATEST.STATE T_address_state
+				on XAVATEST.CUSTOMER.STATE=T_address_state.ID
+			where state2_.ID='AK'		
+		</base-condition>			
+	</tab>	
 			
 	<entity-mapping table="XAVATEST@separator@CUSTOMER">
 		<property-mapping
@@ -434,6 +478,8 @@
 			property="telephone" column="TELEPHONE"/>
 		<property-mapping
 			property="email" column="EMAIL"/>
+		<property-mapping
+			property="additionalEmails" column="ADDITIONALEMAILS"/>
 		<property-mapping
 			property="website" column="WEBSITE"/>							
 		<property-mapping

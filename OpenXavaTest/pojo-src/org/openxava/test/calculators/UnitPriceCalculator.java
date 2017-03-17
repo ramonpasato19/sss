@@ -16,9 +16,9 @@ public class UnitPriceCalculator implements ICalculator {
 	private long productNumber;  
 
 	public Object calculate() throws Exception {
-		if (++times > 1) return -1l; // To test that calculator is not executed twice in QuoteTest.testDependentDefaultValueCalculatorInElementCollection()			
+		if (++times > 1) return -1l; // To test that calculator is not executed twice in QuoteTest.testDependentDefaultValueCalculatorInElementCollection()
 		Product	product = getManager().find(Product.class, productNumber);  
-		return product.getUnitPrice();  	
+		return product.getUnitPrice();
 	}
 
 	public void setProductNumber(long productNumber) { 

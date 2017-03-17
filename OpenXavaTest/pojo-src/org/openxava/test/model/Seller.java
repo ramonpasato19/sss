@@ -24,6 +24,8 @@ import org.openxava.annotations.*;
 		"number; name; " +
 		"customers { customers }"
 	),
+	@View(name="Simple", members="number; name; level"),
+	@View(name="SimpleNoNumber", members="name; level"),
 	@View(name="CustomersAsAggregate", members="number; name; level; customers"),
 	@View(name="LevelNoDescriptionsList", members="number; name; level"),
 	@View(name="SearchListCondition", members="number; name;level;customers"),

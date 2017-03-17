@@ -14,16 +14,17 @@ boolean editable="true".equals(request.getParameter("editable"));
 String disabled=editable?"":"disabled";
 String script = request.getParameter("script");
 boolean label = org.openxava.util.XavaPreferences.getInstance().isReadOnlyAsLabel();
+String browser = request.getHeader("user-agent");
+String size = browser.contains("Chrome")?"10":"12"; 
 if (editable || !label) {
 %>
+<span class="<%=style.getDateCalendar()%>">
 <input type="text" name="<%=propertyKey%>" id="<%=propertyKey%>" class=<%=style.getEditor()%> title="<%=p.getDescription(request)%>"
 	tabindex="1" 
 	align='<%=align%>'
 	maxlength="10" 
-	size="10"  
-	value="<%=fDate%>" <%=disabled%> <%=script%>><%if (editable) {%><a href="javascript:showCalendar('<%=propertyKey%>', '<%=org.openxava.util.Dates.dateFormatForJSCalendar(org.openxava.util.Locales.getCurrent())%>')"><img	
-	src="<%=request.getContextPath() %>/xava/images/calendar.gif" alt="..."
-	style='vertical-align: middle;'/></a><%} %> <input name="<%=propertyKey%>" class=<%=style.getEditor()%>
+	size="<%=size%>"  
+	value="<%=fDate%>" <%=disabled%> <%=script%>><%if (editable) {%><a style="position: relative; right: 25px;" href="javascript:showCalendar('<%=propertyKey%>', '<%=org.openxava.util.Dates.dateFormatForJSCalendar(org.openxava.util.Locales.getCurrent())%>')"><i class="mdi mdi-calendar"></i></a><%} %> <input name="<%=propertyKey%>" class=<%=style.getEditor()%>
 	type="text" 
 	title="<%=p.getDescription(request)%>"
 	align='<%=align%>'
@@ -31,7 +32,8 @@ if (editable || !label) {
 	size="8" 
 	value="<%=fTime%>"
 	<%=disabled%>
-	<%=script%>/>	
+	<%=script%>/>
+</span>
 <%
 } else {
 %>

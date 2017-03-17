@@ -38,10 +38,10 @@ abstract public class CustomizeListTestBase extends ModuleTestBase {
 		// This method does not work for all "from, to" combinations, at least with HtmlUnit 2.15
 		HtmlTable table = getHtmlPage().getHtmlElementById(decorateId(collection));
 		HtmlElement fromCol = table.getRow(0).getCell(from + 2);
-		HtmlElement handle = fromCol.getElementsByAttribute("img", "src", "/OpenXavaTest/xava/images/move.png").get(0);
+		HtmlElement handle = fromCol.getElementsByAttribute("i", "class", "xava_handle mdi mdi-cursor-move ui-sortable-handle").get(0); 
 		handle.mouseDown();
 		HtmlElement toCol = table.getRow(0).getCell(to + 2);
-		HtmlElement elementTo = toCol.getElementsByAttribute("img", "src", "/OpenXavaTest/xava/images/remove.gif").get(0);
+		HtmlElement elementTo = toCol.getElementsByAttribute("i", "class", "mdi mdi-close-circle").get(0); 
 		elementTo.mouseMove();
 		elementTo.mouseUp();
 		Thread.sleep(500);		
@@ -52,10 +52,10 @@ abstract public class CustomizeListTestBase extends ModuleTestBase {
 		getWebClient().getOptions().setCssEnabled(true); 
 		HtmlTable table = getHtmlPage().getHtmlElementById(decorateId(collection));
 		HtmlElement header = table.getRow(0).getCell(index + 2);
-		HtmlElement image = header.getElementsByAttribute("img", "src", "/OpenXavaTest/xava/images/remove.gif").get(0);
-		HtmlElement removeLink = image.getEnclosingElement("a");		
-		removeLink.click();
-		Thread.sleep(500);		
+		HtmlElement icon = header.getElementsByAttribute("i", "class", "mdi mdi-close-circle").get(0);
+		HtmlElement removeLink = icon.getEnclosingElement("a");		
+		removeLink.click();		
+		Thread.sleep(600); 
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.*;
 import javax.persistence.*;
 
 import org.openxava.annotations.*;
+import org.openxava.filters.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 
@@ -17,8 +18,12 @@ import org.openxava.util.*;
 @Entity
 @Table(name="OXORGANIZATIONS")
 @View(members="name, url")
-@Tab(properties="name")
-public class Organization implements java.io.Serializable {  
+@Tabs({
+	@Tab(properties="name"),	
+	@Tab(name="OfCurrentUser", filter=UserFilter.class, 
+		baseCondition="from Organization e, in (e.users) u where u.name = ?") 
+})
+public class Organization implements java.io.Serializable {
 	
 	private static HashMap<String, String> names;
 	
@@ -27,6 +32,21 @@ public class Organization implements java.io.Serializable {
 	
 	@Column(length=50) @Required
 	private String name;
+	
+	@ManyToMany(mappedBy="organizations")
+	@ReadOnly
+	private Collection<User> users; 
+
+	
+	/** @since 5.6 */
+	public static Organization find(String id) { 
+		return XPersistence.getManager().find(Organization.class, id);
+	}
+	
+	/** @since 5.6.1 */
+	public static boolean existsWithName(String name) { 
+		return XPersistence.getManager().find(Organization.class, normalize(name)) != null;
+	}
 	
 	@LabelFormat(LabelFormatType.NO_LABEL)
 	public String getUrl() {  
@@ -50,16 +70,7 @@ public class Organization implements java.io.Serializable {
 	}
 
 	public static String normalize(String name) {
-		int length = name.length();
-		StringBuffer sb = new StringBuffer();		
-		for (int i=0; i<length; i++) {
-			char c = name.charAt(i);
-			if (Character.isLetter(c) || Character.isDigit(c)) {
-				sb.append(c);
-			}
-		}
-		String result = Strings.removeAccents(sb.toString()); 
-		return result.replace("\u00D1", "N").replace("\u00F1", "n");
+		return Strings.naturalLabelToIdentifier(name); 
 	}
 	
 	public static String getName(String id) {
@@ -102,5 +113,12 @@ public class Organization implements java.io.Serializable {
 		return names.size();
 	}
 
-	
+	public Collection<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Collection<User> users) {
+		this.users = users;
+	}
+
 }

@@ -29,7 +29,7 @@ public class FamilyXProductsReportTest extends ModuleTestBase {
 			{ "13", "PERIFERICOS"},			
 			{ "11", "SERVIDORES"}						
 		};		
-		assertValidValues("subfamily.number", subfamiliesFamily2);
+		assertValidValues("subfamily.number", subfamiliesFamily2); 
 		assertNoAction("Reference.modify"); // To test modify="false" in reference as descriptions list
 	}
 	

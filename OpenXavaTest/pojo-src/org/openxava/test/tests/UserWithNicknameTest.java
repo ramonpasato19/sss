@@ -2,6 +2,9 @@ package org.openxava.test.tests;
 
 import java.util.prefs.*;
 
+import javax.persistence.*;
+
+import org.openxava.jpa.*;
 import org.openxava.tests.*;
 import org.openxava.util.*;
 
@@ -47,12 +50,27 @@ public class UserWithNicknameTest extends ModuleTestBase {
 		execute("CRUD.deleteSelected");
 		assertNoErrors();
 		assertListRowCount(0);
-		changeModule("Nickname");
-		checkAll();
-		execute("CRUD.deleteSelected");
+		
+		removeNicknames();
 	}
 	
-	public void testStoreFrameStatusWithTooLongName() throws Exception {
+	public void testAttachFilesFromEmbeddableClass() throws Exception {
+		assertListRowCount(0);
+		execute("CRUD.new");
+		setValue("name", "ANATOLY KARPOV");
+		setValue("nickname.nickname", "POSITIONAL GAMER II");
+		execute("CRUD.save");
+		assertMessage("User with nickname created successfully");
+		execute("Mode.list");
+		execute("Mode.detailAndFirst");
+		attachFiles();				
+		execute("CRUD.delete");
+		assertNoErrors();
+		removeNicknames();
+		removeFiles();		
+	}	
+
+	public void testStoreFrameStatusWithTooLongName() throws Exception { 
 		assertListRowCount(0);
 		execute("CRUD.new");		
 		//Open frame		
@@ -108,5 +126,37 @@ public class UserWithNicknameTest extends ModuleTestBase {
 		try {
 			Thread.sleep(1000);
 		} catch(InterruptedException e){}
+	}
+	
+	private void removeNicknames() throws Exception {
+		changeModule("Nickname");
+		checkAll();
+		execute("CRUD.deleteSelected");
+	}
+	
+	private void attachFiles() throws Exception {
+		execute("AttachedFile.choose", "newFileProperty=attachments.photo");
+		assertNoErrors();
+		String filepath = System.getProperty("user.dir") + "/test-images/foto_javi.jpg";
+		setFileValue("newFile", filepath);
+		execute("UploadFile.uploadFile");
+		assertNoErrors();
+		
+		execute("AttachedFiles.add", "newFilesetProperty=attachments.documents");
+		assertDialogTitle("Add files");
+		filepath  = System.getProperty("user.dir") + "/reports/Corporation.html";
+		setFileValue("newFile", filepath);
+		execute("UploadFileIntoFileset.uploadFile");
+		assertMessage("File added to Documents");
+	}
+	
+	private void removeFiles() throws Exception {
+		Query query = XPersistence.getManager()
+								  .createQuery("delete from AttachedFile where " +
+				                               "name=:photo or name=:document");
+		query.setParameter("photo", "foto_javi.jpg");
+		query.setParameter("document", "Corporation.html");
+		assertTrue(query.executeUpdate() == 2);
+		XPersistence.commit();
 	}
 }

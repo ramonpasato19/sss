@@ -17,6 +17,7 @@ import org.openxava.application.meta.*;
 import org.openxava.calculators.*;
 import org.openxava.controller.meta.*;
 import org.openxava.jpa.*;
+import org.openxava.model.meta.*;
 import org.openxava.util.*;
 
 /**
@@ -27,9 +28,9 @@ import org.openxava.util.*;
 @Entity
 @Table(name="OXUSERS")
 @View(members=
-	"#name;" +
+	"#name, active;" +
 	"password, repeatPassword;" + 
-	"active, lastLoginDate;" + 
+	"creationDate, lastLoginDate;" +
 	"forceChangePassword, authenticateWithLDAP;" + 
 	"personalData [" +
 	"	email;" +
@@ -41,7 +42,8 @@ import org.openxava.util.*;
 	"	birthDate;" +
 	"];" +
 	"roles;"  +
-	"modules;"
+	"modules;" +
+	"sessionsRecord" 
 )
 public class User implements java.io.Serializable {
 	
@@ -54,7 +56,7 @@ public class User implements java.io.Serializable {
 	public static User find(String name) {
 		return XPersistence.getManager().find(User.class, name);
 	}
-	
+
 	public static int count() {
  		Query query = XPersistence.getManager().createQuery(
  			"select count(*) from User");
@@ -80,6 +82,9 @@ public class User implements java.io.Serializable {
 	private String recentPassword3;
 	@Column(length=41)  
 	private String recentPassword4;
+	
+	@ReadOnly
+	private Date creationDate; 
 	
 	@ReadOnly
 	private Date lastLoginDate;   
@@ -123,9 +128,25 @@ public class User implements java.io.Serializable {
 	private Date birthDate;
 	
 	private int failedLoginAttempts; 
-
+	
+	@ManyToMany
+	@ReadOnly 
+	@JoinTable( // Though we use default names because a JPA bug with IN clause in queries
+		name="OXUSERS_OXORGANIZATIONS",
+		joinColumns=
+			@JoinColumn(name="OXUSERS_NAME", referencedColumnName="NAME"),
+		inverseJoinColumns=
+			@JoinColumn(name="ORGANIZATIONS_ID", referencedColumnName="ID")
+	)
+	private Collection<Organization> organizations; 
+	
 	@ManyToMany
 	private Collection<Role> roles;
+	
+	@OneToMany(mappedBy="user", cascade=CascadeType.ALL)
+	@OrderBy("singInTime desc")
+	@ReadOnly 
+	private Collection<SessionRecord> sessionsRecord; 
 	
 	@ReadOnly
 	public Collection<Module> getModules() {
@@ -148,7 +169,13 @@ public class User implements java.io.Serializable {
 		return false;
 	}
 	
-	@PrePersist @PreUpdate
+	@PrePersist
+	private void prePersit() { 
+		creationDate = new Date();
+		verifyPasswordsMatch();
+	}
+	
+	@PreUpdate
 	private void verifyPasswordsMatch() {
 		if (repeatPassword == null) return;
 		if (!repeatPassword.equals(password)) {
@@ -314,6 +341,16 @@ public class User implements java.io.Serializable {
 		}
 	}
 	
+	public void addOrganization(Organization organization) { 
+		if (organizations == null) organizations = new ArrayList<Organization>();
+		organizations.add(organization);
+	}
+	
+	public void addRole(Role role) { 
+		if (roles == null) roles = new ArrayList<Role>();
+		roles.add(role);
+	}
+	
 	public Collection<Role> getRoles() {
 		return roles;
 	}
@@ -436,16 +473,56 @@ public class User implements java.io.Serializable {
 		}
 		return result; 
 	}
+	
+	public Collection<MetaAction> getExcludedMetaActionsForMetaModule(MetaModule metaModule) {
+		return collectFromRights(metaModule, new IRightsCollectionExtractor() {
+			
+			public Collection get(ModuleRights rights) {
+				return rights.getExcludedMetaActions();
+			}
+			
+		});
+	}
+	
+	public Collection<MetaMember> getExcludedMetaMembersForMetaModule(MetaModule metaModule) {
+		
+		return collectFromRights(metaModule, new IRightsCollectionExtractor() {
+			
+			public Collection get(ModuleRights rights) {
+				return rights.getExcludedMetaMembers();
+			}
+			
+		});
 
-	public Collection<MetaAction> getExcludedMetaActionsForMetaModule(MetaModule metaModule) { 
-		Collection<MetaAction> result = null; 
+	}
+	
+	public Collection<MetaMember> getReadOnlyMetaMembersForMetaModule(MetaModule metaModule) {
+		
+		return collectFromRights(metaModule, new IRightsCollectionExtractor() {
+			
+			public Collection get(ModuleRights rights) {
+				return rights.getReadOnlyMetaMembers();
+			}
+			
+		});
+
+	}
+	
+	public Collection collectFromRights(MetaModule metaModule, IRightsCollectionExtractor extractor) { 
+		Collection result = null; 
 		for (Role role: roles) {
 			ModuleRights rights = role.getModulesRightsForMetaModule(metaModule);
 			if (rights == null) continue;
-			if (result == null) result = rights.getExcludedMetaActions();
-			else result = CollectionUtils.intersection(result, rights.getExcludedMetaActions());
+			if (result == null) result = extractor.get(rights);
+			else result = CollectionUtils.intersection(result, extractor.get(rights));
 		}
 		return result==null?Collections.EMPTY_LIST:result;
+	}	
+
+	private interface IRightsCollectionExtractor {
+		
+		Collection get(ModuleRights rights);
+	
 	}
 
 	public boolean isForceChangePassword() {
@@ -478,6 +555,40 @@ public class User implements java.io.Serializable {
 
 	public void setLastLoginDate(Date lastLoginDate) {
 		this.lastLoginDate = lastLoginDate;
+		if (lastLoginDate != null) recordSession(); 
 	}
+	
+	private void recordSession() { 
+		SessionRecord r = new SessionRecord();
+		r.setUser(this);
+		r.setSingInTime(new java.sql.Timestamp(lastLoginDate.getTime()));
+		if (sessionsRecord == null) sessionsRecord = new ArrayList<SessionRecord>();
+		sessionsRecord.add(r);
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public Collection<Organization> getOrganizations() {
+		return organizations;
+	}
+
+	public void setOrganizations(Collection<Organization> organizations) {
+		this.organizations = organizations;
+	}
+
+	public Collection<SessionRecord> getSessionsRecord() {
+		return sessionsRecord;
+	}
+
+	public void setSessionsRecord(Collection<SessionRecord> sessionsRecord) {
+		this.sessionsRecord = sessionsRecord;
+	}
+
 
 }

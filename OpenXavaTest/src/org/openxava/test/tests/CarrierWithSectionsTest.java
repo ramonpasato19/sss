@@ -8,7 +8,7 @@ import org.openxava.util.*;
 /**
  * Create on 07/04/2008 (12:16:03)
  * 
- * @author Ana AndrÃ©s
+ * @author Ana Andrés
  * @author Javier Paniza
  */
 public class CarrierWithSectionsTest extends ModuleTestBase {
@@ -23,7 +23,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		setConditionComparators("in_comparator");
 		setConditionValues("1,3");
 		execute("List.filter");
-		assertListRowCount(2);
+		assertListRowCount(2); 
 		assertValueInList(0, 1, "1");
 		assertValueInList(1, 1, "3");		
 		
@@ -144,12 +144,14 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		assertValidValues("comparator", numberComparators);
 		
 		setValue("name", "name");
-		assertValue("comparator", "starts_comparator"); 
+		assertValue("comparator", "contains_comparator"); 
 		String [][] stringComparators = {
-			{ "starts_comparator", "starts" },
-			{ "ends_comparator", "ends" }, 
-			{ "contains_comparator", "contains" },
+			{ "contains_comparator", "contains" },	
+			{ "starts_comparator", "starts with" },
+			{ "ends_comparator", "ends with" },			
 			{ "not_contains_comparator", "not contains" },
+			{ "empty_comparator", "is empty" },
+			{ "not_empty_comparator", "is not empty" },			
 			{ "eq_comparator", "=" },
 			{ "ne_comparator", "<>" },  
 			{ "ge_comparator", ">=" }, 
@@ -159,7 +161,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 			{ "in_comparator", "in group" }, 
 			{ "not_in_comparator", "not in group" } 			
 		};
-		assertValidValues("comparator", stringComparators);
+		assertValidValues("comparator", stringComparators); 
 
 		setValue("name", "warehouse.zoneNumber"); 
 		assertValue("label", "Zone of Warehouse"); 
@@ -186,7 +188,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		execute("MyReport.saveColumn");
 		assertCollectionRowCount("columns", 3);
 		assertValueInCollection("columns", 0, 0, "Name");
-		assertValueInCollection("columns", 0, 1, "starts"); 
+		assertValueInCollection("columns", 0, 1, "starts with"); 
 		assertValueInCollection("columns", 0, 2, "c");
 		assertValueInCollection("columns", 1, 0, "Number");
 		assertValueInCollection("columns", 1, 1, "");
@@ -208,7 +210,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		execute("MyReport.remove", "xava.keyProperty=name");
 	}
 	
-	public void testMyReportConditionAndSortFromList() throws Exception { 
+	public void testMyReportConditionAndSortFromList() throws Exception {  
 		assertListRowCount(5);
 		setConditionComparators(">");
 		setConditionValues("1");
@@ -305,7 +307,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 	public void testMyReportWithDuplicateProperties() throws Exception { 
 		execute("ExtendedPrint.myReports");
 		setValue("name", "Carriers between 2 and 4");
-		assertCollectionRowCount("columns", 3);
+		assertCollectionRowCount("columns", 3); 
 		assertValueInCollection("columns", 0, 0, "Calculated");
 		assertValueInCollection("columns", 1, 0, "Number");
 		assertValueInCollection("columns", 2, 0, "Name");
@@ -368,7 +370,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 	
 	public void testMyReportFilteringByExactStringAndOrdering() throws Exception {
 		execute("ExtendedPrint.myReports");
-		assertValueInCollection("columns", 2, 0, "Name");
+		assertValueInCollection("columns", 2, 0, "Name"); 
 		execute("MyReport.editColumn", "row=2,viewObject=xava_view_columns");
 		setValue("comparator", "eq_comparator"); 
 		setValue("value", "UNO");
@@ -380,7 +382,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		assertValue("comparator", "eq_comparator"); 
 		assertValue("value", "UNO");
 		execute("MyReport.saveColumn");
-		assertValueInCollection("columns", 2, 0, "Name");
+		assertValueInCollection("columns", 2, 0, "Name"); 
 		assertValueInCollection("columns", 2, 1, "=");
 		assertValueInCollection("columns", 2, 2, "UNO");		
 		execute("MyReport.generatePdf");		
@@ -428,7 +430,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 			
 	public void testStoringMyReports() throws Exception { 
 		execute("ExtendedPrint.myReports");
-		assertValue("name", "Carrier report");
+		assertValue("name", "Carrier report"); 
 		assertCollectionRowCount("columns", 3);
 		assertValueInCollection("columns", 0, 0, "Calculated");
 		assertValueInCollection("columns", 1, 0, "Number");
@@ -509,7 +511,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		assertPopupPDFLine(4, "3 TRES");
 		assertPopupPDFLine(5, "2 DOS");
 		assertPopupPDFLine(6, "4 CUATRO");				
-		execute("ExtendedPrint.myReports");
+		execute("ExtendedPrint.myReports"); 
 		assertValue("name", "Carrier report With no CALCULATED"); 
 		String [][] customReports3 = {
 			{ "Carrier report NAME first", "Carrier report NAME first" },	
@@ -577,7 +579,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		setValue("name", "Carrier report 1");
 		execute("MyReport.generatePdf");		
 		
-		execute("ExtendedPrint.myReports");
+		execute("ExtendedPrint.myReports"); 
 		String [][] customReports1 = {
 			{ "Carrier report 1", "Carrier report 1" },	
 		};
@@ -613,7 +615,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 	
 	public void testRemoveColumnsInMyReport() throws Exception  { 
 		execute("ExtendedPrint.myReports"); 
-		assertCollectionRowCount("columns", 3);
+		assertCollectionRowCount("columns", 3); 
 		assertValueInCollection("columns", 0, 0, "Calculated");  
 		assertValueInCollection("columns", 1, 0, "Number");
 		assertValueInCollection("columns", 2, 0, "Name");
@@ -636,7 +638,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		assertValueInCollection("columns", 0, 0, "Name");
 		
 		execute("MyReport.generatePdf");
-		execute("ExtendedPrint.myReports");
+		execute("ExtendedPrint.myReports"); 
 		assertCollectionRowCount("columns", 1);
 		assertValueInCollection("columns", 0, 0, "Name");
 		execute("MyReport.remove", "xava.keyProperty=name");
@@ -660,13 +662,15 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		assertTrue(Is.empty(getValue("fellowCarriersSelected")));
 	}
 	
-	public void testSetControllers() throws Exception {
+	public void testSetControllers() throws Exception { 
 		String [] defaultActions = {
 			"List.hideRows",
 			"List.filter",
 			"List.orderBy",
 			"List.viewDetail",
 			"List.sumColumn",
+			"List.changeConfigurationName", 
+			"ListFormat.select", 
 			"Mode.detailAndFirst",			
 			"Mode.split",
 			"Print.generatePdf",
@@ -688,6 +692,8 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 			"List.orderBy",
 			"List.viewDetail",
 			"List.sumColumn",
+			"List.changeConfigurationName", 
+			"ListFormat.select", 
 			"Mode.detailAndFirst",							
 			"Mode.split",
 			"Print.generatePdf",
@@ -703,6 +709,8 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 			"List.orderBy",
 			"List.viewDetail",
 			"List.sumColumn", 
+			"List.changeConfigurationName", 
+			"ListFormat.select", 
 			"Mode.detailAndFirst",							
 			"Mode.split",
 			"Print.generatePdf",
@@ -720,7 +728,7 @@ public class CarrierWithSectionsTest extends ModuleTestBase {
 		// Returning with returnToPreviousController
 		assertActions(defaultActions); 
 		execute("CarrierWithSections.setTypicalController");
-		assertActions(typicalActions);
+		assertActions(typicalActions); 
 		execute("CarrierWithSections.setPrintController");
 		assertActions(printActions);
 		execute("CarrierWithSections.returnToPreviousControllers");

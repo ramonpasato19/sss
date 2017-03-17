@@ -14,8 +14,13 @@ public class InvoiceNestedSectionsTest extends ModuleTestBase {
 		super(testName, "InvoiceNestedSections");		
 	}
 	
-	public void testPdfReportInNestedSections() throws Exception { 
+	public void testPdfReportInNestedSections_subcontrollerImage() throws Exception { 
 		execute("Mode.detailAndFirst");
+
+		String linkXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_InvoiceNestedSections__sc-a-InvoicePrint_detail").asXml();
+		assertFalse(linkXml.contains("<i class="));
+		assertTrue(linkXml.contains("images/report.gif"));
+
 		execute("Sections.change", "activeSection=1");		
 		assertCollectionNotEmpty("details");
 		execute("Print.generatePdf", "viewObject=xava_view_section1_section0_details"); 
@@ -23,11 +28,30 @@ public class InvoiceNestedSectionsTest extends ModuleTestBase {
 		assertContentTypeForPopup("application/pdf");		
 	}
 	
+	public void testReadOnlyCheckBoxInSpanish() throws Exception { 
+		setLocale("es");
+		execute("Mode.detailAndFirst");
+		assertValue("year", "2002");
+		assertValue("number", "1");
+		assertValue("paid", "false"); 
+		assertNoEditable("paid");
+		execute("InvoiceNestedSections.showPaid");
+		assertMessage("paid=false");
+		
+		execute("Navigation.next");
+		assertValue("year", "2004");
+		assertValue("number", "2");
+		assertValue("paid", "true");
+		assertNoEditable("paid");
+		execute("InvoiceNestedSections.showPaid");
+		assertMessage("paid=true");		
+	}
+	
 	public void testCalculatedPropertiesDependingFromPropertiesInOtherSections() throws Exception {  
 		execute("Mode.detailAndFirst");
 		execute("Sections.change", "activeSection=1");		
 		execute("Sections.change", "activeSection=1,viewObject=xava_view_section1");
-		assertValue("vatPercentage", "16.0"); // We rely on first invoice has this value
+		assertValue("vatPercentage", "16.0"); // We rely on first invoice has this value 
 		assertValue("vat", "400.00"); // We rely on first invoice has this value
 		setValue("vatPercentage", "17");
 		assertValue("vat", "425.00");

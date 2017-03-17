@@ -133,6 +133,29 @@ public class XObjects {
 	  return execute(o.getClass(), o, methodName, clArg, args);
   }
   
+  /**
+   * Allows to execute dinamically (as in SmallTalk) an method of an object. <p> 
+   * 
+   * @param o  Object where the method will be executed. It cannot be null.
+   * @param methodName  Name of the method to execute.
+   * @param argumentClass1 Not null.
+   * @param arg1 Argument value. It can be null.
+   * @param argumentClass2 Not null.
+   * @param arg2 Argument value. It can be null.
+   * @param argumentClass3 Not null.
+   * @param arg3 Argument value. It can be null.
+   * @return  Result of method execution.
+   * @exception Exception  Any problem, including exceptions from target method.
+   * @exception NoSuchMethodException  If the method does not exist in target object.
+   */  
+  public static Object execute(Object o, String methodName, Class argumentClass1, Object arg1, Class argumentClass2, Object arg2, Class argumentClass3, Object arg3) throws Exception { 
+	  Assert.arg(o, methodName, argumentClass1, argumentClass2 );  
+	  Class [] clArg = { argumentClass1, argumentClass2, argumentClass3 };
+	  Object[] args = { arg1, arg2, arg3 };
+	  return execute(o.getClass(), o, methodName, clArg, args);
+  }
+
+  
   
   /** 
    * Allows to execute dinamically (as in SmallTalk) an static method of an class. <p> 

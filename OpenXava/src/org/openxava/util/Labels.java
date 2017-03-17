@@ -22,7 +22,7 @@ public class Labels {
 	 * On any error returns the sent <code>id</code> with the first letter in uppercase.
 	 */
 	public static String getQualified(String id) {
-		return get(id, Locales.getCurrent());
+		return getQualified(id, Locales.getCurrent()); 
 	}	
 	
 

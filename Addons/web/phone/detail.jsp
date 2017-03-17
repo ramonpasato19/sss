@@ -86,23 +86,21 @@ for (Iterator it = view.getMetaMembers().iterator(); it.hasNext();) {
 	}
 	else if (m instanceof MetaCollection) {
 		MetaCollection collection = (MetaCollection) m;
-		if (!(collection.hasCalculator() || collection.isSortable())) { 
-			if (divIsOpen) {
-				divIsOpen = false;
+		if (divIsOpen) {
+			divIsOpen = false;
 %>
 </div>
 <%
-			}
-			String collectionPrefix = propertyPrefix == null?collection.getName() + ".":propertyPrefix + collection.getName() + ".";
-%>
-			<div id="<xava:id name='<%="collection_" + collectionPrefix%>'/>">				
-				<jsp:include page="collection.jsp"> 
-					<jsp:param name="collectionName" value="<%=collection.getName()%>"/>
-					<jsp:param name="viewObject" value="<%=viewObject%>"/>			
-				</jsp:include>
-			</div>				
-<%
 		}
+		String collectionPrefix = propertyPrefix == null?collection.getName() + ".":propertyPrefix + collection.getName() + ".";
+%>
+		<div id="<xava:id name='<%="collection_" + collectionPrefix%>'/>">				
+			<jsp:include page="collection.jsp"> 
+				<jsp:param name="collectionName" value="<%=collection.getName()%>"/>
+				<jsp:param name="viewObject" value="<%=viewObject%>"/>			
+			</jsp:include>
+		</div>				
+<%
 	} 
 	else if (m instanceof MetaGroup) {
 		MetaGroup group = (MetaGroup) m;			

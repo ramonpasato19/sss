@@ -3,19 +3,64 @@ package org.openxava.controller.meta;
 
 import java.util.*;
 
+import org.apache.commons.logging.*;
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
 
 
 public class MetaController extends MetaElement {
-
+	private static Log log = LogFactory.getLog(MetaController.class);
 	private String className; // Only for spanish/swing version
 	private Collection metaActions = new ArrayList();
 	private Collection parentsNames = new ArrayList();
 	private Collection parents = new ArrayList();
 	private Map mapMetaActions = new HashMap();
-	private Collection<MetaSubcontroller> metaSubcontroller = new ArrayList();
-		
+	private Collection<MetaSubcontroller> metaSubcontrollers = new ArrayList<MetaSubcontroller>();
+	private Collection<MetaControllerElement> metaControllerElements = new ArrayList<MetaControllerElement>();	// actions and subcontroller order by occurrence
+	
+	public void addMetaControllerElement(MetaControllerElement controllerElement){
+		metaControllerElements.add(controllerElement);
+	}
+	
+	public Collection<MetaControllerElement> getMetaControllerElements(){
+		return metaControllerElements;
+	}
+	
+	private void addMetaControllerElementOverWritteActions(List result, Collection<MetaControllerElement> elements){
+	    for (MetaControllerElement controllerElement : elements){
+	        if (controllerElement instanceof MetaAction){
+	            // overwritte actions
+	            MetaAction metaAction = (MetaAction)controllerElement;
+	            int pos = -1;
+	            for (int i=0; i<result.size(); i++) {
+	                if (result.get(i) instanceof MetaAction && ((MetaAction)result.get(i)).getName().equals(metaAction.getName())) {
+	                    pos = i;
+	                }
+	            }
+	            if (pos < 0) result.add(metaAction);
+	            else {
+	                result.remove(pos);
+	                result.add(pos, metaAction);
+	            }
+	        }
+	        else result.add(controllerElement); // MetaSubcontroller
+	    }
+	}
+
+	private void getMetaControllerElementParents(List result, Collection<MetaController> parents){
+	    for(MetaController parent : parents) {
+	        if (!parent.getParents().isEmpty()) getMetaControllerElementParents(result, parent.getParents());
+	        addMetaControllerElementOverWritteActions(result, parent.getMetaControllerElements());
+	    }
+	}
+
+	public Collection<MetaControllerElement> getAllMetaControllerElements(){
+	    List<MetaControllerElement> result = new ArrayList();
+	    getMetaControllerElementParents(result, getParents());
+	    addMetaControllerElementOverWritteActions(result, getMetaControllerElements());
+	    return result;
+	}
+	
 	/**
 	 * Only for spanish/swing version
 	 */
@@ -33,7 +78,7 @@ public class MetaController extends MetaElement {
 	 * @since 4.8
 	 */
 	public void addMetaSubcontroller(MetaSubcontroller subcontroller){
-		metaSubcontroller.add(subcontroller);
+		metaSubcontrollers.add(subcontroller);
 	}
 
 	public void addMetaAction(MetaAction action) {
@@ -66,11 +111,11 @@ public class MetaController extends MetaElement {
 	 * @since 4.8
 	 */
 	public Collection<MetaSubcontroller> getMetaSubcontrollers(){
-		return metaSubcontroller;
+		return metaSubcontrollers;
 	}
 
 	public boolean containsMetaAction(String actionName) {
-		return metaActions.contains(new MetaAction(actionName));
+		return mapMetaActions.containsKey(actionName); 
 	}	
 
 	// Search by name, so ignoring the controller name
@@ -86,23 +131,32 @@ public class MetaController extends MetaElement {
 	 * The MetaActions of this controller and all its parents. <p>
 	 */
 	public Collection getAllMetaActions() throws XavaException { 
-		return getAllMetaActions(false);
+		return getAllMetaActions(false, false);
 	}
 	
 	/**
 	 * The not hidden MetaActions of this controller and all its parents. <p>
 	 */
 	public Collection getAllNotHiddenMetaActions() throws XavaException {  
-		return getAllMetaActions(true);
+		return getAllMetaActions(true, false);
 	}
 	
-	private Collection getAllMetaActions(boolean excludeHidden) throws XavaException {  
+	/**
+	 * The not hidden MetaActions of this controller and all its parents and subcontrollers recursively. <p>
+	 * @since 5.5.1
+	 */
+	public Collection getAllNotHiddenMetaActionsRecursive() throws XavaException {   
+		return getAllMetaActions(true, true);
+	}
+
+	
+	private Collection getAllMetaActions(boolean excludeHidden, boolean recursive) throws XavaException {  
 		List result = new ArrayList();
 		// Adding parents
 		Iterator itParents = getParents().iterator();
 		while (itParents.hasNext()) {
 			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getAllMetaActions(excludeHidden));
+			result.addAll(parent.getAllMetaActions(excludeHidden, recursive));
 		}
 				
 		// and now ours 
@@ -117,6 +171,14 @@ public class MetaController extends MetaElement {
 				result.add(pos, metaAction);
 			} 			
 		}		
+		
+		// The subcontrollers
+		if (recursive) {
+			for (MetaSubcontroller subcontroller: metaSubcontrollers) {
+				result.addAll(subcontroller.getMetaController().getAllMetaActions(excludeHidden, recursive));
+			}
+		}
+		
 		return result;
 	}
 	

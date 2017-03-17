@@ -1,11 +1,6 @@
 package org.openxava.test.tests;
 
-import java.util.*;
-
-import org.openxava.jpa.XPersistence;
-import org.openxava.test.model.Issue;
 import org.openxava.tests.*;
-
 
 
 /**

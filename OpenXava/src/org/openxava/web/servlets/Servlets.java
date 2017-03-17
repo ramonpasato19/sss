@@ -43,8 +43,14 @@ public class Servlets {
 			log.warn(XavaResources.getString("set_character_encoding_error", "response"));
 		}
 	}
-
 	
+	public static String getCookie(HttpServletRequest request, String name) { 
+		Cookie [] cookies = request.getCookies();
+		if (cookies != null) for (Cookie cookie: cookies) {
+			if (cookie.getName().equals(name)) return cookie.getValue(); 
+		}
+		return null;
+	}
 	
 	/**
 	 * From a uri return the resource (dynamic or static) in InputStream format. <p>

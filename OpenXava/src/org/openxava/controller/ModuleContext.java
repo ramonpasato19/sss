@@ -1,14 +1,11 @@
 package org.openxava.controller;
 
 import java.util.*;
-
 import javax.servlet.http.*;
-
-
-
 import org.apache.commons.logging.*;
 import org.openxava.controller.meta.*;
 import org.openxava.util.*;
+import org.openxava.web.servlets.*;
 
 /**
  * Context with life of session and private for every module.
@@ -19,6 +16,7 @@ import org.openxava.util.*;
 public class ModuleContext implements java.io.Serializable { 
 	
 	private static Log log = LogFactory.getLog(ModuleContext.class);
+	final private static ThreadLocal<String> currentWindowId = new ThreadLocal<String>(); 
 	
 	static {
 		MetaControllers.setContext(MetaControllers.WEB);		
@@ -26,7 +24,8 @@ public class ModuleContext implements java.io.Serializable {
 	
 	private transient Map contexts = null; 
 	private transient Map globalContext = null; 
-	
+	private String lastUsedWindowId; 
+	private String windowIdForNextTime = null; 
 
 	/**
 	 * Return a object associated to the specified module
@@ -173,7 +172,9 @@ public class ModuleContext implements java.io.Serializable {
 		if (isGlobal(objectName)) {
 			return getGlobalContext();
 		}
-		String id = application + "/" + module;
+		if (currentWindowId.get() == null) currentWindowId.set(lastUsedWindowId);
+		else lastUsedWindowId = currentWindowId.get();
+		String id = application + "/" + module + "/" + currentWindowId.get();
 		Map context = (Map) getContexts().get(id);
 		if (context == null) {
 			context = new HashMap();			
@@ -219,9 +220,51 @@ public class ModuleContext implements java.io.Serializable {
 		Iterator it = contexts.entrySet().iterator();
 		while (it.hasNext()){
 			Map.Entry context = (Map.Entry) it.next();
-			allContexts.add(((Map)context.getValue()).get(objectName));
+			Object object = ((Map)context.getValue()).get(objectName);
+			if (object != null) allContexts.add(object);
 		}
 		return allContexts;
+	}
+	
+	public String getWindowId(HttpServletRequest request) {
+		// If we change this method we should try with Customer module: 
+		//		New, change image, open Customer module in other browser tab, it should show the list, not the detail
+		// That is the state of browser tabs is independent after we upload an image. 
+		// This case cannot be tested with HtmlUnit, in some detail it does not behave as a real browser for this case.
+		
+		String alreadyInPageWindowId = (String) request.getAttribute("xava.new.window.id");
+		if (alreadyInPageWindowId != null) {
+			return alreadyInPageWindowId;
+		}
+		String windowId = Servlets.getCookie(request, "XAVA_WINDOW_ID"); 
+		if (Is.emptyString(windowId)) {
+			if (windowIdForNextTime != null) {				
+				windowId = windowIdForNextTime;
+			}
+			else {
+				windowId = Long.toHexString(System.currentTimeMillis()); // Better than UUID because is shorter and impossible to duplicate because a user cannot open two tabs at once in the same browser
+			}
+			request.setAttribute("xava.new.window.id", windowId);	
+		}
+		windowIdForNextTime = null; 
+		return windowId;
+	}
+	
+	public static void setCurrentWindowId(HttpServletRequest request) {
+		setCurrentWindowId(request.getHeader("xava_window_id")); 
+	}
+	
+	public static void setCurrentWindowId(String id) {
+		currentWindowId.set("null".equals(id)?null:id); 
+	}
+	
+	public static void cleanCurrentWindowId() {
+		currentWindowId.set(null); 
+	}
+
+	
+	public void dontGenerateNewWindowIdNextTime() {
+		windowIdForNextTime = lastUsedWindowId; 
 	}
 
 }

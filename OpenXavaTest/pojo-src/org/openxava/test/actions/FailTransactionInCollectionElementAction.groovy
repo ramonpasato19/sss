@@ -11,7 +11,7 @@ class FailTransactionInCollectionElementAction extends CollectionElementViewBase
 	
 	void execute() {
 		XPersistence.manager.transaction.setRollbackOnly()
-		closeDialog()	
+		closeDialog()
 	}
 
 }

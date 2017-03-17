@@ -14,7 +14,6 @@ import org.apache.commons.fileupload.*;
 import org.apache.commons.fileupload.disk.*;
 import org.apache.commons.fileupload.servlet.*;
 import org.apache.commons.logging.*;
-import org.hibernate.validator.*;
 import org.openxava.actions.*;
 import org.openxava.application.meta.*;
 import org.openxava.component.*;
@@ -76,7 +75,7 @@ public class ModuleManager implements java.io.Serializable {
 	}
 
 	private static String DEFAULT_MODE = IChangeModeAction.LIST;
-	private static final String[] MODIFIED_CONTROLLERS = { "__MODIFIED_CONTROLLER__ " };
+	private static final String[] MODIFIED_CONTROLLERS = { "__MODIFIED_CONTROLLER__" }; 
 	private static final String XAVA_META_ACTIONS_IN_LIST = "xava_metaActionsInList";
 
 	private String user;
@@ -118,6 +117,8 @@ public class ModuleManager implements java.io.Serializable {
 	private boolean resetFormPostNeeded = false;
 	private boolean actionsAddedOrRemoved;
 	private Collection<MetaSubcontroller> metaSubControllers;
+	private Map<String,Collection<MetaAction>> subcontrollersMetaActions;
+	private Collection<MetaControllerElement> metaControllerElements;
 
 	/**
 	 * HTML action bind to the current form.
@@ -153,6 +154,7 @@ public class ModuleManager implements java.io.Serializable {
 	public void addSimpleMetaAction(MetaAction action) {
 		if (getMetaActions().contains(action)) return; 
 		getMetaActions().add(action);
+		getMetaControllerElements().add(action);
 		defaultActionQualifiedName = null;
 		actionsChanged = true;
 		actionsAddedOrRemoved = true;
@@ -168,6 +170,7 @@ public class ModuleManager implements java.io.Serializable {
 	 */
 	public void removeSimpleMetaAction(MetaAction action) {
 		getMetaActions().remove(action);
+		getMetaControllerElements().remove(action);
 		defaultActionQualifiedName = null;
 		actionsChanged = true;
 		actionsAddedOrRemoved = true;
@@ -188,6 +191,48 @@ public class ModuleManager implements java.io.Serializable {
 		return actions;
 	}
 
+	/**
+	 * @since 5.5.1
+	 */
+	public Collection<MetaAction> getSubcontrollerMetaActions(String controllerName) {
+		if (subcontrollersMetaActions == null) subcontrollersMetaActions = new HashMap<String, Collection<MetaAction>>();
+		Collection<MetaAction> result = subcontrollersMetaActions.get(controllerName);
+		if (result == null) {
+			result = new ArrayList(MetaControllers.getMetaController(controllerName).getMetaActions());
+			try {
+				refine(result);
+			} catch (Exception ex) {
+				log.error(XavaResources.getString("controller_actions_error"), ex);
+				return new ArrayList();
+			}
+			subcontrollersMetaActions.put(controllerName, result);
+		}
+		return result;
+	}
+	
+	public Collection<MetaControllerElement> getMetaControllerElements() {
+		 if (metaControllerElements == null){
+			metaControllerElements = new ArrayList<MetaControllerElement>();
+			try {
+				Iterator it = getMetaControllers().iterator();
+				while(it.hasNext()){
+					MetaController mc = (MetaController) it.next();
+					metaControllerElements.addAll(mc.getAllMetaControllerElements());
+				}
+				removeHiddenElements();
+				refine(metaControllerElements); 
+			} 
+		 	catch (Exception ex) {
+				metaActions = null;
+				metaControllerElements = null; 
+				log.error(XavaResources.getString("controller_actions_error"), 
+						ex);
+				return new ArrayList();
+			}
+		 }
+		return metaControllerElements;
+	}
+
 	public Collection getSubcontrollers() {
 		if (metaSubControllers == null) {
 			metaSubControllers = new ArrayList<MetaSubcontroller>();
@@ -199,7 +244,7 @@ public class ModuleManager implements java.io.Serializable {
 		}
 		return metaSubControllers;
 	}
-
+	
 	public Collection<MetaAction> getMetaActions() {
 		if (metaActions == null) {
 			Collection<MetaAction> ma = (Collection<MetaAction>) getContext()
@@ -218,9 +263,10 @@ public class ModuleManager implements java.io.Serializable {
 					metaActions.addAll(contr.getAllMetaActions());
 				}
 				removeHiddenActions();
-				refine();
+				refine(metaActions); 
 			} catch (Exception ex) {
 				metaActions = null;
+				metaControllerElements = null; 
 				log.error(XavaResources.getString("controller_actions_error"),
 						ex);
 				return new ArrayList();
@@ -228,7 +274,7 @@ public class ModuleManager implements java.io.Serializable {
 		}
 		return metaActions;
 	}
-
+	
 	public Collection getMetaActionsOnInit() {
 		if (metaActionsOnInit == null) {
 			try {
@@ -283,8 +329,7 @@ public class ModuleManager implements java.io.Serializable {
 			metaControllers = new ArrayList();
 			String[] names = getControllersNames();
 			for (int i = 0; i < names.length; i++) {
-				metaControllers
-						.add(MetaControllers.getMetaController(names[i]));
+				metaControllers.add(MetaControllers.getMetaController(names[i]));
 			}
 		}
 		return metaControllers;
@@ -357,10 +402,6 @@ public class ModuleManager implements java.io.Serializable {
 									.getMetaAction(xavaAction);
 							long ini = System.currentTimeMillis();
 							executeAction(a, errors, messages, av, request);
-							if (modifiedControllers) {
-								this.controllersNames = MODIFIED_CONTROLLERS;
-							}
-							modifiedControllers = false;
 							long time = System.currentTimeMillis() - ini;
 							log.debug("Execute " + xavaAction + "=" + time
 									+ " ms");
@@ -663,10 +704,8 @@ public class ModuleManager implements java.io.Serializable {
 					(javax.validation.ConstraintViolationException) ex);
 		} else if (ex instanceof RollbackException) {
 			if (ex.getCause() instanceof javax.validation.ConstraintViolationException) {
-				manageConstraintViolationException(metaAction, errors,
-						messages,
-						(javax.validation.ConstraintViolationException) ex
-								.getCause());
+				manageConstraintViolationException(metaAction, errors, messages,
+						(javax.validation.ConstraintViolationException) ex.getCause());
 			} else if (ex.getCause() != null
 					&& ex.getCause().getCause() instanceof javax.validation.ConstraintViolationException) {
 				manageConstraintViolationException(metaAction, errors,
@@ -699,7 +738,7 @@ public class ModuleManager implements java.io.Serializable {
 			doRollback();
 		}
 	}
-
+	
 	private void manageHibernateConstraintViolationlException(
 			MetaAction metaAction, Messages errors, Messages messages,
 			org.hibernate.exception.ConstraintViolationException ex) {
@@ -711,7 +750,7 @@ public class ModuleManager implements java.io.Serializable {
 	private void manageConstraintViolationException(MetaAction metaAction,
 			Messages errors, Messages messages,
 			javax.validation.ConstraintViolationException ex) {
-		for (javax.validation.ConstraintViolation violation : ex
+		for (javax.validation.ConstraintViolation<?> violation : ex
 				.getConstraintViolations()) {
 			String attrName = violation.getPropertyPath() == null ? null
 					: violation.getPropertyPath().toString();
@@ -724,20 +763,19 @@ public class ModuleManager implements java.io.Serializable {
 					.getConstraintDescriptor();
 			java.lang.annotation.Annotation annotation = descriptor
 					.getAnnotation();
-			if (annotation instanceof javax.validation.constraints.AssertTrue) {
+			if (annotation instanceof javax.validation.constraints.AssertTrue || 
+				annotation instanceof org.openxava.annotations.EntityValidator) 
+			{
 				Object bean = violation.getRootBean();
 				errors.add(message, bean);
 				continue;
-			}
-
-			message = XavaResources.getString(message);
+			}			
 			Object invalidValue = violation.getInvalidValue();
-			if (Is.emptyString(attrName) || domainClass == null
-					|| invalidValue == null) {
+			if (Is.emptyString(attrName) || domainClass == null	|| invalidValue == null) {
 				errors.add(message);
 			} else {
-				errors.add("invalid_state", attrName, domainClass, "'"
-						+ message + "'", invalidValue);
+				errors.add("invalid_state", attrName, domainClass, "'" +
+						   XavaResources.getString(message) + "'", invalidValue);
 			}
 		}
 		messages.removeAll();
@@ -781,12 +819,19 @@ public class ModuleManager implements java.io.Serializable {
 	/**
 	 * Init JPA and Hibernate in order to process the current request.
 	 */
-	public void resetPersistence() throws Exception { 
+	public void resetPersistence() { 
 		org.openxava.hibernate.XHibernate.setCmt(false);
 		org.openxava.jpa.XPersistence.reset();
 		org.openxava.hibernate.XHibernate.reset();
 		if (reseter != null) {
-			XObjects.execute(reseter, "reset", HttpSession.class, session);
+			try {
+				XObjects.execute(reseter, "reset", HttpSession.class, session);
+			}
+			catch (Exception ex) {
+				log.error(XavaResources.getString("reset_persistence_error"), ex);
+				throw new XavaException("reset_persistence_error");
+			}
+			
 		}
 	}
 
@@ -797,7 +842,7 @@ public class ModuleManager implements java.io.Serializable {
 	 * This method is intended to be used after rendering the UI content, not for commit in your own logic. If
 	 * you want commit from your logic use BaseAction.commit(), XPersistence.commit() or XHibernate.commit().  
 	 */
-	public void commit() { // Usually after render page
+	public static void commit() { // Usually after render page 
 		try {
 			doCommit();
 			org.openxava.jpa.XPersistence.reset();
@@ -808,12 +853,12 @@ public class ModuleManager implements java.io.Serializable {
 		}
 	}
 
-	private void doCommit() {
+	private static void doCommit() { 
 		XPersistence.commit();
 		XHibernate.commit();
 	}
 
-	void doRollback() {
+	static void doRollback() { 
 		XPersistence.rollback();
 		XHibernate.rollback();
 	}
@@ -841,6 +886,8 @@ public class ModuleManager implements java.io.Serializable {
 		defaultActionQualifiedName = null;
 		this.controllersNames = names;
 		actionsChanged = true;
+		subcontrollersMetaActions = null;
+		metaControllerElements = null;
 	}
 
 	public void restorePreviousControllers() throws XavaException {
@@ -853,10 +900,13 @@ public class ModuleManager implements java.io.Serializable {
 		if (controllers instanceof String[]) { // The list of controllers
 			setControllersNames((String[]) controllers);
 		} else { // A collection of metaactions
+			setControllersNames(MODIFIED_CONTROLLERS); 
 			this.metaActions = (Collection) controllers;
+			this.subcontrollersMetaActions = null; 
 			this.defaultActionQualifiedName = null;
 			this.actionsChanged = true;
 			this.modifiedControllers = true;
+			this.metaControllerElements = null; 
 		}
 	}
 
@@ -878,7 +928,7 @@ public class ModuleManager implements java.io.Serializable {
 			previousControllers.push(this.controllersNames);
 		}
 	}
-
+	
 	private Stack getPreviousControllers() {
 		Stack previousControllers = (Stack) getObjectFromContext("xava_previousControllers");
 		return previousControllers;
@@ -1208,7 +1258,7 @@ public class ModuleManager implements java.io.Serializable {
 		return controllersNames == null ? new String[0] : controllersNames;
 	}
 
-	private MetaModule getMetaModule() throws ElementNotFoundException,
+	public MetaModule getMetaModule() throws ElementNotFoundException, 
 			XavaException {
 		if (metaModule == null) {
 			if (Is.emptyString(applicationName, moduleName)) {
@@ -1523,6 +1573,7 @@ public class ModuleManager implements java.io.Serializable {
 			if (!action.isHidden() && action.hasImage())
 				return true;
 		}
+		if (!getSubcontrollers().isEmpty()) return true;
 		return false;
 	}
 
@@ -1532,6 +1583,7 @@ public class ModuleManager implements java.io.Serializable {
 
 	private void setFormUpload(boolean b) {
 		formUpload = b;
+		if (formUpload) getContext().dontGenerateNewWindowIdNextTime(); 
 	}
 
 	public String getNextModule() {
@@ -1549,6 +1601,8 @@ public class ModuleManager implements java.io.Serializable {
 		actionsChanged = true;
 		defaultActionQualifiedName = null;
 		metaActions = null;
+		subcontrollersMetaActions = null;
+		metaControllerElements = null;
 	}
 
 	private void removeFromHiddenActions(String action) {
@@ -1558,8 +1612,23 @@ public class ModuleManager implements java.io.Serializable {
 		defaultActionQualifiedName = null;
 		metaActions = null;
 		actionsChanged = true;
+		subcontrollersMetaActions = null;
+		metaControllerElements = null; 
 	}
 
+	private void removeHiddenElements(){	
+		if (hiddenActions == null) return;
+		for (Iterator<MetaControllerElement> it = metaControllerElements.iterator(); it.hasNext();){
+			MetaControllerElement element = it.next();
+			if (element instanceof MetaAction){
+				MetaAction action = (MetaAction)element;
+				if (hiddenActions.contains(action.getQualifiedName())){
+					it.remove();
+				}
+			}
+		}
+	}
+	
 	private void removeHiddenActions() {
 		if (hiddenActions == null)
 			return;
@@ -1571,11 +1640,10 @@ public class ModuleManager implements java.io.Serializable {
 		}
 	}
 
-	private void refine() throws Exception {
-		if (refiner == null)
-			return;
+	private void refine(Collection collection) throws Exception { 
+		if (refiner == null) return;
 		XObjects.execute(refiner, "refine", MetaModule.class, getMetaModule(),
-				Collection.class, metaActions);
+			Collection.class, collection); 
 	}
 
 	public boolean isReloadAllUINeeded() {
@@ -1611,6 +1679,8 @@ public class ModuleManager implements java.io.Serializable {
 		metaActions = null;
 		defaultActionQualifiedName = null;
 		metaModule = null;
+		subcontrollersMetaActions = null;
+		metaControllerElements = null;
 		DescriptionsLists.resetDescriptionsCache(getSession());
 	}
 

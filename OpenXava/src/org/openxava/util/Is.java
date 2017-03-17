@@ -3,6 +3,8 @@ package org.openxava.util;
 import java.math.*;
 import java.util.*;
 
+import net.sf.jasperreports.engine.virtualization.*;
+
 /**
  * Utility class to reduce the ifs size. <p>
  * 
@@ -31,6 +33,24 @@ import java.util.*;
 public class Is {
 	
 	private static BigDecimal ZERO = new BigDecimal("0"); 
+	
+	/**
+	 * Compare the first argurment with the rest and if any if equal returns true.
+	 * 
+	 * Uses Is.equal() to compare the elements. The null is a valid value, so if you
+	 * send null as first argument and any of the possible value is null returns true.
+	 * 
+	 * @param object  The object we are looking for. Can null.
+	 * @param possibleValues The objects where we are looking for. Can contain nulls.
+	 * @since 5.6
+	 */
+	public static boolean anyEqual(Object object, Object ... possibleValues) { 
+		for (Object possibleValue: possibleValues) {
+			if (equal(object, possibleValue)) return true;
+		}
+		return false;
+	}
+
 	
 	/**
 	 * Verifies if the sent object is <code>null</code> or empty string 

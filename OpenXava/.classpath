@@ -68,5 +68,6 @@
 	<classpathentry kind="lib" path="lib/javax.el-api.jar"/>
 	<classpathentry kind="lib" path="lib/javax.el.jar"/>
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/hibernate-envers.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/poi.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

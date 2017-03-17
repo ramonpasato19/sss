@@ -17,13 +17,26 @@ import org.openxava.test.validators.*;
  */
 
 @Entity
-@View(members=
-	"serviceType;" +
-	"quantity, unitPrice, amount;" +
-	"product;" +
-	"deliveryDate, soldBy;" +	
-	"remarks"
-)
+@Views({
+	@View(members=
+		"serviceType;" +
+		"quantity, unitPrice, amount;" +
+		"product;"  +
+		"deliveryDate, soldBy;" +	
+		"remarks"
+	),
+	@View(name="AllMembersInSections", members=
+		"overview { " +
+			"serviceType;" +
+			"product;" +
+			"deliveryDate, soldBy;" +	
+			"remarks" + 				
+		"}" +
+		"amounts { " +
+			"quantity, unitPrice, amount;" +
+		"}"
+	)
+})
 @EntityValidator(value=InvoiceDetailValidator.class,
 	properties= { 
 		@PropertyValue(name="invoice"), 

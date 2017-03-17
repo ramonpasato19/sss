@@ -22,7 +22,7 @@ public class MetaControllers {
 	private static Map<String, MetaController> metaControllers;
 	private static Map<String, MetaObject> mapMetaObjects;
 	private static Collection<String> objectPrefixes; 
-	private static String context = SWING;
+	private static String context = WEB;
 	
 	
 	public static void _addMetaController(MetaController newController) throws XavaException {

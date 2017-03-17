@@ -63,7 +63,7 @@ public class ModuleTestBase extends TestCase {
 	private static int loginFormIndex = -1;
 	private static Collection excludedActions;  
 	private static Collection ignoredActions;
-	private static BrowserVersion browserVersion; 
+	private static BrowserVersion defaultBrowserVersion; 
 	
 	private String locale;
 	private MetaModule metaModule;
@@ -85,8 +85,6 @@ public class ModuleTestBase extends TestCase {
 	static {		
 		XSystem._setLogLevelFromJavaLoggingLevelOfXavaPreferences();
 		Logger.getLogger("com.gargoylesoftware").setLevel(Level.SEVERE);
-		XHibernate.setConfigurationFile("/hibernate-junit.cfg.xml");
-		XPersistence.setPersistenceUnit("junit");
 		DataSourceConnectionProvider.setUseHibernateConnection(true);
 	}
 	
@@ -118,6 +116,10 @@ public class ModuleTestBase extends TestCase {
 	
 	protected void setUp() throws Exception {
 		locale = null;
+		XPersistence.reset(); 
+		XHibernate.reset();
+		XHibernate.setConfigurationFile("/hibernate-junit.cfg.xml");
+		XPersistence.setPersistenceUnit("junit");
 		resetModule();	
 	}
 	
@@ -177,7 +179,7 @@ public class ModuleTestBase extends TestCase {
 			setValue("password", password);
 			execute("SignIn.signIn");
 			assertNoErrors();
-			selectModuleInPage(originalModule);		
+			selectModuleInPage(originalModule);	
 		}
 	}
 	
@@ -223,6 +225,20 @@ public class ModuleTestBase extends TestCase {
 			}
 			else if (input instanceof HtmlRadioButtonInput) {
 				setRadioButtonsValue(id, value);
+			}
+			else if (input instanceof HtmlHiddenInput) {
+				input.setValueAttribute(value);
+				DomElement previousElement = input.getPreviousElementSibling();
+				if (previousElement instanceof HtmlInput && previousElement.hasAttribute("data-values")) { // It's an autocomplete
+					HtmlInput autocomplete = (HtmlInput) previousElement;
+					autocomplete.setValueAttribute("Some things"); // A trick to avoid that JavaScript reset the real value
+					((HtmlInput) input.getNextElementSibling()).setValueAttribute("Some things"); // A trick to avoid that JavaScript reset the real value
+					String onchange = autocomplete.getOnChangeAttribute();
+					if (!Is.emptyString(onchange)) {
+						page.executeJavaScript(onchange);
+						refreshNeeded = true;
+					}
+				}				
 			}
 			else {
 				input.setValueAttribute(value);				
@@ -510,13 +526,31 @@ public class ModuleTestBase extends TestCase {
 		}
 	}
 	
-	private static BrowserVersion getBrowserVersion() throws Exception {
-		if (browserVersion == null) {
-			browserVersion = new BrowserVersion("", "", "", 0); 
-			BeanUtils.copyProperties(browserVersion, (BrowserVersion.FIREFOX_24));		
-			browserVersion.setUserAgent(browserVersion.getUserAgent() + " HtmlUnit");
+	/**
+	 * The browser emulation used for the test. <p>
+	 * 
+	 * If you overwrite this method maybe some methods of ModuleTestBase 
+	 * would not work correctly. Usually you overwrite it to test using 
+	 * directly the HtmlUnit API.<br/>
+	 * 
+	 * The use of <b>this method is discouraged</b> because binds your test
+	 * to a HTML implementation.
+	 * Before to use this method look for another more abstract method
+	 * in this class.
+	 * 
+	 * @since 5.5
+	 */
+	protected BrowserVersion getBrowserVersion() throws Exception { 
+		return getDefaultBrowserVersion();
+	}
+	
+	private static BrowserVersion getDefaultBrowserVersion() throws Exception { 
+		if (defaultBrowserVersion == null) { 
+			defaultBrowserVersion = new BrowserVersion("", "", "", 0); 
+			BeanUtils.copyProperties(defaultBrowserVersion, (BrowserVersion.FIREFOX_24));		
+			defaultBrowserVersion.setUserAgent(defaultBrowserVersion.getUserAgent() + " HtmlUnit");
 		}
-		return browserVersion;
+		return defaultBrowserVersion;
 	}
 	
 	private boolean isCoreViaAJAX() { 
@@ -663,6 +697,9 @@ public class ModuleTestBase extends TestCase {
 		String expectedFocusProperty = decorateId(name);			
 		HtmlElement element = page.getFocusedElement(); 
 		String focusProperty = element==null?null:element.getAttribute("name");
+		if (focusProperty != null && focusProperty.endsWith("__CONTROL__")) { 
+			focusProperty = focusProperty.replaceFirst("__CONTROL__$", "");
+		}
 		assertEquals(XavaResources.getString("focus_in_unexpected_place"), expectedFocusProperty, focusProperty);		
 	}
 	
@@ -719,7 +756,7 @@ public class ModuleTestBase extends TestCase {
 		element = getAnchorForAction(action, arguments);
 		if (arguments == null && element == null) { // We try if it is a button
 			String moduleMarkForButton = "executeAction(\"" + application + "\", \"" + module + "\"";
-			HtmlElement inputElement = page.getHtmlElementById(decorateId(action)); 
+			HtmlElement inputElement = page.getHtmlElementById(decorateId(action));
 			if (inputElement instanceof HtmlInput) {
 				HtmlInput input = (HtmlInput) inputElement;
 				if ("button".equals(input.getTypeAttribute()) &&
@@ -734,7 +771,6 @@ public class ModuleTestBase extends TestCase {
 			if (!clicking && element instanceof HtmlAnchor) { 
 				// Because input.click() fails with HtmlUnit 2.5/2.6/2.7/2.9 in some circumstances
 				page.executeJavaScript(((HtmlAnchor)element).getHrefAttribute());
-				
 			}
 			else {
 				element.click();
@@ -844,14 +880,16 @@ public class ModuleTestBase extends TestCase {
 		return getFormValues(decorateId(name));
 	}	
 	
-	protected String getLabel(String name) throws Exception {
-		HtmlElement element = page.getHtmlElementById(decorateId("label_" + name)); 
-		if (element == null) {
-			fail(XavaResources.getString("label_not_found_in_ui", name));
+	protected String getLabel(String name) throws Exception { 
+		try {
+			return getElementById("label_" + name).asText().trim(); 
 		}
-		return element.asText().trim();
+		catch (ElementNotFoundException ex) {		
+			return getElementById("frame_" + name + "header").getParentNode()
+					.asText().replaceFirst("\\([0-9]+\\)$", "").trim();
+		}
 	}
-		
+	
 	/**
 	 * In case we does not work with main view.
 	 * 
@@ -1095,6 +1133,12 @@ public class ModuleTestBase extends TestCase {
 		setConditionComparators(avalues);
 	}
 	
+	/**
+	 * @since 5.6
+	 */
+	protected void clearCondition() { 
+		page.executeJavaScript("openxava.clearCondition('" + application + "', '" + module + "', '')"); 
+	}
 	
 	private void setCollectionCondition(String id, String[] values) throws Exception {
 		for (int i=0; i<values.length; i++) {
@@ -1271,7 +1315,7 @@ public class ModuleTestBase extends TestCase {
 			if (!getExcludedActions().contains(actionName)) {  
 				actions.add(removeActionPrefix(input.getNameAttribute()));
 			}
-		}								
+		}						
 		return actions;				
 	}
 			
@@ -1668,7 +1712,7 @@ public class ModuleTestBase extends TestCase {
 	
 	private int getColumnIncrement(HtmlTable table, int originalColumn) {
 		int increment = table.getCellAt(0, 1).asXml().contains("type=\"checkbox\"")
-				|| table.getCellAt(0, 0).asXml().contains("customize.png")?2:1;
+				|| table.getCellAt(0, 0).asXml().contains("javascript:openxava.customizeList(")?2:1;		
 		if (isElementCollection(table)) {
 			int i=1;
 			HtmlTableCell cell = table.getCellAt(0, i++);
@@ -2152,7 +2196,16 @@ public class ModuleTestBase extends TestCase {
 		assertValidValuesCount(elementCollectionPropertyName, count);		
 	}
 
-	protected void assertValidValues(String name, String [][] values) throws Exception { 
+	protected void assertValidValues(String name, String [][] values) throws Exception {
+		try {
+			assertValidValuesWithHtmlSelect(name, values);
+		}
+		catch (ElementNotFoundException ex) {
+			assertValidValuesWithUIAutocomplete(name, values);
+		}
+	}
+	
+	private void assertValidValuesWithHtmlSelect(String name, String [][] values) throws Exception {
 		Collection options = getSelectByName(decorateId(name)).getOptions();
 		assertEquals(XavaResources.getString("unexpected_valid_values", name), values.length, options.size());
 		int i=0;
@@ -2162,14 +2215,63 @@ public class ModuleTestBase extends TestCase {
 			assertEquals(XavaResources.getString("unexpected_description", name), values[i][1], option.asText());			
 		}
 	}
+
+	private void assertValidValuesWithUIAutocomplete(String name, String [][] values) throws Exception { 
+		List<KeyAndDescription> validValues = getValidValuesWithUIAutocomplete(name);
+		assertEquals(XavaResources.getString("unexpected_valid_values", name), values.length, validValues.size() + 1);
+		int i = 1;
+		for (KeyAndDescription validValue: validValues) {			
+			assertEquals(XavaResources.getString("unexpected_key", name), values[i][0], validValue.getKey());
+			assertEquals(XavaResources.getString("unexpected_description", name), values[i][1], validValue.getDescription());
+			i++;
+		}		
+	}
+	
+	private List<KeyAndDescription> getValidValuesWithUIAutocomplete(String name) throws Exception { 
+		HtmlElement textField = (HtmlElement) page.getHtmlElementById(decorateId(name)).getPreviousElementSibling();
+		String actualValues = textField.getAttribute("data-values");
+		StringTokenizer st = new StringTokenizer(actualValues, "\"");
+		st.nextToken();
+		List<KeyAndDescription> validValues = new ArrayList<KeyAndDescription>();
+		while (st.hasMoreTokens()) {			
+			String description = st.nextToken();
+			st.nextToken();
+			String key = st.nextToken();
+			st.nextToken();
+			validValues.add(new KeyAndDescription(key, description));
+		}
+		return validValues;
+	}
 	
 	protected void assertValidValuesCount(String name, int count) throws Exception {
+		try {
+			assertValidValuesCountWithHtmlSelect(name, count);
+		}
+		catch (ElementNotFoundException ex) {
+			assertValidValuesCountWithUIAutocomplete(name, count);
+		}
+	}
+	
+	private void assertValidValuesCountWithHtmlSelect(String name, int count) throws Exception { 
 		HtmlSelect select = getForm().getSelectByName(decorateId(name)); 
 		assertEquals(XavaResources.getString("unexpected_valid_values", name), count, select.getOptionSize());
 	}
 	
+	private void assertValidValuesCountWithUIAutocomplete(String name, int count) throws Exception { 
+		List validValues = getValidValuesWithUIAutocomplete(name);
+		assertEquals(XavaResources.getString("unexpected_valid_values", name), count, validValues.size() + 1 );
+	}
 	
 	protected String [] getKeysValidValues(String name) throws Exception {
+		try {
+			return getKeysValidValuesWithHtmlSelect(name);
+		}
+		catch (ElementNotFoundException ex) {
+			return getKeysValidValuesWithUIAutocomplete(name);
+		}
+	}
+	
+	private String [] getKeysValidValuesWithHtmlSelect(String name) throws Exception { 
 		Collection options = getForm().getSelectByName(decorateId(name)).getOptions(); 
 		String [] result = new String[options.size()];
 		int i=0;
@@ -2179,6 +2281,17 @@ public class ModuleTestBase extends TestCase {
 		return result;
 	}
 	
+	private String [] getKeysValidValuesWithUIAutocomplete(String name) throws Exception { 
+		List<KeyAndDescription> validValues = getValidValuesWithUIAutocomplete(name);
+		String [] keys = new String[validValues.size() + 1];
+		int i = 0;
+		keys[i++] = "";
+		for (KeyAndDescription validValue: validValues) {
+			keys[i++] = (String) validValue.getKey();
+		}
+		return keys;
+	}
+
 	protected void assertEditable(String name) throws Exception {
 		assertEditable(name, "true", XavaResources.getString("must_be_editable"));
 	}
@@ -2222,15 +2335,20 @@ public class ModuleTestBase extends TestCase {
 	
 	private void assertEditableInCollection(String collection, int row, String name, String editable) throws Exception {
 		String elementCollectionPropertyName = collection + "." + row + "." + name;
-		if (hasElementByName(elementCollectionPropertyName)) {
+		MetaModel collectionModel = getMetaModel().getMetaCollection(collection).getMetaReference().getMetaModelReferenced();
+		String referenceKeySuffix = ""; 
+		if (collectionModel.containsMetaReference(name)) {
+			String referenceKey = (String) collectionModel.getMetaReference(name).getMetaModelReferenced().getKeyPropertiesNames().iterator().next();
+			referenceKeySuffix = "." + referenceKey;
+			
+		}
+		if (hasElementByName(elementCollectionPropertyName + referenceKeySuffix)) { 
 			assertEditable(elementCollectionPropertyName, editable, XavaResources.getString(editable.equals("true")?"must_be_editable":"must_not_be_editable")); 
 		}
 		else {
 			assertTrue(XavaResources.getString("must_be_editable"), editable.equals("false"));
 		}
 	}
-
-	
 	
 	protected void assertListTitle(String expectedTitle) throws Exception {
 		HtmlElement element = null;
@@ -2501,7 +2619,8 @@ public class ModuleTestBase extends TestCase {
 
 	protected void setLocale(String locale) throws Exception {
 		this.locale = locale;
-		resetModule();
+		client.addRequestHeader("Accept-Language", getLocale());
+		reload();
 	}		
 	
 	/**
@@ -2591,7 +2710,7 @@ public class ModuleTestBase extends TestCase {
 	/**
 	 * This allows you testing using HtmlUnit APIs directly. <p>
 	 * 
-	 * The use of <b>this method is discoraged</b> because binds your test
+	 * The use of <b>this method is discouraged</b> because binds your test
 	 * to a HTML implementation.
 	 * Before to use this method look for another more abstract method
 	 * in this class.
@@ -2602,4 +2721,91 @@ public class ModuleTestBase extends TestCase {
 		return page;
 	}
 
+	/**
+	 * Assert the content of a comment of DISCUSSION property as text. <p> 
+	 * 
+	 * @since 5.6
+	 */
+	protected void assertDiscussionCommentText(String name, int row, String extendedText) {  
+		int i=0;
+		for (DomElement comment: getDiscussionCommentsElement(name).getChildElements()) {
+			if (i == row) {
+				assertEquals(extendedText, comment.asText());
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Assert the amount of comments in a DISCUSSION property. <p> 
+	 * 
+	 * @since 5.6
+	 */	
+	protected void assertDiscussionCommentsCount(String name, int expectedCount) { 
+		HtmlElement comments = getDiscussionCommentsElement(name);
+		assertEquals(expectedCount + 1, comments.getChildElementCount());
+		assertFalse(comments.getLastElementChild().isDisplayed());
+	}
+
+	/**
+	 * Post a new comment into a DISCUSSION property. <p> 
+	 * 
+	 * @since 5.6
+	 */		
+	protected void postDiscussionComment(String name, String commentContent) throws Exception { 
+		HtmlElement discussion = getDiscussionElement(name); 
+		HtmlElement textarea = discussion.getElementsByTagName("textarea").get(0);
+		textarea.setTextContent(commentContent);		
+		HtmlElement postButton = discussion.getOneHtmlElementByAttribute("input", "type", "button");
+		postButton.click();
+	}
+	
+	private HtmlElement getDiscussionElement(String name) {  
+		return getHtmlPage().getHtmlElementById(decorateId("editor_" + name));
+	}
+	
+	private HtmlElement getDiscussionCommentsElement(String name) {  
+		return getDiscussionElement(name).getOneHtmlElementByAttribute("div", "class", "ox-discussion");
+	}
+
+	/**
+	 * @since 5.6 
+	 */
+	protected void selectListConfiguration(String title) throws Exception {   
+		HtmlOption option =  getSelectListConfigurations().getOptionByText(title);
+		option.click();
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
+	}
+
+	/**
+	 * @since 5.6 
+	 */	
+	protected void assertListSelectedConfiguration(String expectedTitle) {   
+		String title = getSelectListConfigurations().getSelectedOptions().get(0).asText();
+		assertEquals(expectedTitle, refineListConfigurationTitle(title));
+	}
+	
+	/**
+	 * @since 5.6 
+	 */	
+	protected void assertListAllConfigurations(String ... expectedTitles) throws Exception { 
+		List<String> titles = new ArrayList<String>();
+		for (HtmlOption option: getSelectListConfigurations().getOptions()) {
+			String title = titles.isEmpty()?refineListConfigurationTitle(option.asText()):option.asText();
+			titles.add(title);
+		}
+		List<String> expectedTitleList = Arrays.asList(expectedTitles);
+		assertEquals(expectedTitleList, titles);
+	}
+	
+	private HtmlSelect getSelectListConfigurations() { 
+		HtmlBody body = (HtmlBody) getHtmlPage().getElementsByTagName("body").get(0); 
+		HtmlElement listTitle = body.getOneHtmlElementByAttribute("td", "class", "ox-list-title"); // This class depend on the style
+		return (HtmlSelect) listTitle.getElementsByTagName("select").get(0); 
+	}
+
+	private String refineListConfigurationTitle(String title) {
+		return title.substring(0, title.length() - 4);
+	}
+	
 }

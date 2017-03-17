@@ -3,6 +3,7 @@ package org.openxava.test.model;
 import java.math.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;

@@ -15,7 +15,7 @@ import org.openxava.util.meta.*;
  * @author Javier Paniza
  */
 
-public class MetaAction extends MetaElement implements Cloneable { 
+public class MetaAction extends MetaControllerElement implements Cloneable { 
 	
 	private static Log log = LogFactory.getLog(MetaAction.class);
 	
@@ -31,10 +31,7 @@ public class MetaAction extends MetaElement implements Cloneable {
 	private Collection metaSets;
 	private String qualifiedName;
 	private String method;
-	private String image;
-	private String icon; 
 	private String keystroke;
-	private String mode;	
 	private String className;
 	private Collection metaUseObjects;
 	private MetaController metaController;
@@ -92,14 +89,6 @@ public class MetaAction extends MetaElement implements Cloneable {
 	
 	public boolean hasKeystroke() {
 		return !Is.emptyString(keystroke);
-	}
-
-	public String getImage() {		
-		return image;
-	}
-	public void setImage(String image) {
-		if (image != null && image.startsWith("images/")) this.image = image.substring(7); 
-		else this.image = image;
 	}
 
 	public String getMethod() {
@@ -168,14 +157,6 @@ public class MetaAction extends MetaElement implements Cloneable {
 		return metaController==null?"":metaController.getName();
 	}
 	
-	public boolean hasImage() {
-		return !Is.emptyString(this.image);
-	}
-	
-	public boolean hasIcon() { 
-		return !Is.emptyString(this.icon);
-	}
-
 	public void _addMetaSet(MetaSet metaSet) {
 		if (metaSets == null) {
 			metaSets = new ArrayList();
@@ -221,23 +202,11 @@ public class MetaAction extends MetaElement implements Cloneable {
 		return metaSets==null?new ArrayList():metaSets;
 	}
 	
-	public boolean appliesToMode(String mode) {
-		if ("NONE".equals(getMode())) return false;
-		return Is.emptyString(getMode()) || getMode().equals(mode);
-	}
-
 	public boolean isHidden() {
 		return hidden;
 	}
 	public void setHidden(boolean b) {
 		hidden = b;
-	}
-
-	public String getMode() {
-		return mode;
-	}
-	public void setMode(String string) {
-		mode = string;
 	}
 
 	public int getByDefault() {
@@ -355,13 +324,4 @@ public class MetaAction extends MetaElement implements Cloneable {
 		this.afterEachRequest = afterEachRequest;
 	}
 
-	public String getIcon() {
-		return icon;
-	}
-
-	public void setIcon(String icon) {
-		this.icon = icon;
-	}
-	
-	
 }

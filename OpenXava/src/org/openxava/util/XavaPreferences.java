@@ -103,6 +103,14 @@ public class XavaPreferences {
 				"smtpHostTrusted", "false").trim());
 	}	
 
+	/**
+	 * @since 5.6
+	 */	
+	public boolean isSMTPStartTLSEnable() {  
+		return "true".equalsIgnoreCase(getProperties().getProperty(
+				"smtpStartTLSEnable", "false").trim());
+	}
+
 	public String getCSVSeparator() {
 		return getProperties().getProperty("csvSeparator", ";");
 	}
@@ -119,10 +127,31 @@ public class XavaPreferences {
 				"org.openxava.util.DefaultReportParametersProvider").trim();
 	}
 	
-	public String getPersistenceProviderClass() {
+	/**
+	 * Class to create an org.openxava.util.IConnectionRefiner to refine 
+	 * the JDBC connections just after get them from the data source and
+	 * before use them.
+	 * 
+	 * @since 5.6
+	 */
+	public String getConnectionRefinerClass() { 
+		return getProperties().getProperty("connectionRefinerClass","").trim();
+	}
+	
+	private String getPersistenceProviderClass() { 
 		return getProperties().getProperty("persistenceProviderClass",
 				"org.openxava.model.impl.JPAPersistenceProvider").trim();
 	}
+
+	/**
+	 * @since 5.6 
+	 */	
+	public String getComponentParsersClasses() { 
+		return getProperties().getProperty("componentParsersClasses",
+				"org.openxava.component.parse.XMLComponentParser,org.openxava.component.parse.AnnotatedClassParser").trim();
+	}
+
+	
 
 	public String getStyleClass() {
 		return getProperties().getProperty("styleClass",
@@ -181,24 +210,6 @@ public class XavaPreferences {
 				"mapFacadeAutoCommit", "false").trim());
 	}
 
-	public boolean isEJB2Persistence() {
-		if (!ejb2PersistenceLoaded) {
-			ejb2PersistenceLoaded = true;
-			ejb2Persistence = getPersistenceProviderClass().toUpperCase()
-					.indexOf("EJB") >= 0;
-		}
-		return ejb2Persistence;
-	}
-
-	public boolean isJPAPersistence() {
-		if (!jpaPersistenceLoaded) {
-			jpaPersistenceLoaded = true;
-			jpaPersistence = getPersistenceProviderClass().toUpperCase()
-					.indexOf("JPA") >= 0;
-		}
-		return jpaPersistence;
-	}
-
 	public boolean isHibernatePersistence() {
 		if (!hibernatePersistenceLoaded) {
 			hibernatePersistenceLoaded = true;
@@ -207,15 +218,11 @@ public class XavaPreferences {
 		}
 		return hibernatePersistence;
 	}
+	
 
 	public boolean isDetailOnBottomInCollections() {
 		return "true".equalsIgnoreCase(getProperties().getProperty(
 				"detailOnBottomInCollections", "false").trim());
-	}
-
-	public boolean isJPACodeInPOJOs() {
-		return "true".equalsIgnoreCase(getProperties().getProperty(
-				"jpaCodeInPOJOs", Boolean.toString(isJPAPersistence())).trim());
 	}
 
 	public boolean isI18nWarnings() {
@@ -428,6 +435,18 @@ public class XavaPreferences {
 				"helpInNewWindow", "true").trim());
 	}
 	
+	/** @since 5.6.1 */
+	public boolean isDivForEachEditor() { 
+		return "true".equalsIgnoreCase(getProperties().getProperty(
+				"divForEachEditor", "false").trim());
+	}
+	
+	/** @since 5.6 */
+	public boolean isHelpAvailable() { 
+		return "true".equalsIgnoreCase(getProperties().getProperty(
+				"helpAvailable", "true").trim());
+	}
+	
 	/** @since 4m5 */
 	public boolean isCustomizeList(){
 		return "true".equalsIgnoreCase(getProperties().getProperty("customizeList", "true").trim());		
@@ -478,12 +497,12 @@ public class XavaPreferences {
 
 	/** @since 4.5 */
 	public String getLayoutParser() {
-		return getProperties().getProperty("layoutParser", "org.openxava.web.layout.impl.DefaultLayoutParser");
+		return getProperties().getProperty("layoutParser"); 
 	}
 
 	/** @since 4.5 */
 	public String getLayoutPainter() {
-		return getProperties().getProperty("layoutPainter", "org.openxava.web.layout.impl.DefaultLayoutPainter");
+		return getProperties().getProperty("layoutPainter"); 
 	}
 
 	/** @since 4.6 */
@@ -511,4 +530,5 @@ public class XavaPreferences {
 		String path = getProperties().getProperty("filesPath");
 		return path != null ? path : System.getProperty("user.home") + System.getProperty("file.separator") + "oxfiles";
 	}
+	
 }

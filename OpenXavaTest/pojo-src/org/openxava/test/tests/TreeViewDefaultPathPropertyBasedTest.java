@@ -32,7 +32,7 @@ public class TreeViewDefaultPathPropertyBasedTest extends TreeViewTestBase {
 	public void testTreeStructure() throws Exception {
 		execute("Mode.detailAndFirst");
 		assertTreeViewRowCount("treeItems", 7);
-		assertValueInTreeViewIgnoreCase("treeItems", 0, "ROOT ITEM 1");
+		assertValueInTreeViewIgnoreCase("treeItems", 0, "ROOT ITEM 1"); 
 		assertValueInTreeViewIgnoreCase("treeItems", 1, "CHILD ITEM 1");
 		assertValueInTreeViewIgnoreCase("treeItems", 2, "SUBITEM 1 OF 1");
 		assertValueInTreeViewIgnoreCase("treeItems", 3, "SUBITEM 2 OF 1");
@@ -41,7 +41,7 @@ public class TreeViewDefaultPathPropertyBasedTest extends TreeViewTestBase {
 		assertValueInTreeViewIgnoreCase("treeItems", 6, "SUBITEM 1 OF 3");
 	}
 	
-	public void testTreeCRUD() throws Exception { 
+	public void testTreeCRUD() throws Exception {  
 		execute("Mode.detailAndFirst");
 		// Test simple Save
 		execute("TreeView.new", "viewObject=xava_view_treeItems");

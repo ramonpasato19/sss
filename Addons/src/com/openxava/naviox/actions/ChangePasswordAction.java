@@ -1,6 +1,7 @@
 package com.openxava.naviox.actions;
 
 import org.openxava.actions.*;
+import org.openxava.jpa.*;
 import org.openxava.util.*;
 
 import com.openxava.naviox.*;
@@ -37,9 +38,12 @@ public class ChangePasswordAction extends ViewBaseAction implements IForwardActi
 		if (user.isForceChangePassword()) {
 			user.setForceChangePassword(false);
 			Modules modules = (Modules) getRequest().getSession().getAttribute("modules");
-			modules.reset();		
-			forwardURI = OrganizationURIs.refine(getRequest(), "/"); 
-			addInfo("prompt_start_button"); 
+			modules.reset();
+			String originalURI = getRequest().getParameter("originalURI");
+			String module = Strings.lastToken(originalURI, "/");
+			String uri = Is.emptyString(module)?"/":"/m/" + module; 
+			forwardURI = OrganizationURIs.refine(getRequest(), uri);
+			addInfo("prompt_start_button");
 		}		
 	}
 

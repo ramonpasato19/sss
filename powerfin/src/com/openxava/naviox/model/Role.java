@@ -22,13 +22,27 @@ public class Role implements java.io.Serializable {
 	private String name;
 		
 	@OneToMany(mappedBy="role", cascade=CascadeType.REMOVE)
-	@ListProperties("module.name, excludedActions") 
+	@ListProperties("module.name, excludedActions, excludedMembers, readOnlyMembers")  
 	@NewAction("Role.addModulesRights")
 	private Collection<ModuleRights> modulesRights; 
 	
 	public static Role find(String name) { 
 		return XPersistence.getManager().find(Role.class, name);
 	}	
+	
+	public static Role findSelfSignUpRole() { 
+		return find("self sign up");
+	}	
+	
+	public static Role findJoinedRole() {
+		return find("joined");
+	}
+	public static Role createJoinedRole() {
+		Role joinedRole = new Role();		
+		joinedRole.setName("joined"); 			
+		XPersistence.getManager().persist(joinedRole);		
+		return joinedRole;
+	}
 	
 	public String getName() {
 		return name;
@@ -52,14 +66,14 @@ public class Role implements java.io.Serializable {
 			modulesRights = null;
 			return;
 		}
-		modulesRights = new ArrayList<ModuleRights>();
-		for (Module module: modules) {
+		modulesRights = new ArrayList<ModuleRights>();		
+		for (Module module: modules) {			
 			ModuleRights rights = new ModuleRights();
 			rights.setRole(this);
-			rights.setModule(module);
+			rights.setModule(module);			
 			XPersistence.getManager().persist(rights);
 			modulesRights.add(rights);
-		}
+		}		
 	}
 	
 	@Override

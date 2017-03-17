@@ -13,6 +13,43 @@ public class InvoiceNoSectionsTest extends ModuleTestBase {
 		super(testName, "InvoiceNoSections");		
 	}
 	
+	public void testCollectionOrderingNotStoredBetweenSessions() throws Exception { 
+		execute("Mode.detailAndFirst");
+		assertValue("year", "2002");
+		assertValue("number", "1");
+		assertCollectionRowCount("details", 2); 
+		assertValueInCollection("details", 0, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 1, "product.description", "XAVA");
+		execute("List.orderBy", "property=product.description,collection=details");
+		assertValueInCollection("details", 0, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 1, "product.description", "XAVA");
+		
+		resetModule();
+		execute("Mode.detailAndFirst");
+		assertValue("year", "2002");
+		assertValue("number", "1");
+		assertCollectionRowCount("details", 2); 
+		assertValueInCollection("details", 0, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 1, "product.description", "XAVA");
+		execute("List.orderBy", "property=product.description,collection=details");
+		assertValueInCollection("details", 0, "product.description", "IBM ESERVER ISERIES 270");
+		assertValueInCollection("details", 1, "product.description", "XAVA");		
+	}
+	
+	public void testAddingAnElementCollectionNotResetReferenceWithCalculatedProperty() throws Exception { 
+		execute("Mode.detailAndFirst");
+		assertValue("year", "2002");
+		assertValue("number", "1");
+		assertValue("customer.number", "1"); 
+		assertValue("customer.name", "Javi");
+		assertValue("customer.city", "46540 EL PUIG"); // This is a calculated property that produced an error 
+		execute("Collection.edit", "row=0,viewObject=xava_view_details");
+		execute("Collection.save");
+		assertValue("customer.number", "1");
+		assertValue("customer.name", "Javi"); // This was blank by a bug
+		assertValue("customer.city", "46540 EL PUIG");  
+	}
+	
 	public void testSumInCollection() throws Exception { 
 		execute("CRUD.new");
 		execute("CRUD.search");
@@ -20,7 +57,7 @@ public class InvoiceNoSectionsTest extends ModuleTestBase {
 		setValue("number", "9");
 		execute("Search.search");
 		// Defined by developer
-		assertCollectionRowCount("details", 2);
+		assertCollectionRowCount("details", 2); 
 		assertValueInCollection("details", 0, "product.unitPrice", "11.00");
 		assertValueInCollection("details", 1, "product.unitPrice", "20.00");
 		assertTotalInCollection("details", "product.unitPrice", "31.00");		
@@ -68,7 +105,7 @@ public class InvoiceNoSectionsTest extends ModuleTestBase {
 		setValue("year", "2004");
 		setValue("number", "12");
 		execute("Search.search");
-		assertCollectionRowCount("details", 2);
+		assertCollectionRowCount("details", 2); 
 		assertValueInCollection("details", 0, "quantity", "5");
 		assertValueInCollection("details", 0, "amount", "50.00");
 		assertValueInCollection("details", 1, "quantity", "5");

@@ -71,6 +71,9 @@ public interface IMapFacadeImpl {
 	
 	void removeCollectionElement(UserInfo userInfo, String modelName, Map keyValues, String collectionName, Map collectionElementKeyValue) 
 		throws RemoveException, FinderException, ValidationException, XavaException,  RemoteException; 
+	
+	void moveCollectionElement(UserInfo userInfo, String modelName, Map keyValues, String collectionName, int from, int to)  
+			throws FinderException, XavaException,  RemoteException; 	
 		 			
 	Object getKey(MetaModel metaModel, Map keyValues) throws XavaException, RemoteException;
 	

@@ -1,5 +1,62 @@
-Change Log for XavaPro
+﻿Change Log for XavaPro
 ======================
+
+XavaPro 5.6.1 (2017-2-2)
+------------------------
+- With shared users among organization the list of top modules and current module are not reset.
+- UserInfo object returned by Users.getCurrentUserInfo() includes organization name.
+- When there is just one module available with mobile UI it's possible to logout directly from the module.
+- Includes OpenXava 5.6.1.
+- Fix: Sessions record in users module is editable and it shouldn't be.
+- Fix: Fails to sign in with a just created user when "Inactive days before disabling user" has value. 
+- Fix: Messages added with addWarning() or addInfo() are not formatted in mobile UI. 
+- Fix: Boolean values have ugly format in list of mobile UI.
+- Fix: Read only references are editable with mobile UI.
+- Fix: The field after a MONEY field has the label not aligned in mobile UI.
+- Fix: When required to change password in mobile UI it's not possible to exit from change password module.
+- Fix: Folders with dots in the name are not shown.
+- Fix: "Join to organization" is shown in the modules menu after creating a new organization.
+- Fix: Users.getCurrentUserInfo() does not work inside organizations.
+- Fix: When the same user name is used in several organization user customizations do not work.
+- Fix: Moving rows in an @OrderColumn list does not work with multitenancy.
+
+XavaPro 5.6 (2016-11-4)
+-----------------------
+- Shared users between organizations configurable via Configuration module.
+- Guest can create a user account himself.
+- Guest account creation can be enabled/disabled for main app or organizations using configuration.
+- Record of all user logins, available from user management module. 
+- Creation date registered for users. 
+- Property showOrganizationOnSignIn in naviox.properties to show/remove the combo with organizations.
+- SetCatalogFromPersistenceSchemaConnectionRefiner to use JDBC with multitenancy. 
+- Includes OpenXava 5.6.
+- Fix: Some database connections leaks.
+- Fix: Images gallery does not work with multitenancy.
+- Fix: Hibernate does not work with multitenancy.
+
+XavaPro 5.5.1 (2016-6-16)
+-------------------------
+- Includes OpenXava 5.5.1.
+- Fix: Database connections leak when navigating using left menu.
+- Fix: Ugly blank line in UI for restricting actions, members and read only members.
+- Fix: If changing password is forced the user does not go to changing password module in mobile UI.
+- Fix: After changing password when forced in mobile UI it does not goes to the menu or current module. 
+- Fix: Modifying a user fails in mobile UI.
+- Fix: Blank line after a MONEY field in mobile UI.
+- Fix: Calendar icon in date fields is blue.
+- Fix: Data truncation error when many actions with long names are restricted for a role.
+- Fix: Combo has not the handle to open/close in mobile UI.
+- Fix: 'Unauthorized user' message not shown on sign in when the user does not exist.
+- Fix: Actions from subcontrollers are not available to be restricted by role.
+
+XavaPro 5.5 (2016-5-2)
+----------------------
+- It is possible to define members as read only for a role in a module.
+- It is possible to restrict access to members for a role in a module.
+- Each folder can have an icon associated, otherwise a default icon is used.
+- Custom JasperReport reports available in mobile UI.
+- Generating PDF available for list in mobile UI.
+- Includes OpenXava 5.5.
 
 XavaPro 5.4.1 (2015-12-17)
 --------------------------

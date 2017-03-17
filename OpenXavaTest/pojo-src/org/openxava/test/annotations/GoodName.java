@@ -5,7 +5,7 @@ import javax.validation.*;
 import org.openxava.test.validators.constraints.*;
 
 /**
- * An example of JSR-303 Bean Validation constraint.
+ * An example of Bean Validation constraint.
  * 
  * @author Javier Paniza 
  */

@@ -9,6 +9,8 @@
 <jsp:useBean id="context" class="org.openxava.controller.ModuleContext" scope="session"/>
 <jsp:useBean id="style" class="org.openxava.web.style.Style" scope="request"/>
 
+<jsp:useBean id="modules" class="com.openxava.naviox.Modules" scope="session"/>
+
 <%
 org.openxava.controller.ModuleManager manager = (org.openxava.controller.ModuleManager) context.get(request, "manager", "org.openxava.controller.ModuleManager");
 manager.setSession(session);
@@ -43,14 +45,25 @@ PhoneManager phoneManager = new PhoneManager(manager);
 				backButtonShown = true;
 				break;
 			}
-		}
+		}		
 		if (!backButtonShown && !manager.getModelName().equals("SignIn")) {
+			int modulesCount = modules.getAll().size(); 
+			if (modulesCount > 1) {
 		%>
 	<div class="phone-back-button" onclick="window.location='../phone'">
 	   	<div><span></span></div>
 	   	<p><xava:message key="back"/></p>		
 	</div>
 		<%
+			}
+			else {
+		%>
+	<div class="phone-back-button" onclick="window.location='<%=request.getContextPath()%>/naviox/signOut.jsp'">
+   		<div><span></span></div>
+   		<p><xava:message key="exit"/></p>		
+	</div>
+		<%				
+			}
 		}
 	}	
 	else if (!previousViews.isEmpty()) {

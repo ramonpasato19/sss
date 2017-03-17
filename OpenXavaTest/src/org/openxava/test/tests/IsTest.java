@@ -13,6 +13,13 @@ import junit.framework.*;
 
 public class IsTest extends TestCase {
 	
+	public void testAnyEqual() throws Exception { 
+		assertTrue(Is.anyEqual("Juan", "Antonio", "Juan", "Marisa"));
+		assertFalse(Is.anyEqual("Juan", "Antonio", "Pedro", "Marisa"));
+		assertTrue(Is.anyEqual(null, "Antonio", "Pedro", null));
+	}
+
+	
 	public void testEmptyForBigDecimal() {
 		BigDecimal fraction = new BigDecimal("0.1");
 		BigDecimal zero = new BigDecimal("0.0");

@@ -11,7 +11,6 @@ import org.openxava.model.meta.*;
 import org.openxava.tab.*;
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
-import org.openxava.view.meta.*;
 
 /**
  * 
@@ -28,9 +27,9 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	private Collection metaPropertiesHidden;
 	private String name;
 	private MetaComponent metaComponent;
-	private List propertiesNames = null;
+	private List<String> propertiesNames = null; 
 	private List<String> propertiesNamesWithKeyAndHidden;
-	private List metaProperties = null;
+	private List<MetaProperty> metaProperties = null; 
 	private List metaPropertiesCalculated = null;
 	private String properties; // separated by commas, like in xml file	
 	private String select;	
@@ -49,7 +48,8 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	private String defaultPropertiesNames;
 	private String id;
 	private Collection<String> sumPropertiesNames;
-	private String editor; 
+	private String editor;
+	private Set<String> droppedMembers; 
 
 
 	
@@ -94,7 +94,7 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	/**
 	 * @return Not null, read only and of type <tt>MetaProperty</tt>.
 	 */
-	public List getMetaProperties() throws XavaException {
+	public List<MetaProperty> getMetaProperties() throws XavaException { 
 		if (metaProperties == null) {
 			metaProperties = namesToMetaProperties(getPropertiesNames());
 		}
@@ -244,7 +244,7 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	/**
 	 * @return Not null, read only of type <tt>String</tt>.
 	 */
-	public List getPropertiesNames() throws XavaException {
+	public List<String> getPropertiesNames() throws XavaException { 
 		if (propertiesNames == null) {
 			if (!areAllProperties()) {
 				propertiesNames = createPropertiesNames();
@@ -321,16 +321,16 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 		StringTokenizer st = new StringTokenizer(removeTotalProperties(properties), ",;");
 		List result = new ArrayList();
 		while (st.hasMoreTokens()) {
-			String name = st.nextToken().trim();			
+			String name = st.nextToken().trim();		
 			if (name.endsWith("+")) {
 				name = name.substring(0, name.length() - 1);
-				if (sumPropertiesNames == null) sumPropertiesNames = new HashSet();
-				sumPropertiesNames.add(name);
 			}
 			result.add(name);
 		}		
 		return result;
 	}
+	
+	
 
 	private String removeTotalProperties(String properties) { 
 		if (!properties.contains("[")) return properties;
@@ -375,7 +375,7 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 		this.hiddenTableColumns = null;
 		this.metaPropertiesTab = null;
 		
-		this.select = null;  
+		this.select = null;
 	}
 
 	ModelMapping getMapping() throws XavaException {		
@@ -415,15 +415,22 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 			select.append("${");
 			select.append(itHiddenProperties.next());
 			select.append('}');
-		}		
-		select.append(" from ${");
-		select.append(getModelName()); 
-		select.append('}');
-		select.append(' ');
-		if (hasBaseCondition()) {
-			select.append(" where ");
-			select.append(getBaseCondition());
-		}					
+		}
+		String baseCondition = getBaseCondition();
+		if (baseCondition.trim().toUpperCase().startsWith("FROM ")) {
+			select.append(' ');
+			select.append(baseCondition); 
+		}
+		else {
+			select.append(" from ${");
+			select.append(getModelName()); 
+			select.append('}');
+			select.append(' ');
+			if (hasBaseCondition()) {
+				select.append(" where ");
+				select.append(getBaseCondition());
+			}	
+		}
 		return select.toString();
 	}
 		
@@ -551,6 +558,29 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 		propertiesNames.remove(propertyName);
 		resetAfterAddRemoveProperty();
 	}
+	
+	/**
+	 * @since 5.6
+	 */
+	public void dropMember(String memberName) { 
+		removeMember(memberName);
+		if (droppedMembers == null) droppedMembers = new HashSet<String>();
+		droppedMembers.add(memberName);
+	}
+
+	
+	private void removeMember(String memberName) { 
+		for (String property: new ArrayList<String>(getPropertiesNames())) {
+			if (property.equals(memberName)) {
+				removeProperty(property);
+				return;
+			}
+			if (property.startsWith(memberName + ".")) {
+				removeProperty(property);
+			}
+		}
+		
+	}
 
 	/**
 	 * For dynamically remove properties to this tab
@@ -584,6 +614,7 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	
 	public void restoreDefaultProperties() { 
 		setPropertiesNames(defaultPropertiesNames); 
+		removeDroppedMembers(getPropertiesNames()); 
 		resetAfterAddRemoveProperty();
 	}
 	
@@ -697,9 +728,10 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 		}
 	}
 
-	public List getRemainingPropertiesNames() throws XavaException { 
-		List result = new ArrayList(getMetaModel().getRecursiveQualifiedPropertiesNames());
+	public List<String> getRemainingPropertiesNames() throws XavaException { 
+		List<String> result = new ArrayList<String>(getMetaModel().getRecursiveQualifiedPropertiesNames()); 
 		result.removeAll(getPropertiesNames());
+		removeDroppedMembers(result);
 		return result;
 	}
 	
@@ -709,9 +741,23 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	public List getRemainingPropertiesNamesUntilSecondLevel() throws XavaException {  
 		List result = new ArrayList(getMetaModel().getRecursiveQualifiedPropertiesNamesUntilSecondLevel());
 		result.removeAll(getPropertiesNames());
+		removeDroppedMembers(result); 
 		return result;
 	}
 
+
+	private void removeDroppedMembers(List result) { 
+		if (droppedMembers == null) return;
+		for (String droppedMember: droppedMembers) {
+			for (String member: new ArrayList<String>(result)) {
+				if (droppedMember.equals(member) || 
+					member.startsWith(droppedMember + ".")) 
+				{
+					result.remove(member);
+				}
+			}
+		}
+	}
 
 	public void addMetaRowStyle(MetaRowStyle style) {
 		if (rowStyles == null) rowStyles = new ArrayList();
@@ -757,7 +803,20 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	 * @since 4.3
 	 */
 	public Collection<String> getSumPropertiesNames() {
-		return sumPropertiesNames == null?Collections.EMPTY_SET:sumPropertiesNames;
+		if (sumPropertiesNames == null) {
+			if (defaultPropertiesNames == null) return Collections.EMPTY_SET;
+			StringTokenizer st = new StringTokenizer(removeTotalProperties(defaultPropertiesNames), ",;");
+			while (st.hasMoreTokens()) {
+				String name = st.nextToken().trim();			
+				if (name.endsWith("+")) {
+					name = name.substring(0, name.length() - 1);
+					if (sumPropertiesNames == null) sumPropertiesNames = new HashSet();
+					sumPropertiesNames.add(name);
+				}
+			}		
+			if (sumPropertiesNames == null) sumPropertiesNames = Collections.EMPTY_SET; 
+		}
+		return sumPropertiesNames;
 	}
 
 	public String getEditor() {

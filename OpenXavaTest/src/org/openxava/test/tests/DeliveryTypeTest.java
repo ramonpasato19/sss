@@ -28,8 +28,10 @@ public class DeliveryTypeTest extends ModuleTestBase {
 		assertValue("comboDeliveries", toKeyString(delivery));
 	}	
 			
-	public void testSaveActionNotResetWithAndWithoutRefresh() throws Exception {
+	public void testSaveActionNotResetWithAndWithoutRefresh_assertIconAndImage_actionInCorrectBar() throws Exception {
 		execute("CRUD.new");
+		assertIconAndImage(); 
+		actionInCorrectBar(); 
 		setValue("number", "66");
 		setValue("description", "JUNIT &%=+"); // &%=+ is to test URL special characters
 		execute("DeliveryType.saveNotReset");
@@ -75,6 +77,30 @@ public class DeliveryTypeTest extends ModuleTestBase {
 		assertMessage("Delivery type deleted successfully");				 						
 	}
 	
+	private void assertIconAndImage() { 
+		String saveLinkXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_DeliveryType__CRUD___save").asXml();
+		assertTrue(saveLinkXml.contains("<i class="));
+		assertFalse(saveLinkXml.contains("images/save.gif"));
+		
+		String saveNotResetLinkXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_DeliveryType__DeliveryType___saveNotReset").asXml();
+		assertTrue(saveNotResetLinkXml.contains("images/save.gif"));
+		assertFalse(saveNotResetLinkXml.contains("<i class="));
+
+		String saveNotRefreshXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_DeliveryType__DeliveryType___saveNotRefresh").asXml();
+		assertTrue(saveNotRefreshXml.contains("<i class=")); 
+		assertFalse(saveNotRefreshXml.contains("images/save.gif"));		
+	}
+	
+	private void actionInCorrectBar() { 
+		String topBarText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_DeliveryType__button_bar").asText();
+		assertTrue(topBarText.contains("Save Delete"));
+		assertTrue(topBarText.contains("Save not reset Save not refresh"));
+		assertFalse(topBarText.contains("Assert combo deliveries"));
+		
+		String bottomBarText = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_DeliveryType__bottom_buttons").asText();
+		assertEquals("Save Assert combo deliveries", bottomBarText);		
+	}
+
 	public void testPostmodifiyCalculatorNotOnRead() throws Exception {
 		assertListNotEmpty();
 		execute("Mode.detailAndFirst");

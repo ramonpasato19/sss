@@ -4,8 +4,8 @@ import java.math.*;
 import java.util.*;
 
 import javax.persistence.*;
-
-import org.hibernate.validator.*;
+import javax.validation.constraints.*;
+ 
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
 
@@ -46,7 +46,7 @@ public class Invoice2 {
 	@DefaultValueCalculator(CurrentDateCalculator.class)
 	private java.util.Date date;
 	
-	@Digits(integerDigits=2, fractionalDigits=1) 
+	@Digits(integer=2, fraction=1) 
 	@Required
 	private BigDecimal vatPercentage;
 	
@@ -58,7 +58,7 @@ public class Invoice2 {
 	private Customer customer;
 	
 	@OneToMany (mappedBy="invoice", cascade=CascadeType.REMOVE)
-	@org.hibernate.validator.Size(min=1) 
+	@javax.validation.constraints.Size(min=1) 
 	@ListProperties("product.description, quantity, unitPrice, amount")
 	@XOrderBy("product.description desc")
 	@NoModify(forViews="NoModifyDetails")
@@ -111,7 +111,7 @@ public class Invoice2 {
 	public void setDate(java.util.Date date) {
 		this.date = date;
 	}
-
+	
 	public BigDecimal getVatPercentage() {
 		return vatPercentage;
 	}

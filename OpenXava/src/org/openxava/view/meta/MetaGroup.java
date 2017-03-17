@@ -26,7 +26,7 @@ public class MetaGroup extends MetaMember {
 			try {
 				metaView = (MetaView) metaViewParent.clone();
 				metaView.setAlignedByColumns(isAlignedByColumns()); 
-				metaView.setMembersNames(membersNames);				
+				metaView.setMembersNames(membersNames);		
 			} 
 			catch (CloneNotSupportedException e) {
 				throw new XavaException("group_view_error_no_clone");			

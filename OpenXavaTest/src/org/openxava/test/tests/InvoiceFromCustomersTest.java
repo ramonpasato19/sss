@@ -9,6 +9,7 @@ import org.openxava.test.model.*;
 import org.openxava.tests.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -34,7 +35,7 @@ public class InvoiceFromCustomersTest extends ModuleTestBase {
 		checkRow(0);
 		assertRowChecked(0);
 		execute("CustomerInvoices.return");
-		assertRowUnchecked(0);
+		assertRowUnchecked(0); 
 	}
 	
 	public void testListActionsIncludedWhenModeControllerUsed() throws Exception {
@@ -52,7 +53,7 @@ public class InvoiceFromCustomersTest extends ModuleTestBase {
 				
 		// Go to another module
 		execute("Invoice.listOfCustomer", "row=0");
-		assertNoAction("Invoice.listOfCustomer");
+		assertNoAction("Invoice.listOfCustomer"); 
 		assertAction("CustomerInvoices.return");				
 		assertInvoices();
 		// The next two lines because the last action was from the initial module

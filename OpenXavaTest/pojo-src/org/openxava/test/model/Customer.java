@@ -16,9 +16,8 @@ import org.openxava.test.actions.*;
 
 @Entity
 @Views({
-
 	@View( members= 	
-		"number;" +
+		"number;" +  
 		"type;" +
 		"name, Customer.changeNameLabel();" +
 		"photo;" +
@@ -34,7 +33,6 @@ import org.openxava.test.actions.*;
 		"deliveryPlaces;" +
 		"remarks"
 	),
-	
 	@View(name = "FramesOnSameRow", members= 	
 		"number;" +
 		"type;" +
@@ -52,7 +50,10 @@ import org.openxava.test.actions.*;
 		"deliveryPlaces;" +
 		"remarks" 	
 	),
-	
+	@View( name="GroupAndPropertySameRow", members=
+		"number [ number ] " + // Without ;
+		"name"
+	),
 	@View(name = "ThreeFramesOnSameRow", members= 	
 		"number;" +
 		"type;" +
@@ -88,7 +89,6 @@ import org.openxava.test.actions.*;
 		"deliveryPlaces;" +
 		"remarks" 	
 	),
-
 	@View( name="Simple", members= 	
 		"number;" +
 		"type;" +
@@ -96,6 +96,8 @@ import org.openxava.test.actions.*;
 		"photo;" +
 		"address;"
 	),
+
+	@View( name="SimpleWithCity", extendsView="Simple", members= "; city"), 
 
 	@View( name="Simplest", members="number; name" ),
 	
@@ -107,7 +109,7 @@ import org.openxava.test.actions.*;
 		"	type;" + 
 		"	name, Customer.changeNameLabel();" +
 		"	photo;" +
-		"	telephone, email;" +
+		"	telephone, email, additionalEmails;" + 
 		"	website;" +		
 		"	address;" + 
 		"	city;" +
@@ -154,7 +156,13 @@ import org.openxava.test.actions.*;
 
 	@View( name="Aligned", members="#number, type, name; telephone, email, website"),
 
-	@View( name="Intermediate", members="number")
+	@View( name="Intermediate", members="number"),
+	
+	@View( name="SellerAsDescriptionsListShowingReferenceView", members= "number; name; type; seller" ),
+		
+	@View( name="SellerAsDescriptionsListShowingReferenceViewNoKey", members= "number; name; type; seller" ),
+	
+	@View( name="SellerAsDescriptionsListShowingReferenceViewNoFrameInSection", members= "number; name; type; seller { seller }" ) 
 	
 })
 
@@ -177,10 +185,10 @@ import org.openxava.test.actions.*;
 	),
 	@Tab( name="Demo", 
 		properties="name, type, seller.name"
-	)
-	
+	),
+	@Tab(name="FromAlaska",  
+		baseCondition="from Customer e, in (e.states) s where s.id = 'AK'")
 })
-
 public class Customer implements IWithName {
 	
 	@Id @Column(length=5)	
@@ -195,9 +203,9 @@ public class Customer implements IWithName {
 	@Required 
 	@DefaultValueCalculator(
 		value=org.openxava.calculators.IntegerCalculator.class,
-		properties={ @PropertyValue(name="value", value="0") }		
+		properties={ @PropertyValue(name="value", value="2") }		
 	)
-	@Editor(forViews="TypeWithRadioButton", value="ValidValuesRadioButton")	
+	@Editor(forViews="TypeWithRadioButton", value="ValidValuesRadioButton")
 	private Type type;
 	public enum Type { NORMAL, STEADY, SPECIAL };
 	
@@ -210,7 +218,11 @@ public class Customer implements IWithName {
 	@Stereotype("EMAIL") @DisplaySize(30)
 	private String email;
 	
-	@Stereotype("WEBURL") @Column(length=100)  
+	@Stereotype("EMAIL_LIST") @DisplaySize(50)  
+	private String additionalEmails;
+	
+	@Stereotype("WEBURL") @Column(length=100)
+	@Editor(forViews="WithSection", value="CustomWebURL") 
 	private String website;
 		
 	@Stereotype("MEMO") @Column(length=400)	
@@ -219,16 +231,26 @@ public class Customer implements IWithName {
 	@Embedded
 	@ReferenceViews({
 		@ReferenceView(forViews="SimpleStateAsForm", value="StateAsForm"),
-		@ReferenceView(forViews="Demo", value="Demo") 
+		@ReferenceView(forViews="Demo", value="Demo")
 	})
 	private Address address;	
 	
-	@ManyToOne(fetch=FetchType.LAZY) @SearchAction("MyReference.search") 
+	@ManyToOne(fetch=FetchType.LAZY) @SearchAction("MyReference.search")
 	@ReadOnly(forViews="SomeMembersReadOnly")
 	@AsEmbedded(forViews="SellerAsAggregate, SellerAsAggregate2Levels")
-	@NoFrame(notForViews="SellerAsAggregate, Demo") 
-	@ReferenceView(forViews="SellerAsAggregate2Levels", value="LevelNoDescriptionsList")
-	private Seller seller;
+	@NoFrame(notForViews="SellerAsAggregate, Demo, SellerAsDescriptionsListShowingReferenceView, SellerAsDescriptionsListShowingReferenceViewNoKey") 
+	@ReferenceViews({
+		@ReferenceView(forViews="SellerAsAggregate2Levels", value="LevelNoDescriptionsList"),
+		@ReferenceView(forViews="SellerAsDescriptionsListShowingReferenceView", value="Simple"),
+		@ReferenceView(forViews="SellerAsDescriptionsListShowingReferenceViewNoKey", value="SimpleNoNumber"),
+	})
+	@Action(forViews="SellerAsDescriptionsListShowingReferenceView", value="Customer.hideSeller")
+	@DescriptionsList(
+		forViews="SellerAsDescriptionsListShowingReferenceView, "
+				+ "SellerAsDescriptionsListShowingReferenceViewNoKey, "
+				+ "SellerAsDescriptionsListShowingReferenceViewNoFrameInSection", 
+		showReferenceView=true)
+	private Seller seller; 
 	
 	@DefaultValueCalculator(
 		value=org.openxava.calculators.StringCalculator.class,
@@ -242,7 +264,7 @@ public class Customer implements IWithName {
 	@ReferenceView("DecorateName") 
 	@NoCreate(forViews="DEFAULT")
 	@ReadOnly(forViews="SomeMembersReadOnly")
-	@DescriptionsList(forViews="SomeMembersReadOnly", descriptionProperties="level.description, name")	
+	@DescriptionsList(forViews="SomeMembersReadOnly", descriptionProperties="level.description, name")
 	private Seller alternateSeller;
 		
 	@OneToMany(mappedBy="customer", cascade=CascadeType.ALL)
@@ -416,6 +438,14 @@ public class Customer implements IWithName {
 
 	public void setWebsite(String website) {
 		this.website = website;
+	}
+
+	public String getAdditionalEmails() {
+		return additionalEmails;
+	}
+
+	public void setAdditionalEmails(String additionalEmails) {
+		this.additionalEmails = additionalEmails;
 	}
 			
 }

@@ -13,10 +13,11 @@ public class DeliveryTypeJSPTest extends ModuleTestBase {
 		super(testName, "DeliveryTypeJSP");		
 	}
 	
-	public void testHandmadeWebViewNotLost() throws Exception {
+	public void testHandmadeWebViewNotLost_labelTaglib() throws Exception {
+		setLocale("es"); 
+		
 		String number = getValueInList(0, "number");
 		String description = getValueInList(0, "description");
-
 		
 		execute("Mode.detailAndFirst");
 		assertExists("number");
@@ -31,7 +32,12 @@ public class DeliveryTypeJSPTest extends ModuleTestBase {
 		execute("Mode.detailAndFirst");
 		assertExists("number");
 		assertExists("description");
-		assertNotExists("comboDeliveries");				
+		assertNotExists("comboDeliveries");		
+		
+		// <xava:label/> taglib
+		String pageText = getHtmlPage().asText();
+		assertTrue(pageText.contains("N\u00famero:"));
+		assertTrue(pageText.contains("Descripci\u00f3n:"));
 	}
 			
 }

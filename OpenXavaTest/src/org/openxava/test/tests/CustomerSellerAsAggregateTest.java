@@ -5,6 +5,7 @@ import org.openxava.test.model.*;
 import org.openxava.tests.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -37,7 +38,7 @@ public class CustomerSellerAsAggregateTest extends ModuleTestBase {
 		execute("CRUD.refresh");
 		
 		assertValue("name", "Junit Customer 66");
-		assertValue("seller.number", "66");
+		assertValue("seller.number", "66"); // Fails with XML components probably because of https://sourceforge.net/p/openxava/bugs/619/
 		assertValue("seller.name", "SELLER CREATED FROM CUSTOMER");
 		
 		// Modifiying

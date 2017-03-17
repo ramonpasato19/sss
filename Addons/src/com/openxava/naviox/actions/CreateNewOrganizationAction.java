@@ -1,15 +1,12 @@
 package com.openxava.naviox.actions;
 
-import java.sql.*;
 import java.util.*;
 
 import org.apache.commons.logging.*;
 import org.openxava.actions.*;
-import org.openxava.jpa.*;
 import org.openxava.model.*;
 import org.openxava.util.*;
 
-import com.openxava.naviox.impl.*;
 import com.openxava.naviox.model.*;
 import com.openxava.naviox.util.*;
 
@@ -29,32 +26,9 @@ public class CreateNewOrganizationAction extends ViewBaseAction {
 			return;
 		}
 		String name = (String) values.get("name");
-		String schema = Organization.normalize(name);
-		createSchema(schema);
-		DB.createTenancy(schema);
-		MapFacade.create(getModelName(), values);	
-		Organization.resetCache();
-		String url = getRequest().getContextPath() + "/o/" + schema; 
+		Organization organization = Organizations.create(name);
+		String url = getRequest().getContextPath() + "/o/" + organization.getId(); 
 		addMessage(name + " " + XavaResources.getString("organization_created") + " <a href='" + url + "'>" + url + "</a>");
-	}
-
-	private void createSchema(String schema) throws SQLException {
-		Connection con = DataSourceConnectionProvider.getByComponent("Organization").getConnection();
-		PreparedStatement ps = null;
-		try {
-			String database = con.getMetaData().getDatabaseProductName().split(" ")[0];
-			String sentenceTemplate = NaviOXPreferences.getInstance().getCreateSchema(database);
-			String sentence = sentenceTemplate.replace("${schema}", schema);
-			log.debug(XavaResources.getString("executing_on_database", database, sentence)); 
-			ps = con.prepareStatement(sentence);
-			ps.executeUpdate();
-		}
-		finally {
-			if (ps != null) {
-				try { ps.close(); } catch (Exception ex) {}
-			}
-			con.close();
-		}
 	}
 
 }

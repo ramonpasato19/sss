@@ -53,7 +53,7 @@ abstract public class MetaModel extends MetaElement {
 	private Map mapMetaColections;
 	private Map mapMetaViews;
 	private Map mapMetaMethods;
-	private Collection membersNames = new ArrayList();
+	private Collection<String> membersNames = new ArrayList<String>(); 
 	private Collection calculatedPropertiesNames;
 	private MetaView metaViewByDefault;
 	private boolean pojoGenerated;
@@ -78,6 +78,7 @@ abstract public class MetaModel extends MetaElement {
 	private String pojoClassName;
 	private Collection metaReferencesToEntity;
 	private boolean annotatedEJB3;
+	private boolean xmlComponent;  
 	private String versionPropertyName; 
 	private boolean versionPropertyNameObtained = false;
 	private Collection metaReferencesKey;
@@ -512,7 +513,7 @@ abstract public class MetaModel extends MetaElement {
 	 * Ordered as in component definition file.
 	 * @return Not null, read only and serializable
 	 */
-	public Collection getMembersNames() {
+	public Collection<String> getMembersNames() { 
 		return Collections.unmodifiableCollection(membersNames);
 		// It is not obtained from map to keep order
 	}
@@ -1798,8 +1799,16 @@ abstract public class MetaModel extends MetaElement {
 		return getMetaComponent().getPackageName() + ".I" + getName();
 	}
 	
+	/**
+	 * @since 5.6.1
+	 */
+	public boolean isPOJOAvailable() {
+		return getPOJOClassName() != null;
+	}
+	
 	public String getPOJOClassName()  throws XavaException {
 		if (pojoClassName != null) return pojoClassName; 
+		if (getMetaComponent().getPackageName() == null) return null; 
 		return getMetaComponent().getPackageName() + "." + getName();
 	}
 	public void setPOJOClassName(String pojoClassName)  throws XavaException {
@@ -1812,7 +1821,7 @@ abstract public class MetaModel extends MetaElement {
 				pojoClass =  Class.forName(getPOJOClassName());
 			} 
 			catch (Exception ex) {
-				log.error(ex.getMessage(), ex);
+				log.error(ex.getMessage(), ex); 
 				throw new XavaException("create_class_error", getPOJOClassName());
 			}
 		}
@@ -1827,7 +1836,7 @@ abstract public class MetaModel extends MetaElement {
 	public void setPOJOKeyClass(Class pojoKeyClass) {
 		this.pojoKeyClass = pojoKeyClass;
 	}
-		
+			
 	public boolean isAnnotatedEJB3() {
 		return annotatedEJB3;
 	}
@@ -1887,5 +1896,14 @@ abstract public class MetaModel extends MetaElement {
 		this.containerReference = containerReference;
 	}
 
+	/** @since 5.6 */
+	public boolean isXmlComponent() {
+		return xmlComponent;
+	}
+
+	/** @since 5.6 */
+	public void setXmlComponent(boolean xmlComponent) {
+		this.xmlComponent = xmlComponent;
+	}
 	
 }

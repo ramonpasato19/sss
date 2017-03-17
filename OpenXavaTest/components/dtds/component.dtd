@@ -80,6 +80,7 @@
   order-by-key (true|false) "false"    
   order CDATA #IMPLIED
   label-format (NORMAL|SMALL|NO_LABEL) "NORMAL"
+  show-reference-view (true|false) "false"
   for-tabs CDATA #IMPLIED
   not-for-tabs CDATA #IMPLIED
 >

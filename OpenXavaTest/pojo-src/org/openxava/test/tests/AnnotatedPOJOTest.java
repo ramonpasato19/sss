@@ -6,7 +6,6 @@ import java.util.*;
 import javax.persistence.*;
 import javax.validation.*;
 
-import org.hibernate.validator.*;
 import org.openxava.jpa.*;
 import org.openxava.test.model.*;
 import org.openxava.util.*;
@@ -33,7 +32,7 @@ public class AnnotatedPOJOTest extends TestCase {
 		XPersistence.commit();
 	}
 	
-	public void testRequiredAsHibernateAnnotation() throws Exception {
+	public void testRequiredAsBeanValidationAnnotation() throws Exception { 
 		DrivingLicence dl = new DrivingLicence();
 		dl.setType("X");
 		dl.setLevel(1);
@@ -44,18 +43,19 @@ public class AnnotatedPOJOTest extends TestCase {
 			XPersistence.commit();
 		}
 		catch (RollbackException ex) {
-			if (ex.getCause() instanceof InvalidStateException) {
-				InvalidStateException iex = (InvalidStateException) ex.getCause();
-				assertEquals("1 invalid value is expected", 1, iex.getInvalidValues().length);				
-				assertEquals("Property", "description", iex.getInvalidValues()[0].getPropertyName());
-				assertEquals("Message text", "{required}", iex.getInvalidValues()[0].getMessage());
-				return;
-			}		
+			if (ex.getCause() instanceof ConstraintViolationException) {
+				ConstraintViolationException cex = (ConstraintViolationException) ex.getCause();
+				assertEquals("1 constraint violation expected", 1, cex.getConstraintViolations().size());
+				ConstraintViolation<?> v = cex.getConstraintViolations().iterator().next();
+				assertEquals("Property", "description", v.getPropertyPath().toString());
+				assertTrue("Message is not empty", v.getMessage().length() > 0);
+				return;								
+			}
 		}
-		fail("An invalid state exception should be thrown");		
+		fail("A constraint violation exception should be thrown"); 		
 	}
 	
-	public void testPropertyValidatorAsHibernateAnnotation() throws Exception {
+	public void testPropertyValidatorAsBeanValidationAnnotation() throws Exception { 
 		Product p = new Product();
 		p.setNumber(66);
 		p.setDescription("JUNIT");
@@ -68,19 +68,20 @@ public class AnnotatedPOJOTest extends TestCase {
 		try {
 			XPersistence.commit();
 		}
-		catch (RollbackException ex) {			
-			if (ex.getCause() instanceof InvalidStateException) {
-				InvalidStateException iex = (InvalidStateException) ex.getCause();
-				assertEquals("1 invalid value is expected", 1, iex.getInvalidValues().length);
-				assertEquals("Property", "unitPrice", iex.getInvalidValues()[0].getPropertyName());
-				assertEquals("Message text", "", iex.getInvalidValues()[0].getMessage());
-				return;
-			}		
+		catch (RollbackException ex) {
+			if (ex.getCause() instanceof ConstraintViolationException) {
+				ConstraintViolationException cex = (ConstraintViolationException) ex.getCause();
+				assertEquals("1 constraint violation expected", 1, cex.getConstraintViolations().size());
+				ConstraintViolation<?> v = cex.getConstraintViolations().iterator().next();
+				assertEquals("Property", "unitPrice", v.getPropertyPath().toString());
+				assertTrue("Message is not empty", v.getMessage().length() > 0);
+				return;								
+			}
 		}
-		fail("An invalid state exception should be thrown");
+		fail("A constraint violation exception should be thrown"); 
 	}
 	
-	public void testPropertyValidatorsAsHibernateAnnotation() throws Exception {
+	public void testPropertyValidatorsAsBeanValidationAnnotation() throws Exception { 
 		Product p = new Product();
 		p.setNumber(66);
 		p.setDescription("MOTO"); 
@@ -93,16 +94,17 @@ public class AnnotatedPOJOTest extends TestCase {
 		try {
 			XPersistence.commit();
 		}
-		catch (RollbackException ex) {			
-			if (ex.getCause() instanceof InvalidStateException) {
-				InvalidStateException iex = (InvalidStateException) ex.getCause();
-				assertEquals("1 invalid value is expected", 1, iex.getInvalidValues().length);
-				assertEquals("Property", "description", iex.getInvalidValues()[0].getPropertyName());
-				assertEquals("Message text", "", iex.getInvalidValues()[0].getMessage());
-				return;
-			}		
+		catch (RollbackException ex) {
+			if (ex.getCause() instanceof ConstraintViolationException) {
+				ConstraintViolationException cex = (ConstraintViolationException) ex.getCause();
+				assertEquals("1 constraint violation expected", 1, cex.getConstraintViolations().size());
+				ConstraintViolation<?> v = cex.getConstraintViolations().iterator().next();
+				assertEquals("Property", "description", v.getPropertyPath().toString());
+				assertTrue("Message is not empty", v.getMessage().length() > 0);
+				return;								
+			}
 		}
-		fail("An invalid state exception should be thrown");
+		fail("A constraint violation exception should be thrown"); 
 	}
 	
 	public void testEntityValidatorsAsHibernateAnnotation() throws Exception {
@@ -119,16 +121,16 @@ public class AnnotatedPOJOTest extends TestCase {
 			XPersistence.commit();
 		}
 		catch (RollbackException ex) {			
-			if (ex.getCause() instanceof InvalidStateException) {
-				InvalidStateException iex = (InvalidStateException) ex.getCause();
-				assertEquals("1 invalid value is expected", 1, iex.getInvalidValues().length);
-				assertEquals("Bean", "Product", iex.getInvalidValues()[0].getBeanClass().getSimpleName());
-				assertEquals("Message text", "", iex.getInvalidValues()[0].getMessage());
-
-				return;
-			}		
+			if (ex.getCause() instanceof ConstraintViolationException) {
+				ConstraintViolationException cex = (ConstraintViolationException) ex.getCause();
+				assertEquals("1 constraint violation expected", 1, cex.getConstraintViolations().size());
+				ConstraintViolation<?> v = cex.getConstraintViolations().iterator().next();
+				assertEquals("Bean", "Product", v.getRootBean().getClass().getSimpleName());
+				assertTrue("Message is not empty", v.getMessage().length() > 0);
+				return;								
+			}
 		}
-		fail("An invalid state exception should be thrown");
+		fail("A constraint violation exception should be thrown");
 	}
 		
 	
@@ -140,7 +142,34 @@ public class AnnotatedPOJOTest extends TestCase {
 		catch (javax.persistence.NoResultException ex) {
 			// All fine
 		}
-	}	
-
+	}
 	
+	public void testBeanValidation() throws Exception {
+		Artist a = new Artist();
+		a.setName("TOO OLD ARTIST");
+		a.setAge(120);
+		
+		XPersistence.getManager().persist(a);
+		try {
+			XPersistence.commit();
+		}
+		catch (RollbackException ex) {
+						
+			if (ex.getCause() instanceof  javax.validation.ConstraintViolationException) {
+				javax.validation.ConstraintViolationException vex = (javax.validation.ConstraintViolationException) ex.getCause();				
+				assertEquals("1 invalid value is expected", 1, vex.getConstraintViolations().size());
+				ConstraintViolation<?> violation = vex.getConstraintViolations().iterator().next();
+				assertEquals("Bean", "Artist", violation.getRootBeanClass().getSimpleName());
+				String expectedMessage = "es".equals(Locale.getDefault().getLanguage())?"tiene que ser menor o igual que 90":"must be less than or equal to 90"; 
+				assertEquals("Message text", expectedMessage, violation.getMessage());
+				return;
+			}
+					
+		}
+		fail("A constraint violation exception should be thrown");
+	}
+
+	public void testConstraintValidatorMessage() throws Exception {
+		
+	}
 }

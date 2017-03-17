@@ -15,6 +15,10 @@ import org.openxava.annotations.*;
 @View(name="EditableMembers") 
 public class Community extends Nameable {
 	
+	@ManyToOne
+	@DescriptionsList
+	private SocialNetwork socialNetwork;   
+	
 	@ManyToMany
 	@ListAction("ManyToMany.new")
 	@EditAction(forViews="EditableMembers", value="ManyToMany.edit") 
@@ -27,6 +31,14 @@ public class Community extends Nameable {
 
 	public Collection<Human> getMembers() {
 		return members;
+	}
+
+	public SocialNetwork getSocialNetwork() {
+		return socialNetwork;
+	}
+
+	public void setSocialNetwork(SocialNetwork socialNetwork) {
+		this.socialNetwork = socialNetwork;
 	}
 	
 }

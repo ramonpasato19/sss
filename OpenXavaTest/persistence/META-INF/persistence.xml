@@ -8,24 +8,28 @@
              
     <!-- Tomcat + Hypersonic -->                                                                 
     <persistence-unit name="default">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>    	
-    	<non-jta-data-source>java:comp/env/jdbc/OpenXavaTestDS</non-jta-data-source>    	
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    	<non-jta-data-source>java://comp/env/jdbc/OpenXavaTestDS</non-jta-data-source>
     	<class>org.openxava.session.GalleryImage</class>
     	<class>org.openxava.web.editors.AttachedFile</class>
+    	<class>org.openxava.web.editors.DiscussionComment</class>
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>            
-            <property name="hibernate.show_sql" value="false"/>
-            <property name="hibernate.default_schema" value="XAVATEST"/> 
-            <property name="hibernate.current_session_context_class" 
-                    value="com.autobizlogic.abl.session.LogicThreadLocalSessionContext"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+            <property name="hibernate.show_sql" value="false"/>  
+            <property name="hibernate.default_schema" value="XAVATEST"/>
+            <property name="hibernate.connection.release_mode" value="after_transaction"/> 
             <property name="hibernate.jdbc.factory_class" 
             		value="org.hibernate.jdbc.NonBatchingBatcherFactory"/>
+            <property name="org.hibernate.envers.audit_strategy" 
+            		value="org.hibernate.envers.strategy.ValidityAuditStrategy"/>
+            <property name="org.hibernate.envers.audit_strategy_validity_store_revend_timestamp" 
+            		value="true"/>		
         </properties>
     </persistence-unit>      
                             
     <persistence-unit name="companyA">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>    	
-    	<non-jta-data-source>java:comp/env/jdbc/CompanyADS</non-jta-data-source>    	
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>    	
+    	<non-jta-data-source>java://comp/env/jdbc/CompanyADS</non-jta-data-source>    	
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
@@ -34,26 +38,24 @@
     </persistence-unit>
             
     <persistence-unit name="companyB">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>    	
-    	<non-jta-data-source>java:comp/env/jdbc/CompanyBDS</non-jta-data-source>    	
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>    	
+    	<non-jta-data-source>java://comp/env/jdbc/CompanyBDS</non-jta-data-source>    	
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
             <property name="hibernate.show_sql" value="false"/>
         </properties>
     </persistence-unit>    
-            
-    <!-- WebSphere + AS/400           
+                
+    <!-- WebSphere + AS/400            
     <persistence-unit name="default">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     	<non-jta-data-source>jdbc/OpenXavaTestDS</non-jta-data-source>
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.DB2400Dialect"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.default_schema" value="XAVATEST"/>
-            <property name="hibernate.current_session_context_class" 
-                    value="com.autobizlogic.abl.session.LogicThreadLocalSessionContext"/>
         </properties>
     </persistence-unit>
     -->
@@ -61,53 +63,48 @@
     
     <!-- Tomcat + AS/400         
     <persistence-unit name="default">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
-    	<non-jta-data-source>java:comp/env/jdbc/DataSource</non-jta-data-source>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    	<non-jta-data-source>java://comp/env/jdbc/DataSource</non-jta-data-source>
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.DB2400Dialect"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.default_schema" value="XAVATEST"/>
-            <property name="hibernate.current_session_context_class" 
-                    value="com.autobizlogic.abl.session.LogicThreadLocalSessionContext"/>                                                                                           
         </properties>
     </persistence-unit>
     -->
     
     <!-- Tomcat + PostgreSQL          
     <persistence-unit name="default">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
-    	<non-jta-data-source>java:comp/env/jdbc/PostgreSQL</non-jta-data-source>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+    	<non-jta-data-source>java://comp/env/jdbc/PostgreSQL</non-jta-data-source>
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.default_schema" value="XAVATEST"/>
-            <property name="hibernate.current_session_context_class" 
-                    value="com.autobizlogic.abl.session.LogicThreadLocalSessionContext"/>                                                                                           
         </properties>
     </persistence-unit>
     -->
     
     <!-- JBoss + Hypersonic      
     <persistence-unit name="default">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>    	
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>    	
     	<non-jta-data-source>java:/OpenXavaTestDS</non-jta-data-source>    	
     	<class>org.openxava.session.GalleryImage</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.default_schema" value="XAVATEST"/>
-            <property name="hibernate.current_session_context_class" 
-                    value="com.autobizlogic.abl.session.LogicThreadLocalSessionContext"/>                                                                                           
         </properties>
     </persistence-unit>     
     -->    
         
     <!-- JUnit Hypersonic -->                   
     <persistence-unit name="junit">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     	<class>org.openxava.web.editors.AttachedFile</class>
+    	<class>org.openxava.web.editors.DiscussionComment</class> 
         <properties>
 			<property name="hibernate.connection.driver_class" value="org.hsqldb.jdbcDriver"/>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
@@ -115,10 +112,10 @@
 			<property name="hibernate.default_schema" value="XAVATEST"/>
         </properties>
     </persistence-unit>
-                   
+                      
 	<!-- JUnit AS/400           
     <persistence-unit name="junit">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
 			<property name="hibernate.connection.driver_class" value="com.ibm.as400.access.AS400JDBCDriver"/>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.DB2400Dialect"/>
@@ -132,7 +129,7 @@
     
     <!-- JUnit PostgreSQL        
     <persistence-unit name="junit">
-    	<provider>org.hibernate.ejb.HibernatePersistence</provider>
+    	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <properties>
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver"/>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>

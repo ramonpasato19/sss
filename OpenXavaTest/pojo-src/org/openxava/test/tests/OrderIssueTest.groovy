@@ -11,6 +11,7 @@ import static org.openxava.jpa.XPersistence.*
 
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -22,7 +23,7 @@ class OrderIssueTest extends ModuleTestBase {
 	
 	void testLastSearchKeyWithReadOnlyShowsReferenceActions() {
 		execute "CRUD.new"		
-		execute "Reference.createNew", "model=Order,keyProperty=order.number"
+		execute "Reference.createNew", "model=Order,keyProperty=order.number" 
 		assertDialog()
 	}
 	

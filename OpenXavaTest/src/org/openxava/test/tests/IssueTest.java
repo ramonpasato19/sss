@@ -4,6 +4,7 @@ import java.util.*;
 
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -25,7 +26,7 @@ public class IssueTest extends IssueTestBase {
 		// changed to Company B
 		execute("Mode.list");
 		execute("Issue.changeToCompanyB");
-		assertValueInList(0, 0, "B0001");
+		assertValueInList(0, 0, "B0001"); 
 		execute("List.viewDetail", "row=0");
 		assertCollectionRowCount("comments", 1);
 		assertCollectionRowCount("commentsWithCondition", 1);
@@ -38,7 +39,7 @@ public class IssueTest extends IssueTestBase {
 		// Searching with list
 		execute("Reference.search", "keyProperty=xava.Issue.worker.nickName");
 		assertListRowCount(1);
-		assertValueInList(0, 0, "JAVI");
+		assertValueInList(0, 0, "JAVI"); 
 		execute("ReferenceSearch.choose", "row=0");
 		assertNoErrors();
 		assertValue("worker.nickName", "JAVI");

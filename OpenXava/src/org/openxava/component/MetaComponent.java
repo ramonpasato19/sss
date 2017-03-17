@@ -6,7 +6,9 @@ import java.util.*;
 
 
 import org.apache.commons.logging.*;
+import org.openxava.component.parse.*;
 import org.openxava.mapping.*;
+import org.openxava.model.impl.*;
 import org.openxava.model.meta.*;
 import org.openxava.tab.meta.*;
 import org.openxava.util.*;
@@ -31,7 +33,8 @@ public class MetaComponent implements Serializable {
 	private static Map<String, MetaComponent> components = new HashMap<String, MetaComponent>(); 
 	private static Properties packages;
 	private static boolean allComponentsLoaded = false;
-	private static Set allPackageNames;	
+	private static Set allPackageNames;
+	private static Collection<Class> parsersClasses = null; 
 	
 	private String packageNameWithSlashWithoutModel;
 	private String name;
@@ -43,6 +46,9 @@ public class MetaComponent implements Serializable {
 	private EntityMapping entityMapping;
 	private String packageName;
 	private boolean _transient; 
+	private IPersistenceProvider persistenceProvider;  
+	private boolean metaDataCached = true; 
+	private boolean labelForModule = false; 
 		
 	/**
 	 * 
@@ -55,14 +61,52 @@ public class MetaComponent implements Serializable {
 			if (name.indexOf('.') >= 0) { // A component never is qualified
 				throw new ElementNotFoundException("component_not_found", name);
 			}
-			r = ComponentParser.parse(name);		
+			r = parse(name); 
 			if (r == null) {				
 				throw new ElementNotFoundException("component_not_found", name);
 			}
 			r.validate();	
-			components.put(name, r); 
+			if (r.isMetaDataCached()) { 
+				components.put(name, r); 
+			}
 		}
 		return r;
+	}
+	
+	private static MetaComponent parse(String name) throws XavaException {
+		try {
+			for (IComponentParser parser: createParsers()) {
+				MetaComponent r = parser.parse(name);
+				if (r != null) {
+					r.setPersistenceProvider(parser.getPersistenceProvider());
+					return r;
+				}
+			}
+			return null;
+		}
+		catch (Exception ex) {
+			log.error(XavaResources.getString("component_parse_error", name, ex.getMessage()), ex);  
+			if (ex instanceof RuntimeException) throw (RuntimeException) ex;
+			else throw new RuntimeException(ex);
+		}							
+	}
+	
+	private static Collection<IComponentParser> createParsers() throws Exception { 
+		Collection<IComponentParser> parsers = new ArrayList<IComponentParser>();
+		for (Class parserClass: getParsersClasses()) {
+			parsers.add((IComponentParser) parserClass.newInstance());
+		}
+		return parsers;
+	}
+	
+	private static Collection<Class> getParsersClasses() throws Exception { 
+		if (parsersClasses == null) { 
+			parsersClasses = new ArrayList<Class>();
+			for (String className: XavaPreferences.getInstance().getComponentParsersClasses().split(",")) {
+				parsersClasses.add(Class.forName(className.trim()));
+			}	
+		}
+		return parsersClasses;
 	}
 		
 	public static boolean exists(String name) throws XavaException {
@@ -435,6 +479,30 @@ public class MetaComponent implements Serializable {
 
 	public void setTransient(boolean _transient) {
 		this._transient = _transient;
+	}
+
+	public IPersistenceProvider getPersistenceProvider() {
+		return persistenceProvider;
+	}
+
+	public void setPersistenceProvider(IPersistenceProvider persistenceProvider) {
+		this.persistenceProvider = persistenceProvider;
+	}
+
+	public boolean isMetaDataCached() {
+		return metaDataCached;
+	}
+
+	public void setMetaDataCached(boolean metaDataCached) {
+		this.metaDataCached = metaDataCached;
+	}
+
+	public boolean isLabelForModule() {
+		return labelForModule;
+	}
+
+	public void setLabelForModule(boolean labelForModule) {
+		this.labelForModule = labelForModule;
 	}
 		
 }

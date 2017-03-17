@@ -17,15 +17,25 @@ public class Tab extends DWRBase {
 	private static Log log = LogFactory.getLog(Tab.class);
 
 	public void setFilterVisible(HttpServletRequest request, HttpServletResponse response, String application, String module, boolean filterVisible, String tabObject) {
-		initRequest(request, response, application, module); 
-		org.openxava.tab.Tab tab = getTab(request, application, module, tabObject); 
-		tab.setFilterVisible(filterVisible);
+		try { 
+			initRequest(request, response, application, module); 
+			org.openxava.tab.Tab tab = getTab(request, application, module, tabObject); 
+			tab.setFilterVisible(filterVisible);
+		}
+		finally {
+			cleanRequest();
+		}
 	}
 	
 	public void removeProperty(HttpServletRequest request, HttpServletResponse response, String application, String module, String property, String tabObject) {
-		initRequest(request, response, application, module); 
-		org.openxava.tab.Tab tab = getTab(request, application, module, tabObject);
-		tab.removeProperty(property);
+		try {
+			initRequest(request, response, application, module); 
+			org.openxava.tab.Tab tab = getTab(request, application, module, tabObject);
+			tab.removeProperty(property);
+		}
+		finally {
+			cleanRequest();
+		}
 	}
 	
 	/**
@@ -38,9 +48,14 @@ public class Tab extends DWRBase {
 			log.warn(XavaResources.getString("impossible_store_column_movement"));  
 			return;			
 		}
-		initRequest(request, response, id.getApplication(), id.getModule()); 
-		org.openxava.tab.Tab tab = getTab(request, id.getApplication(), id.getModule(), id.getTabObject());		
-		tab.moveProperty(from, to);
+		try { 
+			initRequest(request, response, id.getApplication(), id.getModule()); 
+			org.openxava.tab.Tab tab = getTab(request, id.getApplication(), id.getModule(), id.getTabObject());		
+			tab.moveProperty(from, to);
+		}
+		finally {
+			cleanRequest();
+		}
 	}
 	
 	public void setColumnWidth(HttpServletRequest request, HttpServletResponse response, String columnId, int index, int width) {
@@ -74,6 +89,9 @@ public class Tab extends DWRBase {
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("impossible_store_column_width"), ex);
 		}		
+		finally {
+			cleanRequest();
+		}
 	}
 	
 	public String filterColumns(HttpServletRequest request, HttpServletResponse response, String application, String module, String searchWord) {   
@@ -85,6 +103,9 @@ public class Tab extends DWRBase {
 		catch (Exception ex) {
 			log.error(XavaResources.getString("display_columns_error"), ex);  
 			return null; 
+		}
+		finally {
+			cleanRequest();
 		}
 	}
  

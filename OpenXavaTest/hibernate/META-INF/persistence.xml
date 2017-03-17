@@ -11,10 +11,6 @@
 
         <properties>
             <property name="hibernate.ejb.cfgfile" value="/hibernate-jpa.cfg.xml"/>
-            <property name="hibernate.ejb.event.pre-insert" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener, org.openxava.hibernate.impl.DefaultValueCalculatorsListener"/>
-            <property name="hibernate.ejb.event.pre-update" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener"/>
-            <property name="hibernate.ejb.event.pre-delete" value="org.openxava.hibernate.impl.CalculatorsListener"/>
-            <property name="hibernate.ejb.event.post-load" value="org.openxava.hibernate.impl.CalculatorsListener"/>
         </properties>
     </persistence-unit>
     
@@ -23,10 +19,6 @@
 
         <properties>
             <property name="hibernate.ejb.cfgfile" value="/hibernate-jpa-junit.cfg.xml"/>
-            <property name="hibernate.ejb.event.pre-insert" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener, org.openxava.hibernate.impl.DefaultValueCalculatorsListener"/>
-            <property name="hibernate.ejb.event.pre-update" value="org.openxava.hibernate.impl.CalculatorsListener, org.openxava.hibernate.impl.ReferenceConverterToDBListener"/>
-            <property name="hibernate.ejb.event.pre-delete" value="org.openxava.hibernate.impl.CalculatorsListener"/>
-            <property name="hibernate.ejb.event.post-load" value="org.openxava.hibernate.impl.CalculatorsListener"/>
         </properties>
     </persistence-unit>
     

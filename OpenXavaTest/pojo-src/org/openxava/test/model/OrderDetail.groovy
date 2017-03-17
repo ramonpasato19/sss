@@ -2,6 +2,7 @@ package org.openxava.test.model
 import org.openxava.model.*;
 
 import javax.persistence.*
+
 import org.openxava.annotations.*
 
 @Entity

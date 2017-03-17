@@ -5,7 +5,7 @@
 
 <%
 Users.setCurrent(request); 
-String module = Users.getCurrent() == null?"SignIn":modules.getCurrent();
+String module = Users.getCurrent() == null?"SignIn":modules.getCurrent(request);
 String url = Browsers.isMobile(request)?"phone":"m/" + module;
 %>
 

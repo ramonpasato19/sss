@@ -60,7 +60,7 @@ public class Color {
 	}
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@DescriptionsList(notForTabs="DEFAULT")
+	@DescriptionsList(notForTabs="DEFAULT", order="${name} desc") 
 	@JoinColumn(name="IDTHING")
 	@LabelStyle("italic-label")
 	private Thing usedTo;

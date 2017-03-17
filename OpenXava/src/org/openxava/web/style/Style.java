@@ -253,7 +253,7 @@ public class Style {
 	}
 
 	public String getEditorWrapper() { 
-		return "";
+		return "ox-editor-wrapper"; 
 	}
 	
 	/** 
@@ -271,22 +271,6 @@ public class Style {
 	 * 
 	 * @since 4.2
 	 */
-	public String getPreviousPageDisableImage() { 
-		return "previous_page_disable.gif";
-	}
-	
-	/** 
-	 * 
-	 * @since 4.2
-	 */
-	public String getNextPageDisableImage() { 
-		return "next_page_disable.gif";
-	}
-	
-	/** 
-	 * 
-	 * @since 4.2
-	 */
 	public String getPageNavigationSelectedImage() { 
 		return "page_navigation_selected.gif";
 	}
@@ -298,61 +282,11 @@ public class Style {
 	public String getPageNavigationImage() { 
 		return "page_navigation.gif";
 	}
-	
-	/** 
-	 * 
-	 * @since 4.9
-	 */
-	public String getShowFilterImage() { 
-		return "show-filter.gif";
-	}
-	
-	/**
-	 * 
-	 * @since 5.2
-	 */
-	public String getCustomizeListImage() {  
-		return "customize.png";
-	}
-	
-	/**
-	 * 
-	 * @since 5.2
-	 */
-	public String getRemoveColumnImage() {  
-		return "remove.gif";
-	}
-	
-	/**
-	 * 
-	 * @since 5.2
-	 */
-	public String getMoveColumnImage() {   
-		return "move.png";
-	}
-	
-	/**
-	 * 
-	 * @since 5.3
-	 */
-	public String getMoveRowImage() {    
-		return "vertical-move.png";
-	}		
-	
-	/** 
-	 * 
-	 * @since 4.9
-	 */
-	public String getHideFilterImage() { 
-		return "remove.gif";
-	}
 		
-	
 	public String getModule() {
 		return "ox-module";		
 	}
-		
-	
+			
 	/**
 	 * 
 	 * @since 4.2
@@ -376,6 +310,13 @@ public class Style {
 	
 	public String getActionImage() {
 		return "ox-image-link";
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getCustomizeControls() { 
+		return "ox-customize-controls";
 	}
 		
 	public String getButtonBar() {
@@ -537,6 +478,8 @@ public class Style {
 		return "ox-selected-chart-type";
 	}
 	
+	
+	
 	/**
 	 * 
 	 * @since 5.4
@@ -652,13 +595,6 @@ public class Style {
 		return "ox-element-collection";
 	}
 
-	/** 
-	 * @since 4.4 
-	 */
-	public String getFrameWidth() {
-		return "width='100%'";
-	}
-	
 	public String getFrameHeaderStartDecoration() {
 		return getFrameHeaderStartDecoration(0); 
 	}
@@ -666,7 +602,9 @@ public class Style {
 	/**
 	 * 
 	 * @since 5.1.1
+	 * @deprecated Only used by the old Java renderer 
 	 */
+	@Deprecated 
 	public String getCollectionFrameHeaderStartDecoration(int width) { 
 		return getFrameHeaderStartDecoration(width, false);  		
 	}
@@ -789,11 +727,72 @@ public class Style {
 		return "editor";
 	}
 	
+	/** @since 5.6.1 */
+	public String getWebURL() { 
+		return "ox-web-url";
+	}
+	
 	public String getSmallLabel() {
 		return "small-label";
 	}
-		
 	
+	/**
+	 * @since 5.5
+	 */
+	public String getRadioButtons() { 
+		return "ox-radio-buttons";
+	}
+
+	
+	/**
+	 * For icon editor.
+	 * 
+	 * @since 5.5
+	 */
+	public String getIcon() { 
+		return "ox-icon";
+	}
+	
+	/**
+	 * For icon in list as data.
+	 * 
+	 * @since 5.5
+	 */
+	public String getIconInList() {  
+		return "ox-icon-in-list";
+	}
+	
+	/**
+	 * For icons list to choose one.
+	 * 
+	 * @since 5.5
+	 */
+	public String getIconsList() {  
+		return "ox-icons-list";
+	}
+
+	/**
+	 * @since 5.5
+	 */
+	public String getDescriptionsList() {  
+		return "ox-descriptions-list";
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getDateCalendar() {   
+		return "ox-date-calendar";
+	}
+	
+	/**
+	 * @since 5.6.1
+	 */
+	public String getMoney() {    
+		return "ox-money";
+	}
+
+			
 	public String getErrors() { 
 		return "ox-errors";
 	}
@@ -831,33 +830,60 @@ public class Style {
 		return "";
 	}
 	
-	public String getMessageStartDecoration () { 
+	public String getMessageStartDecoration() { 
 		return "";
 	}
 	
-	public String getMessageEndDecoration () { 
+	public String getMessageEndDecoration() { 
 		return "";
-	}	
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getWarningStartDecoration() { 
+		return getMessageStartDecoration();
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getWarningEndDecoration () { 
+		return getMessageEndDecoration();
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getInfoStartDecoration() { 
+		return getMessageStartDecoration();
+	}
+	
+	/**
+	 * @since 5.5
+	 */
+	public String getInfoEndDecoration () { 
+		return getMessageEndDecoration();
+	}
 	
 	public String getButton() {
-		return "portlet-form-button";
+		return ""; 
+	}
+		
+	/**
+	 * @since v5.5
+	 */
+	public String getSortIndicator() { 
+		return "ox-sort-indicator";
 	}
 	
-	public String getAscendingImage() {
-		return "ascending.gif";
+	/**
+	 * @since v5.5
+	 */
+	public String getSortIndicator2() { 
+		return "ox-sort-indicator2";
 	}
-	
-	public String getDescendingImage() {
-		return "descending.gif";
-	}
-	
-	public String getAscending2Image() { 
-		return "ascending2.gif";
-	}
-	
-	public String getDescending2Image() { 
-		return "descending2.gif";
-	}	
+
 	
 	public String getSection() {
 		return "ox-section";
@@ -945,14 +971,7 @@ public class Style {
 	 * If it starts with '/' the URI is absolute, otherwise the context path is inserted before.
 	 */
 	public String getRestoreImage() {
-		return getImagesFolder() +  "/restore.gif"; 
-	}
-
-	/** 
-	 * If it starts with '/' the URI is absolute, otherwise the context path is inserted before.
-	 */	
-	public String getMaximizeImage() {
-		return getImagesFolder() +  "/maximize.gif";
+		return getImagesFolder() +  "/restore.gif";
 	}
 	
 	/** 
@@ -1109,7 +1128,11 @@ public class Style {
 		return browser == null?false:browser.contains("MSIE 7");
 	}
 	
-		
+	/** @since 5.5.1 */
+	protected boolean isIE() {  		
+		return browser == null?false:browser.contains("Trident") || browser.contains("MSIE");
+	}
+	
 	/**
 	 * @since 4m5
 	 */
@@ -1320,7 +1343,9 @@ public class Style {
 	 * @param sibling If true this frame is a sibling (to the right) frame.
 	 * @return String representing the decoration of the frame.
 	 * @since 5.0
+	 * @deprecated Only used by the old Java renderer 
 	 */
+	@Deprecated 
 	public String getFrameHeaderStartDecoration(int width, boolean sibling) {
 		StringBuffer returnValue = new StringBuffer(getFrameHeaderStartDecoration(width));
 		// This is a heuristic approach to have subclasses of Style working without changes, 
@@ -1337,13 +1362,20 @@ public class Style {
 		}
 		return returnValue.toString();
 	}
+	
+	/**
+	 * Before v5.5 it was getErrorImage(). 
+	 * @since v5.5
+	 */
+	public String getErrorIcon() {
+		return "ox-error-icon";
+	}
 
 	/**
-	 * @since 5.0.1
-	 * @return Style class for inner error image.
+	 * @since v5.5
 	 */
-	public String getErrorImage() {
-		return "ox-error-image";
+	public String getRequiredIcon() {
+		return "ox-required-icon";
 	}
 	
 	/**

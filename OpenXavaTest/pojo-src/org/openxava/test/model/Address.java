@@ -15,7 +15,7 @@ import org.openxava.annotations.*;
 		"street, zipCode, Address.addFullAddress();" +		
 		"city [" +
 		"	city, state;" +
-		"];" + 
+		"];" + // Don't remove the ; to test a case
 		"asString"
 	),
 	@View( name="StateAsForm" ),
@@ -24,7 +24,6 @@ import org.openxava.annotations.*;
 		"city, state;"
 	)
 })
-
 public class Address implements IWithCity {
 
 	@Transient
@@ -46,7 +45,7 @@ public class Address implements IWithCity {
 	private int zipCode;
 	
 	
-	@Required @Column(length=20) 
+	@Required @Column(length=20)
 	@LabelFormat(LabelFormatType.NO_LABEL)
 	@LabelFormats({ 
 		@LabelFormat(forViews="Demo", value=LabelFormatType.SMALL)

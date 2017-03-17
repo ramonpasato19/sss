@@ -58,7 +58,7 @@ public class ServiceInvoiceTest extends ModuleTestBase {
 		assertTotalInList("amount", "2,647.86");
 		assertTotalInList("number", "");
 		resetModule();
-		assertTotalInList("amount", "2,647.86");
+		assertTotalInList("amount", "2,647.86"); 
 		assertTotalInList("number", "");		
 	}
 

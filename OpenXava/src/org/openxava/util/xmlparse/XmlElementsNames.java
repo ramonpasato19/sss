@@ -206,4 +206,5 @@ public class XmlElementsNames {
 	protected final static String [] xfor_tab = { "for-tab", "para-tab" };
 	protected final static String [] xsubcontroller = { "subcontroller", "subcontrolador"}; 
 	protected final static String [] xcollapsed = { "collapsed", "plegada"}; 
+	protected final static String [] xshow_reference_view = { "show-reference-view", "mostrar-vista-referencia"}; 
 }

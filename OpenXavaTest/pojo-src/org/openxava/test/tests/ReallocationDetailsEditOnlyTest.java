@@ -16,19 +16,19 @@ public class ReallocationDetailsEditOnlyTest extends ModuleTestBase {
 		super(testName, "ReallocationDetailsEditOnly");		
 	}	
 	
-	public void testDefaultValueCalculatorForReferencesInElementCollections() throws Exception {
+	public void testEditOnlyElementCollections() throws Exception {
 		execute("Mode.detailAndFirst");
 		assertValue("description", "THE BIG REALLOCATION");
 		assertNoErrors();
 		
 		assertCollectionRowCount("details", 3);
 
-		assertValueInCollection("details", 0, "place", "VALENCIA OFFICE");
+		assertValueInCollection("details", 0, "place", "Valencia Office"); // In lowercase because of @Editor
 		assertValueInCollection("details", 0, "product.number", "1");
 		assertValueInCollection("details", 0, "product.description", "MULTAS DE TRAFICO");
 		assertValueInCollection("details", 0, "product.unitPrice", "11.00");
 		
-		assertValueInCollection("details", 2, "place", "CASA EN MICHIGAN");
+		assertValueInCollection("details", 2, "place", "Casa En Michigan"); 
 		assertValueInCollection("details", 2, "product.number", "3");
 		assertValueInCollection("details", 2, "product.description", "XAVA");
 		assertValueInCollection("details", 2, "product.unitPrice", "0.00");

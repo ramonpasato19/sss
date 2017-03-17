@@ -6,11 +6,11 @@ import java.util.*;
 import java.util.Date;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 import org.apache.commons.lang.*;
 import org.apache.commons.logging.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.validator.*;
 import org.openxava.annotations.*;
 import org.openxava.calculators.*;
 import org.openxava.test.actions.*;
@@ -32,12 +32,17 @@ import org.openxava.util.*;
 		"discounts [" +
 		"	customerDiscount, customerTypeDiscount, yearDiscount;" +
 		"];" +
-		"comment;" +					
-		"customer { customer }" +		
-		"details { details }" +			
+		"comment;" +
+		"customer { customer }" + // We need a section with just a reference...		
+		"details { details }" +	// ...followed by a section with a collection, to a layout bug
 		"amounts { amountsSum; vatPercentage; vat }" +
-		"deliveries { deliveries }"		
+		"deliveries { deliveries }"
 	),
+	@View(name="CustomerNoFrame", members= // Don't change the members, they for testing a layout bug			
+		"year, number;" + 
+		"customer;"  +
+		"details"
+	),	
 	@View(name="NoSections", members=
 		"year, number, date;" +		
 		"customer;" +		
@@ -49,7 +54,7 @@ import org.openxava.util.*;
 	@View(name="ActiveYear", extendsView="NoSections"),
 	@View(name="Simple", members="year, number, date, yearDiscount;"),
 	@View(name="NestedSections", members=
-		"year, number, date;" +
+		"year, number, date, paid;" + 
 		"customer { customer }" +
 		"data {" +				 
 		"	details { details }" +
@@ -121,11 +126,24 @@ import org.openxava.util.*;
 		"details;" + 
 		"calculatedDetails"
 	),
+	@View(name="DetailsWithSections", members= 
+		"year, number, date, vatPercentage;" +
+		"customer;" +
+		"details;"  
+	),
 	@View(name="DetailsWithManyProperties", members= 
 		"year, number, date, vatPercentage;" +
 		"customer;" +
 		"details;"
+	),
+	@View(name="AmountsInSectionAndGroup", members= 
+		"year, number;" +
+		"amounts {#" + 		
+			"discounts [customerDiscount, customerTypeDiscount, yearDiscount];" +
+			"values [amountsSum, vatPercentage, vat];" +
+		"}"			
 	)
+
 })
 
 @Tabs({
@@ -175,6 +193,9 @@ import org.openxava.util.*;
 		filter=YearParameterFilter.class,
 		properties="year, number, customer.number, customer.name, amountsSum, vat, detailsCount, paid, importance",
 		baseCondition="${year} = ?"
+	),
+	@Tab(name="ManyTypes", 
+		properties="year, number, date, amountsSum, customer.email, paid, customer.name, customer.type, customer.seller.name" 
 	)
 })
 
@@ -197,7 +218,7 @@ public class Invoice {
 	@DefaultValueCalculator(CurrentDateCalculator.class)
 	private java.util.Date date;
 	
-	@Digits(integerDigits=2, fractionalDigits=1) 
+	@Digits(integer=2, fraction=1) 
 	@Required
 	private BigDecimal vatPercentage;
 	
@@ -205,26 +226,32 @@ public class Invoice {
 	private String comment;
 	
 	@Type(type="org.openxava.types.SiNoType")
+	@ReadOnly(forViews="NestedSections") 
 	private boolean paid;
 		
 	@ManyToOne(fetch=FetchType.LAZY, optional=false)
 	@ReferenceView("Simple")
 	@ReferenceViews({
 		@ReferenceView(forViews="CustomerAsAggregateWithDeliveryPlaces", value="SimpleWithDeliveryPlaces"),
-		@ReferenceView(forViews="DetailsWithTotals", value="Simplest")
+		@ReferenceView(forViews="DetailsWithTotals", value="Simplest"),
+		@ReferenceView(forViews="NoSections", value="SimpleWithCity") 
 	})
-	@AsEmbedded(forViews="CustomerAsAggregateWithDeliveryPlaces")	
+	@AsEmbedded(forViews="CustomerAsAggregateWithDeliveryPlaces")
+	@NoFrame(forViews="CustomerNoFrame") 
 	private Customer customer;
 	
 	@OneToMany (mappedBy="invoice", cascade=CascadeType.REMOVE)
-	@OrderBy("serviceType desc") 
+	@OrderBy("serviceType desc, oid asc") 
 	@ListsProperties({
 		@ListProperties(forViews="DEFAULT", value="serviceType, product.description, product.unitPriceInPesetas, quantity, unitPrice, amount, free"),
 		@ListProperties(forViews="NoSections", value="product.description, product.unitPrice+, quantity, amount"),  
 		@ListProperties(forViews="DetailsWithTotals", value="deliveryDate [invoice.deliveryDate], product.description, product.unitPrice[invoice.productUnitPriceSum], quantity, amount[invoice.amountsSum, invoice.vat, invoice.total]"),
 		@ListProperties(forViews="DetailsWithManyProperties", value="serviceType, product.description, product.unitPriceInPesetas, quantity+, unitPrice+, amount, free, invoice.year+, invoice.number+, invoice.vatPercentage+, invoice.sellerDiscount") 
 	})
-	@EditAction(forViews="DEFAULT", value="Invoice.editDetail")
+	@EditActions({
+		@EditAction(forViews="DEFAULT", value="Invoice.editDetail"),
+		@EditAction(forViews="DetailsWithSections", value="Invoice.editDetailWithSections"),
+	})
 	@DetailAction(forViews="DEFAULT", value="Invoice.viewProduct")
 	@ReadOnly(forViews="OnlyReadDetails")
 	@EditOnly(forViews="OnlyEditDetails, DetailsWithTotals") 
@@ -337,8 +364,8 @@ public class Invoice {
 	
 	@Stereotype("MONEY") @Depends("customer.number, paid")
 	public BigDecimal getCustomerDiscount() {
+		if (paid) return new BigDecimal("77"); 
 		if (customer == null) return new BigDecimal("0.00");  
-		if (paid) return new BigDecimal("77");
 		if (customer.getNumber() == 1) return new BigDecimal("11.50");
 		if (customer.getNumber() == 2) return new BigDecimal("22.75");
 		return new BigDecimal("0.25");		

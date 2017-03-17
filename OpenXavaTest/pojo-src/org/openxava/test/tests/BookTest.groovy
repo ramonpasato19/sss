@@ -3,6 +3,7 @@ package org.openxava.test.tests;
 import org.openxava.tests.*;
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -35,14 +36,14 @@ class BookTest extends ModuleTestBase {
 		String author = getValueInList(0, 0)		
 		execute "ReferenceSearch.choose", "row=0"
 		assertNoErrors()				
-		assertValue "author.author", author
+		assertValue "author.author", author 
 	}
 	
 	// This test fails in PostgreSQL, but not in Hypersonic
 	void testListFilterByBooleanColumnInDB() {
 		assertListRowCount 2 
 		setConditionComparators ([ "=", "=" ])
-		setConditionValues (["", "true" ])
+		setConditionValues (["", "true" ]) 
 		execute "List.filter"
 		assertListRowCount 1
 	}

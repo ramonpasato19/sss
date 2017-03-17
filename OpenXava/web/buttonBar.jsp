@@ -1,3 +1,4 @@
+<%@page import="org.openxava.controller.meta.MetaControllerElement"%>
 <%@ include file="imports.jsp"%>
 
 <%@ page import="org.openxava.controller.meta.MetaAction" %>
@@ -22,48 +23,40 @@ boolean listFormats = !manager.isSplitMode() && mode.equals("list");
 if (manager.isButtonBarVisible()) {
 %>
 	<div class="<%=style.getButtonBar()%>">
-	<div id="<xava:id name='controllers'/>">
+	<div id="<xava:id name='controllerElement'/>">
 	<span style="float: left">
 	<%
-	java.util.Iterator it = manager.getMetaActions().iterator();
-	boolean showLabels = XavaPreferences.getInstance().isShowLabelsForToolBarActions(); 
-	while (it.hasNext()) {
-		MetaAction action = (MetaAction) it.next();
-		if (action.isHidden()) continue;
-		if (action.appliesToMode(mode) && (action.hasImage() || action.hasIcon())) {	
-		%>
-		<jsp:include page="barButton.jsp">
-			<jsp:param name="action" value="<%=action.getQualifiedName()%>"/>
-		</jsp:include>		
-		<%
-		} 
+	Collection<MetaControllerElement> elements = manager.getMetaControllerElements(); 
+	for (MetaControllerElement element : elements){
+		if (!element.appliesToMode(mode)) continue;
+		if (element instanceof MetaAction){
+			MetaAction action = (MetaAction) element;
+			if (action.isHidden()) continue;
+			if (action.hasImage() || action.hasIcon()) {	
+			%>
+			<jsp:include page="barButton.jsp">
+				<jsp:param name="action" value="<%=action.getQualifiedName()%>"/>
+			</jsp:include>		
+			<%
+			}
+		}
+		else if (element instanceof MetaSubcontroller){
+			MetaSubcontroller subcontroller = (MetaSubcontroller) element;
+			if (subcontroller.hasActionsInThisMode(mode)){
+			%>
+			<jsp:include page="subButton.jsp">
+				<jsp:param name="controller" value="<%=subcontroller.getControllerName()%>"/>
+				<jsp:param name="image" value="<%=subcontroller.getImage()%>"/>
+				<jsp:param name="icon" value="<%=subcontroller.getIcon()%>"/>
+			</jsp:include>
+			<%
+			}
+		}
 	}
 	%>
 	</span>
 	</div>
-	
-	<div id="<xava:id name='subcontrollers'/>">
-	<span style="float:left">	
-	<%
-			Collection metaSubcontrollers = manager.getSubcontrollers();
-			java.util.Iterator metaSubcontrollersIt = metaSubcontrollers.iterator();
-			while(metaSubcontrollersIt.hasNext()){
-				MetaSubcontroller m = (MetaSubcontroller) metaSubcontrollersIt.next();
-				if (m.appliesToMode(mode) && m.hasActionsInThisMode(mode)){
-		%>
-		<jsp:include page="subButton.jsp">
-			<jsp:param name="controller" value="<%=m.getControllerName()%>"/>
-			<jsp:param name="image" value="<%=m.getImage()%>"/>
-			<jsp:param name="icon" value="<%=m.getIcon()%>"/>
-		</jsp:include>
-		<%
-				}
-			}
-	%>
-	</span>
-	</div>
 
-	
 	<div id="<xava:id name='modes'/>">
 	<span style="float: right">
 	<span style="float: left;" class="<%=style.getListFormats()%>">
@@ -163,11 +156,18 @@ if (manager.isButtonBarVisible()) {
 			"_" + language + 
 			suffix;
 	} 	
-	if (style.isHelpAvailable()) {
-		String helpImage = !style.getHelpImage().startsWith("/")?request.getContextPath() + "/" + style.getHelpImage():style.getHelpImage();
+	if (XavaPreferences.getInstance().isHelpAvailable() && style.isHelpAvailable()) { 	
+		String helpImage = null;
+		if (style.getHelpImage() != null) helpImage = !style.getHelpImage().startsWith("/")?request.getContextPath() + "/" + style.getHelpImage():style.getHelpImage();
 	%>
 		<span class="<%=style.getHelp()%>">  
-			<a href="<%=href%>" target="<%=target%>"><img src="<%=helpImage%>"/></a>
+			<a href="<%=href%>" target="<%=target%>">
+				<% if (helpImage == null) { %>
+				<i class="mdi mdi-help-circle"/></i>
+				<% } else { %>
+				<a href="<%=href%>" target="<%=target%>"><img src="<%=helpImage%>"/></a>
+				<% } %>
+			</a>
 		</span>
 	<%
 	}

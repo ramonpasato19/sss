@@ -5,7 +5,9 @@ import java.util.*;
 import javax.inject.*;
 
 import org.apache.commons.logging.*;
+import org.openxava.model.*;
 import org.openxava.util.*;
+import org.openxava.validators.*;
 import org.openxava.view.*;
 
 /**
@@ -120,6 +122,14 @@ abstract public class ViewBaseAction extends BaseAction {
 	}
 	
 	/**
+	 * @since 5.6
+	 */
+	protected void validateViewValues() { 
+		Messages errors = MapFacade.validate(getView().getModelName(), getView().getValues());
+		if (errors.contains()) throw new ValidationException(errors);
+	}
+	
+	/**
 	 * @since 4m1
 	 */	
 	protected View getPreviousView() {
@@ -158,8 +168,8 @@ abstract public class ViewBaseAction extends BaseAction {
 	
 	
 	protected void setControllers(String... controllers) {
-		if (dialogShown) getManager().restorePreviousControllers(); 
-		super.setControllers(controllers);
+		if (dialogShown) getManager().setControllersNames(controllers);
+		else super.setControllers(controllers);		
 		hasNextControllers = controllers != null; 
 	}
 	

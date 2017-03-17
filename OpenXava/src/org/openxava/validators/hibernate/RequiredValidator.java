@@ -6,7 +6,7 @@ import org.openxava.validators.*;
 import org.openxava.validators.meta.*;
 
 /**
- * Implements Required annotation of OpenXava as a Hibernate validator. <p>
+ * Implements Required annotation of OpenXava as a Bean Validation Constraint. <p>
  *  
  * @author Javier Paniza
  */
@@ -28,8 +28,11 @@ public class RequiredValidator implements ConstraintValidator<Required, Object> 
 			return true;
 		} 
 		catch (IllegalStateException ex) {
-			if (FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) return false;
-			throw ex;
+			if (!FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) throw ex;
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ex.getCause().getMessage())
+				   .addConstraintViolation();
+			return false;
 		}
 		catch (RuntimeException ex) {
 			throw ex;

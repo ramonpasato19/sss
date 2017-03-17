@@ -13,6 +13,7 @@ public class Initializer {
 	public static void init(ServletRequest request) {
 		Organizations.init(request);
 		ActionsRefiner.init();
+		MembersRefiner.init(); 
 		OrganizationReseter.init(); 
 	}
 

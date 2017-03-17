@@ -133,9 +133,19 @@ abstract public class JasperReportBaseAction extends ViewBaseAction implements I
 
 
 	public String getForwardURI() {		
-		return "/xava/report.pdf?time="+System.currentTimeMillis();
+		if (isAndroid()) {
+			return "/xava/js/pdfjs/web/viewer.html?file=/" + getRequest().getParameter("application") + "/xava/report.pdf";
+		}
+		else {
+			return "/xava/report.pdf?time="+System.currentTimeMillis();
+		}
 	}
-
+	
+	private boolean isAndroid() {
+		String browser = getRequest().getHeader("user-agent");
+		return browser != null && browser.contains("Android");
+	}
+	
 	public boolean inNewWindow() {
 		return true;
 	}

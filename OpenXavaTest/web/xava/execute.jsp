@@ -27,7 +27,6 @@ Locales.setCurrent(request);
 
 org.openxava.controller.ModuleManager manager = (org.openxava.controller.ModuleManager) context.get(request, "manager", "org.openxava.controller.ModuleManager");
 manager.setSession(session);
-manager.resetPersistence();
 
 org.openxava.tab.Tab t = (org.openxava.tab.Tab) context.get(request, "xava_tab");
 request.setAttribute("tab", t);

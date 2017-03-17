@@ -5,14 +5,14 @@ import java.util.*;
 import javax.validation.*;
 
 import org.openxava.annotations.*;
-import org.openxava.annotations.parse.*;
+import org.openxava.component.parse.*;
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
 import org.openxava.validators.*;
 import org.openxava.validators.meta.*;
 
 /**
- * Implements a EntityValidator of OpenXava as a Hibernate validator. <p>
+ * Implements a EntityValidator of OpenXava as a Bean Validation Constraint. <p>
  *  
  * @author Javier Paniza
  */
@@ -29,12 +29,12 @@ public class EntityValidatorValidator implements ConstraintValidator<EntityValid
 		if (HibernateValidatorInhibitor.isInhibited()) return true;  // Usually when saving from MapFacade, MapFacade already has done the validation
 		if (metaValidator.isOnlyOnCreate()) return true;
 		try {			
-			Iterator itSets =  metaValidator.getMetaSetsWithoutValue().iterator();			 
+			Iterator<MetaSet> itSets =  metaValidator.getMetaSetsWithoutValue().iterator();			 
 			IValidator v = metaValidator.createValidator();
 			PropertiesManager validatorProperties = new PropertiesManager(v);
 			PropertiesManager entityProperties = new PropertiesManager(entity);
 			while (itSets.hasNext()) {
-				MetaSet set = (MetaSet) itSets.next();					
+				MetaSet set = itSets.next();					
 				Object value = entityProperties.executeGet(set.getPropertyNameFrom());								
 				validatorProperties.executeSet(set.getPropertyName(), value);									
 			}							
@@ -42,8 +42,11 @@ public class EntityValidatorValidator implements ConstraintValidator<EntityValid
 			return true;
 		}
 		catch (IllegalStateException ex) {
-			if (FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) return false;
-			throw ex;
+			if (!FailingMessages.EXCEPTION_MESSAGE.equals(ex.getMessage())) throw ex;
+			context.disableDefaultConstraintViolation();
+			context.buildConstraintViolationWithTemplate(ex.getCause().getMessage())
+				   .addConstraintViolation();
+			return false;
 		}
 		catch (RuntimeException ex) {
 			throw ex;
@@ -53,5 +56,4 @@ public class EntityValidatorValidator implements ConstraintValidator<EntityValid
 			throw new RuntimeException(ex.getMessage(), ex);
 		}		
 	}
-
 }

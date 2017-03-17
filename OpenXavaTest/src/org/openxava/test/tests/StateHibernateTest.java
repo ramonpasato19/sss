@@ -3,7 +3,7 @@ package org.openxava.test.tests;
 import org.openxava.tests.*;
 
 /**
- * @author Mª Carmen Gimeno
+ * @author Mï¿½ Carmen Gimeno
  */
 
 public class StateHibernateTest extends ModuleTestBase {
@@ -13,7 +13,7 @@ public class StateHibernateTest extends ModuleTestBase {
 		super(testName, "StateHibernate");		
 	}
 
-	public void testCreateReadUpdateDeleteWithHandmadeHibernate() throws Exception {		
+	public void testCreateReadUpdateDeleteWithHandmadeHibernate() throws Exception { 		
 		assertListNotEmpty();
 		// Create				
 		execute ("StateHibernate.new");

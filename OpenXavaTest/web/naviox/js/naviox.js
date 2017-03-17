@@ -13,6 +13,23 @@ naviox.init = function() {
 		}
 		return false;
 	});
+	
+	if (naviox.locked) {
+		naviox.lockUser();
+	}
+	else if (naviox.lockSessionMilliseconds > 0) {
+		naviox.watchForIdleUser();
+		openxava.postRefreshPage = naviox.watchForIdleUser;
+	}
+}
+
+naviox.watchForIdleUser = function() {
+	clearTimeout(naviox.idleWatcher);
+	naviox.idleWatcher = setTimeout(naviox.lockUser, naviox.lockSessionMilliseconds);
+}
+
+naviox.lockUser = function() {
+	openxava.executeAction(naviox.application, naviox.module, '', false, "SessionLocker.lock");
 }
 
 naviox.watchSearch = function() { 

@@ -18,13 +18,13 @@ public class CustomerContactPersonAsAggregate3LevelsTest extends ModuleTestBase 
 		execute("CRUD.new");
 		execute("Reference.search", "keyProperty=xava.CustomerContactPerson.customer.seller.level.id");
 		assertListColumnCount(2);
-		assertLabelInList(0, "Id");
+		assertLabelInList(0, "Id"); 
 		assertLabelInList(1, "Description");
 		assertValueInList(0, 0, "A");
 		assertValueInList(0, 1, "MANAGER");
 	}
 		
-	public void testRemovingWithReferenceAsKeyAsEmbedded() throws Exception {
+	public void testRemovingWithReferenceAsKeyAsEmbedded() throws Exception {  
 		int count = getListRowCount();
 		execute("CRUD.new");
 		setValue("customer.number", "66");

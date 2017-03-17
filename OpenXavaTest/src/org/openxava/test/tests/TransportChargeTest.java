@@ -16,7 +16,7 @@ public class TransportChargeTest extends TransportChargeTestBase {
 	public void testOrderAndFilterInCollectionOfReference() throws Exception {
 		execute("CRUD.new");
 		execute("Reference.search", "keyProperty=xava.TransportCharge.delivery.number");
-		int row = getRowOf("2004", "2", "1", "666");
+		int row = getRowOf("2004", "2", "1", "666"); 
 		assertValueInList(row, 0, "2004");
 		assertValueInList(row, 1, "2");
 		assertValueInList(row, 2, "1");		
@@ -68,7 +68,7 @@ public class TransportChargeTest extends TransportChargeTestBase {
 		
 		execute("ReferenceSearch.choose", "row=0");
 		assertNoErrors();
-		assertValue("delivery.invoice.year", year);
+		assertValue("delivery.invoice.year", year); 
 		assertValue("delivery.invoice.number", number);
 		
 		setValue("amount", "666");

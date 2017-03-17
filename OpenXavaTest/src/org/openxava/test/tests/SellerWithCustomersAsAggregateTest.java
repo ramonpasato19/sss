@@ -27,7 +27,7 @@ public class SellerWithCustomersAsAggregateTest extends ModuleTestBase {
 		assertEditable("number");
 		assertEditable("name");
 		assertValue("number", ""); // Test if clear the fields
-		assertValue("type", usesAnnotatedPOJO()?"0":"1"); // Test if execute default value calculators
+		assertValue("type", usesAnnotatedPOJO()?"2":"3"); // Test if execute default value calculators
 		
 		// Creating
 		setValue("number", "66");

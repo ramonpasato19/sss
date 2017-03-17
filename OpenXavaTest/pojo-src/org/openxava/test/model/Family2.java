@@ -1,23 +1,27 @@
 package org.openxava.test.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
-import org.hibernate.validator.*;
+import org.hibernate.validator.constraints.*;
 import org.openxava.annotations.*;
 
 /**
  * Family2 not have oid,
  * like the typical number/description table. <p>
  * 
- * In this class we use Hibernate Validator annotations
- * for defining the size of the properties (@Max and @Length)
- * instead of the JPA one (@Column(length=)).<br>
+ * In this class we use a Hibernate Validator annotation (@Length)
+ * and a Bean Validation annotation (@Max) for defining the size 
+ * of the properties instead of the JPA one (@Column(length=)).<br>
  * 
  * @author Javier Paniza
  */
 
 @Entity
-@View(name="OneLine", members="number, description") 
+@Views({ 
+	@View(name="OneLine", members="number, description"),
+	@View(name="Number", members="number") 
+})
 public class Family2 {
 
 	@Id @Max(999)

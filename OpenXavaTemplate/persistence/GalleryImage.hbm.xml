@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!DOCTYPE hibernate-mapping SYSTEM "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!DOCTYPE hibernate-mapping SYSTEM "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="org.openxava.session">
 
@@ -13,7 +13,7 @@
 		</id>
 		
 		<property name="galleryOid" column="GALLERY"/>
-		<property name="image" column="IMAGE"/>
+		<property name="image" column="IMAGE" length="16777216"/>
 				
 	</class>
 

@@ -85,6 +85,7 @@
   ordenado-por-clave (true|false) "false"    
   orden CDATA #IMPLIED
   formato-etiqueta (NORMAL|PEQUENA|SIN_ETIQUETA) "NORMAL"
+  mostrar-vista-referencia (true|false) "false"
   para-tabs CDATA #IMPLIED
   no-para-tabs CDATA #IMPLIED
 >

@@ -40,6 +40,35 @@ abstract public class ModelMapping implements java.io.Serializable {
 	abstract public MetaModel getMetaModel() throws XavaException;
 	
 	/**
+	 * @since 5.6
+	 */
+	public void fillWithDefaultValues() { 
+		setTable(getMetaModel().getName());
+		for (Iterator itProperties = getMetaModel().getMetaProperties().iterator(); itProperties.hasNext(); ) {
+			MetaProperty p = (MetaProperty) itProperties.next();
+			if (!p.isCalculated()) {
+				PropertyMapping propertyMapping = new PropertyMapping(this);
+				propertyMapping.setProperty(p.getName());
+				propertyMapping.setColumn(p.getName());
+				addPropertyMapping(propertyMapping);
+			}
+		}
+		for (Iterator itReferences = getMetaModel().getMetaReferencesToEntity().iterator(); itReferences.hasNext();) {
+			MetaReference ref = (MetaReference) itReferences.next();
+			ReferenceMapping refMapping = new ReferenceMapping();
+			refMapping.setReference(ref.getName());
+			for (Iterator itReferencedKeys = ref.getMetaModelReferenced().getAllKeyPropertiesNames().iterator(); itReferencedKeys.hasNext();) {
+				String referencedKey = (String) itReferencedKeys.next();
+				ReferenceMappingDetail detail = new ReferenceMappingDetail();
+				detail.setColumn(ref.getName() + "_" + Strings.change(referencedKey, ".", "_"));
+				detail.setReferencedModelProperty(referencedKey);
+				refMapping.addDetail(detail);
+			}
+			addReferenceMapping(refMapping);
+		}
+	}
+	
+	/**
 	 * Util specially to find out the type of
 	 * properties that are not in model, only
 	 * in mapping.
@@ -59,14 +88,14 @@ abstract public class ModelMapping implements java.io.Serializable {
 	public String getTable() { 
 		// Change this if by polymorphism ?		
 		if (isCodeGenerationTime()) return table;
-		if (XavaPreferences.getInstance().isJPAPersistence() && 
+		if (getMetaModel().isAnnotatedEJB3() && 
 			getSchema() == null && !Is.emptyString(XPersistence.getDefaultSchema())) {
 			return  XPersistence.getDefaultSchema() + "." + table; 
 		}
-		else if (XavaPreferences.getInstance().isHibernatePersistence() && 
+		else if (getMetaModel().isPojoGenerated() && 
 			getSchema() == null && !Is.emptyString(XHibernate.getDefaultSchema())) {
 			return  XHibernate.getDefaultSchema() + "." + table; 
-		}		
+		}				
 		return table;
 	}
 	private static boolean isCodeGenerationTime() {

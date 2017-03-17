@@ -24,7 +24,6 @@ public class AddColumnsAction extends ViewBaseAction implements INavigationActio
 		}
 		else {
 			getTab().addProperties(Arrays.asList(property));
-
 		}
 		closeDialog();
 	}

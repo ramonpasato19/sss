@@ -4,8 +4,8 @@ import java.math.*;
 import java.util.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
-import org.hibernate.validator.*;
 import org.openxava.annotations.*;
 import org.openxava.jpa.*;
 import org.openxava.test.calculators.*;

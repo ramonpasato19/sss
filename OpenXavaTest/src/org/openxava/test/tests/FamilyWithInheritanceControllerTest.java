@@ -34,7 +34,6 @@ public class FamilyWithInheritanceControllerTest extends ModuleTestBase {
 	private String [] listActions = {
 		"Print.generatePdf",
 		"Print.generateExcel",
-		"ExtendedPrint.myReports",
 		"Family.new",
 		"CRUD.deleteSelected",
 		"CRUD.deleteRow",
@@ -44,7 +43,9 @@ public class FamilyWithInheritanceControllerTest extends ModuleTestBase {
 		"List.orderBy",
 		"List.viewDetail",
 		"List.hideRows",
-		"List.sumColumn" 
+		"List.sumColumn",
+		"List.changeConfigurationName", 
+		"ListFormat.select" 
 	};
 	
 	private String [] actionsWithoutDelete = {

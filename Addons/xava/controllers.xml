@@ -15,8 +15,27 @@
 			class="com.openxava.naviox.actions.InitSignInAction"/>
 	
 		<action name="signIn"  			
-			class="com.openxava.naviox.actions.SignInAction"/>
+			class="com.openxava.naviox.actions.SignInAction"/>			
 					
+	</controller>
+	
+	<controller name="GoSignUp">
+		
+		<action name="signUp"
+        	class="com.openxava.naviox.actions.GoSignUpAction"/>	
+        	
+	</controller>
+	
+	<controller name="UserJoin">
+		
+        <action name="join"
+        	class="com.openxava.naviox.actions.UserJoinAction"/>	
+        	
+	</controller>	
+	
+	<controller name="SignUp">
+    	<action name="signUp"
+        	class="com.openxava.naviox.actions.SignUpAction"/>							      
 	</controller>
 
 	<controller name="SessionLocker">
@@ -111,7 +130,10 @@
 			class="com.openxava.naviox.actions.CreateNewOrganizationAction"/>
 			
 		<action name="delete" mode="detail" confirm="true"
-			class="com.openxava.naviox.actions.DeleteOrganizationAction"/>		
+			class="com.openxava.naviox.actions.DeleteOrganizationAction"/>
+		
+		<action name="go" in-each-row="true" mode="NONE" icon="exit-to-app"			
+			class="com.openxava.naviox.actions.GoOrganizationAction"/>
 						
 	</controller>
 		

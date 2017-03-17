@@ -19,7 +19,10 @@ import org.openxava.jpa.*;
 
 @Entity
 @Tab(properties="number, description, remarks, family.number, family.description")
-@View(name="WithFamilyNoFrame", members="family") 
+@Views({ 
+	@View(name="WithFamilyNoFrame", members="family"),
+	@View(name="Number", members="number") 
+})
 public class Subfamily2 {
 	
 	@Id @Column(length=3)

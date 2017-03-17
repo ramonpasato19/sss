@@ -19,11 +19,6 @@ public class WebSpherePortal61Style extends WebSpherePortal6Style {
 		return "";
 	}
 	
-	public String getFrameWidth() { 
-		return "width='90%'";
-	}
-
-	
 	public String getFrameHeaderStartDecoration(int width) {
 		String widthAttribute = width == 0?"":"width=" + width+ "% ";
 		return "<table " + widthAttribute + " style='float: left; margin-right: 4px;' class='wpsPortlet' cellpadding='0' cellspacing='0'><tr><td><table class='wpsPortletTitleBar' style='' cellpadding='0' cellspacing='0'><tr>";

@@ -17,7 +17,7 @@ public class DescriptionTest extends ModuleTestBase {
 		super(testName, "Description");		
 	}
 	
-	public void testDocModule() throws Exception {
+	public void testDocModule() throws Exception { 
 		if (!isPortalEnabled()) {
 			log.warn("DescriptionTest is not executed. It needed to be tested against a portal");
 			return;

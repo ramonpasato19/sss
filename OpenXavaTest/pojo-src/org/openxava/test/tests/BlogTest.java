@@ -49,7 +49,7 @@ public class BlogTest extends ModuleTestBase {
 										// default collection actions
 		execute("Collection.new", "viewObject=xava_view_comments");		
 		
-		setValue("body", "I agree");
+		setValue("body", "I agree"); 
 		execute("Collection.save");		
 		assertNoErrors();		
 

@@ -31,7 +31,12 @@ import org.openxava.annotations.*;
 	@View(name="WithSectionsAsProgrammer", extendsView="super.WithSections"),
 	@View(name="WithSectionsNoFavouriteFramework", extendsView="super.WithSections", 
 		members = "frameworks { frameworks }"
-	)	
+	),
+	@View(name="WithGroupInSection", extendsView="super.WithGroupInSection", 
+		members = 
+			"favouriteFramework;" +
+			"frameworks { frameworks }"
+	)
 })
 public class JavaProgrammer extends Programmer {
 

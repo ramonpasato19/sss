@@ -55,11 +55,7 @@ public class WebSpherePortal8Style extends PortalStyle {
 	public String getRestoreImage() {
 		return "/wps/images/icons/RestoreView_Task.gif";
 	}
-	
-	public String getMaximizeImage() {
-		return "/wps/images/icons/MaximizeSlides_Task.gif";
-	}
-		
+			
 	public String getRemoveImage() {
 		return "/wps/images/icons/DeleteFolder.gif";
 	}

@@ -45,7 +45,9 @@ public class FilterBySubfamily {
 	
 	@Depends("subfamily.number, subfamilyTo.number")
 	public String getRangeDescription() { 		
-		return "FROM SUBFAMILY " + getSubfamily().getNumber() + " TO SUBFAMILY " + getSubfamilyTo().getNumber(); 
+		int subfamilyNumber = getSubfamily() == null?0:getSubfamily().getNumber();
+		int subfamilyToNumber = getSubfamilyTo() == null?0:getSubfamilyTo().getNumber();
+		return "FROM SUBFAMILY " + subfamilyNumber + " TO SUBFAMILY " + subfamilyToNumber;
 	}
 
 	public Subfamily2 getSubfamily() {

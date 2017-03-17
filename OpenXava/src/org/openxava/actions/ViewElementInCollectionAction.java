@@ -9,9 +9,9 @@ public class ViewElementInCollectionAction extends EditElementInCollectionAction
 		
 	public void execute() throws Exception {		
 		getCollectionElementView().setKeyEditable(false);		
-		super.execute();		
+		super.execute();
 		removeActions(
 			getCollectionElementView().getSaveCollectionElementAction(), 	 
-			getCollectionElementView().getRemoveCollectionElementAction());		
+			getCollectionElementView().getRemoveCollectionElementAction());
 	}
 }

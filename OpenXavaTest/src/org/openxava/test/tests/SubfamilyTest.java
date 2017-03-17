@@ -20,7 +20,7 @@ public class SubfamilyTest extends ModuleTestBase {
 		execute("Mode.detailAndFirst");
 		assertNoErrors();
 		execute("CRUD.save");
-		assertNoErrors();
+		assertNoErrors(); 
 	}	
 	
 	public void testFilledWithZeros() throws Exception {

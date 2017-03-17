@@ -57,7 +57,7 @@ public class JavaProgrammerExtendedViewsTest extends ModuleTestBase {
 		assertNoAction("Sections.change");
 
 		execute("JavaProgrammer.changeToSimpleView");
-		assertExists("name");
+		assertExists("name"); 
 		assertExists("sex"); 
 		assertExists("mainLanguage");
 		assertNotExists("favouriteFramework");

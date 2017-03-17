@@ -6,6 +6,11 @@
 <%@page import="org.openxava.util.Locales"%>
 <%@page import="com.openxava.naviox.web.NaviOXStyle"%>
 <%@page import="com.openxava.naviox.util.Organizations"%>
+<%@page import="com.openxava.phone.web.Users"%>
+
+<% if (Users.currentNeedsToChangePassword()) { %>
+	<jsp:forward page="/p/ChangePassword"/>
+<% } %>
 
 <jsp:useBean id="context" class="org.openxava.controller.ModuleContext" scope="session"/>
 <jsp:useBean id="folders" class="com.openxava.naviox.Folders" scope="session"/>
@@ -20,9 +25,9 @@ folders.setApplicationNameAsRootLabel(true);
 <!DOCTYPE html>
 
 <head>
-	<title><%=folders.getApplicationLabel()%></title>
+	<title><%=folders.getApplicationLabel()%></title>	
 	<meta name='apple-mobile-web-app-capable' content='yes'/>
-	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>				
+	<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'>
 	<link href="<%=request.getContextPath()%>/phone/style/phone.css" rel="stylesheet" type="text/css">
 	<script type='text/javascript' src='<%=request.getContextPath()%>/xava/js/dwr-engine.js?ox=<%=version%>'></script>
 	<script type='text/javascript' src='<%=request.getContextPath()%>/dwr/interface/Modules.js?ox=<%=version%>'></script>

@@ -960,11 +960,13 @@
 	
 	<target name="copyWeb">
 		<copy todir="../${project}/web/xava" overwrite="true" >
-			<fileset dir="../OpenXava/web" excludes="WEB-INF/**,style/custom.css"/>
+			<fileset dir="../OpenXava/web" excludes="WEB-INF/**,style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp"/>
 		</copy>
-		<copy todir="../${project}/web/xava/style" overwrite="false">
-			<fileset file="../OpenXava/web/style/custom.css"/>
-		</copy>
+		<copy todir="../${project}/web/xava">
+			<fileset dir="../OpenXava/web" includes="style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp">
+				<present present="srconly" targetdir="../${project}/web/xava" />
+			</fileset>
+		</copy>				
 		<copy todir="../${project}/web/WEB-INF" overwrite="true">
 			<fileset dir="../OpenXava/web/WEB-INF"/>
 		</copy>
@@ -972,8 +974,13 @@
 
 	<target name="installAddons">
 		<copy todir="../${project}/web" overwrite="true">
-			<fileset dir="../Addons/web"/>
+			<fileset dir="../Addons/web" excludes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp"/>
 		</copy>
+		<copy todir="../${project}/web">
+			<fileset dir="../Addons/web" includes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp">
+				<present present="srconly" targetdir="../${project}/web" />
+			</fileset>
+		</copy>			
 		<copy todir="../${project}/properties">
 			<fileset dir="../Addons/properties-templates">
 				<present present="srconly" targetdir="../${project}/properties" />

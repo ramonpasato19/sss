@@ -56,6 +56,20 @@
 			<section name="customers">customers</section>
 		</members>	
 	</view>
+
+	<view name="Simple">
+		<reference-view reference="level">
+			<descriptions-list/>
+		</reference-view>
+		 <members>number; name; level</members>
+	</view>
+	
+	<view name="SimpleNoNumber">
+		<reference-view reference="level">
+			<descriptions-list/>
+		</reference-view>
+		 <members>name; level</members>
+	</view>		
 	
 	<view name="CustomersAsAggregate">
 		<reference-view reference="level">

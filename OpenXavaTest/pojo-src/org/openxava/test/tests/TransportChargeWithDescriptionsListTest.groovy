@@ -17,7 +17,7 @@ class TransportChargeWithDescriptionsListTest extends ModuleTestBase {
 		super(testName, "TransportChargeWithDescriptionsList")		
 	}
 		
-	void testNestedCompositeKeysInDescriptionsList()  {
+	void testNestedCompositeKeysInDescriptionsList()  { 
 		deleteAllTransportCharges();		
 		assertListRowCount 0 
 		execute "CRUD.new"

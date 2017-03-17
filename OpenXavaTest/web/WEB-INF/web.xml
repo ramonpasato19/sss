@@ -83,6 +83,10 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 		<servlet-class>org.openxava.web.servlets.GenerateConcatReportServlet</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>generateCustomXLSReport</servlet-name>
+		<servlet-class>org.openxava.web.servlets.ReportXLSServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>files</servlet-name>
 		<servlet-class>org.openxava.web.servlets.FilesServlet</servlet-class>
 	</servlet>
@@ -156,7 +160,11 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 	<servlet-mapping>
 		<servlet-name>generateExcelReport</servlet-name>
 		<url-pattern>/xava/list.csv</url-pattern>
-	</servlet-mapping>			
+	</servlet-mapping>	
+	<servlet-mapping>
+        <servlet-name>generateExcelReport</servlet-name>
+        <url-pattern>/xava/list.xls</url-pattern>
+    </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>generateCustomReport</servlet-name>
 		<url-pattern>/xava/report.pdf</url-pattern>
@@ -168,6 +176,10 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 	<servlet-mapping>
 		<servlet-name>generateConcatReport</servlet-name>
 		<url-pattern>/xava/concatReport.pdf</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>generateCustomXLSReport</servlet-name>
+		<url-pattern>/xava/report.xls</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>files</servlet-name>
@@ -190,12 +202,10 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 		<url-pattern>/dwr/*</url-pattern>
 	</servlet-mapping>	
 	
-  <mime-mapping>
-        <extension>
-            jnlp
-        </extension>
-        <mime-type>
-            application/x-java-jnlp-file
-        </mime-type>
-    </mime-mapping>	
+
+
+	<mime-mapping>
+		<extension>jnlp</extension>
+		<mime-type>application/x-java-jnlp-file</mime-type>
+	</mime-mapping>	
 </web-app>

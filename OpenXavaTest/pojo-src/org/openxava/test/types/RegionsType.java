@@ -32,7 +32,7 @@ public class RegionsType implements UserType {
 		return obj.hashCode();
 	}
 
-	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+	public Object nullSafeGet(ResultSet resultSet, String[] names, SessionImplementor implementor, Object owner) throws HibernateException, SQLException {
 		Object o = resultSet.getObject(names[0]);
    		if (o == null) return new String[0];
    		String dbValue = (String) o; 
@@ -43,7 +43,7 @@ public class RegionsType implements UserType {
    		return javaValue;
 	}
 
-	public void nullSafeSet(PreparedStatement ps, Object value, int index) throws HibernateException, SQLException {
+	public void nullSafeSet(PreparedStatement ps, Object value, int index, SessionImplementor implementor) throws HibernateException, SQLException {
 		if (value == null) {
 			ps.setString(index, "");
 			return;
@@ -74,21 +74,6 @@ public class RegionsType implements UserType {
 
 	public Object replace(Object original, Object target, Object owner) throws HibernateException {
 		return original;
-	}
-
-	@Override
-	public Object nullSafeGet(ResultSet arg0, String[] arg1,
-			SessionImplementor arg2, Object arg3) throws HibernateException,
-			SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void nullSafeSet(PreparedStatement arg0, Object arg1, int arg2,
-			SessionImplementor arg3) throws HibernateException, SQLException {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

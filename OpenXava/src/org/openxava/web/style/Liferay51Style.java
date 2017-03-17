@@ -71,23 +71,6 @@ public class Liferay51Style extends Liferay43Style {
 			"onmouseout=\"$(this).removeClass('portlet-section-alternate-hover hover').addClass('portlet-section-alternate'); openxava.markRows()\"";				
 	}	
 
-	public String getAscendingImage() {
-		return "ascending-white.gif";
-	}
-	
-	public String getDescendingImage() {
-		return "descending-white.gif";
-	}
-	
-	public String getAscending2Image() { 
-		return "ascending-white2.gif";
-	}
-	
-	public String getDescending2Image() { 
-		return "descending-white2.gif";
-	}
-	
-	
 	public String getSectionBarStartDecoration() {
 		return "<td style='padding-top: 4px;'>\n" +
 				"<ul class='tabs ui-tabs'>"; 
@@ -114,8 +97,7 @@ public class Liferay51Style extends Liferay43Style {
 	}
 		
 	public String getTotalRow() { 
-		// tmp return "results-row";
-		return super.getTotalRow() + " results-row"; // tmp
+		return super.getTotalRow() + " results-row"; 
 	}
 	
 	public String getTotalCell() { 

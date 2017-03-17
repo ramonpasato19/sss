@@ -159,29 +159,43 @@ String title = (p == null)?"":p.getDescription(request);
 String fvalue = (String) request.getAttribute(propertyKey + ".fvalue");
 boolean editable = "true".equals(request.getParameter("editable"));
 boolean label = org.openxava.util.XavaPreferences.getInstance().isReadOnlyAsLabel() || "true".equalsIgnoreCase(request.getParameter("readOnlyAsLabel"));
-if (editable) { 
-%>
-<select id="<%=propertyKey%>" name="<%=propertyKey%>" tabindex="1" class=<%=style.getEditor()%> <%=script%> title="<%=title%>">
-	<option value=""></option>
-<%
-	java.util.Iterator it = descriptions.iterator();
-	String selectedDescription = "";	
-	while (it.hasNext()) {
-		KeyAndDescription cl = (KeyAndDescription) it.next();	
-		String selected = "";
-		String description = formatter==null?cl.getDescription().toString():formatter.format(request, cl.getDescription());		
-		if (Is.equalAsStringIgnoreCase(fvalue, cl.getKey())) {
-			selected = "selected"; 
-			selectedDescription = description;
-		} 		
-%>
-	<option value="<%=cl.getKey()%>" <%=selected%>><%=description%></option>
-<%
-	} // del while
-%>
-</select>	
-<input type="hidden" name="<%=propertyKey%>__DESCRIPTION__" value="<%=selectedDescription%>"/>
-<% 
+if (editable) {
+		java.util.Iterator it = descriptions.iterator();
+		String selectedDescription = "";
+		String selectedKey = "";
+		StringBuffer values = new StringBuffer("[");
+		int maxDescriptionLength = 0;
+		while (it.hasNext()) {
+			KeyAndDescription cl = (KeyAndDescription) it.next();	
+			String selected = "";
+			String description = formatter==null?cl.getDescription().toString():formatter.format(request, cl.getDescription());
+			if (description.length() > maxDescriptionLength) maxDescriptionLength = description.length();
+			if (Is.equalAsStringIgnoreCase(fvalue, cl.getKey())) {
+				selected = "selected"; 
+				selectedDescription = description;
+				selectedKey = cl.getKey().toString();
+			} 		
+			values.append("{label:\"");
+			values.append(description.replaceAll("'", "&apos;").replaceAll("\"", "&Prime;")); 
+			values.append("\",value:\"");
+			values.append(cl.getKey().toString().replaceAll("'", "&apos;").replaceAll("\"", "&Prime;")); 
+			values.append("\"}");
+			if (it.hasNext()) values.append(",");
+		} 
+		values.append("]");
+		String browser = request.getHeader("user-agent");
+		maxDescriptionLength += 5;
+	%>
+	<span class="<%=style.getDescriptionsList()%>">
+	<%-- The JavaScript code depends on the order of the next elements --%>
+	<input name="<%=propertyKey%>__CONTROL__" type="text" tabindex="1" class="xava_select <%=style.getEditor()%>" size="<%=maxDescriptionLength%>" <%=script%> title="<%=title%>" 
+		data-values='<%=values%>' value="<%=selectedDescription%>"/> 
+	<input id="<%=propertyKey%>" type="hidden" name="<%=propertyKey%>" value="<%=selectedKey%>"/>
+	<input type="hidden" name="<%=propertyKey%>__DESCRIPTION__" value="<%=selectedDescription%>"/>
+	<a class="ox-layout-descriptions-editor-handler" href="javascript:descriptionsEditor.open('<%=propertyKey%>')"><i class="mdi mdi-menu-down"></i></a> 		
+	<a class="ox-layout-descriptions-editor-handler" href="javascript:descriptionsEditor.close('<%=propertyKey%>')" style="display: none"><i class="mdi mdi-menu-up"></i></a>
+	</span>
+	<% 	
 } else { 
 	Object description = "";
 	java.util.Iterator it = descriptions.iterator();

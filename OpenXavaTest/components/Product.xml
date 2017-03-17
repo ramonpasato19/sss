@@ -41,7 +41,7 @@ therefore it's show some features more advances of stereotypes.
 			</default-value-calculator>
 			<validator class="org.openxava.test.validators.UnitPriceValidator"/>    
 		</property>	
-		<property name="unitPriceInPesetas" type="java.math.BigDecimal" size="18">
+		<property name="unitPriceInPesetas" type="java.math.BigDecimal" size="10" scale="0">
 			<calculator class="org.openxava.test.calculators.EurosToPesetasCalculator">
 				<set property="euros" from="unitPrice"/>
 				<set property="rate" value="166.386"/>  <!-- to test mixing 'value' and 'from' at same time -->

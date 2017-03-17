@@ -4,15 +4,13 @@ import java.rmi.*;
 
 import org.openxava.jpa.*;
 import org.openxava.test.model.*;
-import org.openxava.tests.*;
-
 
 /**
  * 
  * @author Javier Paniza
  */
 
-public class SellerTest extends ModuleTestBase {
+public class SellerTest extends CustomizeListTestBase { 
 		
 	private Customer customer2;
 	private Customer customer1;
@@ -20,11 +18,25 @@ public class SellerTest extends ModuleTestBase {
 	public SellerTest(String testName) {
 		super(testName, "Seller");		
 	}
+		
+	public void testCollectionWithListPropertiesStoresPreferences() throws Exception {  
+		execute("CRUD.new");
+		assertCollectionColumnCount("customers", 6);
+		removeColumn("customers", 5); 
+		assertCollectionColumnCount("customers", 5); 
+		resetModule();
+		execute("CRUD.new");
+		assertCollectionColumnCount("customers", 5); 
+		
+		execute("List.addColumns", "collection=customers");
+		execute("AddColumns.restoreDefault");
+		assertCollectionColumnCount("customers", 6);		
+	}
 	
 	public void testCollectionNotCorruptListInSplitMode() throws Exception { 
 		execute("Mode.split");
 		assertListColumnCount(3);
-		assertValueInList(0, 0, "1");
+		assertValueInList(0, 0, "1"); 
 		assertValueInList(0, 1, "MANUEL CHAVARRI");
 		execute("List.viewDetail", "row=2");
 		execute("Collection.add", "viewObject=xava_view_customers");
@@ -56,13 +68,13 @@ public class SellerTest extends ModuleTestBase {
 	
 	public void testRowStyleInCollections() throws Exception {		
 		execute("Mode.detailAndFirst");
-		assertValue("number", "1");
+		assertValue("number", "1"); 
 		assertValue("name", "MANUEL CHAVARRI");
 				
 		int c = getCollectionRowCount("customers");
 		boolean found = false;		
 		for (int i=0; i<c; i++) {
-			String type = getValueInCollection("customers", i, "type");			
+			String type = getValueInCollection("customers", i, "type");		
 			if ("Steady".equals(type)) {				
 				assertRowStyleInCollection("customers", i, "row-highlight"); 				
 				found = true;
@@ -77,10 +89,10 @@ public class SellerTest extends ModuleTestBase {
 	}
 
 	
-	public void testListFeaturesInCollection() throws Exception {
+	public void testListFeaturesInCollection() throws Exception { 
 		// The correct elements
 		execute("List.viewDetail", "row=1");
-		assertValue("number", "2");
+		assertValue("number", "2"); 
 		assertValue("name", "JUANVI LLAVADOR");
 		assertCollectionRowCount("customers", 1);		
 		execute("Navigation.previous");
@@ -169,7 +181,7 @@ public class SellerTest extends ModuleTestBase {
 	public void testCustomEditorWithMultipleValuesFormatter_arraysInList() throws Exception {
 
 		// Arrays in list
-		assertValueInList(0, 0, "1");
+		assertValueInList(0, 0, "1"); 
 		assertValueInList(0, 1, "MANUEL CHAVARRI");
 		assertValueInList(0, 2, "1/3"); // This is a String []
 		
@@ -180,14 +192,14 @@ public class SellerTest extends ModuleTestBase {
 		
 		execute("CRUD.new");
 		assertValues("regions", emptyRegions);
-		setValue("number", "66");
+		setValue("number", "66"); 
 		setValue("name", "SELLER JUNIT 66");
 		setValue("level.id", "A");
 		setValues("regions", regions);
 		assertValues("regions", regions);
 		
 		execute("CRUD.save");
-		assertNoErrors();
+		assertNoErrors(); 
 		assertValues("regions", emptyRegions);		
 		
 		setValue("number", "66");
@@ -207,12 +219,25 @@ public class SellerTest extends ModuleTestBase {
 		assertMessage("Seller deleted successfully");
 	}
 	
-	public void testCollectionOfEntityReferencesElementsNotEditables() throws Exception {
+	public void testCollectionOfEntityReferencesElementsNotEditables_keepsOrderAfterClosingDialog() throws Exception {
 		execute("Mode.detailAndFirst");
-		execute("Collection.view", "row=0,viewObject=xava_view_customers");
+		assertValue("number", "1"); 
+		assertValueInCollection("customers", 0, "number", "1");
+		assertValueInCollection("customers", 1, "number", "2");
+		execute("List.orderBy", "property=number,collection=customers");
+		execute("List.orderBy", "property=number,collection=customers");
+		assertValueInCollection("customers", 0, "number", "2"); 
+		assertValueInCollection("customers", 1, "number", "1");
+
+		execute("Collection.view", "row=1,viewObject=xava_view_customers");
 		assertNoEditable("number");
 		assertNoEditable("name");
 		assertNoAction("Collection.new"); // of deliveryPlaces
+		
+		assertDialog();
+		closeDialog();
+		assertValueInCollection("customers", 0, "number", "2");
+		assertValueInCollection("customers", 1, "number", "1");
 	}
 	
 	public void testCustomizeListSupportsRecursiveReferences() throws Exception {
@@ -220,7 +245,13 @@ public class SellerTest extends ModuleTestBase {
 		assertAction("AddColumns.addColumns");
 	}
 	
-	public void testOnChangeListDescriptionReferenceWithStringSingleKey() throws Exception {
+	public void testOnChangeListDescriptionReferenceWithStringSingleKey_justCreatedObjectPresentWhenNavigating() throws Exception {
+		assertListRowCount(3); 
+		assertOnChangeListDescriptionReferenceWithStringSingleKey();
+		assertJustCreatedObjectPresentWhenNavigating();
+	}
+	
+	private void assertOnChangeListDescriptionReferenceWithStringSingleKey() throws Exception { 
 		execute("CRUD.new");
 		setValue("level.id", "A"); 
 		assertNoErrors();
@@ -228,9 +259,34 @@ public class SellerTest extends ModuleTestBase {
 		assertNoErrors();
 	}
 	
+	private void assertJustCreatedObjectPresentWhenNavigating() throws Exception { 
+		setValue("number", "66");
+		setValue("name", "SELLER JUNIT 66");
+		execute("CRUD.save");
+		
+		execute("Navigation.first");
+		assertValue("number", "1");
+		assertValue("name", "MANUEL CHAVARRI");
+		
+		execute("Navigation.next");
+		assertValue("number", "2");
+		assertValue("name", "JUANVI LLAVADOR");
+		
+		execute("Navigation.next");
+		assertValue("number", "3");
+		assertValue("name", "ELISEO FERNANDEZ");
+	
+		execute("Navigation.next");
+		assertValue("number", "66");
+		assertValue("name", "SELLER JUNIT 66");
+
+		execute("CRUD.delete");
+		assertMessage("Seller deleted successfully");		 
+	}
+
 	public void testEntityReferenceCollections() throws Exception { 		
 		createCustomers(); 
-		createSeller66();
+		createSeller66(); 
 		createSeller67();
 		verifySeller66();
 		deleteCustomers(); 
@@ -389,7 +445,7 @@ public class SellerTest extends ModuleTestBase {
 		customer1 = new Customer();
 		customer1.setNumber(66);
 		customer1.setName("Customer Junit 66");
-		// customer1.setType(1); // For XML components
+		// customer1.setType(1); // For XML components 
 		customer1.setType(Customer.Type.NORMAL); // For annotated POJOs
 		customer1.setAddress(createAddress());
 		customer1.setRemarks("REMARKS JUNIT 66");
@@ -399,7 +455,7 @@ public class SellerTest extends ModuleTestBase {
 		customer2 = new Customer();
 		customer2.setNumber(67);
 		customer2.setName("Customer Junit 67");
-		// customer2.setType(1); // For XML components
+		// customer2.setType(1); // For XML components 
 		customer2.setType(Customer.Type.NORMAL); // For annotated POJOs
 		customer2.setAddress(createAddress());
 		customer2.setRemarks("REMARKS JUNIT 67");

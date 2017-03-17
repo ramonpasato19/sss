@@ -61,13 +61,14 @@ try {
 	}
 	java.util.List<Integer> selected = new java.util.ArrayList<Integer>(); 
 	int end = model.getRowCount();
+	
 	for (int i = 0; i < end; i++){
 		Map key = (Map)model.getObjectAt(i);
 		for (Map selectedKey : selectedKeys) {
-	if (selectedKey.equals(key)) {
-		selected.add(i);
-		break;
-	}
+			if (selectedKey.equals(key)) { 
+				selected.add(i);
+				break;
+			}
 		}
 	}
 	int[] selectedRows = ArrayUtils.toPrimitive(selected.toArray(new Integer[selected.size()]));
@@ -77,8 +78,7 @@ try {
 	List<ChartColumn> selectedColumns = new ArrayList<ChartColumn>();
 	for (int index = 0; index < chart.getColumns().size(); index++) {
 		ChartColumn column = chart.getColumns().get(index);
-		if (!column.isDisplayed() ||
-				!column.isNumber()) {
+		if (!column.isNumber()) {
 			continue;
 		}
 		selectedColumns.add(column);
@@ -90,7 +90,7 @@ try {
 		%>
 	<input type="hidden" id='<%=idPrefix + "columnCount"%>' value="<%=selectedColumns.size()%>" />
 	<%
-		if (!Is.emptyString(chart.getyColumn())) {
+		if (!Is.emptyString(chart.getxColumn())) {
 	%>
 		<input type="hidden" id='<%=idPrefix + "rowCount"%>' value="<%=selectedRows.length%>" />
 		<%
@@ -103,7 +103,7 @@ try {
 			Object object = MapFacade.findEntity(tab.getModelName(), keyValues);
 			Object labelColumnObject;
 			try {
-				labelColumnObject = PropertyUtils.getProperty(object, chart.getyColumn());
+				labelColumnObject = PropertyUtils.getProperty(object, chart.getxColumn());
 				String labelColumnValue = "";
 				if (labelColumnObject != null) {
 					if (labelColumnObject instanceof java.util.Date) {
@@ -157,5 +157,5 @@ try {
 <input type="hidden" id='<%=idPrefix + "grouped" %>' value="<%=isGrouped %>" />
 <input type="hidden" id='<%=propertyKey%>' value="<%=fvalue%>" />
 
-<div class="ct-chart ct-perfect-fourth" id='<%=idPrefix + "container" %>' style="width:640px; height:400px; overflow:hidden">
+<div class="ct-chart ct-perfect-fourth" id='<%=idPrefix + "container" %>' style="width:800px; height:400px; overflow:hidden">
 </div>

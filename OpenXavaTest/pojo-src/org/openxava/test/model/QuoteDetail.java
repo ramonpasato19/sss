@@ -24,6 +24,7 @@ public class QuoteDetail {
 			name="productNumber",
 			from="product.number")
 	)
+	@Stereotype("MONEY") 
 	private BigDecimal unitPrice;
 	
 	private int quantity;

@@ -31,13 +31,13 @@ class Product5Test extends CustomizeListTestBase {
 	
 	// This case can be only reproduced in custom dialog with Product5 (in other Product it works)
 	void testDialogActionsAreNotLost() {  
-		execute "ExtendedPrint.myReports"
+		execute "ExtendedPrint.myReports" 
 		assertValueInCollection "columns", 4, 0, "Unit price"
 		assertValueInCollection "columns", 4, 4, "No"
 		execute "MyReport.editColumn", "row=4,viewObject=xava_view_columns"
 		setValue "sum", "true"
 		execute "MyReport.saveColumn"
-		assertValueInCollection("columns", 4, 4, "Yes");
+		assertValueInCollection("columns", 4, 4, "Yes"); 
 		assertAction "MyReport.generatePdf"
 	}
 	
@@ -91,13 +91,13 @@ class Product5Test extends CustomizeListTestBase {
 	void testCollectionWithLongNameStoresPreferences() { 
 		execute "CRUD.new"
 		assertCollectionColumnCount "productDetailsSupplierContactDetails", 2
-		removeColumn "productDetailsSupplierContactDetails", 1 
+		removeColumn "productDetailsSupplierContactDetails", 1  
 		assertCollectionColumnCount "productDetailsSupplierContactDetails", 1
 		
 		resetModule()
 		
 		execute "CRUD.new"
-		assertCollectionColumnCount "productDetailsSupplierContactDetails", 1
+		assertCollectionColumnCount "productDetailsSupplierContactDetails", 1 
 		execute "List.addColumns", "collection=productDetailsSupplierContactDetails"
 		execute "AddColumns.restoreDefault"
 		assertCollectionColumnCount "productDetailsSupplierContactDetails", 2 
@@ -108,15 +108,16 @@ class Product5Test extends CustomizeListTestBase {
 		assertCollectionColumnCount "productDetailsSupplierContactDetails", 2
 	}
 
-	void testRememberActionsInList() {
+	void testRememberActionsInList() { 
 		String[] listActions = 
 		[
 			'CRUD.new', 'CRUD.deleteRow', 'CRUD.deleteSelected',
 			'Print.generatePdf', 'Print.generateExcel',
-			'List.filter', 'List.sumColumn', 'List.orderBy', 'List.hideRows',
+			'List.filter', 'List.sumColumn', 'List.orderBy', 'List.hideRows', "List.changeConfigurationName",  
 			'List.viewDetail', 
 			'Mode.detailAndFirst', 'Mode.split',
 			'ExtendedPrint.myReports',
+			'ListFormat.select',
 			'Product5.goB'
 		]
 		String[] detailActions =
@@ -135,7 +136,7 @@ class Product5Test extends CustomizeListTestBase {
 		]
 		
 		// list -> detail -> list
-		assertActions(listActions)
+		assertActions(listActions) 
 		execute("Product5.goB")
 		assertAction("Product5.goA")
 		assertNoAction("Product5.goB")
@@ -144,7 +145,7 @@ class Product5Test extends CustomizeListTestBase {
 		assertActions(detailActions)
 		
 		execute("Mode.list")
-		assertAction("Product5.goA")
+		assertAction("Product5.goA") 
 		assertNoAction("Product5.goB")
 		assertAction("CRUD.new")
 		

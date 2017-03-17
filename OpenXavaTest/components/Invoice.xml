@@ -87,7 +87,7 @@
 								
 		<collection name="details">
 			<reference model="InvoiceDetail"/>
-			<order>${serviceType} desc</order>
+			<order>${serviceType} desc, ${oid} asc</order>
 			<postremove-calculator class="org.openxava.test.calculators.DetailPostremoveCalculator"/>
 		</collection>
 						
@@ -195,7 +195,7 @@
 	
 	<view name="NoSections">
 	
-		<reference-view reference="customer" view="Simple"/>
+		<reference-view reference="customer" view="SimpleWithCity"/>
 		
 		<collection-view collection="details">
 			<list-properties>product.description, product.unitPrice+, quantity, amount</list-properties>
@@ -213,10 +213,11 @@
 	</view>		
 			
 	<view name="NestedSections">
+		<property-view property="paid" read-only="true"/>
 		<reference-view reference="customer" view="Simple"/>
 		
 		<members>
-			year, number, date;
+			year, number, date, paid;
 			<section name="customer">customer</section>
 			<section name="data">				 
 				<section name="details">details</section>
@@ -400,7 +401,11 @@
 		<filter class="org.openxava.test.filters.YearParameterFilter"/>
 		<properties>year, number, customer.number, customer.name, amountsSum, vat, detailsCount, paid, importance</properties>
 		<base-condition>${year} = ?</base-condition>
-	</tab>	
+	</tab>
+	
+	<tab name="ManyTypes">
+		<properties>year, number, date, amountsSum, customer.email, paid, customer.name, customer.type, customer.seller.name</properties>
+	</tab>			
 		
 	<entity-mapping table="XAVATEST@separator@INVOICE">
 		<property-mapping

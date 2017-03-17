@@ -31,7 +31,7 @@ while (it.hasNext()) {
 	if (Is.emptyString(action.getLabel())) continue;
 	// The next question about "Print", "ExtendedPrint" and "Charts" is ad hoc, in the future we could move it
 	// to a properties files or even manage via NaviOX security
-	if (action.getMetaController().getName().equals("Print") || action.getMetaController().getName().equals("ExtendedPrint") || action.getMetaController().getName().equals("Charts")) continue;
+	if (action.getQualifiedName().equals("Print.generateExcel") || action.getMetaController().getName().equals("ExtendedPrint") || action.getMetaController().getName().equals("Charts")) continue;
 	if (!previousViews.isEmpty() && 
 		("cancel".equals(action.getName()) || "return".equals(action.getName()) || 
 		"cancelar".equals(action.getName()) || "volver".equals(action.getName()))) 

@@ -8,7 +8,6 @@
 
 <jsp:useBean id="context" class="org.openxava.controller.ModuleContext" scope="session"/>
 <jsp:useBean id="modules" class="com.openxava.naviox.Modules" scope="session"/>
-<jsp:useBean id="appHelper" class="com.common.helper.CommonHelper" scope="session"/>
 
 <%
 String app = request.getParameter("application");
@@ -24,6 +23,7 @@ String oxVersion = org.openxava.controller.ModuleManager.getVersion();
 
 <head>
 	<title><%=modules.getCurrentModuleDescription(request)%></title>
+	<link href="<%=request.getContextPath()%>/xava/style/layout.css?ox=<%=oxVersion%>" rel="stylesheet" type="text/css"> 
 	<link href="<%=request.getContextPath()%>/naviox/style/naviox.css?ox=<%=oxVersion%>" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="<%=request.getContextPath()%>/xava/style/materialdesignicons.css?ox=<%=oxVersion%>">
 	<script type='text/javascript' src='<%=request.getContextPath()%>/xava/js/dwr-engine.js?ox=<%=oxVersion%>'></script>
@@ -60,19 +60,22 @@ String oxVersion = org.openxava.controller.ModuleManager.getVersion();
 					<jsp:include page='signIn.jsp'/>
 					<% } else { %>
 					<div id="module_description">
-						<span style="float:right"><xava:message key='accountingDate'/>: <%=appHelper.getCurrentAccountingDate()%></span>
 						<img id="logo_organization" src="<%=request.getContextPath()%>/xava/images/logo/<%=modules.getLogoName(request)%>"/>
 						<%=modules.getPowerfinModuleDescription(request)%> 
 						<a href="javascript:naviox.bookmark()" title="<xava:message key='<%=modules.isCurrentBookmarked()?"unbookmark_module":"bookmark_module"%>'/>">
 							<img id="bookmark" src="<%=request.getContextPath()%>/naviox/images/bookmark-<%=modules.isCurrentBookmarked()?"on":"off"%>.png"/>
 						</a>
-					</div>					
-					<jsp:include page='<%="../xava/module.jsp?application=" + app + "&module=" + module + "&htmlHead=false"%>'/>
+					</div>				
+					<div id="module"> 	
+						<jsp:include page='<%="../xava/module.jsp?application=" + app + "&module=" + module + "&htmlHead=false"%>'/>
+					</div> 
 					<% } %>
 				</div>
 			</td>
 		</tr>
 	</table>
+	
+	<%@include file="indexExt.jsp"%>
 
 	<script type='text/javascript' src='<%=request.getContextPath()%>/naviox/js/naviox.js?ox=<%=oxVersion%>'></script> 
 	

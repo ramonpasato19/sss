@@ -2,6 +2,8 @@ package com.openxava.naviox;
 
 import java.util.*;
 
+import javax.servlet.*;
+
 import org.apache.commons.logging.*;
 import org.openxava.application.meta.*;
 import org.openxava.jpa.*;
@@ -9,6 +11,7 @@ import org.openxava.util.*;
 
 import com.openxava.naviox.impl.*;
 import com.openxava.naviox.model.*;
+import com.openxava.naviox.util.*;
 
 /**
  * 
@@ -22,8 +25,8 @@ public class Folders implements java.io.Serializable {
 	private Folder folder;
 	private Modules modules;
 	
-	private boolean applicationNameAsRootLabel;  
-	
+	private boolean applicationNameAsRootLabel;
+
 	public String getFolderLabel() { 
 		return getLabel(getFolder());
 	}
@@ -64,13 +67,14 @@ public class Folders implements java.io.Serializable {
 	public boolean isRoot() { 
 		return this.folder == null;
 	}
+		
 	
-	public Collection getSubfolders() { 
+	public Collection<Folder> getSubfolders() { 
 		return getSubfolders(getFolder());
 	}
 	
-	public Collection getSubfolders(Folder folder) { 
-		Collection subfolders = new ArrayList();
+	public Collection<Folder> getSubfolders(Folder folder) { 
+		Collection<Folder> subfolders = new ArrayList<Folder>();
 		for (Folder subfolder: Folder.findByParent(folder)) {
 			if (!getFolderModules(subfolder).isEmpty() || !getSubfolders(subfolder).isEmpty()) {
 				subfolders.add(subfolder);
@@ -80,13 +84,13 @@ public class Folders implements java.io.Serializable {
 	}
 
 	
-	public List getFolderModules() {
+	public List<MetaModule> getFolderModules() { 
 		return getFolderModules(getFolder());
 	}
 	
-	private List getFolderModules(Folder folder) { 
+	private List<MetaModule> getFolderModules(Folder folder) { 
 		Collection<Module> folderModules = folder == null?Module.findInRoot():folder.getModules();
-		List result = new ArrayList();
+		List<MetaModule> result = new ArrayList<MetaModule>();
 		for (Module module: folderModules) {
 			if (!module.getApplication().equals(MetaModuleFactory.getApplication())) continue; // Because we can share the database schema by several applications
 			MetaModule metaModule = MetaModuleFactory.create(module.getApplication(), module.getName());

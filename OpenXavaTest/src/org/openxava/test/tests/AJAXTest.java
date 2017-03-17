@@ -27,6 +27,12 @@ public class AJAXTest extends ModuleTestBase {
 		super(nameTest, null);
 	}
 	
+	public void testListFormats() throws Exception { 
+		changeModule("Carrier");
+		execute("ListFormat.select", "editor=Charts");
+		assertLoadedParts("view, errors, messages");
+	}
+	
 	public void testElementCollections() throws Exception { 
 		if (!usesAnnotatedPOJO()) return;
 		changeModule("Quote");
@@ -69,7 +75,7 @@ public class AJAXTest extends ModuleTestBase {
 			"errors, messages");
 		
 		HtmlElement row = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Quote__details___1"); 
-		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("img").get(0);
+		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("i").get(0);  
 		removeIcon.click();		
 		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
 		assertLoadedParts(
@@ -84,7 +90,7 @@ public class AJAXTest extends ModuleTestBase {
 		changeModule("ProductExpenses");
 		execute("CRUD.new");
 		setValueInCollection("expenses", 0, "family.number", "1");
-		assertLoadedParts(
+		assertLoadedParts( 
 			"reference_editor_expenses.0.subfamily," + 
 			"errors, messages");
 	}
@@ -95,7 +101,7 @@ public class AJAXTest extends ModuleTestBase {
 		execute("Mode.detailAndFirst");
 		assertLoadedParts("core");
 		HtmlElement row = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Reallocation__details___1"); 
-		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("img").get(0);
+		HtmlElement removeIcon = row.getElementsByTagName("a").get(0).getElementsByTagName("i").get(0); 
 		removeIcon.click();		
 		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
 		assertLoadedParts("core"); // No AJAX call at all			
@@ -111,6 +117,16 @@ public class AJAXTest extends ModuleTestBase {
 			"editor_visits.0.customer.name," + 
 			"editor_visits.0.description," +
 			"errors, messages");
+	}
+	
+	public void testDeleteImageInElementCollection() throws Exception { 
+		if (!usesAnnotatedPOJO()) return;
+		changeModule("Car");
+		execute("Mode.detailAndFirst");
+		assertValue("make", "MERCEDES");
+		assertValue("model", "CLA 250");
+		execute("ImageEditor.deleteImage", "newImageProperty=photos.1.photo");
+		assertLoadedParts("editor_photos___1___photo, errors, messages");
 	}
 		
 	public void testNotDuplicateDivOnLoadCollection() throws Exception { 
@@ -132,10 +148,24 @@ public class AJAXTest extends ModuleTestBase {
 				"messages,");
 	}
 	
+	public void testDescriptionsListWithShowReferenceView() throws Exception { 
+		changeModule("CustomerSellerAsDescriptionsListShowingReferenceView");
+		execute("Mode.detailAndFirst");
+		HtmlElement sellerEditor = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_CustomerSellerAsDescriptionsListShowingReferenceView__reference_editor_seller");
+		HtmlElement openSellerListIcon = sellerEditor.getOneHtmlElementByAttribute("i", "class", "mdi mdi-menu-down");
+		openSellerListIcon.click();
+		HtmlElement menuItem = (HtmlElement) getHtmlPage().getElementById("ui-id-3");
+		assertEquals("ui-menu-item", menuItem.getAttribute("class"));
+		assertEquals("JUANVI LLAVADOR", menuItem.asText());
+		menuItem.click();
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
+		assertLoadedParts("editor_seller___number, editor_seller___name, errors, messages");
+	}
+	
 	public void testChangingSelectedElementsOfACollectionTabByCodeNoReloadCollection() throws Exception {  
 		changeModule("CarrierWithCollectionsTogether");
 		execute("Mode.detailAndFirst");
-		assertAllCollectionUnchecked("fellowCarriers");
+		assertAllCollectionUnchecked("fellowCarriers"); 
 		assertRowCollectionUnchecked("fellowCarriers", 0);
 		assertRowCollectionUnchecked("fellowCarriers", 1);
 		assertRowCollectionUnchecked("fellowCarriers", 2);
@@ -240,26 +270,26 @@ public class AJAXTest extends ModuleTestBase {
 		execute("Mode.split");
 		assertLoadedParts("core");
 		execute("CRUD.new");		
-		assertLoadedParts("editor_comboDeliveries," + // Because it is set editable
-				"editor_description," + // Because it is set editable
-				"editor_number," + // Because it is set editable
+		assertLoadedParts(
+				"editor_description," + // We pass from first element to new
+				"editor_number," + // We pass from first element to new
 				"list_view," + // Because CRUD.new is also a list action 
-				"errors, messages");
+				"errors, messages");		
 		execute("CRUD.new");
 		assertLoadedParts("errors, messages, list_view");
 		execute("Navigation.next");
-		assertLoadedParts("editor_description," + // list_view is not loaded: Good!
-				// "editor_comboDeliveries," + // Only with XML components, because in XML is a view property, and in JPA is a transient property 
+		assertLoadedParts("editor_description," + // list_view is not loaded: Good! 
+				// "editor_comboDeliveries," + // Only with XML components, because in XML is a view property, and in JPA is a transient property   
 				"editor_number," +  
 				"errors, messages");
-		assertListRowCount(6); 
+		assertListRowCount(6);
 		execute("CRUD.new");
 		setValue("number", "66");
 		setValue("description", "JUNIT DELIVERY TYPE");
 		execute("DeliveryType.saveNotReset");
 		assertListRowCount(7);
 		assertLoadedParts("editor_description," +
-				// "editor_comboDeliveries," + // Only with XML components 
+				// "editor_comboDeliveries," + // Only with XML components    
 				"list_view," + // Because DeliveryType.saveNotReset changes data that can be in the list
 				"editor_number," +  
 				"errors, messages");	
@@ -354,17 +384,18 @@ public class AJAXTest extends ModuleTestBase {
 				"collection_deliveryPlaces., " +
 				"frame_deliveryPlacesheader, " + 
 				"editor_photo, messages, ");		
-		setValue("seller.number", "2");				
+		setValue("seller.number", "2");
 		assertLoadedParts("errors, editor_seller.name, " +
 				"messages,");
-		setValue("seller.number", "1");		
-		assertLoadedParts("errors, editor_seller.name, " +
+		setValue("seller.number", "1");
+		assertLoadedParts("errors, editor_seller.name, " + 
 			"messages,");
 		execute("Customer.changeNameLabel");		
 		assertLoadedParts("label_name, errors, messages, ");
 		execute("CRUD.new");
 		assertLoadedParts("errors, editor_seller.name, " +
 				"editor_number, " +
+				"editor_type," + 
 				"editor_alternateSeller.number, " +
 				"editor_address.asString, " + 
 				"editor_address.city, " +
@@ -382,6 +413,7 @@ public class AJAXTest extends ModuleTestBase {
 		setValue("number", "4"); 
 		execute("CRUD.refresh");
 		assertLoadedParts("errors, editor_number, " +
+				"editor_type, " + 
 				"editor_address.asString, " + 
 				"editor_address.city, " +
 				"editor_address.zipCode, " +
@@ -565,7 +597,7 @@ public class AJAXTest extends ModuleTestBase {
 		assertLoadedPart("reference_editor_address___state"); 
 		
 		execute("Navigation.next");
-		assertValue("number", "3"); 
+		assertValue("number", "3"); 	
 		assertDescriptionValue("address.state.id", "New York");
 		assertLoadedPart("reference_editor_address___state"); 
 		
@@ -651,7 +683,7 @@ public class AJAXTest extends ModuleTestBase {
 		execute("Mode.detailAndFirst");
 		assertCollectionRowCount("fellowCarriers", 3);  
 		setValue("warehouse.number", "2");
-		assertCollectionRowCount("fellowCarriers", 0);
+		assertCollectionRowCount("fellowCarriers", 0); 
 		setValue("warehouse.number", "1");
 		assertCollectionRowCount("fellowCarriers", 3);
 		assertLoadedParts("errors, collection_fellowCarriers., " + 
@@ -748,8 +780,9 @@ public class AJAXTest extends ModuleTestBase {
 				"error_image_Product2.number, " +
 				"messages");
 		HtmlPage page = (HtmlPage) getWebClient().getCurrentWindow().getEnclosedPage();
-		HtmlSpan description = (HtmlSpan) page.getElementById(decorateId("error_image_Product2.description"));		
-		assertTrue("description has no image error", description.asXml().indexOf("/xava/images/error.gif") >= 0);
+		HtmlSpan description = (HtmlSpan) page.getElementById(decorateId("error_image_Product2.description"));
+		assertTrue("description has no image error", description.asXml().indexOf("<i class=\"ox-error-icon mdi mdi-alert-circle\"") >= 0); 
+		
 		
 		setValue("description", "z");
 		execute("CRUD.save");
@@ -761,12 +794,12 @@ public class AJAXTest extends ModuleTestBase {
 				"error_image_Product2.number, " +
 				"editor_description, " + // Needed to refresh it because a converter transforms it to uppercase
 				"messages");		
-		assertTrue("description has image error", description.asXml().indexOf("/xava/images/error.gif") < 0);
+		assertTrue("description has image error", description.asXml().contains("<i class=\"ox-error-icon mdi mdi-alert-circle\" style=\"visibility:hidden;\"")); 
 		
 		HtmlSpan number = (HtmlSpan) page.getElementById(decorateId("error_image_Product2.number"));
-		assertTrue("number has no image error", number.asXml().indexOf("/xava/images/error.gif") >= 0);
+		assertTrue("number has no image error", number.asXml().indexOf("<i class=\"ox-error-icon mdi mdi-alert-circle\"") >= 0); 
 		execute("CRUD.new");
-		assertTrue("number has image error", number.asXml().indexOf("/xava/images/error.gif") < 0);
+		assertTrue("number has image error", number.asXml().contains("<i class=\"ox-error-icon mdi mdi-alert-circle\" style=\"visibility:hidden;\"")); 
 		
 		// To test that Number:999 is not used as member name
 		setValue("number", "999");

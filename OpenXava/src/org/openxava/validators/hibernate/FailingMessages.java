@@ -1,6 +1,7 @@
 package org.openxava.validators.hibernate;
 
 import org.openxava.util.*;
+import org.openxava.validators.*;
 
 /**
  * To use in validators in this package, in order to avoid 
@@ -14,6 +15,8 @@ import org.openxava.util.*;
 
 class FailingMessages extends Messages {
 	
+	private static final long serialVersionUID = -8169129622648189554L;
+
 	final public static String EXCEPTION_MESSAGE="xava.failing.messages.added";
 	
 	private static FailingMessages instance = new FailingMessages();
@@ -27,12 +30,12 @@ class FailingMessages extends Messages {
 	
 	@Override
 	public void add(Messages messages) {		
-		throw new IllegalStateException(EXCEPTION_MESSAGE);
+		throw new IllegalStateException(EXCEPTION_MESSAGE, new ValidationException(messages));
 	}
 		
 	@Override
-	public void add(String idMessage, Object[] ids) {		
-		throw new IllegalStateException(EXCEPTION_MESSAGE);
+	public void add(String idMessage, Object ... ids) {		
+		if (ids != null && ids.length > 0) idMessage = XavaResources.getString(idMessage, ids);
+		throw new IllegalStateException(EXCEPTION_MESSAGE, new ValidationException(idMessage));		
 	}
-
 }

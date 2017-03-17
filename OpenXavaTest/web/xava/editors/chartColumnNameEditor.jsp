@@ -1,7 +1,7 @@
 <%@ include file="../imports.jsp"%>
 
 <%@ page import="org.openxava.model.meta.MetaProperty" %>
-<%@ page import="org.openxava.actions.OnChangeChartLabelColumnAction" %>
+<%@ page import="org.openxava.actions.OnChangeChartColumnNameAction" %> 
 <%@ page import="org.openxava.util.Is" %>
 <%@ page import="org.openxava.util.Labels" %>
 <%@ page import="org.openxava.web.Charts"%>
@@ -33,7 +33,6 @@ boolean label = org.openxava.util.XavaPreferences.getInstance().isReadOnlyAsLabe
 
 boolean showAllColumns = Boolean.TRUE.equals((Boolean) view.getRoot().getObject("xava.chartColumnShowAllColumns"));
 boolean showOnlyNumericColumns = "true".equalsIgnoreCase(request.getParameter("showOnlyNumericColumns"));
-
 java.util.List<String> selectedColumns = new java.util.ArrayList<String>();
 if (!Is.emptyString(value)) {
 	selectedColumns.add(value);
@@ -51,8 +50,8 @@ if (editable) {
 	%>
 	<option value="" >&nbsp;</option>
 	<%
-		// current user
-		for (java.util.Iterator it = columns.iterator(); it.hasNext(); ) {
+	// current user
+	for (java.util.Iterator it = columns.iterator(); it.hasNext(); ) {
 		String column = (String) it.next();
 		String selected = "";
 		MetaProperty property = tab.getMetaTab().getMetaModel().getMetaProperty(column);
@@ -68,13 +67,13 @@ if (editable) {
 		}
 		if (!showAllColumns) {
 	%>
-	<option value="<%=OnChangeChartLabelColumnAction.SHOW_MORE%>"><xava:message key="my_report_show_more_columns"/></option>
+		<option value="<%=OnChangeChartColumnNameAction.SHOW_MORE%>"><xava:message key="my_report_show_more_columns"/></option>
 	<%
 		} else {
 	%>
-	<option value="<%=OnChangeChartLabelColumnAction.SHOW_LESS%>"><xava:message key="my_chart_show_less_columns"/></option>
-	<% }
-	
+		<option value="<%=OnChangeChartColumnNameAction.SHOW_LESS%>"><xava:message key="my_chart_show_less_columns"/></option>
+	<% 
+	}
 %>
 </select>
 <input type="hidden" name="<%=propertyKey%>__DESCRIPTION__" value="<%=fvalue%>">

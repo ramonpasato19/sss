@@ -10,7 +10,7 @@
 	<object name="xavatest_defaultYear" class="java.lang.Integer" value="1999"/>		
 	<object name="xavatest_limitZone" class="java.lang.Integer" value="999"/>
 	<object name="xavatest_invoiceValues" class="java.util.Map"/>
-		
+	
 	<!-- 
 		You can define attribute 'label' and 'description' for action, but
 		the resources in 'Labels.properties' or '${application}-labels.properties'
@@ -24,17 +24,33 @@
 			<set property="nextModule" value="ShowSeller"/>
 			<set property="reinit" value="true"/>
 		</action>	
-	</controller>	
+	</controller>
+
+	<controller name="Incident">	
+		<extends controller="Typical"/>
+		<action name="disableDiscussion" class="org.openxava.test.actions.DisableDiscussionAction"/> 
+	</controller>
 	
 	<controller name="GalleryNoDialog">		
 		<action name="edit" image="photo.gif" hidden="true"
 			class="org.openxava.test.actions.EditGalleryNoDialogAction"/>			
 	</controller>
 	
+	<controller name="Clerk">	
+		<extends controller="TypicalRealExcel"/>
+		<action name="createMyExcel" class="org.openxava.test.actions.CreateMyExcelAction" />
+	</controller>
+	
 	<controller name="Quote">	
 		<extends controller="Typical"/>
-		<action name="resetUnitPriceCalculator" class="org.openxava.test.actions.ResetUnitPriceCalculatorAction"
+		<action name="resetUnitPriceCalculator" 
+			class="org.openxava.test.actions.ResetUnitPriceCalculatorAction"
 			hidden="true" on-each-request="true"/>
+		<action name="showProducts" mode="detail"
+			class="org.openxava.test.actions.ShowQuoteProducsAction"/>
+		<action name="removeDetail" 
+			class="org.openxava.actions.RemoveSelectedInElementCollectionAction"
+			hidden="true"/>
 	</controller>
 
 	<controller name="Author">	
@@ -60,7 +76,18 @@
 			<set property="property" value="author"/>	
 			<set property="suffix" value=" LUCAS"/>
 		</action>			
-	</controller>	
+	</controller>
+	
+	<controller name="Applicant">	
+		<extends controller="Typical"/>		
+		<action name="showCreate" mode="detail" 
+			class="org.openxava.test.actions.ShowCreateAction"/>
+	</controller>			
+	
+	<controller name="JPACRUD">	
+		<action name="create" mode="detail" 
+			class="org.openxava.test.actions.CreateUsingJPAAction"/>
+	</controller>				
 		
 	<controller name="OrderDetail">				
         <action name="reduceQuantity" 
@@ -79,6 +106,16 @@
 			class="org.openxava.test.actions.SaveElementInCollectionAbortingTransactionAction"/>
 		<action name="failTrasactionInBuilding" hidden="true" 
 			class="org.openxava.test.actions.FailTransactionInCollectionElementAction"/>								
+	</controller>
+	
+	<controller name="Building"> 
+		<extends controller="Typical"/>
+		<action name="save" mode="detail"
+			by-default="always"
+			confirm="true"
+			class="org.openxava.actions.SaveAction"
+			icon="content-save"
+			keystroke="control alt S"/>			
 	</controller>
 	
 	<controller name="CorporationEmployee">
@@ -114,7 +151,7 @@
 		<action name="notWanted" class="org.openxava.test.actions.VoidAction"/>
 	
 	</controller>		
-		
+	
 	<controller name="HidingActions">
 	
 		<action  name="hideGeneratePdf" mode="list" 
@@ -146,12 +183,15 @@
 	is used to manage collections.
 	-->  
 	<controller name="Collection">
-		<action name="new" image="create_new.gif"
-			class="org.openxava.actions.CreateNewElementInCollectionAction"/>
 			
-		<action name="add" image="create_new.gif" 
+		<action name="new" image="create_new.gif"
+			icon="library-plus"
+			class="org.openxava.actions.CreateNewElementInCollectionAction"/>							
+				
+		<action name="add" image="create_new.gif"
+			icon="table-row-plus-after"
 			class="org.openxava.actions.GoAddElementsToCollectionAction"/>
-
+			
 		<action name="hideDetail" 
 			class="org.openxava.test.actions.HideDetailElementInCollectionWithMessageAction"/>
 							
@@ -164,18 +204,21 @@
 		<action name="remove" confirm="true" 
 			class="org.openxava.actions.RemoveElementFromCollectionAction"/>
 
-		<action name="edit" image="edit.gif" 
-			class="org.openxava.actions.EditElementInCollectionAction"/>
+		<action name="edit" image="edit.gif"
+			icon="pencil"
+			class="org.openxava.actions.EditElementInCollectionAction"/>					
 						 						
-		<action name="view" image="view.gif" 
+		<action name="view" image="view.gif"
+			icon="eye"
 			class="org.openxava.actions.ViewElementInCollectionAction"/>
 					 		
-		<action name="removeSelected" confirm="true" 
+		<action name="removeSelected" confirm="true"
+			icon="delete" 
 			image="delete.gif" in-each-row="true"
 			class="org.openxava.actions.RemoveSelectedInCollectionAction"/>
 	
 	</controller>
-						
+							
 	<controller name="ChangeActiveYear">
 		<!-- Do not remove use-object elements. This module is used to test them -->
 		<action name="showActiveYear" class="org.openxava.test.actions.ShowActiveYearAction"
@@ -203,22 +246,24 @@
 		<action name="save" mode="detail"
 			class="org.openxava.test.actions.SaveTaskAction"
 			image="save.gif"
-			keystroke="control alt S">			
+			keystroke="control alt S">
 			<set property="resetAfter" value="false"/>
 		</action>		
 	</controller>
 		
 	<controller name="DeliveryType"> 
 		<extends controller="Typical"/>
+		<!-- With image and without icon, to test a case  -->
 		<action name="saveNotReset" mode="detail"
 			class="org.openxava.actions.SaveAction"
 			image="save.gif"
 			keystroke="control alt S">			
 			<set property="resetAfter" value="false"/>
 		</action>
+		<!-- With icon and without image, to test a case -->
 		<action name="saveNotRefresh" mode="detail"
 			class="org.openxava.actions.SaveAction"
-			image="save.gif"
+			icon="floppy"
 			keystroke="control alt S">			
 			<set property="resetAfter" value="false"/>
 			<set property="refreshAfter" value="false"/>
@@ -235,7 +280,7 @@
 	</controller>
 		
 	<controller name="Delivery">
-		<extends controller="EditableOnOff"/>
+		<extends controller="EditableOnOff"/>		
 		<action name="search" mode="detail"
 			by-default="if-possible" hidden="true"			
 			class="org.openxava.test.actions.SearchDeliveryAction"
@@ -337,7 +382,7 @@
 	</controller>
 	
 	<controller name="Product5">
-		<extends controller="Typical"/>
+		<extends controller="TypicalExtendedPrint"/>
 		<action name="goA" on-init="true" mode="list" 
 			class="org.openxava.test.actions.ChangeToButtonAOrButtonB">
 			<set value="a" property="button"/>
@@ -351,7 +396,7 @@
 	</controller>
 			 	
 	<controller name="Customer">
-		<extends controller="Typical"/>
+		<extends controller="TypicalExtendedPrint"/>
 		<extends controller="EditableOnOff"/>
 		
 		<action name="save" mode="detail"
@@ -408,8 +453,7 @@
 		</action>
 		
 	</controller>
-	
-			
+				
 	<controller name="CustomerNewOnInit">
 		<action name="new" 
 			class="org.openxava.actions.NewAction"
@@ -424,7 +468,7 @@
 	<controller name="CustomerNewOnInitInherited">
 		<extends controller="CustomerNewOnInit"/>
 	</controller>
-		
+	
 	<controller name="ChangeModule">
 		<action name="goCustomer" class="org.openxava.actions.ChangeModuleAction">
 			<set property="nextModule" value="CustomerWithSection"/>
@@ -449,15 +493,19 @@
 	</controller>	
 	
 	<controller name="Invoice">
-		<extends controller="Typical"/>
-		<subcontroller controller="InvoicePrint" image="report.gif"/>
+		<extends controller="TypicalExtendedPrint"/>
+		<!-- With icon and without image to test a case -->
+		<subcontroller controller="InvoicePrint" icon="printer"/>
 		<action name="searchFromDelivery" hidden="true"
 			class="org.openxava.test.actions.SearchInvoiceFromDeliveryAction"/>														
 		<action name="listOfCustomer" hidden="true"
 			class="org.openxava.test.actions.ListCustomerInvoicesAction"/>
 		<action name="editDetail" hidden="true" 
 			image="edit.gif"
-			class="org.openxava.test.actions.EditInvoiceDetailAction"/>				
+			class="org.openxava.test.actions.EditInvoiceDetailAction"/>
+		<action name="editDetailWithSections" hidden="true" 
+			icon="pencil"
+			class="org.openxava.test.actions.EditInvoiceDetailWithSectionsAction"/>				
 		<action name="viewDelivery" hidden="true"
 			class="org.openxava.test.actions.ViewDeliveryFromInvoiceAction"/>
 				
@@ -497,10 +545,24 @@
 			class="org.openxava.test.actions.HideShowAction">
 			<set property="name" value="amounts"/>
 			<set property="hide" value="false"/>	
-		</action>																
-											
+		</action>				
+
+		<action name="testChartTab" mode="list"  
+			class="org.openxava.test.actions.TestSessionAttributeAction">
+			<set property="attribute" value="xava_chartTab"/>
+		</action>						
+		
 	</controller>
 	
+	<controller name="InvoiceNestedSections">
+		<extends controller="Typical"/>
+		<!-- With image and without icon to test a case -->
+		<subcontroller controller="InvoicePrint" image="report.gif"/>
+		<action name="showPaid" mode="detail" 
+			class="org.openxava.test.actions.ShowPropertyValueAction">
+			<set property="property" value="paid"/>
+		</action>															
+	</controller>
 
 	<controller name="InvoicePrint">
 		<action name="printPdf" mode="detail"
@@ -510,7 +572,7 @@
 		</action>
 		<action name="print2Pdfs" mode="detail"
 			class="org.openxava.test.actions.InvoiceTwoReportsAction"
-			image="pdf.gif">
+			icon="numeric-2-box-multiple-outline">
 			<set property="format" value="pdf"/>												
 		</action>
 		<action name="printInvoiceAndCustomer" mode="detail"
@@ -607,7 +669,7 @@
 	</controller>
 						 				
 	<controller name="Warehouse">
-		<extends controller="Typical"/>
+		<extends controller="Typical"/>		
 		<extends controller="HidingActions"/> 
 		
 		<action name="showListTitle" hidden="true" on-init="true"
@@ -646,12 +708,24 @@
 		</action>
 	</controller>
 	
+	<controller name="WarehouseSpecialNew2">
+		<extends controller="WarehouseSpecialNew"/>
+		<action name="new"  
+			class="org.openxava.test.actions.NewWarehouse2Action"
+			image="new.gif"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>			
+		</action>
+	</controller>
+	
 	<controller name="MyReference">
 	
+		<!-- Only icon without image to test a case -->
 		<action name="search" hidden="true"			
 			class="org.openxava.test.actions.MySearchAction"
-			image="search.gif"/>							
-				
+			icon="magnify"/>
+														
 	</controller>
 		
 	<controller name="Family">
@@ -875,6 +949,7 @@
 	</controller>
 	
 	<controller name="WarehouseReference">
+		<!-- Only image without icon to test a case -->	
 		<action name="createNewNoDialog" 
 			class="org.openxava.actions.CreateNewFromReferenceAction"
 			image="create_new.gif">
@@ -937,7 +1012,7 @@
 			class="org.openxava.test.actions.ViewNameFellowCarriersSelectedAction"/>
 		<action name="setTypicalController" mode="list"
 			class="org.openxava.test.actions.SetControllersAction">
-			<set property="controller1" value="Typical"/>
+			<set property="controller1" value="TypicalExtendedPrint"/>
 			<set property="controller2" value="CarrierWithSections"/>
 		</action>
 		<action name="setPrintController" mode="list"
@@ -952,9 +1027,7 @@
 		<action name="returnToPreviousControllers" mode="list"
 			class="org.openxava.test.actions.SetControllersAction">
 			<set property="controller1" value="PREVIOUS"/>
-		</action>
-		
-		
+		</action>	
 	</controller>				
 		
 	<controller name="MessagesOnEachRequest">
@@ -973,28 +1046,53 @@
 	</controller>
 	
 	<controller name="Color">
+		<!-- 
+		With both image and icon to test a case. 
+		Subcontroller before actions to test a case.
+		-->
+		<subcontroller controller="ColorSub" image="options.png" icon="run"/>
 		<action name="seeMessage" class="org.openxava.test.actions.SeeMessageAction" mode="detail"/>
-		<action name="seeMessageSelected" class="org.openxava.test.actions.SeeMessageSelectedColorsAction" mode="list"/>
-		<subcontroller controller="ColorSub" image="options.png"/> 
+		<action name="seeMessageSelected" class="org.openxava.test.actions.SeeMessageSelectedColorsAction" mode="list" icon="message-alert"/>
 	</controller>
 	
 	<controller name="ColorSub">
+	
+		<action name="init" icon="power"
+			on-init="true" on-each-request="true" 
+			before-each-request="true"  after-each-request="true"
+			class="org.openxava.test.actions.InitColorAction"/>			
+	
 		<action name="firstAction" image="report.gif"
-			class="org.openxava.test.actions.SeeDialogInColor">
+			class="org.openxava.test.actions.SeeDialogInColorAction"> 
 			<set value="1" property="actionNumber"/>
 		</action>
+		
 		<action name="secondAction" 
-			class="org.openxava.test.actions.SeeDialogInColor">
+			class="org.openxava.test.actions.SeeDialogInColorAction">
 			<set value="2" property="actionNumber"/>
 		</action>
+		
 		<action name="thirdAction" 
-			class="org.openxava.test.actions.SeeDialogInColor">
+			class="org.openxava.test.actions.SeeDialogInColorAction">
 			<set value="3" property="actionNumber"/>
 		</action>
+		
 		<action name="fourAction" mode="detail" 
-			class="org.openxava.test.actions.SeeDialogInColor">
+			class="org.openxava.test.actions.SeeDialogInColorAction">
 			<set value="4" property="actionNumber"/>	
 		</action>
+		
+	</controller>
+	
+	<controller name="TeamMemberSub" icon="exclamation">
+		<action name="viewNames" class="org.openxava.test.actions.ViewNamesOrRolesNamesFromTeamMember" icon="message-outline"/>
+		<action name="viewRoles" class="org.openxava.test.actions.ViewNamesOrRolesNamesFromTeamMember" icon="message">
+			<set value="true" property="roles"/>
+		</action>
+	</controller>
+	
+	<controller name="ColorOnlySubcontroller">
+		<subcontroller controller="ColorSub" image="options.png" icon="run"/>
 	</controller>
 	
 	<controller name="ColorinColorado">  		
@@ -1118,6 +1216,11 @@
 			class="org.openxava.test.actions.GoDescriptionAction"/>
 	</controller>
 	
+	<controller name="GoDescriptionChainingOnInit">
+		<action name="goDescription" on-init="true"
+			class="org.openxava.test.actions.ChainToGoDescriptionAction"/>
+	</controller>	
+	
 	<controller name="Movie">
 		<extends controller="Typical" />
 		<action name="printDatasheet" mode="detail" takes-long="true" image="pdf.gif" 
@@ -1128,9 +1231,49 @@
 	
 	<controller name="AttachedFile">
   		<action name="choose" class="org.openxava.test.actions.ChooseFileAction" 
-  			image="attach.gif" />
+  			icon="attachment" image="attach.gif" />
 		<action name="delete" class="org.openxava.test.actions.RemoveFileAction" 
-			image="delete.gif" confirm="true" />
-  	</controller>
-  		
+			icon="delete" image="delete.gif" confirm="true" />
+  	</controller>  	
+  	
+  	<controller name="ResetViewOnInit">
+        <action name="init" class="org.openxava.test.actions.ResetViewAction"
+            hidden="true" on-init="true" /> 
+    </controller>
+    
+	<controller name="Team">
+		<extends controller="Typical" />
+		<action name="searchPerson" image="search.gif" hidden="true"
+			class="org.openxava.test.actions.SearchPersonFromTeamMemberAction"/>
+	</controller>    
+    
+    <controller name="Exam">
+    	<extends controller="Typical"/>
+		<extends controller="DefaultSchema"/>
+		
+		<action name="changeToReal" on-init="true"
+			class="org.openxava.actions.SetDefaultSchemaAction">
+			<set property="newDefaultSchema" value="XAVATEST"/>
+		</action>
+		
+		<action name="changeToSimulation" 
+			class="org.openxava.actions.SetDefaultSchemaAction">
+			<set property="newDefaultSchema" value="SIMULATION"/>
+		</action>
+    </controller>
+    
+    <controller name="Player"> 
+		<extends controller="Typical"/>
+		<action name="save" mode="detail"
+			class="org.openxava.test.actions.CreateUsingJPAAction"
+			icon="content-save"
+			keystroke="control alt S">			
+		</action>
+	</controller>
+	
+	<controller name="CustomWebURL">
+		<action name="go" hidden="true"
+			class="org.openxava.test.actions.GoToURLAction"/>
+	</controller>
+	
 </controllers>

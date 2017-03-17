@@ -42,7 +42,7 @@ public class Product3Test extends ModuleTestBase {
 		execute("CRUD.new");
 		assertValue("comments", "");
 		execute("Reference.search", "keyProperty=xava.Product3.family.number");
-		execute("ReferenceSearch.choose", "row=0");
+		execute("ReferenceSearch.choose", "row=0"); 
 		assertValue("comments", "Family changed");		
 	}
 	
@@ -53,10 +53,10 @@ public class Product3Test extends ModuleTestBase {
 		setValue("description", "JUNIT PRODUCT");
 		
 		execute("Reference.search", "keyProperty=xava.Product3.family.number");
-		String familyNumber = getValueInList(0, "number");		
+		String familyNumber = getValueInList(0, "number"); 		
 		String familyDescription = getValueInList(0, "description");		
 		execute("ReferenceSearch.choose", "row=0");
-		assertValue("family.number", familyNumber);
+		assertValue("family.number", familyNumber); 
 		assertValue("family.description", familyDescription);
 		
 		execute("CRUD.save");

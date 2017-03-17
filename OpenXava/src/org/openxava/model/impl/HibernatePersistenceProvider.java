@@ -20,6 +20,14 @@ public class HibernatePersistenceProvider extends POJOPersistenceProviderBase {
 	
 	private static Log log = LogFactory.getLog(HibernatePersistenceProvider.class);
 	
+	private HibernatePersistenceProvider() {
+	}	
+	private static HibernatePersistenceProvider instance;
+	public static HibernatePersistenceProvider getInstance() {
+		if (instance == null) instance = new HibernatePersistenceProvider();
+		return instance;
+	}
+	
 	protected Object find(Class pojoClass, Serializable key) {
 		flush(); 
 		Object result = XHibernate.getSession().get(pojoClass, (Serializable) key);  

@@ -376,13 +376,8 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 					+ "&viewObject=" + view.getViewObject(); 
 			
 			beginPropertyLabelSmall(element);
-			if (!smallLabelPainted) {
-				displayPropertyIcons(element);
-				displayPropertyErrorIcon(element);
-			} else {
-				displayPropertyNoIcon(element);
-			}
-
+			displayPropertyIcons(element);
+			displayPropertyErrorIcon(element);			
 			
 			includeJspPage(editorURL);
 		} catch (Exception e) {
@@ -430,13 +425,8 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 		processPropertyElement(element);
 		beginPropertyLabelSmall(element);
 
-		if (!smallLabelPainted) {
-			displayPropertyIcons(element);
-			displayPropertyErrorIcon(element);
-		} else {
-			displayPropertyNoIcon(element);
-		}
-
+		displayPropertyIcons(element);
+		displayPropertyErrorIcon(element);
 		
 		attributes.put(ATTR_ID, Ids.decorate(getRequest(), "editor_"
 				+ element.getPropertyPrefix() + element.getName()));
@@ -589,12 +579,7 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 	 */
 	protected void beginPropertyLabelSmall(ILayoutPropertyBeginElement element) {
 		if (smallLabelPainted) {
-			displayPropertyNoIcon(element);
-			
-			beginPropertyLabel(element, element.getLabel());
-			
-			displayPropertyIcons(element);
-			displayPropertyErrorIcon(element);
+			beginPropertyLabel(element, element.getLabel());			
 			write(LayoutJspUtils.INSTANCE.endTag(TAG_TD));
 			write(LayoutJspUtils.INSTANCE.endTag(TAG_TR));
 			write(LayoutJspUtils.INSTANCE.startTag(TAG_TR));
@@ -703,59 +688,18 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 		}
 		beginPropertyDataAddActions(element, isSearch, isCreateNew, isModify);
 	}
-	
-	/**
-	 * Displays the no icon (actually blank) for the property.
-	 * @param element Property element.
-	 */
-	private void displayPropertyNoIcon(ILayoutPropertyBeginElement element) {
-		String img = "property_no_icon.gif";
-		attributes.clear();
-		write(LayoutJspUtils.INSTANCE.startTag(TAG_SPAN, attributes));
-		attributes.clear();
 		
-		setId(element, "icon_no");
-		
-		attributes.put(ATTR_SRC, getRequest().getContextPath() + "/xava/images/" + img);
-		write(LayoutJspUtils.INSTANCE.startTag(TAG_IMG, attributes));
-		write(LayoutJspUtils.INSTANCE.endTag(TAG_IMG));
-		write(LayoutJspUtils.INSTANCE.endTag(TAG_SPAN));
-
-	}
-	
 	/**
 	 * Displays the icons associated with the property.
 	 * @param element Element to be assess.
 	 */
 	private void displayPropertyIcons(ILayoutPropertyBeginElement element) {
-		String img = "property_no_icon.gif";
-		String prefix = "icon_no";
-		
-		if (!element.isDisplayAsDescriptionsList()) {
-			if (element.isKey()) {
-				img = "key.gif";
-				prefix = "icon_key";
-			} else if (element.isRequired()) {
-				if (element.isEditable()) { // No need to mark it as required, since the user can not change it anyway
-					img = "required.gif";
-					prefix = "icon_required";
-				}
-			}
-		} else if (element.isRequired()) {
-			img = "required.gif";
-			prefix = "icon_required";
+		write("<i class='"); 
+		write(Style.getInstance().getRequiredIcon());
+		if (element.isRequired()) { // There is no special icon for key, just the required icon if applies
+			write(" mdi mdi-marker-check");  
 		}
-		if (!Is.emptyString(img)) {
-			write(LayoutJspUtils.INSTANCE.startTag(TAG_SPAN));
-				attributes.clear();
-				
-				setId(element, prefix);
-				
-				attributes.put(ATTR_SRC, getRequest().getContextPath() + "/xava/images/" + img);
-				write(LayoutJspUtils.INSTANCE.startTag(TAG_IMG, attributes));
-				write(LayoutJspUtils.INSTANCE.endTag(TAG_IMG));
-			write(LayoutJspUtils.INSTANCE.endTag(TAG_SPAN));
-		}
+		write("'></i>");
 	}
 	
 	private void displayPropertyErrorIcon(ILayoutPropertyBeginElement element) {
@@ -764,12 +708,9 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 		write(LayoutJspUtils.INSTANCE.startTag(TAG_SPAN, attributes));
 			if (getErrors().memberHas(element.getMetaMember())) {
 				attributes.clear();
-				if (!Is.emptyString(getStyle().getErrorImage())) {
-					attributes.put(ATTR_CLASS, getStyle().getErrorImage());
-				}
-				attributes.put(ATTR_SRC, getRequest().getContextPath() + "/xava/images/error.gif");
-				write(LayoutJspUtils.INSTANCE.startTag(TAG_IMG, attributes));
-				write(LayoutJspUtils.INSTANCE.endTag(TAG_IMG));
+				write("<i class='");
+				write(Style.getInstance().getErrorIcon());
+				write(" mdi mdi-alert-circle'></i>"); // If modify this we have to change dwr.Module too
 			}
 		write(LayoutJspUtils.INSTANCE.endTag(TAG_SPAN));
 	}

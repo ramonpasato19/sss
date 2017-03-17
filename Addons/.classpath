@@ -3,8 +3,8 @@
 	<classpathentry kind="src" path="xava"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/OpenXava"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/OpenXava"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/powerfin"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

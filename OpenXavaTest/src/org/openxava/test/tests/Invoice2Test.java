@@ -4,6 +4,7 @@ import org.openxava.tests.*;
 
 
 /**
+ * 
  * @author Javier Paniza
  */
 
@@ -21,9 +22,9 @@ public class Invoice2Test extends ModuleTestBase {
 		execute("InvoiceDetail2.showProductList");
 		assertExists("familyList");
 		assertExists("productList");
-		assertValidValuesCount("productList", 1);
+		assertValidValuesCount("productList", 1); 
 		setValue("familyList", "1");
-		assertValidValuesCount("productList", 7);
+		assertValidValuesCount("productList", 7); 
 	}
 	
 	public void testTouchContainerFromCallback() throws Exception { 
@@ -85,7 +86,7 @@ public class Invoice2Test extends ModuleTestBase {
 		assertNoErrors();		
 	}
 	
-	public void testInjectPropertiesOfContainerInOnCreateCalculatorOfAggregate() throws Exception { 
+	public void testInjectPropertiesOfContainerInOnCreateCalculatorOfAggregate() throws Exception {   
 		execute("CRUD.new");
 		setValue("number", "66");
 		setValue("vatPercentage", "16");
@@ -98,7 +99,7 @@ public class Invoice2Test extends ModuleTestBase {
 		setValue("product.number", "1");
 		assertValue("product.description", "MULTAS DE TRAFICO");
 		execute("Collection.save");
-		assertNoErrors();
+		assertNoErrors(); 
 		assertCollectionRowCount("details", 1);
 		
 		execute("CRUD.delete");

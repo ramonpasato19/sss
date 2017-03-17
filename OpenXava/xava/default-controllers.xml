@@ -33,11 +33,13 @@ here that you want to override.
 	<object name="xava_metaActionsInList" class="java.util.Collection"/>
 	<object name="xava_newFileProperty" class="java.lang.String" />
 	<object name="xava_newFilesetProperty" class="java.lang.String" />
+	<object name="xava_newIconProperty" class="java.lang.String"/> 
 		
 	<controller name="Typical">
+		<!-- If you modify this controller revise the other Typical controllers below -->
 		<extends controller="Navigation"/>
 		<extends controller="CRUD"/>
-		<extends controller="ExtendedPrint"/>
+		<extends controller="Print"/>
 	</controller>
 	
 	<controller name="Void"/>	
@@ -113,7 +115,7 @@ here that you want to override.
 			keystroke="Control Alt X">
 			<set property="type" value="csv"/>	
 		</action>
-		
+				
 	</controller>	
 	
 	<controller name="ExtendedPrint">
@@ -179,7 +181,7 @@ here that you want to override.
 			icon="share-variant"
 			class="org.openxava.actions.ShareMyReportAction"/>																																										
 	</controller>
-		
+	
 	<controller name="Chart"> 
 		<action name="selectType" hidden="true"
 			class="org.openxava.actions.SelectChartTypeAction"/>
@@ -210,7 +212,24 @@ here that you want to override.
 			keystroke="Control N">
 			<set property="restoreModel" value="true"/>			
 		</action>		
-	</controller>	
+	</controller>
+	
+	<controller name="TypicalRealExcel">
+		<extends controller="Typical"/>
+		<action name="generateExcel" mode="list"
+            class="org.openxava.actions.GenerateReportAction"
+            image="excel.gif"
+            icon="file-excel"
+            keystroke="Control Alt X">
+            <set property="type" value="xls"/>  
+        </action>
+	</controller>
+	
+	<controller name="TypicalExtendedPrint">
+		<extends controller="Navigation"/>
+		<extends controller="CRUD"/>
+		<extends controller="ExtendedPrint"/>
+	</controller>
 				
 	<controller name="DetailList">
 		<action name="initList" on-init="true"
@@ -298,7 +317,7 @@ here that you want to override.
 			keystroke="Control A"
 			hidden="true"
 			mode="list"
-			image="previous_page.gif"/>					
+			icon="menu-left"/>
 		
 		<action name="goPage"
 			class="org.openxava.actions.GoPageAction"
@@ -311,7 +330,7 @@ here that you want to override.
 			keystroke="Control S"
 			hidden="true"
 			mode="list"
-			image="next_page.gif"/>			
+			icon="menu-right"/>			
 				
 		<action name="orderBy"
 			class="org.openxava.actions.OrderByAction"
@@ -337,7 +356,7 @@ here that you want to override.
 			class="org.openxava.actions.GoAddColumnsAction"
 			hidden="true"
 			mode="list"
-			image="add.gif"/>		
+			icon="table-column-plus-after"/>		
 
 		<action name="hideRows"
 			class="org.openxava.actions.HideRowsAction"
@@ -362,8 +381,21 @@ here that you want to override.
 			mode="list"
 			icon="close-circle"
 			image="remove.gif"/>
+
+		<action name="changeConfigurationName"
+			class="org.openxava.actions.GoChangeListConfigurationNameAction"
+			hidden="true"
+			mode="list"
+			icon="rename-box"/>
 		
 	</controller>	
+	
+	<controller name="ChangeListConfigurationName">
+		<action name="change"
+			class="org.openxava.actions.ChangeListConfigurationNameAction"/>	
+		<action name="cancel" 
+			class="org.openxava.actions.CancelDialogAction"/>			
+	</controller>
 	
 	<controller name="ListFormat">
 		<action name="select" 
@@ -389,7 +421,7 @@ here that you want to override.
 			<use-object name="xava_customizingTab" action-property="tab"/>			
 		</action>			
 		<action name="cancel" 
-			class="org.openxava.actions.CancelFromCustomListAction"/>		
+			class="org.openxava.actions.CancelAction"/>
 		<action name="showMoreColumns" class="org.openxava.actions.ShowMoreColumnsAction" hidden="true"/>
 		<action name="addColumn" mode="NONE"
 			class="org.openxava.actions.AddColumnsAction"/>							
@@ -397,12 +429,13 @@ here that you want to override.
 			<controller name="Navigation">
 		<action name="first" mode="detail"
 			image="home.gif"
-			icon="rewind"
+			icon="skip-backward"
 			class="org.openxava.actions.ViewDetailAction"
 			by-default="never"			
 			keystroke="control alt HOME">
 			<set property="goFirst" value="true"/>
-		</action>										
+		</action>
+												
 		<action name="previous" mode="detail"
 			image="previous.gif"
 			icon="skip-previous"
@@ -470,6 +503,11 @@ here that you want to override.
 		<action name="close" 
 			class="org.openxava.actions.CancelAction"/>			
 	</controller>	
+	
+	<controller name="CloseFromCustomList"> 
+		<action name="close"
+			class="org.openxava.actions.CancelFromCustomListAction"/>
+	</controller>
 	
 	<controller name="Reference">
 		<action name="search"
@@ -608,12 +646,7 @@ here that you want to override.
 		<action name="setPersistenceUnit" before-each-request="true" hidden="true"
 			class="org.openxava.actions.SetPersistenceUnitAction"/>
 	</controller>
-	
-	
-	<controller name="WebURL">
-		<action name="go" hidden="true"
-			class="org.openxava.actions.GoToURLAction"/>
-	</controller>		
+		
 	<!-- You can add this controller to your application and you will be able to
 		switch between schemas by appending parameter `schema`.
 		Also you can switch your locale by appending the `locale` parameter.
@@ -702,6 +735,13 @@ here that you want to override.
 			icon="attachment" image="attach.gif" />
 		<action name="delete" class="org.openxava.actions.DeleteFileAction" 
 			icon="delete" image="delete.gif" confirm="true" />
+	</controller>
+	
+	<controller name="Icon">
+		<action name="add" class="org.openxava.actions.GoChooseIconAction"/>
+		<action name="change" class="org.openxava.actions.GoChooseIconAction"/>
+		<action name="remove" class="org.openxava.actions.RemoveIconAction"	icon="close-circle"/>
+		<action name="choose" class="org.openxava.actions.ChooseIconAction"/>
 	</controller>
 	
 	<controller name="UploadFile">

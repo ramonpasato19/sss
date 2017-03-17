@@ -3,17 +3,26 @@ package org.openxava.test.tests;
 import org.openxava.model.meta.*;
 import org.openxava.test.model.*;
 
-import com.gargoylesoftware.htmlunit.html.*;
-
 /**
+ * 
  * @author Javier Paniza
  */
 
 public class CarrierTest extends CarrierTestBase {
 	
+	
 	public CarrierTest(String testName) {
-		super(testName, "Carrier");		
-	}	
+		super(testName, "Carrier");
+	}
+	
+	public void testConfirmActionWithApostrophe() throws Exception { 
+		setLocale("it");
+		assertListRowCount(5);
+		execute("Mode.detailAndFirst");
+		execute("CRUD.delete");
+		execute("Mode.list");
+		assertListRowCount(4);
+	}
 	
 	public void testRowActions() throws Exception {
 		execute("List.orderBy", "property=number"); 		
@@ -106,7 +115,7 @@ public class CarrierTest extends CarrierTestBase {
 		assertLabelInCollection("fellowCarriers", 4, "Remarks");
 						
 		removeColumn("fellowCarriers", 4); 
-		assertCollectionColumnCount("fellowCarriers", 4);
+		assertCollectionColumnCount("fellowCarriers", 4); 
 		assertLabelInCollection("fellowCarriers", 0, "Number");
 		assertLabelInCollection("fellowCarriers", 1, "Name");
 		assertLabelInCollection("fellowCarriers", 2, "Calculated");
@@ -207,7 +216,7 @@ public class CarrierTest extends CarrierTestBase {
 		assertRowUnchecked(3);
 	}
 	
-	public void testActionOfCalculatedPropertyAlwaysPresent_referenceKeyEditableWhenInGroup() throws Exception {
+	public void testActionOfCalculatedPropertyAlwaysPresent_referenceKeyEditableWhenInGroup_iconsImagesInViewAction() throws Exception {
 		execute("CRUD.new");		
 		assertAction("Carrier.translateName");
 		assertExists("calculated");
@@ -216,6 +225,8 @@ public class CarrierTest extends CarrierTestBase {
 		assertEditable("warehouse.zoneNumber");
 		assertEditable("warehouse.number");
 		assertNoEditable("warehouse.name");
+		
+		assertIconsImagesInViewAction(); 
 	}
 	
 	public void testFilterIgnoringCase() throws Exception {
@@ -228,7 +239,7 @@ public class CarrierTest extends CarrierTestBase {
 		assertValueInList(0, "name", "Cinco");
 	}
 	
-	public void testPropertyDependsDescriptionsListReference_multipleKeyWithSpaces_descriptionsListLabels_modifyDialog() throws Exception {
+	public void testPropertyDependsDescriptionsListReference_multipleKeyWithSpaces_descriptionsListLabels_modifyDialog_jdbcCalculatorWithFromProperties() throws Exception {
 		execute("CRUD.new");
 		assertLabel("drivingLicence", "Driving licence"); 
 		assertValue("remarks","");
@@ -239,7 +250,7 @@ public class CarrierTest extends CarrierTestBase {
 		setValue("drivingLicence.KEY", key);		
 		assertNoErrors();
 		assertValue("drivingLicence.KEY", key);
-		assertValue("remarks", "He can drive trucks");
+		assertValue("remarks", "He can drive trucks: 5"); 
 		
 		assertNoDialog();
 		execute("Reference.modify", "model=DrivingLicence,keyProperty=drivingLicence__KEY__"); 
@@ -371,7 +382,7 @@ public class CarrierTest extends CarrierTestBase {
 		assertValue("number", "2");
 		assertValue("name", "DOS");
 		execute("Navigation.next");
-		assertValue("number", "3");
+		assertValue("number", "3"); 
 		assertValue("name", "TRES");
 		assertNoErrors();		
 		execute("CRUD.delete");		
@@ -417,7 +428,7 @@ public class CarrierTest extends CarrierTestBase {
 		assertValueInCollection("fellowCarriers", 2, "number", "4"); 
 		setConditionValues("fellowCarriers", new String [] { "3"});
 		execute("List.filter", "collection=fellowCarriers");
-		assertCollectionRowCount("fellowCarriers", 1);
+		assertCollectionRowCount("fellowCarriers", 1); 
 		assertValueInCollection("fellowCarriers", 0, "number", "3");		
 	}
 	
@@ -485,10 +496,16 @@ public class CarrierTest extends CarrierTestBase {
 		assertValueInCollection("fellowCarriers", 0, "name", "CUATRO");		
 	}
 	
+	private void assertIconsImagesInViewAction() { 
+		String actionsXml = getHtmlPage().getHtmlElementById("ox_OpenXavaTest_Carrier__property_actions_warehouse___number").asXml();
+		assertTrue(actionsXml.contains("<i class=\"mdi mdi-magnify"));
+		assertTrue(actionsXml.contains("<i class=\"mdi mdi-library-plus"));
+		assertTrue(actionsXml.contains("images/create_new.gif"));		
+	}
+	
 	private void assertCarriersCount(int c) throws Exception {
 		int carrierCount = Carrier.findAll().size(); 
 		assertEquals("Carriers count",c,carrierCount);
 	}
-	
-	
+		
 }

@@ -51,5 +51,14 @@ public class XArrays {
 		Arrays.sort(array2);
 		return Arrays.equals(array1, array2);
 	}
-	
+		
+	/**
+	 *  @since 5.6
+	 */
+	public static void move(Object [] array, int from, int to) { 
+		List list = new ArrayList(Arrays.asList(array));
+		XCollections.move(list, from, to);
+		list.toArray(array);
+	}
+		
 }

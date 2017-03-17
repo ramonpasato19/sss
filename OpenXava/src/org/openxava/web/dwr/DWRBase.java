@@ -23,24 +23,31 @@ class DWRBase {
 	 */
 	protected void initRequest(HttpServletRequest request, HttpServletResponse response, String application, String module) { 
 		Servlets.setCharacterEncoding(request, response);
+		ModuleContext.setCurrentWindowId(request); 
 		checkSecurity(request, application, module);
 		Users.setCurrent(request);
 		request.setAttribute("style", Style.getInstance(request));
+		ModuleManager manager = (ModuleManager) getContext(request).get(application, module, "manager");
+		manager.resetPersistence();
+	}
+	
+	protected void cleanRequest() { 
+		ModuleContext.cleanCurrentWindowId(); 
 	}
 
-	protected static void checkSecurity(HttpServletRequest request, String application, String module) {		
+	protected static void checkSecurity(HttpServletRequest request, String application, String module) {
 		ModuleContext context = getContext(request);
 		if (context == null) { // This user has not executed any module yet
 			throw new SecurityException("6859"); 
 		}
-		if (!context.exists(application, module, "manager")) { // This user has not execute this module yet 
+		if (!context.exists(application, module, "manager")) { // This user has not execute this module yet
 			throw new SecurityException("9876");  
 		}
-		if (context.exists(application, module, "naviox_locked")) { 
+		if (context.exists(application, module, "naviox_locked")) {
 			Boolean locking = (Boolean) context.get(application, module, "naviox_locking"); 
 			if (!locking) {
 				Boolean locked = (Boolean) context.get(application, module, "naviox_locked");
-				if (locked) throw new SecurityException("3923");  				
+				if (locked) throw new SecurityException("3923");  								
 			}			
 		}
 	}	

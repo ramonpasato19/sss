@@ -80,16 +80,17 @@ public class SchemaTool {
 			}
 			Properties props = new Properties();
 			Map<String, Object> factoryProperties = XPersistence.getManager().getEntityManagerFactory().getProperties();
-			String dialect = (String) factoryProperties.get("hibernate.dialect");
+			String dialect = getHibernateDialectName();
 	    	props.put("hibernate.dialect", dialect);
 	    	String schema = (String) factoryProperties.get("hibernate.default_schema"); 
-	    	if (update) {
-		    	java.sql.Connection connection = ((SessionImpl) XPersistence.getManager().getDelegate()).connection(); 
-		    	DatabaseMetadata metadata = new DatabaseMetadata(connection, Dialect.getDialect(props), cfg); 
+	    	java.sql.Connection connection = ((SessionImpl) XPersistence.getManager().getDelegate()).connection(); 
+	    	DatabaseMetadata metadata = new DatabaseMetadata(connection, Dialect.getDialect(props), cfg); 
+	    	boolean supportsSchemasInIndexDefinitions = connection.getMetaData().supportsSchemasInIndexDefinitions();
+	    	XPersistence.commit();
+	    	if (update) { 
 		    	List<SchemaUpdateScript> scripts = cfg.generateSchemaUpdateScriptList(Dialect.getDialect(props), metadata);
-		    	XPersistence.commit();
 		    	for (SchemaUpdateScript script: scripts) {
-		    		String scriptWithSchema = addSchema(schema, script.getScript());
+		    		String scriptWithSchema = addSchema(schema, script.getScript(), supportsSchemasInIndexDefinitions); 
 		    		log.info(XavaResources.getString("executing") + ": " + scriptWithSchema); 
 		    		try {
 						Query query = XPersistence.getManager().createNativeQuery(scriptWithSchema);
@@ -105,7 +106,7 @@ public class SchemaTool {
 	    	else {
 		    	String [] scripts = cfg.generateSchemaCreationScript(Dialect.getDialect(props));
 				for (String rawScript: scripts) {
-					String script = addSchema(schema, rawScript);
+					String script = addSchema(schema, rawScript, supportsSchemasInIndexDefinitions); 
 					if (console) {
 						System.out.print(script); 
 						System.out.println(';');
@@ -127,12 +128,14 @@ public class SchemaTool {
 		}		
 	}
 	
-	private static String addSchema(String schema, String script) {
+	private static String addSchema(String schema, String script, boolean supportsSchemasInIndexDefinitions) {
 		if (Is.emptyString(schema)) return script;
 		script = script.replaceAll("create table ", "create table " + schema + "."); 
 		script = script.replaceAll("alter table ", "alter table " + schema + "."); 
 		script = script.replaceAll("\\) references ", ") references " + schema + ".");
 		script = script.replaceAll("create sequence ", "create sequence " + schema + ".");
+		script = script.replaceAll("create index ", "create index " + schema + (supportsSchemasInIndexDefinitions?".":"_")); 
+		script = script.replaceAll(" on ", " on " + schema + ".");
 		return script;
 	}
 
@@ -149,4 +152,15 @@ public class SchemaTool {
 		annotatedClasses.add(annotatedClass);		
 	}
 	
+	/**
+	 * Determines current connection dialect.
+	 * @return Hibernate dialect name.
+	 */
+	private String getHibernateDialectName() {
+		SessionImpl impl = (SessionImpl) XPersistence.getManager()
+				.getDelegate();
+		SessionFactoryImpl sessionFactory = (SessionFactoryImpl)impl.getSessionFactory();
+		return sessionFactory.getDialect().getClass().getName();
+	}
+
 }

@@ -1,6 +1,6 @@
 package org.openxava.model;
 
-import org.openxava.model.impl.*;
+import org.openxava.model.meta.*;
 
 /**
  * To access to some persistence services in an abstract way. <p>
@@ -11,8 +11,8 @@ import org.openxava.model.impl.*;
  * This class can be used in custom application code, although for this case
  * maybe it's better to use directly the EJB3 JPA (or Hibernate) API.<p>
  * 
- * This class uses the underlayer persistence provider that it's configured
- * in xava.properties with the property persistenceProviderClass.<p>
+ * This class uses the underlayer persistence provider associated to
+ * the corresponding entity.<p>
  * 
  * If the methods fail they throw <code>RuntimeException</code>, the specific 
  * <code>RuntimeException</code> depends on the implementation technology.<br> 
@@ -31,7 +31,7 @@ public class PersistenceFacade {
 	 */
 	public static void refreshIfManaged(Object object) {
 		if (object == null) return;		
-		PersistenceProviderFactory.getInstance().refreshIfManaged(object);
+		MetaModel.getForPOJO(object).getMetaComponent().getPersistenceProvider().refreshIfManaged(object); 		
 	}
 
 }
