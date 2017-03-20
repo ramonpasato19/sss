@@ -30,7 +30,7 @@ public class Stock {
 	@Column(name="registrer_date")
 	private Date registrerDate;
 
-	@Column(name="quantity", precision=20, scale=2)
+	@Column(name="quantity", precision=13, scale=4)
 	private BigDecimal quantity;
 
 	@Column(name="value", precision=13, scale=4)

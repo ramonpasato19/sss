@@ -264,8 +264,8 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReferenceView("forCreditNote")
 	@ReadOnly(forViews="AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
 	@SearchActions({
-		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchAccount.SearchActiveInvoicePurchase"),
-		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchAccount.SearchActiveInvoiceSale"),
+		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchAccount.SearchInvoicePurchaseToPayment"),
+		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchAccount.SearchInvoiceSaleToPayment"),
 	})
 	private AccountInvoice accountModified;
 	
