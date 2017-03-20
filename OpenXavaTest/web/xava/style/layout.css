@@ -1,0 +1,25 @@
+.ox-layout-detail {
+	display: table;
+	white-space: nowrap; 
+}
+
+.ox-layout-aligned-cell {
+	display: table-cell;
+}
+
+.ox-layout-not-aligned-cell {
+	display: inline-block;	
+}
+
+.ox-layout-new-line {
+	display: table-column-group;
+}
+
+.ox-layout-editor-icons {
+	width: 5px;
+}
+
+.ox-layout-descriptions-editor-handler { 
+	display: inline-block;
+} 
+

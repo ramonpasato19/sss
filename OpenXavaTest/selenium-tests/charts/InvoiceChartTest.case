@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8080/" />
+<title>InvoiceChartTest</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">InvoiceChartTest</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/OpenXavaTest/modules/Invoice</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForTitle</td>
+	<td>OpenXavaTest - Invoices</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>300</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__CRUD___new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=ox_OpenXavaTest_Invoice__Mode___list</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>300</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__Mode___list</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>//div[@id='ox_OpenXavaTest_Invoice__view']/table[2]/tbody/tr/td[2]</td>
+	<td>There are * records in list ( Hide them)</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__Charts___show</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=ui-id-1</td>
+	<td>Charts</td>
+</tr>
+<!--Delete all previously saved charts-->
+<tr>
+	<td>label</td>
+	<td>keepDeleting</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=img[alt=&quot; - Remove current chart&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>300</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Remove current chart&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForConfirmation</td>
+	<td>Remove current chart: Are you sure?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' has been removed from preferences</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' has been removed from preferences</td>
+</tr>
+<tr>
+	<td>storeElementPresent</td>
+	<td>css=#ox_OpenXavaTest_Invoice__name option</td>
+	<td>optionExists</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>300</td>
+	<td></td>
+</tr>
+<tr>
+	<td>gotoIf</td>
+	<td>${optionExists}</td>
+	<td>keepDeleting</td>
+</tr>
+<tr>
+	<td>storeValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>nodeName</td>
+</tr>
+<!--Test CRUD-->
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>INVOICE REPORT</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>INVOICE REPORT</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1200</td>
+	<td></td>
+</tr>
+<tr>
+	<td>selectWindow</td>
+	<td>null</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Save the current entity&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Create new&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>Pie Chart</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__chartType</td>
+	<td>label=Pie</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>Pie Chart</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>1200</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___2___displayed</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Save the current entity&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<!--Add columns-->
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___5___name</td>
+	<td>label=Total</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>600</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___5___displayed</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>600</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Save the current entity&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart '*' saved in preferences</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__Dialog___cancel</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>//div[@id='ox_OpenXavaTest_Invoice__view']/table[2]/tbody/tr/td[2]</td>
+	<td>There are * records in list ( Hide them)</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=ox_OpenXavaTest_Invoice__Charts___show</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=ui-id-1</td>
+	<td>Charts</td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertSelectOptions</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>INVOICE REPORT,Pie Chart</td>
+</tr>
+<!--Test Removing-->
+<tr>
+	<td>assertValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___3___name</td>
+	<td>vat</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#ox_OpenXavaTest_Invoice__columns___3 &gt; td.ox-list-odd &gt; nobr &gt; a[title=&quot;Remove row&quot;] &gt; img</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___3___name</td>
+	<td>detailsCount</td>
+</tr>
+<!--Test Sharing-->
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>label=Pie Chart</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=img[alt=&quot; - Share the current chart&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart 'Pie chart' is available for all users</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.ox-message-box</td>
+	<td>Chart 'Pie chart' is available for all users</td>
+</tr>
+<tr>
+	<td>assertSelectOptions</td>
+	<td>id=ox_OpenXavaTest_Invoice__name</td>
+	<td>INVOICE REPORT,(*) Pie Chart</td>
+</tr>
+<!--Test Different chart types-->
+<tr>
+	<td>store</td>
+	<td>Bar;Line;Pie;Donut;Stacked bar;Area;Stacked area;XY;Spline;Step;Stacked step</td>
+	<td>charts</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>&quot;${charts}&quot;.split(&quot;;&quot;).length</td>
+	<td>count</td>
+</tr>
+<tr>
+	<td>store</td>
+	<td>0</td>
+	<td>index</td>
+</tr>
+<tr>
+	<td>while</td>
+	<td>${index} &lt; ${count}</td>
+	<td></td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>&quot;${charts}&quot;.split(&quot;;&quot;)[${index}]</td>
+	<td>chartName</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__chartType</td>
+	<td>label=${chartName}</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>confirm(&quot;Do you see a ${chartName} chart&quot;)</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__chartType</td>
+	<td>label=Line</td>
+</tr>
+<tr>
+	<td>storeEval</td>
+	<td>${index} + 1</td>
+	<td>index</td>
+</tr>
+<tr>
+	<td>endWhile</td>
+	<td></td>
+	<td></td>
+</tr>
+<!--Test fields on labels-->
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__yColumn</td>
+	<td>label=Delivery date</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementNotPresent</td>
+	<td>css=div.ox-message-box</td>
+	<td></td>
+</tr>
+<tr>
+	<td>select</td>
+	<td>id=ox_OpenXavaTest_Invoice__yColumn</td>
+	<td>label=Year</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>2000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementNotPresent</td>
+	<td>css=div.ox-message-box</td>
+	<td></td>
+</tr>
+<!--Test fields on dataset-->
+<tr>
+	<td>assertText</td>
+	<td>id=ox_OpenXavaTest_Invoice__columns___5___name</td>
+	<td>Year Number VAT % Number Amounts sum Customer discount Customer type discount Details count Product unit price sum Seller discount Total V.A.T. Year discount [SHOW MORE...]</td>
+</tr>
+</tbody></table>
+</body>
+</html>
