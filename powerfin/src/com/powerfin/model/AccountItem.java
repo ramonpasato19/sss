@@ -9,6 +9,7 @@ import javax.persistence.*;
 import org.openxava.annotations.*;
 
 import com.powerfin.model.superclass.*;
+import com.powerfin.model.types.*;
 
 
 
@@ -74,8 +75,9 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@Column(length=150)
 	private String description;
 
+	@Required
 	@Column(nullable=false)
-	private Integer inventoried;
+	private Types.YesNoIntegerType inventoried;
 
 	@Required
 	@Column(nullable=false, length=100)
@@ -220,11 +222,11 @@ public class AccountItem extends AuditEntity implements Serializable {
 		this.description = description;
 	}
 
-	public Integer getInventoried() {
-		return this.inventoried;
+	public Types.YesNoIntegerType getInventoried() {
+		return inventoried;
 	}
 
-	public void setInventoried(Integer inventoried) {
+	public void setInventoried(Types.YesNoIntegerType inventoried) {
 		this.inventoried = inventoried;
 	}
 
