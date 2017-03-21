@@ -5,7 +5,6 @@ import org.openxava.jpa.XPersistence;
 import com.powerfin.model.Account;
 import com.powerfin.model.AccountItem;
 import com.powerfin.model.UnitMeasure;
-import com.powerfin.model.types.*;
 
 public class AccountItemHelper {
 
@@ -15,7 +14,7 @@ public class AccountItemHelper {
 
 	public static AccountItem createAccountItem(
 			Account account, String accountId, String alternateCode,BigDecimal cost,
-			String description, Types.YesNoIntegerType inventoried, BigDecimal maximumQuantity,
+			String description,Integer inventoried, BigDecimal maximumQuantity,
 			BigDecimal minimalQuantity, String name, byte[] picture, BigDecimal price,
 			BigDecimal retailPrice, BigDecimal taxPrice,
 			UnitMeasure unitMeasureBean, BigDecimal averageValue

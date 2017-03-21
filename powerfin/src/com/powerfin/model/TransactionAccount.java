@@ -111,7 +111,7 @@ public class TransactionAccount implements Serializable {
 	@JoinColumn(name="transaction_id", nullable=false)
 	private Transaction transaction;
 
-	@Column(name="quantity", precision=13, scale=4)
+	@Column(name="quantity")
 	private BigDecimal quantity;
 
 	@ManyToOne

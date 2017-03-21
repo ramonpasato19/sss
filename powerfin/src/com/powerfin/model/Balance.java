@@ -71,7 +71,7 @@ public class Balance implements Serializable {
 	@Column(name="due_date", unique=true, nullable=true)
 	private Date dueDate;
 	
-	@Column(name="stock", precision=13, scale=4)
+	@Column(name="stock")
 	private BigDecimal stock;
 
 	public Balance() {

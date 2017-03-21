@@ -87,7 +87,7 @@ public class Movement implements Serializable {
 	@JoinColumn(name="financial_id", nullable=false)
 	private Financial financial;
 
-	@Column(name="quantity", nullable=false, precision=13, scale=4)
+	@Column(name="quantity", nullable=false, precision=19, scale=2)
 	private BigDecimal quantity;
 
 	@ManyToOne

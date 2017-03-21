@@ -81,11 +81,11 @@ public class AccountInvoiceDetail {
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
 	
-	@Column(name = "quantity", nullable = false, precision=13, scale=4)
+	@Column(name = "quantity", nullable = false)
 	@Required
-	@DecimalMin(value="0.01")
+	@Min(value=1)
 	//@OnChange(CalculateAmountsOnDetail.class)
-	private BigDecimal quantity;
+	private Integer quantity;
 
 	@Column(name = "original_cost", nullable = true, precision=13, scale=4)
 	private BigDecimal originalCost;
@@ -153,11 +153,11 @@ public class AccountInvoiceDetail {
 		this.accountDetail = accountDetail;
 	}
 
-	public BigDecimal getQuantity() {
+	public Integer getQuantity() {
 		return quantity;
 	}
 
-	public void setQuantity(BigDecimal quantity) {
+	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
 	}
 
@@ -305,7 +305,7 @@ public class AccountInvoiceDetail {
 	public BigDecimal calculateAmount() {
 		BigDecimal amount = BigDecimal.ZERO;
 		if (getQuantity()!=null)
-			amount = getQuantity().multiply(getUnitPrice());
+			amount = new BigDecimal(getQuantity()).multiply(getUnitPrice());
 		if (hasDiscount())
 			amount = amount.subtract(getDiscount());
 		return amount.setScale(4, RoundingMode.HALF_UP);

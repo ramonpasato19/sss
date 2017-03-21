@@ -40,7 +40,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			
 			//AccountItem
 			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, costCategory));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, new BigDecimal(detail.getQuantity()), unity, transaction, costCategory));
 			//AccountAccountant
 			else
 				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, transaction));
@@ -69,7 +69,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStock(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getAmount(), invoice.getRegistrationDate());
+					updateStock(detail.getAccountDetail(), invoice, new BigDecimal(detail.getQuantity()), detail.getAmount(), invoice.getRegistrationDate());
 		}
 	}
 	
