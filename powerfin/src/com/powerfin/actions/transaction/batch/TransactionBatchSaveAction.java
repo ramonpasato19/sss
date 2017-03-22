@@ -25,6 +25,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		int lineNumber = 1;
 		int row = 0;
 
+		if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_IN_PROCESS_STATUS))
+			throw new OperativeException("transaction_in_process");
 		if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_FINISH_STATUS))
 			throw new OperativeException("transaction_already_processed");
 		if (subAction.equals("COLLECT")) {	

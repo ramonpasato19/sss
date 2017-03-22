@@ -9,6 +9,11 @@
 		<controller name="ReportController" />
 		<mode-controller name="DetailList" />
 	</module>
+	<module name="AccountingReport">
+		<model name="ViewAccountingReport" />
+		<controller name="AccountingReportController" />
+		<mode-controller name="DetailOnly" />
+	</module>
 	<module name="BalanceAccountingGenerate">
 		<model name="BalanceAccountingGenerate" />
 		<controller name="BalanceAccountingGenerateController" />

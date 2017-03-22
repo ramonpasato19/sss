@@ -442,6 +442,33 @@
 		</action>
 	</controller>
 	
+	<controller name="AccountingReportController">
+		<action name="printMonthlyEvolution" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif" >
+			<set property="reportName" value="MONTHLYEVOLUTION"/>
+		</action>
+		<action name="printDailyEvolution" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
+			<set property="reportName" value="DAILYEVOLUTION"/>
+		</action>
+		<action name="printHorizontalEvolution" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
+			<set property="reportName" value="HORIZONTALEVOLUTION"/>
+		</action>
+		<action name="printSourcesAndUses" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
+			<set property="reportName" value="SOURCESANDUSES"/>
+		</action>
+		<action name="printMonthlyVariableEvolution" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif" >
+			<set property="reportName" value="MONTHLYVARIABLEEVOLUTION"/>
+		</action>
+		<action name="printDailyVariableEvolution" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
+			<set property="reportName" value="DAILYVARIABLEEVOLUTION"/>
+		</action>
+	</controller>
+	
 	<controller name="LoanPortfolioReportController">
 		<action name="printReceipts" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintReceipts" icon="file-pdf" image="save.gif" >
