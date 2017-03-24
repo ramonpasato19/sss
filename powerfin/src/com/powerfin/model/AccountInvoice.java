@@ -164,6 +164,13 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				+ "detail{details;}"
 				),
+	@View(name="PrintTXInvoiceSale", 
+		members=""
+				+ "accountId; issueDate, dueDate;"
+				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
+				+ "remark{remark;}"
+				+ "detail{details;}"
+			),
 	@View(name="reference", members="account;"
 			+ "dueDate, issueDate;"),
 	@View(name="forRetention", 
@@ -201,6 +208,9 @@ import com.powerfin.model.types.*;
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="CreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+		baseCondition = "${account.accountStatus.accountStatusId} IN ('002','005') "
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'")
 })
 public class AccountInvoice extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;

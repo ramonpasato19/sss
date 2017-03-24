@@ -63,23 +63,23 @@ import com.powerfin.util.*;
 					+ "name;"
 					+ "code;"),
 	@View(name="PurchasePortfolioPayment",
-			members="#accountId;"
-					+ "name;"
+			members="accountId;"
+					+ "name,"
 					+ "interestRate,"
 					+ "totalOverdueBalance;"
-					+ "overdueBalances{accountOverdueBalances}"),
+					+ "accountOverdueBalances"),
 	@View(name="PurchasePortfolioPaymentValueDate",
-			members="#accountId;"
+			members="accountId;"
 					+ "name;"
 					+ "interestRate,"
 					+ "totalOverdueBalance;"
-					+ "overdueBalances{accountOverdueBalances}"),
+					+ "accountOverdueBalances"),
 	@View(name="SalePortfolioPayment",
-			members="#accountId;"
+			members="accountId;"
 					+ "name;"
 					+ "interestRate,"
 					+ "totalOverdueBalance;"
-					+ "overdueBalances{accountOverdueBalances}")
+					+ "accountOverdueBalances")
 })
 @Tabs({
 	@Tab(properties="accountId, code, name, product.productId, product.name, currency.currencyId")

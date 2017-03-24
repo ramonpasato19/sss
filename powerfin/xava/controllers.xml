@@ -2151,5 +2151,15 @@
 			class="com.powerfin.actions.inventory.PrintInventoryProfitMargin" icon="file-pdf">
 		</action>
 	</controller>
-
+	<controller name="DownloadInvoicePrestashopController" >
+		<action name="downloadInvoice" mode="detail"
+			class="com.powerfin.actions.integrations.DownloadInvoicePrestashop" icon="file-pdf" image="save.gif" by-default="if-possible" >
+			<set property="sequence" value="1" />
+		</action>
+	</controller>
+	<controller name="PrinterInvoiceController" >
+		<action name="printerInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
+		</action>
+	</controller>
 </controllers>

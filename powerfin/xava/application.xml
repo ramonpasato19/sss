@@ -893,4 +893,22 @@
 		<view name="ViewInventoryControl"/>
 		<mode-controller name="DetailOnly"/>
 	</module>
+	
+	<module name="ViewDownloadInvoicePrestashop">
+		<model name="ViewDownloadInvoice"/>
+		<controller name="DownloadInvoicePrestashopController"/>
+		<view name="ViewDownloadInvoicePrestashop"/>
+		<mode-controller name="DetailOnly"/>
+	</module>
+
+	<module name="PrinterInvoiceSale">
+		<env-var name="XAVA_SEARCH_ACTION" value="CRUD.searchReadOnly" />
+		<model name="AccountInvoice" />
+		<controller name="InvoiceSaleListController" />
+		<controller name="PrinterInvoiceController" />
+		<view name="PrintTXInvoiceSale" />
+		<tab name="PrinterInvoiceSale" />
+		<mode-controller name="DetailList" />
+	</module>
+	
 </application>
