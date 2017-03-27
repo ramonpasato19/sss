@@ -39,7 +39,9 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 		Report report = ReportHelper.findReportByName(reportName);
 		setFormat(report.getFormat().toLowerCase());
 		JasperReport jReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
-		Map parameters = getParameters(); // getParameters() before getDatasource()
+		Map parameters = getParameters();
+		addSubReports(jReport, parameters);
+		
 		log.info("######## PARAMETERS: " + parameters.toString());
 		JRDataSource ds = getDataSource();
 		JasperPrint jprint = null;
@@ -134,4 +136,16 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 
 	abstract protected String getReportName() throws Exception;
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void addSubReports(JasperReport jReport, Map parameters) throws Exception{
+		JRParameter[] parameter=jReport.getParameters();
+		for(int j=0;j<parameter.length;j++){
+			if(parameter[j].getDescription()!=null && parameter[j].getDescription().toUpperCase().equals("SUBREPORT")){				
+				Report report = ReportHelper.findReportByName(parameter[j].getName().toUpperCase());
+				JasperReport jsubReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
+				addSubReports(jsubReport, parameters);
+				parameters.put(parameter[j].getName().toUpperCase(), jsubReport);
+			}
+		}
+	}
 }
