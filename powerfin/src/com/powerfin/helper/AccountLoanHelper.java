@@ -13,6 +13,7 @@ import com.powerfin.util.*;
 
 public class AccountLoanHelper {
 	
+	public final static Integer EXPIRATION_FRECUENCY_ID = 1;
 	public final static String STATUS_LOAN_ACTIVE = "002";
 	public final static String STATUS_LOAN_CANCEL = "003";
 	public final static String STATUS_PROCESS_FINANCIAL = "002";

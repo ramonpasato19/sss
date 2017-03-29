@@ -94,7 +94,7 @@ public class AccountLoanSaveAction extends SaveAction{
      			XPersistence.getManager().merge(transaction);
             }
 		}
-		//getView().refresh();
+		getView().refresh();
 	}
 	
 	private void validate() throws Exception {

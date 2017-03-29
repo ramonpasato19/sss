@@ -24,6 +24,9 @@ public class Frecuency implements Serializable {
 
 	@Column(name="number_days", nullable=false)
 	private Integer numberDays;
+	
+	@Column(name="number_months", nullable=false)
+	private Integer numberMonths;
 
 	//bi-directional many-to-one association to AccountLoan
 	@OneToMany(mappedBy="frecuency")
@@ -64,18 +67,12 @@ public class Frecuency implements Serializable {
 		this.accountLoans = accountLoans;
 	}
 
-	public AccountLoan addAccountLoan(AccountLoan accountLoan) {
-		getAccountLoans().add(accountLoan);
-		accountLoan.setFrecuency(this);
-
-		return accountLoan;
+	public Integer getNumberMonths() {
+		return numberMonths;
 	}
 
-	public AccountLoan removeAccountLoan(AccountLoan accountLoan) {
-		getAccountLoans().remove(accountLoan);
-		accountLoan.setFrecuency(null);
-
-		return accountLoan;
+	public void setNumberMonths(Integer numberMonths) {
+		this.numberMonths = numberMonths;
 	}
 
 }

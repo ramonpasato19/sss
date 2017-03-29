@@ -5,10 +5,12 @@ import java.math.*;
 import java.util.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 import org.openxava.annotations.*;
 import org.openxava.jpa.*;
 
+import com.powerfin.helper.*;
 import com.powerfin.model.superclass.*;
 
 
@@ -44,7 +46,7 @@ import com.powerfin.model.superclass.*;
 				+ "interestRate;"
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
-				+ "period;"
+				+ "period,fixedQuota;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
@@ -56,7 +58,7 @@ import com.powerfin.model.superclass.*;
 				+ "interestRate;"
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
-				+ "period;"
+				+ "period,fixedQuota;"
 				+ "disbursementAccount}"
 				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
 				+ "quotas{accountPaytables}"
@@ -203,12 +205,13 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	private Date disbursementDate;
 
 	@Column(name="fixed_quota", precision=11, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio, AuthorizeTXAccountLoan, RequestTXAccountLoan")
 	private BigDecimal fixedQuota;
 
 	@Column(name="interest_rate", precision=5, scale=2)
 	@Required
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	@DecimalMin(value="0.00")
 	private BigDecimal interestRate;
 
 	@Temporal(TemporalType.DATE)
@@ -228,6 +231,8 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Column(name="payment_day")
 	@Required
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	@Min(1)
+	@Max(31)
 	private Integer paymentDay;
 
 	@ReadOnly
@@ -236,6 +241,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Column(name="quotas_number")
 	@Required
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	@Min(1)
 	private Integer quotasNumber;
 
 	@Column(name="insurance_quotas_number")
@@ -788,7 +794,29 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@PrePersist
 	public void onCreate()
 	{
+		updateData();		
+	}
+	
+	@PreUpdate
+	public void onUpdate()
+	{
+		updateData();
+	}
+	
+	private void updateData()
+	{
 		if (originalAmount==null)
 			originalAmount=amount;
+		
+		if (getPaymentDay()>31)
+			setPaymentDay(31);
+		
+		if (getFrecuency().getFrecuencyId() == AccountLoanHelper.EXPIRATION_FRECUENCY_ID)
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(getStartDatePayment());
+			setPaymentDay(cal.get(Calendar.DAY_OF_MONTH));
+			setQuotasNumber(1);
+		}
 	}
 }

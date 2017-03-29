@@ -44,17 +44,24 @@ public class Installment {
 	
 	private BigDecimal calculateFixedQuota(AccountLoan a)
 	{
+		if (a.getInterestRate().compareTo(BigDecimal.ZERO)==0)
+			return a.getAmount().divide(new BigDecimal(a.getQuotasNumber()), 2, RoundingMode.HALF_UP);
+		
 		Calendar disbursementDateCal = GregorianCalendar.getInstance();
 		Calendar endDateCal = GregorianCalendar.getInstance();
 		Calendar paymentDateCal = GregorianCalendar.getInstance();
 		Calendar dueDateCal = GregorianCalendar.getInstance();
 		Integer days;
+		Integer monthlyFees;
 		
 		BigDecimal averageDays, periodRate, dayRate, pow, quotaA, quotaB, quotaC, quota;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		
 		log.info("BEGIN CALCULATE QUOTA ###################################");
 		try {
+			
+			monthlyFees = a.getQuotasNumber()*a.getFrecuency().getNumberMonths();
+			
 			disbursementDateCal.setTime(a.getDisbursementDate());
 			endDateCal.setTime(a.getStartDatePayment());
 			paymentDateCal.setTime(a.getStartDatePayment());
@@ -62,7 +69,7 @@ public class Installment {
 
 			dayRate = a.getInterestRate().divide(new BigDecimal(100), 10, RoundingMode.HALF_UP);
 			dayRate = dayRate.divide(new BigDecimal("360"), 10, RoundingMode.HALF_UP);
-			endDateCal.add(Calendar.MONTH, a.getQuotasNumber()-1);
+			endDateCal.add(Calendar.MONTH, monthlyFees-a.getFrecuency().getNumberMonths());
 			
 			long difms=endDateCal.getTimeInMillis() - disbursementDateCal.getTimeInMillis();
 			long difd=difms / (1000 * 60 * 60 * 24);
@@ -73,7 +80,7 @@ public class Installment {
 			
 			Calendar previousPaymentDateCal = GregorianCalendar.getInstance();
 			previousPaymentDateCal.setTime(a.getStartDatePayment());
-			previousPaymentDateCal.add(Calendar.MONTH, -1);
+			previousPaymentDateCal.add(Calendar.MONTH, a.getFrecuency().getNumberMonths()*-1);
 			long provisionDayFirstQuotaMS=paymentDateCal.getTimeInMillis() - disbursementDateCal.getTimeInMillis();
 			long provisionDayFirstQuotaD=provisionDayFirstQuotaMS / (1000 * 60 * 60 * 24);
 			long adjustProvisionDayFirstQuotaMS=paymentDateCal.getTimeInMillis() - previousPaymentDateCal.getTimeInMillis();
@@ -145,7 +152,7 @@ public class Installment {
 				if (i>0)
 				{
 					previousDueDateCal.setTime(dueDateCal.getTime());
-					dueDateCal.add(Calendar.MONTH, 1);
+					dueDateCal.add(Calendar.MONTH, a.getFrecuency().getNumberMonths());
 					if (a.getPaymentDay() == 31)
 						dueDateCal.set(Calendar.DAY_OF_MONTH, dueDateCal.getActualMaximum(Calendar.DAY_OF_MONTH));
 					else if (a.getPaymentDay() > dueDateCal.getActualMaximum(Calendar.DAY_OF_MONTH))
@@ -166,6 +173,8 @@ public class Installment {
 				interest = interest.multiply(new BigDecimal(aq.getProvisionDays())).setScale(scale, RoundingMode.HALF_UP);
 				aq.setInterest(interest);
 				capital = quota.subtract(interest).setScale(scale, RoundingMode.HALF_UP);
+				if (capital.compareTo(BigDecimal.ZERO)<=0)
+					capital = BigDecimal.ZERO;
 				if (quotaNumber<=a.getQuotasNumber().intValue())
 					aq.setCapital(capital);
 				else
