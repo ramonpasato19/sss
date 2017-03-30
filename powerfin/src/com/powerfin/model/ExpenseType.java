@@ -1,8 +1,11 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.util.List;
+
+import org.openxava.annotations.*;
 
 
 /**
@@ -11,7 +14,9 @@ import java.util.List;
  */
 @Entity
 @Table(name="expense_type")
-@NamedQuery(name="ExpenseType.findAll", query="SELECT e FROM ExpenseType e")
+@View(members = "expenseTypeId;"
+		+ "expenseClass;"
+		+ "name;")
 public class ExpenseType implements Serializable {
 	private static final long serialVersionUID = 1L;
 

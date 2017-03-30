@@ -1,8 +1,11 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.util.List;
+
+import org.openxava.annotations.*;
 
 
 /**
@@ -11,7 +14,10 @@ import java.util.List;
  */
 @Entity
 @Table(name="region")
-@NamedQuery(name="Region.findAll", query="SELECT r FROM Region r")
+@View(members = "country;"
+		+ "regionId;"
+		+ "code;"
+		+ "name;")
 public class Region implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -36,6 +42,8 @@ public class Region implements Serializable {
 	//bi-directional many-to-one association to Country
 	@ManyToOne
 	@JoinColumn(name="country_id", nullable=false)
+	@DescriptionsList(descriptionProperties="countryId,name")
+	@Required
 	private Country country;
 
 	//bi-directional many-to-one association to State

@@ -4,6 +4,8 @@ import java.io.*;
 
 import javax.persistence.*;
 
+import org.openxava.annotations.*;
+
 
 /**
  * The persistent class for the district database table.
@@ -11,7 +13,12 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name="district")
-@NamedQuery(name="District.findAll", query="SELECT d FROM District d")
+@Views({
+	@View(members = "country;" + "region;" + "state;" + "city;" + "districtId;"+ "code;" + "name;"),
+	@View(name = "HomeDistrict", members = "districtId, name; country, region, state, city; "),
+	@View(name = "WorkDistrict", members = "districtId, name; country, region, state, city; "),
+})
+@Tab(properties = "country.name, region.name, state.name, city.name, name")
 public class District implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -23,27 +30,36 @@ public class District implements Serializable {
 	private String code;
 
 	@Column(nullable=false, length=100)
+	@DisplaySize(30)
 	private String name;
-
-	//bi-directional many-to-one association to City
-	@ManyToOne
-	@JoinColumn(name="city_id", nullable=false)
-	private City city;
 
 	//bi-directional many-to-one association to Country
 	@ManyToOne
 	@JoinColumn(name="country_id", nullable=false)
+	@DescriptionsList(descriptionProperties="countryId,name")
+	@Required
 	private Country country;
-
-	//bi-directional many-to-one association to Region
-	@ManyToOne
-	@JoinColumn(name="region_id", nullable=false)
-	private Region region;
 
 	//bi-directional many-to-one association to State
 	@ManyToOne
+	@JoinColumn(name="region_id", nullable=false)
+	@DescriptionsList(descriptionProperties="name", depends="this.country",condition="${country.countryId} = ?")
+	@Required
+	private Region region;
+	
+	//bi-directional many-to-one association to State
+	@ManyToOne
 	@JoinColumn(name="state_id", nullable=false)
+	@DescriptionsList(descriptionProperties="name", depends="this.country, this.region",condition="${country.countryId} = ? and ${region.regionId} = ?")
+	@Required
 	private State state;
+
+	// bi-directional many-to-one association to State
+	@ManyToOne
+	@JoinColumn(name = "city_id", nullable = false)
+	@DescriptionsList(descriptionProperties = "name", depends = "this.country, this.region, this.state", condition = "${country.countryId} = ? and ${region.regionId} = ? and ${state.stateId} = ?")
+	@Required
+	private City city;
 
 	public District() {
 	}

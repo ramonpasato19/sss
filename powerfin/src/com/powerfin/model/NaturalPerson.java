@@ -9,6 +9,7 @@ import javax.persistence.*;
 import org.openxava.annotations.*;
 
 import com.powerfin.model.superclass.*;
+import com.powerfin.model.types.Types.*;
 
 
 /**
@@ -18,26 +19,48 @@ import com.powerfin.model.superclass.*;
 @Entity
 @Table(name="natural_person")
 @View(members="#"
-		+ "personId;"
-		+ "identificationType;"
-		+ "identification;"
-		+ "firstName, secondName;"
-		+ "paternalSurname, maternalSurname;"
-		+ "gender, maritalStatus;"
-		+ "homePhoneNumber1, cellPhoneNumber1;"
-		+ "email;"
-		+ "address[#homeMainStreet, homeNumber; "
-		+ "homeSideStreet;homeSector]"
+		+ "personId,"
+		+ "name;"
+		+ "generalInformation{#"
+			+ "identificationType, identification;"
+			+ "firstName, secondName;"
+			+ "paternalSurname, maternalSurname;"
+			+ "gender, maritalStatus;"
+			+ "email, activity;"
+			+ "nationality, levelInstruction;"
+			+ "familyLoads, separationProperties;"
+			+ "cellPhoneNumber1}"
+		+ "homeAddress{#"
+			+ "location{"
+				+ "homeType;"
+				+ "homeDistrict;"
+				+ "homeMainStreet, homeNumber; "
+				+ "homeSideStreet;homeSector;"
+				+ "homePhoneNumber1;}"
+			+ "rental{#"
+				+ "homeRenterName; homeResidenceTime;"
+				+ "homeRenterPhoneNumber; homeRentalValue;}}"
+		+ "work{#"
+			+ "workIdentification;"
+			+ "workPlace;"
+			+ "workDistrict;"
+			+ "workAddress;"
+			+ "workActivity;"
+			+ "workPhoneNumber, workPhoneExtension;"
+			+ "workPosition, workSeniority"
+		+ "}"
+		+ "PersonIncome{personIncomes}"
+		+ "PersonExpense{personExpenses}"
+		+ "PersonDeposit{personDeposits}"
+		+ "PersonLoan{personLoans}"
+		+ "PersonCreditCard{personCreditCards}"
+		+ "PersonImmovable{personImmovables}"
+		+ "PersonMovable{personMovables}"
+		+ "PersonalReference{personalReferences}"
 		+ "")
 @Tab(properties="personId, person.identification, person.name, person.email")
-public class NaturalPerson extends AuditEntity implements Serializable {
+public class NaturalPerson extends CommonPerson implements Serializable {
 	private static final long serialVersionUID = 1L;
-
-	@Id
-	@Column(name="person_id", unique=true, nullable=false)
-	@ReadOnly
-	@Hidden
-	private Integer personId;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="birth_date")
@@ -53,19 +76,6 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	@Required
 	private String firstName;
 
-	@Column(name="home_main_street", length=100)
-	private String homeMainStreet;
-
-	@Column(name="home_number", length=50)
-	@DisplaySize(20)
-	private String homeNumber;
-
-	@Column(name="home_phone_number_1", length=50)
-	private String homePhoneNumber1;
-
-	@Column(name="home_phone_number_2", length=50)
-	private String homePhoneNumber2;
-
 	@Column(name="home_rental_value", precision=11, scale=2)
 	private BigDecimal homeRentalValue;
 
@@ -77,12 +87,6 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 
 	@Column(name="home_residence_time", length=50)
 	private String homeResidenceTime;
-
-	@Column(name="home_sector", length=100)
-	private String homeSector;
-
-	@Column(name="home_side_street", length=100)
-	private String homeSideStreet;
 
 	@Column(name="income_category", length=50)
 	private String incomeCategory;
@@ -113,7 +117,7 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	private String secondName;
 
 	@Column(name="separation_properties")
-	private Integer separationProperties;
+	private YesNoIntegerType separationProperties;
 
 	@Column(name="work_activity", length=100)
 	private String workActivity;
@@ -125,6 +129,7 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	private String workIdentification;
 
 	@Column(name="work_phone_extension", length=50)
+	@DisplaySize(20)
 	private String workPhoneExtension;
 
 	@Column(name="work_phone_number", length=50)
@@ -137,6 +142,7 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	private String workPosition;
 
 	@Column(name="work_seniority", length=50)
+	@DisplaySize(20)
 	private String workSeniority;
 
 	//bi-directional many-to-one association to City
@@ -147,11 +153,17 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	//bi-directional many-to-one association to District
 	@ManyToOne
 	@JoinColumn(name="work_district_id")
+	@NoCreate
+	@NoModify
+	@ReferenceView("WorkDistrict")
 	private District workDistrict;
 
 	//bi-directional many-to-one association to District
 	@ManyToOne
 	@JoinColumn(name="home_district_id")
+	@NoCreate
+	@NoModify
+	@ReferenceView("HomeDistrict")
 	private District homeDistrict;
 
 	//bi-directional many-to-one association to District
@@ -164,16 +176,24 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	@JoinColumn(name="gender_id", nullable=false)
 	@DescriptionsList(descriptionProperties="name")
 	@Required
+	@NoCreate
+	@NoModify
 	private Gender gender;
 
 	//bi-directional many-to-one association to HomeType
 	@ManyToOne
-	@JoinColumn(name="home_type_id")
+	@JoinColumn(name = "home_type_id", nullable = true)
+	@DescriptionsList(descriptionProperties = "homeTypeId, name")
+	@NoCreate
+	@NoModify
 	private HomeType homeType;
 
 	//bi-directional many-to-one association to LevelInstruction
 	@ManyToOne
 	@JoinColumn(name="level_instruction_id")
+	@DescriptionsList
+	@NoCreate
+	@NoModify
 	private LevelInstruction levelInstruction;
 
 	//bi-directional many-to-one association to MaritalStatus
@@ -181,44 +201,19 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 	@JoinColumn(name="marital_status_id")
 	@DescriptionsList(descriptionProperties="name")
 	@Required
+	@NoCreate
+	@NoModify
 	private MaritalStatus maritalStatus;
 
 	//bi-directional many-to-one association to Nationality
 	@ManyToOne
 	@JoinColumn(name="nationality_id")
-	private Nationality nationality;
-
-	//bi-directional one-to-one association to Person
-	@OneToOne
-	@JoinColumn(name="person_id", nullable=false, insertable=false, updatable=false)
-	private Person person;
-
-	@Transient
-	@DisplaySize(20)
-	@Required
-	private String identification;
-	
-	@Transient
-	@DisplaySize(20)
-	private String email;
-	
-	@Transient
-	@ManyToOne
+	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@DescriptionsList(descriptionProperties = "name")
-	@Required
-	private IdentificationType identificationType;
+	private Nationality nationality;
 	
 	public NaturalPerson() {
-	}
-
-	public Integer getPersonId() {
-		return this.personId;
-	}
-
-	public void setPersonId(Integer personId) {
-		this.personId = personId;
 	}
 
 	public Date getBirthDate() {
@@ -253,38 +248,6 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 		this.firstName = firstName;
 	}
 
-	public String getHomeMainStreet() {
-		return this.homeMainStreet;
-	}
-
-	public void setHomeMainStreet(String homeMainStreet) {
-		this.homeMainStreet = homeMainStreet;
-	}
-
-	public String getHomeNumber() {
-		return this.homeNumber;
-	}
-
-	public void setHomeNumber(String homeNumber) {
-		this.homeNumber = homeNumber;
-	}
-
-	public String getHomePhoneNumber1() {
-		return this.homePhoneNumber1;
-	}
-
-	public void setHomePhoneNumber1(String homePhoneNumber1) {
-		this.homePhoneNumber1 = homePhoneNumber1;
-	}
-
-	public String getHomePhoneNumber2() {
-		return this.homePhoneNumber2;
-	}
-
-	public void setHomePhoneNumber2(String homePhoneNumber2) {
-		this.homePhoneNumber2 = homePhoneNumber2;
-	}
-
 	public BigDecimal getHomeRentalValue() {
 		return this.homeRentalValue;
 	}
@@ -315,22 +278,6 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 
 	public void setHomeResidenceTime(String homeResidenceTime) {
 		this.homeResidenceTime = homeResidenceTime;
-	}
-
-	public String getHomeSector() {
-		return this.homeSector;
-	}
-
-	public void setHomeSector(String homeSector) {
-		this.homeSector = homeSector;
-	}
-
-	public String getHomeSideStreet() {
-		return this.homeSideStreet;
-	}
-
-	public void setHomeSideStreet(String homeSideStreet) {
-		this.homeSideStreet = homeSideStreet;
 	}
 
 	public String getIncomeCategory() {
@@ -405,11 +352,11 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 		this.secondName = secondName;
 	}
 
-	public Integer getSeparationProperties() {
+	public YesNoIntegerType getSeparationProperties() {
 		return this.separationProperties;
 	}
 
-	public void setSeparationProperties(Integer separationProperties) {
+	public void setSeparationProperties(YesNoIntegerType separationProperties) {
 		this.separationProperties = separationProperties;
 	}
 
@@ -547,44 +494,6 @@ public class NaturalPerson extends AuditEntity implements Serializable {
 
 	public void setNationality(Nationality nationality) {
 		this.nationality = nationality;
-	}
-
-	public Person getPerson() {
-		return this.person;
-	}
-
-	public void setPerson(Person person) {
-		this.person = person;
-	}
-
-	public String getIdentification() {
-		if(person!=null)
-			return person.getIdentification();
-		return identification;
-	}
-
-	public void setIdentification(String identification) {
-		this.identification = identification;
-	}
-
-	public IdentificationType getIdentificationType() {
-		if(person!=null)
-			return person.getIdentificationType();
-		return identificationType;
-	}
-
-	public void setIdentificationType(IdentificationType identificationType) {
-		this.identificationType = identificationType;
-	}
-
-	public String getEmail() {
-		if(person!=null)
-			return person.getEmail();
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 }

@@ -1,8 +1,11 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.util.List;
+
+import org.openxava.annotations.*;
 
 
 /**
@@ -11,7 +14,8 @@ import java.util.List;
  */
 @Entity
 @Table(name="home_type")
-@NamedQuery(name="HomeType.findAll", query="SELECT h FROM HomeType h")
+@View(members = "homeTypeId;"
+		+ "name;")
 public class HomeType implements Serializable {
 	private static final long serialVersionUID = 1L;
 

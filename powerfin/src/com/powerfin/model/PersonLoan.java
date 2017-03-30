@@ -1,9 +1,16 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.math.*;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.*;
+import org.openxava.annotations.*;
+
+import com.powerfin.model.superclass.*;
 
 
 /**
@@ -12,12 +19,20 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name="person_loan")
-@NamedQuery(name="PersonLoan.findAll", query="SELECT p FROM PersonLoan p")
-public class PersonLoan implements Serializable {
+@View(members = "person;"
+		+ "loanType;"
+		+ "financialInstitution;"
+		+ "feeAmount;"
+		+ "balance;"
+		+ "scoreQualification")
+public class PersonLoan extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="person_loan_id", unique=true, nullable=false, length=32)
+	@Hidden
+	@GeneratedValue(generator="system-uuid") 
+	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	private String personLoanId;
 
 	@Column(name="fee_amount", precision=11, scale=2)
@@ -26,20 +41,26 @@ public class PersonLoan implements Serializable {
 	@Column(name="financial_institution", length=100)
 	private String financialInstitution;
 
-	@Column(name="registration_date", nullable=false)
-	private Timestamp registrationDate;
-
-	@Column(name="user_registering", nullable=false, length=30)
-	private String userRegistering;
-
+	@Column(name="balance", precision=11, scale=2)
+	private BigDecimal balance;
+		
+	@Column(name="score_qualification")
+	private Integer scoreQualification;
+	
 	//bi-directional many-to-one association to LoanType
 	@ManyToOne
 	@JoinColumn(name="loan_type_id", nullable=false)
+	@NoCreate
+	@NoModify
+	@Required
+	@DescriptionsList(descriptionProperties="name")
 	private LoanType loanType;
 
 	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id", nullable=false)
+	@ReferenceView("Reference")
+	@Required
 	private Person person;
 
 	public PersonLoan() {
@@ -69,22 +90,6 @@ public class PersonLoan implements Serializable {
 		this.financialInstitution = financialInstitution;
 	}
 
-	public Timestamp getRegistrationDate() {
-		return this.registrationDate;
-	}
-
-	public void setRegistrationDate(Timestamp registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
-	public String getUserRegistering() {
-		return this.userRegistering;
-	}
-
-	public void setUserRegistering(String userRegistering) {
-		this.userRegistering = userRegistering;
-	}
-
 	public LoanType getLoanType() {
 		return this.loanType;
 	}
@@ -99,6 +104,22 @@ public class PersonLoan implements Serializable {
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+
+	public BigDecimal getBalance() {
+		return balance;
+	}
+
+	public void setBalance(BigDecimal balance) {
+		this.balance = balance;
+	}
+
+	public Integer getScoreQualification() {
+		return scoreQualification;
+	}
+
+	public void setScoreQualification(Integer scoreQualification) {
+		this.scoreQualification = scoreQualification;
 	}
 
 }

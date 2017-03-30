@@ -19,12 +19,14 @@ public class NaturalPersonSaveAction extends SaveAction {
 		Messages errors = MapFacade.validate(getModelName(), getValuesToSave());
 		if (errors.contains()) throw new ValidationException(errors);
 		
+		String name;
 		String firstName = getView().getValueString("firstName");
 		String secondName = getView().getValueString("secondName");
 		String paternalSurname = getView().getValueString("paternalSurname");
 		String maternalSurname = getView().getValueString("maternalSurname");
 		String identification = getView().getValueString("identification");
 		String email = getView().getValueString("email");
+		String activity = getView().getValueString("activity");
 		IdentificationType identificationType = null;
 		
 		Map<String, String> identificationTypeMap = (Map<String, String>) getView().getRoot().getValue("identificationType");
@@ -32,25 +34,27 @@ public class NaturalPersonSaveAction extends SaveAction {
 			identificationType = XPersistence.getManager().find(IdentificationType.class, (String)identificationTypeMap.get("identificationTypeId"));
 		}
 		
-		if (getView().isKeyEditable()) { //Create Account
-			
+		name = paternalSurname + " ";
+		name += maternalSurname != null ? maternalSurname + " " : "";
+		name += firstName;
+		name += secondName != null ? " " + secondName : "";
+		
+		//Create Person
+		if (getView().isKeyEditable()) 
+		{
 			Person p = new Person();
 			p.setPersonId(null);
 			p.setIdentification(identification);
 			p.setIdentificationType(identificationType);
 			p.setPersonType(XPersistence.getManager().find(PersonType.class, PersonHelper.NATURAL_PERSON));
 			p.setEmail(email.toLowerCase());
-			String name = "";
-			name += paternalSurname + " ";
-			name += maternalSurname != null ? maternalSurname + " " : "";
-			name += firstName;
-			name += secondName != null ? " " + secondName : "";
+			p.setActivity(activity);
 			p.setName(name);
 			XPersistence.getManager().persist(p);
-			
 			getView().setValue("personId", p.getPersonId());
 			addMessage("person_created", p.getClass().getName());
 		}
+		//Update Person
 		else
 		{
 			Integer personId = getView().getValueInt("personId");
@@ -58,18 +62,11 @@ public class NaturalPersonSaveAction extends SaveAction {
 			p.setIdentification(identification);
 			p.setIdentificationType(identificationType);
 			p.setEmail(email.toLowerCase());
-			String name = "";
-			name += paternalSurname + " ";
-			name += maternalSurname != null ? maternalSurname + " " : "";
-			name += firstName;
-			name += secondName != null ? " " + secondName : "";
+			p.setActivity(activity);
 			p.setName(name);
 			XPersistence.getManager().merge(p);
 			addMessage("person_modified", p.getClass().getName());			
 		}
-
-		
-		
 		super.execute();
 	}
 }

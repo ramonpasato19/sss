@@ -50,6 +50,7 @@ public class Person extends AuditEntity implements Serializable {
 	@ReadOnly(notForViews = "Reference, ShortReference, LoanReference")
 	private Integer personId;
 
+	@Column(length = 100)
 	private String activity;
 
 	@Column(length = 50)

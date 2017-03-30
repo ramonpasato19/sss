@@ -23,6 +23,7 @@ public class LegalPersonSaveAction extends SaveAction {
 		String businessName = getView().getValueString("businessName");
 		String identification = getView().getValueString("identification");
 		String email = getView().getValueString("email");
+		String activity = getView().getValueString("activity");
 		IdentificationType identificationType = null;
 		
 		Map<String, String> identificationTypeMap = (Map<String, String>) getView().getRoot().getValue("identificationType");
@@ -39,6 +40,7 @@ public class LegalPersonSaveAction extends SaveAction {
 			p.setPersonType(XPersistence.getManager().find(PersonType.class, PersonHelper.LEGAL_PERSON));
 			p.setEmail(email.toLowerCase());
 			p.setName(businessName);
+			p.setActivity(activity);
 			XPersistence.getManager().persist(p);
 			
 			getView().setValue("personId", p.getPersonId());
@@ -52,12 +54,10 @@ public class LegalPersonSaveAction extends SaveAction {
 			p.setIdentificationType(identificationType);
 			p.setEmail(email.toLowerCase());
 			p.setName(businessName);
+			p.setActivity(activity);
 			XPersistence.getManager().merge(p);
 			addMessage("person_modified", p.getClass().getName());			
 		}
-
-		
-		
 		super.execute();
 	}
 }

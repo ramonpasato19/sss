@@ -1,9 +1,16 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.math.*;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.*;
+import org.openxava.annotations.*;
+
+import com.powerfin.model.superclass.*;
 
 
 /**
@@ -12,12 +19,20 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name="person_credit_card")
-@NamedQuery(name="PersonCreditCard.findAll", query="SELECT p FROM PersonCreditCard p")
-public class PersonCreditCard implements Serializable {
+@View(members = "person;"
+		+ "creditCardType;"
+		+ "financialInstitution;"
+		+ "cardNumber;"
+		+ "balance;"
+		+ "feeAmount")
+public class PersonCreditCard extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="person_credit_card_id", unique=true, nullable=false, length=32)
+	@Hidden
+	@GeneratedValue(generator="system-uuid") 
+	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	private String personCreditCardId;
 
 	@Column(precision=11, scale=2)
@@ -32,20 +47,20 @@ public class PersonCreditCard implements Serializable {
 	@Column(name="financial_institution", length=100)
 	private String financialInstitution;
 
-	@Column(name="registration_date", nullable=false)
-	private Timestamp registrationDate;
-
-	@Column(name="user_registering", nullable=false, length=30)
-	private String userRegistering;
-
 	//bi-directional many-to-one association to CreditCardType
 	@ManyToOne
 	@JoinColumn(name="credit_card_type_id", nullable=false)
+	@NoCreate
+	@NoModify
+	@Required
+	@DescriptionsList(descriptionProperties="name")
 	private CreditCardType creditCardType;
 
 	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id", nullable=false)
+	@ReferenceView("Reference")
+	@Required
 	private Person person;
 
 	public PersonCreditCard() {
@@ -89,22 +104,6 @@ public class PersonCreditCard implements Serializable {
 
 	public void setFinancialInstitution(String financialInstitution) {
 		this.financialInstitution = financialInstitution;
-	}
-
-	public Timestamp getRegistrationDate() {
-		return this.registrationDate;
-	}
-
-	public void setRegistrationDate(Timestamp registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
-	public String getUserRegistering() {
-		return this.userRegistering;
-	}
-
-	public void setUserRegistering(String userRegistering) {
-		this.userRegistering = userRegistering;
 	}
 
 	public CreditCardType getCreditCardType() {

@@ -1,8 +1,11 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.util.List;
+
+import org.openxava.annotations.*;
 
 
 /**
@@ -11,7 +14,17 @@ import java.util.List;
  */
 @Entity
 @Table(name="city")
-@NamedQuery(name="City.findAll", query="SELECT c FROM City c")
+@Views({
+	@View(members = "country;"
+			+ "region;"
+			+ "state;"
+			+ "cityId;"
+			+ "code;"
+			+ "name;"),
+	@View(name="Reference", members = "country, region, state, name"),
+	@View(name="BirthCity", members = "name; country, region, state")
+})
+@Tab(properties="country.name, state.name, name")
 public class City implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -28,16 +41,22 @@ public class City implements Serializable {
 	//bi-directional many-to-one association to Country
 	@ManyToOne
 	@JoinColumn(name="country_id", nullable=false)
+	@DescriptionsList(descriptionProperties="countryId,name")
+	@Required
 	private Country country;
-
-	//bi-directional many-to-one association to Region
-	@ManyToOne
-	@JoinColumn(name="region_id", nullable=false)
-	private Region region;
 
 	//bi-directional many-to-one association to State
 	@ManyToOne
+	@JoinColumn(name="region_id", nullable=false)
+	@DescriptionsList(descriptionProperties="code,name", depends="this.country",condition="${country.countryId} = ?")
+	@Required
+	private Region region;
+	
+	//bi-directional many-to-one association to State
+	@ManyToOne
 	@JoinColumn(name="state_id", nullable=false)
+	@DescriptionsList(descriptionProperties="code,name", depends="this.country, this.region",condition="${country.countryId} = ? and ${region.regionId} = ?")
+	@Required
 	private State state;
 
 	//bi-directional many-to-one association to District

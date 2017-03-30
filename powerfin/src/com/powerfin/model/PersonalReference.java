@@ -1,8 +1,15 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.*;
+import org.openxava.annotations.*;
+
+import com.powerfin.model.superclass.*;
 
 
 /**
@@ -11,15 +18,25 @@ import java.sql.Timestamp;
  */
 @Entity
 @Table(name="personal_reference")
-@NamedQuery(name="PersonalReference.findAll", query="SELECT p FROM PersonalReference p")
-public class PersonalReference implements Serializable {
+@View(members = "person;"
+		+ "nearFamily;"
+		+ "relationship;"
+		+ "address;"
+		+ "homePhone;"
+		+ "workPhone;"
+		+ "cellPhone")
+public class PersonalReference extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="personal_reference_id", unique=true, nullable=false, length=32)
+	@Hidden
+	@GeneratedValue(generator="system-uuid") 
+	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	private String personalReferenceId;
 
 	@Column(length=100)
+	@DisplaySize(50)
 	private String address;
 
 	@Column(name="cell_phone", length=50)
@@ -29,16 +46,11 @@ public class PersonalReference implements Serializable {
 	private String homePhone;
 
 	@Column(name="near_family", length=100)
+	@DisplaySize(50)
 	private String nearFamily;
-
-	@Column(name="registration_date", nullable=false)
-	private Timestamp registrationDate;
 
 	@Column(length=50)
 	private String relationship;
-
-	@Column(name="user_registering", nullable=false, length=30)
-	private String userRegistering;
 
 	@Column(name="work_phone", length=50)
 	private String workPhone;
@@ -46,6 +58,8 @@ public class PersonalReference implements Serializable {
 	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id", nullable=false)
+	@ReferenceView("Reference")
+	@Required
 	private Person person;
 
 	public PersonalReference() {
@@ -91,28 +105,12 @@ public class PersonalReference implements Serializable {
 		this.nearFamily = nearFamily;
 	}
 
-	public Timestamp getRegistrationDate() {
-		return this.registrationDate;
-	}
-
-	public void setRegistrationDate(Timestamp registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
 	public String getRelationship() {
 		return this.relationship;
 	}
 
 	public void setRelationship(String relationship) {
 		this.relationship = relationship;
-	}
-
-	public String getUserRegistering() {
-		return this.userRegistering;
-	}
-
-	public void setUserRegistering(String userRegistering) {
-		this.userRegistering = userRegistering;
 	}
 
 	public String getWorkPhone() {

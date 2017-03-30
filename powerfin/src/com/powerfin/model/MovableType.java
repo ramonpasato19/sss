@@ -1,8 +1,11 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.util.*;
+
 import javax.persistence.*;
-import java.util.List;
+
+import org.openxava.annotations.*;
 
 
 /**
@@ -11,7 +14,8 @@ import java.util.List;
  */
 @Entity
 @Table(name="movable_type")
-@NamedQuery(name="MovableType.findAll", query="SELECT m FROM MovableType m")
+@View(members = "movableTypeId;"
+		+ "name;")
 public class MovableType implements Serializable {
 	private static final long serialVersionUID = 1L;
 

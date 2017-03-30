@@ -1,9 +1,16 @@
 package com.powerfin.model;
 
-import java.io.Serializable;
+import java.io.*;
+import java.math.*;
+
 import javax.persistence.*;
-import java.sql.Timestamp;
-import java.math.BigDecimal;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.*;
+import org.openxava.annotations.*;
+
+import com.powerfin.model.superclass.*;
 
 
 /**
@@ -12,31 +19,38 @@ import java.math.BigDecimal;
  */
 @Entity
 @Table(name="person_income")
-@NamedQuery(name="PersonIncome.findAll", query="SELECT p FROM PersonIncome p")
-public class PersonIncome implements Serializable {
+@View(members = "person; "
+		+ "incomeType; "
+		+ "amount; "
+		+ "description; ")
+public class PersonIncome extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	@Column(name="person_income_id", unique=true, nullable=false, length=32)
+	@Hidden
+	@GeneratedValue(generator="system-uuid") 
+	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	private String personIncomeId;
 
 	@Column(nullable=false, precision=11, scale=2)
 	private BigDecimal amount;
 
-	@Column(name="registration_date", nullable=false)
-	private Timestamp registrationDate;
-
-	@Column(name="user_registering", nullable=false, length=30)
-	private String userRegistering;
-
-	//bi-directional many-to-one association to IncomeType
+	@Column(length=200)
+	private String description;
+	
 	@ManyToOne
 	@JoinColumn(name="income_type_id", nullable=false)
+	@Required
+	@NoCreate
+	@NoModify
+	@DescriptionsList(descriptionProperties="incomeClass, name")
 	private IncomeType incomeType;
 
-	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id", nullable=false)
+	@ReferenceView("Reference")
+	@Required
 	private Person person;
 
 	public PersonIncome() {
@@ -58,22 +72,6 @@ public class PersonIncome implements Serializable {
 		this.amount = amount;
 	}
 
-	public Timestamp getRegistrationDate() {
-		return this.registrationDate;
-	}
-
-	public void setRegistrationDate(Timestamp registrationDate) {
-		this.registrationDate = registrationDate;
-	}
-
-	public String getUserRegistering() {
-		return this.userRegistering;
-	}
-
-	public void setUserRegistering(String userRegistering) {
-		this.userRegistering = userRegistering;
-	}
-
 	public IncomeType getIncomeType() {
 		return this.incomeType;
 	}
@@ -88,6 +86,14 @@ public class PersonIncome implements Serializable {
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
