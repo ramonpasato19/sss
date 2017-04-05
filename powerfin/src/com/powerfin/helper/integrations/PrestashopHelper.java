@@ -12,15 +12,18 @@ import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
 public class PrestashopHelper {
+	
+	private String prefix;
 	int secuenciaACT = 0;
 	int proccessInvoice = 0;
 	int notProcessInvoice = 0;
 	String errors;
-	final String QUERY_INVOICE = "select o.id_order, o.id_customer, a.dni, c.firstname, c.lastname, c.id_gender, a.phone_mobile, c.email, a.address1, a.address2, a.phone,"
-			+ " o.invoice_date, '001' as status_invoice, total_paid_tax_incl from ps_orders o, ps_customer c, ps_address a where o.id_customer=c.id_customer and "
-			+ " c.id_customer=a.id_customer and c.active=true and current_state=3"
-			+ " and (date(invoice_date) >= ? and date(invoice_date) <= ?)";
+	
 
+	public PrestashopHelper(String prefix)
+	{
+		this.prefix = prefix;
+	}
 	public void addInventory(Connection connection, int productId, BigDecimal quantity) {
 		String update = "update ps_stock_available set quantity=(quantity+?) where id_product=?";
 		try {
@@ -37,7 +40,7 @@ public class PrestashopHelper {
 	}
 
 	public void removeInventory(Connection connection, int productId, BigDecimal quantity) {
-		String update = "update ps_stock_available set quantity=(quantity-?) where id_product=?";
+		String update = "update "+prefix+"_stock_available set quantity=(quantity-?) where id_product=?";
 		try {
 			// con esta sentencia se insertan los datos en la base de datos
 			PreparedStatement pst = connection.prepareStatement(update);
@@ -55,10 +58,17 @@ public class PrestashopHelper {
 	 * Metodo para recuperar las facturas de Prestachop (Mysql)
 	 * 
 	 */
-	public int pullInvoice(Connection connection, Date fromDate, Date toDate) throws Exception {
+	public int pullInvoice(Connection connection, Date fromDate, Date toDate, String sequentialCode) throws Exception {
+		
 		int invoicesFinished = 0;
 		int invoicesErrors = 0;
 		StringBuffer errores = new StringBuffer();
+		
+		String QUERY_INVOICE = "select o.id_order, o.id_customer, a.dni, c.firstname, c.lastname, c.id_gender, a.phone_mobile, c.email, a.address1, a.address2, a.phone,"
+				+ " o.invoice_date, '001' as status_invoice, total_paid_tax_incl from "+prefix+"_orders o, "+prefix+"_customer c, "+prefix+"_address a where o.id_customer=c.id_customer and "
+				+ " c.id_customer=a.id_customer and c.active=true and a.active =true and a.deleted =false and current_state=3"
+				+ " and (date(invoice_date) >= ? and date(invoice_date) <= ?)";
+		
 		if (fromDate == null)
 			fromDate = CompanyHelper.getCurrentAccountingDate();
 		if (toDate == null)
@@ -71,7 +81,7 @@ public class PrestashopHelper {
 
 		while (result.next()) {
 			try {
-				if (putInvoice(connection, result)) {
+				if (putInvoice(connection, result,sequentialCode)) {
 					invoicesFinished++;
 				}
 			} catch (Exception e) {
@@ -88,7 +98,7 @@ public class PrestashopHelper {
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean putInvoice(Connection connection, ResultSet result) throws Exception {
+	public boolean putInvoice(Connection connection, ResultSet result,String codeSequential) throws Exception {
 		List<Account> invoiceFinds = (List<Account>) XPersistence.getManager()
 				.createQuery("select a from Account a where account_id like'FVE%' and externalCode=:externalcode")
 				.setParameter("externalcode", result.getString("id_order")).getResultList();
@@ -98,9 +108,16 @@ public class PrestashopHelper {
 
 		Person customer = null;
 		List<Person> customers = null;
+		String cedula=null;
+		if(result.getString("dni") == null)
+		{
+			cedula="5555555555";
+		}else{
+			cedula=result.getString("dni");
+		}
 		customers = (List<Person>) XPersistence.getManager()
 				.createQuery("select p from Person p where p.identification = :identification")
-				.setParameter("identification", result.getString("dni")).getResultList();
+				.setParameter("identification", cedula).getResultList();
 		if (!customers.isEmpty()) {
 			customer = customers.get(0);
 		}
@@ -114,7 +131,7 @@ public class PrestashopHelper {
 			customer.setEmail(result.getString("email"));
 			customer.setUserRegistering("admin");
 
-			if (result.getString("DNI").length() > 10) {
+			if (result.getString("dni").length() > 10) {
 				// Persona Juridica
 				IdentificationType identificationType = XPersistence.getManager().find(IdentificationType.class, "RUC");
 				customer.setIdentificationType(identificationType);
@@ -175,7 +192,7 @@ public class PrestashopHelper {
 				XPersistence.getManager().persist(naturalPerson);
 			}
 		}
-		String secuencialCode = getSecuencialCode();
+		String secuencialCode = getSecuencialCode(codeSequential);
 		String establishmentCode  = ParameterHelper.getValue("ESTABLISHMENT_CODE") ;
 		String emissionPointCode = ParameterHelper.getValue("EMISSION_POINT_CODE");
 		
@@ -203,7 +220,7 @@ public class PrestashopHelper {
 		XPersistence.getManager().persist(accountInvoice);
 		PreparedStatement query = connection.prepareStatement(
 				"SELECT id_order, product_id, product_quantity, product_price, od.product_quantity_discount, coalesce(t.rate,0) as rate , od.total_price_tax_excl, (od.total_price_tax_incl-od.total_price_tax_excl) as tax_amount, od.total_price_tax_incl "
-						+ " FROM ps_order_detail od LEFT JOIN ps_tax_rule tr ON od.id_tax_rules_group=tr.id_tax_rule  LEFT JOIN ps_tax t ON tr.id_tax=t.id_tax "
+						+ " FROM "+prefix+"_order_detail od LEFT JOIN "+prefix+"_tax_rule tr ON od.id_tax_rules_group=tr.id_tax_rule  LEFT JOIN "+prefix+"_tax t ON tr.id_tax=t.id_tax "
 						+ " where  id_order=?");
 		query.setInt(1, result.getInt("id_order"));
 		ResultSet resultDetail = query.executeQuery();
@@ -261,8 +278,7 @@ public class PrestashopHelper {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
-	public String getSecuencialCode() {
+	public String getSecuencialCode(String codeSequential) throws NumberFormatException, Exception {
 		if (secuenciaACT > 0) {
 			secuenciaACT++;
 			String secuencialString = secuenciaACT + "";
@@ -271,22 +287,15 @@ public class PrestashopHelper {
 			}
 			return secuencialString;
 		} else {
-			List<String> accountInvoice = XPersistence.getManager()
-					.createNativeQuery(
-							"select ai.sequential_Code from "+CompanyHelper.getSchema().toLowerCase()+".account_invoice ai where ai.account_Id like 'FV%' order by CAST(ai.sequential_Code as int) desc ")
-					.getResultList();
-			if (!accountInvoice.isEmpty()) {
-				int sequetial = Integer.parseInt((String) accountInvoice.get(0));
-				sequetial = sequetial + 1;
-				secuenciaACT = sequetial;
-				String secuencialString = sequetial + "";
-				for (int i = secuencialString.length(); i < 7; i++) {
-					secuencialString = "0" + secuencialString;
-				}
-				return secuencialString;
+			int sequetial = Integer.parseInt(codeSequential);
+			sequetial = sequetial + 1;
+			secuenciaACT = sequetial;
+			String secuencialString = sequetial + "";
+			for (int i = secuencialString.length(); i < 7; i++) {
+				secuencialString = "0" + secuencialString;
 			}
+			return secuencialString;
 		}
-		return "";
 	}
 
 	public int getProccessInvoice() {

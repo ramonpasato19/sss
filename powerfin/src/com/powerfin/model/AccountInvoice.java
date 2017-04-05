@@ -171,6 +171,18 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				+ "detail{details;}"
 			),
+	@View(name="ConsultInvoiceActive", 
+		members="accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate, dueDate;"
+				+ "taxDeclaration{invoiceTaxSupport;invoiceVoucherType;invoiceProviderType; partRelated;}"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
+				+ "paymentType{invoicePaymentType;countryPayment;doubleTaxationConventionPayment;underTheStatutePayment;}"
+				+ "paymentMethods{accountInvoicePayments;}"
+				+ "detail{details;}"
+				+ "remark{remark;}"
+				),
 	@View(name="reference", members="account;"
 			+ "dueDate, issueDate;"),
 	@View(name="forRetention", 
@@ -274,8 +286,8 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReferenceView("forCreditNote")
 	@ReadOnly(forViews="AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
 	@SearchActions({
-		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchAccount.SearchInvoicePurchaseToPayment"),
-		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchAccount.SearchInvoiceSaleToPayment"),
+		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchAccount.SearchInvoicePurchaseToApplyCreditNote"),
+		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchAccount.SearchInvoiceSaleToApplyCreditNote"),
 	})
 	private AccountInvoice accountModified;
 	

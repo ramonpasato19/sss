@@ -7,7 +7,7 @@ public class SearchAccountItem extends ReferenceSearchAction {
 
 	public void execute() throws Exception {
 		super.execute();
-		getTab().setPropertiesNames("accountId, alternateCode, name");
+		getTab().setPropertiesNames("accountId, code, alternateCode, name");
 
 		if (getCondition() != null && !getCondition().isEmpty())
 			getTab().setBaseCondition(getCondition());

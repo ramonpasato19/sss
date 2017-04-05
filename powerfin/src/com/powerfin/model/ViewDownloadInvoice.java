@@ -6,8 +6,8 @@ import javax.persistence.*;
 
 import org.openxava.annotations.*;
 
-@Views({ @View(members = "fromDate, toDate;" + "downloadInvoices;" + "notDownloadInvoices;"),
-		@View(name = "ViewDownloadInvoicePrestashop", members = "fromDate, toDate;" + "downloadInvoices;"
+@Views({ @View(members = "sequentialCode;fromDate, toDate;" + "downloadInvoices;" + "notDownloadInvoices;"),
+		@View(name = "ViewDownloadInvoicePrestashop", members = "sequentialCode; fromDate, toDate;" + "downloadInvoices;"
 				+ "notDownloadInvoices;") })
 public class ViewDownloadInvoice {
 
@@ -17,6 +17,9 @@ public class ViewDownloadInvoice {
 	@Column
 	Date toDate;
 
+	@Column(length=10)
+	String sequentialCode;
+	
 	@Transient
 	@ReadOnly
 	@Column(length = 100)
@@ -57,6 +60,14 @@ public class ViewDownloadInvoice {
 
 	public void setNotDownloadInvoices(String notDownloadInvoices) {
 		this.notDownloadInvoices = notDownloadInvoices;
+	}
+
+	public String getSequentialCode() {
+		return sequentialCode;
+	}
+
+	public void setSequentialCode(String sequentialCode) {
+		this.sequentialCode = sequentialCode;
 	}
 
 }

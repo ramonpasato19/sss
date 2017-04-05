@@ -20,17 +20,18 @@ public class DownloadInvoicePrestashop extends SaveAction {
 		String password = ParameterHelper.getValue("PASSWORD_PRESTASHOP_"+getSequence());
 		String database = ParameterHelper.getValue("DATABASE_PRESTASHOP_"+getSequence());
 		String driverName = ParameterHelper.getValue("DRIVER_NAME_PRESTASHOP_"+getSequence());
-		String url = "jdbc:mysql://"+host.toLowerCase()+"/"+database.toLowerCase();
+		String url = ParameterHelper.getValue("URL_PRESTASHOP_"+getSequence());
+		String prefix = ParameterHelper.getValue("PREFIX_PRESTASHOP_"+getSequence());
 		
 		try {
 			 ConnectionManager conection=new ConnectionManager(driverName, url, host, user, password, database);
 			 conection.createConnection();
-			 PrestashopHelper helper=new PrestashopHelper();
+			 PrestashopHelper helper=new PrestashopHelper(prefix);
 			 Date fromDate = (Date)getView().getValue("fromDate");
 			 Date toDate = (Date)getView().getValue("toDate");
-			 int processedInvoices= helper.pullInvoice(conection.getConnection(),fromDate,toDate);
-			 getView().setValue("uploadInvoices", (processedInvoices+""));
-			 getView().setValue("notUploadInvoices", (helper.getNotProcessInvoice()+""));
+			 int processedInvoices= helper.pullInvoice(conection.getConnection(),fromDate,toDate,getView().getValueString("sequentialCode"));
+			 getView().setValue("downloadInvoices", (processedInvoices+""));
+			 getView().setValue("notDownloadInvoices", (helper.getNotProcessInvoice()+""));
 			 if(helper.getErrors().length()>0)
 				 System.out.println("Error Invoice: "+helper.getErrors());
 			 conection.commit();

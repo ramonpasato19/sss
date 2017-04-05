@@ -8,7 +8,7 @@ public class SearchAccountInvoice extends ReferenceSearchAction {
 	
 	public void execute() throws Exception {
 		super.execute();
-		getTab().setPropertiesNames("account.accountId, account.code, account.person.name, issueDate, subtotal, vat, total, account.currency.currencyId");
+		getTab().setPropertiesNames("account.accountId, account.code, account.person.name, account.accountStatus.name, issueDate, subtotal, vat, total, account.currency.currencyId");
 		if(getCondition()!=null && !getCondition().isEmpty())
 			getTab().setBaseCondition(getCondition());
 	}
@@ -21,7 +21,4 @@ public class SearchAccountInvoice extends ReferenceSearchAction {
 		this.condition = condition;
 	}
 
-	
-		
-	
 }

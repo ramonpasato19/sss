@@ -911,4 +911,11 @@
 		<mode-controller name="DetailList" />
 	</module>
 	
+	<module name="ConsultInvoiceActive">
+		<model name="ViewConsultAccountInvoiceActive" />
+		<controller name="ConsultInvoiceActiveController"/>
+		<view name="ConsultInvoiceActive" />
+		<mode-controller name="DetailOnly" />
+	</module>
+
 </application>

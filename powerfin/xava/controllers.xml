@@ -268,6 +268,18 @@
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '000' and ${accountStatus.accountStatusId} = '002' " property="condition"/>
 		</action>
+		<action name="SearchInvoicePurchaseToApplyCreditNote" 
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} in ('002','003','005') " property="condition"/>
+		</action>
+		<action name="SearchInvoiceSaleToApplyCreditNote" 
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} in ('002','003','005') " property="condition"/>
+		</action>
 		<action name="SearchActiveInvoicePurchase" 
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
@@ -347,7 +359,7 @@
 			<set value="${product.productType.productTypeId} = '103' and ${accountStatus.accountStatusId} in ('002') " property="condition"/>
 		</action>
 		<action name="SearchAccountItem"
-			class="com.powerfin.actions.search.SearchAccount"
+			class="com.powerfin.actions.search.SearchAccountItem"
 			hidden="true"
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '104'" property="condition"/>
@@ -860,6 +872,31 @@
 		<action name="printAccountRetentionByDate" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
 			<set property="type" value="sale"/>
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="ConsultInvoiceActiveController">
+		<action name="consult" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByState"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="printAccountInvoiceByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceActiveByDateAction" icon="file-pdf">
 		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
