@@ -66,7 +66,7 @@ public class PrestashopHelper {
 		
 		String QUERY_INVOICE = "select o.id_order, o.id_customer, a.dni, c.firstname, c.lastname, c.id_gender, a.phone_mobile, c.email, a.address1, a.address2, a.phone,"
 				+ " o.invoice_date, '001' as status_invoice, total_paid_tax_incl from "+prefix+"_orders o, "+prefix+"_customer c, "+prefix+"_address a where o.id_customer=c.id_customer and "
-				+ " c.id_customer=a.id_customer and c.active=true and a.active =true and a.deleted =false and current_state=3"
+				+ " o.id_address_invoice=a.id_address and c.active=true and a.active =true and current_state=3"
 				+ " and (date(invoice_date) >= ? and date(invoice_date) <= ?)";
 		
 		if (fromDate == null)
@@ -113,7 +113,7 @@ public class PrestashopHelper {
 		{
 			cedula="5555555555";
 		}else{
-			cedula=result.getString("dni");
+			cedula=removeEspecialCharacters(result.getString("dni"));
 		}
 		customers = (List<Person>) XPersistence.getManager()
 				.createQuery("select p from Person p where p.identification = :identification")
@@ -131,7 +131,7 @@ public class PrestashopHelper {
 			customer.setEmail(result.getString("email"));
 			customer.setUserRegistering("admin");
 
-			if (result.getString("dni").length() > 10) {
+			if (result.getString("dni").length() == 13) {
 				// Persona Juridica
 				IdentificationType identificationType = XPersistence.getManager().find(IdentificationType.class, "RUC");
 				customer.setIdentificationType(identificationType);
@@ -288,7 +288,6 @@ public class PrestashopHelper {
 			return secuencialString;
 		} else {
 			int sequetial = Integer.parseInt(codeSequential);
-			sequetial = sequetial + 1;
 			secuenciaACT = sequetial;
 			String secuencialString = sequetial + "";
 			for (int i = secuencialString.length(); i < 7; i++) {
@@ -320,5 +319,25 @@ public class PrestashopHelper {
 
 	public void setErrors(String errors) {
 		this.errors = errors;
+	}
+	
+	public String removeEspecialCharacters(String text){
+		String auxiliarText=text;
+		auxiliarText=auxiliarText.replace("%","");
+		auxiliarText=auxiliarText.replace("-","");
+		auxiliarText=auxiliarText.replace("/","");
+		auxiliarText=auxiliarText.replace("º","");
+		auxiliarText=auxiliarText.replace("!","");
+		auxiliarText=auxiliarText.replace("_","");
+		auxiliarText=auxiliarText.replace("@","");
+		auxiliarText=auxiliarText.replace("#","");
+		auxiliarText=auxiliarText.replace("$","");
+		auxiliarText=auxiliarText.replace("(","");
+		auxiliarText=auxiliarText.replace(")","");
+		auxiliarText=auxiliarText.replace("=","");
+		auxiliarText=auxiliarText.replace("?","");
+		auxiliarText=auxiliarText.replace("¿","");
+		auxiliarText=auxiliarText.replace(".","");
+		return auxiliarText;
 	}
 }
