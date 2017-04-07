@@ -35,6 +35,7 @@ import org.openxava.annotations.*;
 		+ "tax;"
 		+ "unitPrice;"
 		+ "quantity;"
+		+ "discount;"
 		),
 @View(name="CreditNotePurchase", members = "accountDetail;"
 		+ "tax;"

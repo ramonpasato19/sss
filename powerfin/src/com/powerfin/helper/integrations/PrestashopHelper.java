@@ -219,7 +219,7 @@ public class PrestashopHelper {
 		accountInvoice.setUnity(unity);
 		XPersistence.getManager().persist(accountInvoice);
 		PreparedStatement query = connection.prepareStatement(
-				"SELECT id_order, product_id, product_quantity, product_price, od.product_quantity_discount, coalesce(t.rate,0) as rate , od.total_price_tax_excl, (od.total_price_tax_incl-od.total_price_tax_excl) as tax_amount, od.total_price_tax_incl "
+				"SELECT id_order, product_id, product_quantity, product_price, (od.reduction_amount_tax_excl+round(((product_price*reduction_percent)/100),4)) as reduction_amount, coalesce(t.rate,0) as rate , od.total_price_tax_excl, (od.total_price_tax_incl-od.total_price_tax_excl) as tax_amount, od.total_price_tax_incl "
 						+ " FROM "+prefix+"_order_detail od LEFT JOIN "+prefix+"_tax_rule tr ON od.id_tax_rules_group=tr.id_tax_rule  LEFT JOIN "+prefix+"_tax t ON tr.id_tax=t.id_tax "
 						+ " where  id_order=?");
 		query.setInt(1, result.getInt("id_order"));
@@ -265,8 +265,8 @@ public class PrestashopHelper {
 		accountInvoiceDetail.setTax(tax);
 		accountInvoiceDetail.setQuantity(result.getBigDecimal("product_quantity"));
 		accountInvoiceDetail.setUnitPrice(result.getBigDecimal("product_price"));
-		if (result.getBigDecimal("product_quantity_discount").compareTo(BigDecimal.ZERO) > 0) {
-			accountInvoiceDetail.setDiscount(result.getBigDecimal("product_quantity_discount"));
+		if (result.getBigDecimal("reduction_amount").compareTo(BigDecimal.ZERO) > 0) {
+			accountInvoiceDetail.setDiscount(result.getBigDecimal("reduction_amount"));
 		} else {
 			accountInvoiceDetail.setDiscount(BigDecimal.ZERO);
 		}
