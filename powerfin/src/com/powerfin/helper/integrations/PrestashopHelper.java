@@ -66,7 +66,7 @@ public class PrestashopHelper {
 		
 		String QUERY_INVOICE = "select o.id_order, o.id_customer, a.dni, c.firstname, c.lastname, c.id_gender, a.phone_mobile, c.email, a.address1, a.address2, a.phone,"
 				+ " o.invoice_date, '001' as status_invoice, total_paid_tax_incl from "+prefix+"_orders o, "+prefix+"_customer c, "+prefix+"_address a where o.id_customer=c.id_customer and "
-				+ " o.id_address_invoice=a.id_address and c.active=true and a.active =true and current_state=3"
+				+ " o.id_address_invoice=a.id_address and c.active=true and a.active =true and current_state in (2,4,5,12,14) "
 				+ " and (date(invoice_date) >= ? and date(invoice_date) <= ?)";
 		
 		if (fromDate == null)
