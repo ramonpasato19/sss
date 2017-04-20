@@ -14,6 +14,8 @@ import com.powerfin.model.*;
 
 public class TransactionHelper {
 
+	public final static String TRANSACTION_ANNULLED_STATUS_ID = "003";
+	
 	public static Account getAccountByPosition(Transaction transaction, int index) throws Exception{
 		if (transaction.getTransactionAccounts()==null)
 			return null;
@@ -226,5 +228,10 @@ public class TransactionHelper {
 		if (transaction.getTransactionStatus().equals(transaction.getTransactionModule().getFinancialTransactionStatus()))
 			return true;
 		return false;
+	}
+	
+	public static TransactionStatus getTransactionStatusByStatusId(String transactionStatusId)
+	{
+		return XPersistence.getManager().find(TransactionStatus.class, transactionStatusId);
 	}
 }

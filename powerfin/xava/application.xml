@@ -759,39 +759,11 @@
 	</module>
 <!-- END AccountingClosingDay ######################################## -->
 <!-- BEGIN BatchProcess ######################################## -->
-	<module name="LoanInterestBatch">
+	<module name="ExecuteBatchProcess">
 		<model name="BatchProcess" />
-		<controller name="LoanInterestBatchController" />
-		<view name="Process" />
-		<tab name="LoanInterestBatch" />
-		<mode-controller name="DetailList" />
-	</module>
-	<module name="ReceivableSalePortfolioBatch">
-		<model name="BatchProcess" />
-		<controller name="ReceivableSalePortfolioBatchController" />
-		<view name="Process" />
-		<tab name="ReceivableSalePortfolioBatch" />
-		<mode-controller name="DetailList" />
-	</module>
-	<module name="PayableSalePortfolioBatch">
-		<model name="BatchProcess" />
-		<controller name="PayableSalePortfolioBatchController" />
-		<view name="Process" />
-		<tab name="PayableSalePortfolioBatch" />
-		<mode-controller name="DetailList" />
-	</module>
-	<module name="UtilitySalePortfolioBatch">
-		<model name="BatchProcess" />
-		<controller name="UtilitySalePortfolioBatchController" />
-		<view name="Process" />
-		<tab name="UtilitySalePortfolioBatch" />
-		<mode-controller name="DetailList" />
-	</module>
-	<module name="SpreadPurchasePortfolioBatch">
-		<model name="BatchProcess" />
-		<controller name="SpreadPurchasePortfolioBatchController" />
-		<view name="Process" />
-		<tab name="SpreadPurchasePortfolioBatch" />
+		<controller name="ExecuteBatchProcessController" />
+		<view name="Execute" />
+		<tab name="Execute" />
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END BatchProcess ######################################## -->

@@ -22,19 +22,16 @@ import com.powerfin.helper.*;
 			+ "batchProcessType;"
 			+ "batchProcessStatus;"
 			+ "batchProcessDetails;"),
-	@View(name="Process", members="batchProcessId;"
+	@View(name="Execute", members="batchProcessId;"
 			+ "accountingDate; "
 			+ "batchProcessType;"
 			+ "batchProcessStatus;"
+			+ "countRequestDetails, countSatisfactoryDetails, countErrorDetails, countTotalDetails;"
 			+ "batchProcessDetails;")
 })
 @Tabs({
 	@Tab(properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name"),
-	@Tab(name="LoanInterestBatch", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name", baseCondition = "${batchProcessType.batchProcessTypeId} = 'LOAN_INTEREST'"),
-	@Tab(name="ReceivableSalePortfolioBatch", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name", baseCondition = "${batchProcessType.batchProcessTypeId} = 'RECEIVABLE_SALE_PORTFOLIO'"),
-	@Tab(name="PayableSalePortfolioBatch", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name", baseCondition = "${batchProcessType.batchProcessTypeId} = 'PAYABLE_SALE_PORTFOLIO'"),
-	@Tab(name="UtilitySalePortfolioBatch", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name", baseCondition = "${batchProcessType.batchProcessTypeId} = 'UTILITY_SALE_PORTFOLIO'"),
-	@Tab(name="SpreadPurchasePortfolioBatch", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name", baseCondition = "${batchProcessType.batchProcessTypeId} = 'SPREAD_PURCHASE_PORTFOLIO'"),
+	@Tab(name="Execute", properties="batchProcessId, accountingDate, batchProcessType.name, batchProcessStatus.name, batchProcessType.startEndDay", baseCondition = "${accountingDate} = (select o.accountingDate from Company o where companyId = 1)")
 })
 public class BatchProcess implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -56,7 +53,7 @@ public class BatchProcess implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="ProcessBatch")
+	@ReadOnly(forViews="Execute")
 	private BatchProcessStatus batchProcessStatus;
 
 	@ManyToOne
@@ -64,10 +61,9 @@ public class BatchProcess implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="ProcessBatch")
+	@ReadOnly(forViews="Execute")
 	private BatchProcessType batchProcessType;
 	
-	//bi-directional many-to-one association to BatchProcessDetail
 	@OneToMany(mappedBy="batchProcess")
 	@ListProperties("account.accountId, batchProcessStatus.name, errorMessage")
 	@ReadOnly
@@ -115,6 +111,38 @@ public class BatchProcess implements Serializable {
 
 	public void setBatchProcessDetails(List<BatchProcessDetail> batchProcessDetails) {
 		this.batchProcessDetails = batchProcessDetails;
+	}
+	
+	public Integer getCountErrorDetails() throws Exception
+	{
+		Integer count = 0;
+		for (BatchProcessDetail detail : getBatchProcessDetails())
+			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_PROCESS_ERROR))
+				count++;
+		return count;
+	}
+	
+	public Integer getCountSatisfactoryDetails() throws Exception
+	{
+		Integer count = 0;
+		for (BatchProcessDetail detail : getBatchProcessDetails())
+			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_PROCESS_OK))
+				count++;
+		return count;
+	}
+	
+	public Integer getCountRequestDetails() throws Exception
+	{
+		Integer count = 0;
+		for (BatchProcessDetail detail : getBatchProcessDetails())
+			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_CREATE_STATUS))
+				count++;
+		return count;
+	}
+	
+	public Integer getCountTotalDetails() throws Exception
+	{
+		return getBatchProcessDetails().size();
 	}
 	
 	@PreCreate

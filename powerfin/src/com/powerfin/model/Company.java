@@ -6,8 +6,10 @@ import java.util.*;
 import javax.persistence.*;
 
 import org.openxava.annotations.*;
+import org.openxava.jpa.*;
 
 import com.powerfin.model.Currency;
+import com.powerfin.model.types.Types.*;
 
 
 /**
@@ -18,7 +20,7 @@ import com.powerfin.model.Currency;
 @Table(name="company")
 @Views({
 	@View(members="companyId;name;oxorganizationId;accountingDate;person;officialCurrency"),
-	@View(name="AccountingClosingDay", members="companyId;name;accountingDate;")
+	@View(name="AccountingClosingDay", members="companyId; name; accountingDate; nextAccountingDate; batchProcesses")
 })
 @Tabs({
 	@Tab(properties="companyId, name, accountingDate, person.name, officialCurrency.currencyId"),
@@ -45,6 +47,7 @@ public class Company implements Serializable {
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="accounting_date", nullable=false)
+	@ReadOnly(forViews="AccountingClosingDay")
 	private Date accountingDate;
 	
 	//bi-directional many-to-one association to Person
@@ -63,6 +66,17 @@ public class Company implements Serializable {
 	@ReadOnly(forViews="AccountingClosingDay")
 	private Currency officialCurrency;
 
+	@Transient
+	@ListProperties("name, startEndDay, activated, batchProcessStatus, countRequestDetails, countErrorDetails, countSatisfactoryDetails, countTotalDetails")
+	@ReadOnly
+	@CollectionView(value = "AccountingClosingDay")
+	private List<BatchProcessType> batchProcesses;
+		
+	@Transient
+	@Temporal(TemporalType.DATE)
+	@ReadOnly
+	private Date nextAccountingDate;
+	
 	public Company() {
 	}
 
@@ -79,7 +93,6 @@ public class Company implements Serializable {
 	}
 
 	public void setName(String name) {
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@ ACTUALIZA NOMBRE: "+this.name+">"+name);
 		this.name = name;
 	}
 
@@ -104,7 +117,6 @@ public class Company implements Serializable {
 	}
 
 	public void setAccountingDate(Date accountingDate) {
-		System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@ ACTUALIZA FECHA: "+this.accountingDate+">"+accountingDate);
 		this.accountingDate = accountingDate;
 	}
 
@@ -122,6 +134,30 @@ public class Company implements Serializable {
 
 	public void setOfficialCurrency(Currency officialCurrency) {
 		this.officialCurrency = officialCurrency;
+	}
+
+	public Date getNextAccountingDate() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(getAccountingDate());
+		cal.add(Calendar.DAY_OF_MONTH, 1);
+		return cal.getTime();
+	}
+
+	public void setNextAccountingDate(Date nextAccountingDate) {
+		this.nextAccountingDate = nextAccountingDate;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<BatchProcessType> getBatchProcesses() {
+		return XPersistence.getManager().createQuery("SELECT o FROM BatchProcessType o "
+				+ "WHERE o.activated = :activated "
+				+ "ORDER BY o.name ")
+				.setParameter("activated", YesNoIntegerType.YES)
+				.getResultList();
+	}
+
+	public void setBatchProcesses(List<BatchProcessType> batchProcesses) {
+		this.batchProcesses = batchProcesses;
 	}
 
 }

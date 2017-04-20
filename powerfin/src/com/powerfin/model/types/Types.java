@@ -8,6 +8,9 @@ public class Types {
 	public enum DebitOrCredit {
 		DEBIT,CREDIT
 	}
+	public enum StartEnd {
+		START,END
+	}
 	public enum CommonStatus {
 		REQ ("REQUESTED"),
 		AUT ("AUTHORIZED"),

@@ -9,13 +9,13 @@ import org.openxava.util.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
-public class SpreadPurchasePortfolioSaveAction implements IBatchSaveAction  {
+public class TermInterestBatchSaveAction implements IBatchSaveAction  {
 
-	public SpreadPurchasePortfolioSaveAction()
+	public TermInterestBatchSaveAction()
 	{
 		
 	}
-
+	
 	public Transaction getTransaction(BatchProcess batchProcess, BatchProcessDetail batchProcessDetail) throws Exception 
 	{
 		Transaction transaction = TransactionHelper.getNewInitTransaction();
@@ -25,7 +25,7 @@ public class SpreadPurchasePortfolioSaveAction implements IBatchSaveAction  {
 		transaction.setRemark(batchProcessDetail.getAccount().getAccountId());
 		transaction.setDebitAccount(batchProcessDetail.getAccount());
 		transaction.setCurrency(batchProcessDetail.getAccount().getCurrency());
-
+		
 		return transaction;
 	}
 
@@ -34,15 +34,15 @@ public class SpreadPurchasePortfolioSaveAction implements IBatchSaveAction  {
 	{
 		List<Account> accounts = XPersistence.getManager().createQuery("SELECT a FROM Account a, AccountPaytable pt "
 				+ "WHERE pt.dueDate = :dueDate "
-				+ "AND coalesce(pt.purchaseSpread, 0) > 0 "
+				+ "AND coalesce(pt.interest,0) > 0 "
 				+ "AND a.accountId = pt.account.accountId "
-				+ "AND pt.account.accountId IN "
-				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '001') "
+				+ "AND pt.account.accountId NOT IN "
+				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '002') "
 				+ "AND a.accountStatus.accountStatusId = '002' "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())
-				.setParameter("productClassId", ProductClassHelper.LOAN)
+				.setParameter("productClassId", ProductClassHelper.TERM)
 				.getResultList();
 		
 		return accounts;
@@ -64,11 +64,11 @@ public class SpreadPurchasePortfolioSaveAction implements IBatchSaveAction  {
 		
 		AccountPaytable quota = accountPaytables.get(0);
 		
-		ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getPurchaseSpread(), transaction, CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_PR_CATEGORY));
+		ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_EX_CATEGORY), quota.getDueDate());
 		ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
 		transactionAccounts.add(ta);
 		
-		ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, 0, quota.getPurchaseSpread(), transaction, CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_EX_CATEGORY));
+		ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, quota.getSubaccount(), quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
 		ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
 		transactionAccounts.add(ta);
 		

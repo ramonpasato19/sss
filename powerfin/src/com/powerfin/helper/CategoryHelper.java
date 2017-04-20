@@ -25,6 +25,7 @@ public class CategoryHelper {
 	
 	public final static String INTEREST_PR_CATEGORY = "INTERESTPR";
 	public final static String INTEREST_IN_CATEGORY = "INTERESTIN";
+	public final static String INTEREST_EX_CATEGORY = "INTERESTEX";
 	public final static String INTDIF_CATEGORY = "INTDIF";
 	
 	public final static String COLLECTION_FEE_IN_CATEGORY = "COLLEFEEIN";

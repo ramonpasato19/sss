@@ -1917,9 +1917,10 @@
 
 <!-- BEGIN AccountingClosingDay ######################################## -->
 	<controller name="AccountingClosingDayController">
-			<action name="save" 
+			<action name="AccountingClosingDay" 
 				mode="detail" 
 				class="com.powerfin.actions.company.AccountingClosingDayAction"
+				image="save.gif"
 				icon="content-save" 
 				by-default="if-possible"
 				keystroke="F3">
@@ -1933,98 +1934,25 @@
 <!-- END AccountingClosingDay ######################################## -->
 
 <!-- BEGIN BatchProcessControllers ######################################## -->
-	<controller name="LoanInterestBatchController">
+	<controller name="ExecuteBatchProcessController">
 		<action name="collectInformation" 
 			mode="detail" 
-			class="com.powerfin.actions.batch.LoanInterestBatchSaveAction"
-			icon="content-save">
+			class="com.powerfin.actions.batch.BatchSaveAction"
+			icon="content-save"
+			by-default="almost-never">
 			<set property="subAction" value="COLLECT" />
 		</action>
 		<action name="processInformation" 
 			mode="detail" 
-			class="com.powerfin.actions.batch.LoanInterestBatchSaveAction"
-			icon="content-save">
+			class="com.powerfin.actions.batch.BatchSaveAction"
+			icon="content-save"
+			by-default="almost-never">
 			<set property="subAction" value="PROCESS" />
 		</action>
 		<action name="refresh" mode="detail"			
 			class="org.openxava.actions.SearchAction"
 			icon="refresh"
-			keystroke="control B"/>
-	</controller>
-	
-	<controller name="ReceivableSalePortfolioBatchController">
-		<action name="collectInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.ReceivableSalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="COLLECT" />
-		</action>
-		<action name="processInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.ReceivableSalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="PROCESS" />
-		</action>
-		<action name="refresh" mode="detail"			
-			class="org.openxava.actions.SearchAction"
-			icon="refresh"
-			keystroke="control B"/>
-	</controller>
-	
-	<controller name="PayableSalePortfolioBatchController">
-		<action name="collectInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.PayableSalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="COLLECT" />
-		</action>
-		<action name="processInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.PayableSalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="PROCESS" />
-		</action>
-		<action name="refresh" mode="detail"			
-			class="org.openxava.actions.SearchAction"
-			icon="refresh"
-			keystroke="control B"/>
-	</controller>
-	
-	<controller name="UtilitySalePortfolioBatchController">
-		<action name="collectInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.UtilitySalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="COLLECT" />
-		</action>
-		<action name="processInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.UtilitySalePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="PROCESS" />
-		</action>
-		<action name="refresh" mode="detail"			
-			class="org.openxava.actions.SearchAction"
-			icon="refresh"
-			keystroke="control B"/>
-	</controller>
-	
-	<controller name="SpreadPurchasePortfolioBatchController">
-		<action name="collectInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.SpreadPurchasePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="COLLECT" />
-		</action>
-		<action name="processInformation" 
-			mode="detail" 
-			class="com.powerfin.actions.batch.SpreadPurchasePortfolioSaveAction"
-			icon="content-save">
-			<set property="subAction" value="PROCESS" />
-		</action>
-		<action name="refresh" mode="detail"			
-			class="org.openxava.actions.SearchAction"
-			icon="refresh"
+			by-default="almost-never"
 			keystroke="control B"/>
 	</controller>
 <!-- END BatchProcessControllers ######################################## -->
@@ -2148,13 +2076,15 @@
 		<action name="collectInformation" 
 			mode="detail" 
 			class="com.powerfin.actions.transaction.batch.TransactionBatchSaveAction"
-			icon="content-save">
+			icon="content-save"
+			by-default="almost-never">
 			<set property="subAction" value="COLLECT" />
 		</action>
 		<action name="processInformation" 
 			mode="detail" 
 			class="com.powerfin.actions.transaction.batch.TransactionBatchSaveAction"
-			icon="content-save">
+			icon="content-save"
+			by-default="almost-never">
 			<set property="subAction" value="PROCESS" />
 		</action>
 	</controller>
@@ -2176,8 +2106,6 @@
 			icon="library-plus"/>
 	</controller>
 	<controller name="InventoryControlController" >
-
-
 		<action name="printInventoryTotalItems" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryTotalItems" icon="file-pdf" image="save.gif" by-default="if-possible" >
 		</action>

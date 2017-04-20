@@ -3,8 +3,14 @@ package com.powerfin.model;
 import java.io.Serializable;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Parameter;
 import org.openxava.annotations.*;
+
+import com.powerfin.model.types.Types.*;
 
 import java.util.List;
 
@@ -32,6 +38,16 @@ public class ProductClass implements Serializable {
 	@ListProperties("productTypeId, name")
 	private List<ProductType> productTypes;
 
+	@Type(type="org.openxava.types.EnumStringType",
+			   parameters={
+				@Parameter(name="strings", value="D,C"), // These are the values stored on the database
+				@Parameter(name="enumType", value="com.powerfin.model.types.Types$DebitOrCredit")
+			   }
+		 )
+	@Column(name="debtor_or_creditor", nullable=false, length=1)
+	@Required
+	private DebitOrCredit debtorOrCreditor;
+	
 	public ProductClass() {
 	}
 
@@ -71,6 +87,14 @@ public class ProductClass implements Serializable {
 		productType.setProductClass(null);
 
 		return productType;
+	}
+
+	public DebitOrCredit getDebtorOrCreditor() {
+		return debtorOrCreditor;
+	}
+
+	public void setDebtorOrCreditor(DebitOrCredit debtorOrCreditor) {
+		this.debtorOrCreditor = debtorOrCreditor;
 	}
 
 }

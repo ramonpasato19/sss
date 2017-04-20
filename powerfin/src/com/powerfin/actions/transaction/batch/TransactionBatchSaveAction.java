@@ -84,6 +84,9 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 
 		} else if (subAction.equals("PROCESS")) {
 			
+			if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_REQUEST_STATUS))
+				throw new OperativeException("please_collect_information");
+			
 			transactionBatch.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthInProcessStatus());
 			XPersistence.getManager().merge(transactionBatch);
 			
