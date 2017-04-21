@@ -192,7 +192,10 @@ import com.powerfin.model.types.*;
 	@View(name="forCreditNote", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode;"
-			+ "subtotal, vat, total")
+			+ "subtotal, vat, total"),
+	@View(name="selectInvoice", 
+			members="accountId;accountStatus;"
+			+ "establishmentCode, emissionPointCode, sequentialCode")
 })
 @Tabs({
 	@Tab(properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, subtotal, vat, total"),

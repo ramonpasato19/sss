@@ -364,6 +364,12 @@
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '104'" property="condition"/>
 		</action>
+		<action name="SearchInvoicePurchaseAndSale"
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productTypeId} in ('201','102')" property="condition"/>
+		</action>
 	</controller>
 		
 	<controller name="SearchBookAccount">
@@ -2125,6 +2131,37 @@
 	<controller name="PrinterInvoiceController" >
 		<action name="printerInvoice" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
+		</action>
+	</controller>
+	<controller name="AccountItemLotsQuantities">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="com.powerfin.actions.inventory.AccountItemLotsSaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S"/>
+	</controller>
+	<controller name="ConsultInvoiceLotsController">
+		<action name="consult" 
+			mode="detail" 
+			class="com.powerfin.actions.inventory.FindAccountLots"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
 		</action>
 	</controller>
 </controllers>

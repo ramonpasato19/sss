@@ -890,4 +890,17 @@
 		<mode-controller name="DetailOnly" />
 	</module>
 
+	<module name="AccountItemLots">
+		<model name="AccountItemLots"/> 
+		<controller name="AccountItemLotsQuantities"/>
+		<mode-controller name="DetailList"/>
+	</module>
+	
+	<module name="ConsultAccountLots">
+		<model name="ViewAccountLots"/>
+		<view name="consultAccountLots"/>
+		<controller name="ConsultInvoiceLotsController"/>
+		<mode-controller name="DetailOnly"/>
+	</module>
+	
 </application>
