@@ -11,6 +11,9 @@ public class Types {
 	public enum StartEnd {
 		START,END
 	}
+	public enum RateValue {
+		RATE,VALUE
+	}
 	public enum CommonStatus {
 		REQ ("REQUESTED"),
 		AUT ("AUTHORIZED"),

@@ -130,7 +130,7 @@
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
 			icon="magnify">
-			<set value="${productType.productTypeId} = '103'" property="condition"/>
+			<set value="${productType.productClass.productClassId} = '06'" property="condition"/>
 		</action>
 		<action name="SearchAccountAccountant"
 			class="com.powerfin.actions.search.SearchProduct"
@@ -487,18 +487,7 @@
 		</action>
 	</controller>
 	
-	<controller name="LoanPortfolioReportController">
-		<action name="printReceipts" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintReceipts" icon="file-pdf" image="save.gif" >
-		</action>
-		<!-- 
-		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
-		</action>
-		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
-		</action>
-		 -->
+	<controller name="LoanReportControllerPDF" >
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
@@ -511,6 +500,39 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
+	</controller>
+	
+	<controller name="LoanReportControllerEXCEL"  >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOverdueBalancesConsolidate" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintOvercomeBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+	</controller>
+	
+	<controller name="LoanReportController">
+		<action name="printReceipts" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintReceipts" icon="file-pdf" image="save.gif" >
+		</action>
+		<action name="printExtraordinaryPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintExtraordinaryPayments" icon="file-pdf">
+		</action>
+		<action name="printPrepayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPrepayments" icon="file-pdf">
+		</action>
+		<subcontroller controller="LoanReportControllerPDF"/>
+		<subcontroller controller="LoanReportControllerEXCEL"/>
 	</controller>
 	
 	<controller name="OriginationPortfolioReportControllerPDF" >
@@ -551,14 +573,12 @@
 		<action name="printReceipts" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintReceipts" icon="file-pdf" image="save.gif" >
 		</action>
-		<!-- 
-		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printExtraordinaryPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintExtraordinaryPayments" icon="file-pdf">
 		</action>
-		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printPrepayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintPrepayments" icon="file-pdf">
 		</action>
-		 -->
 		<subcontroller controller="OriginationPortfolioReportControllerPDF"/>
 		<subcontroller controller="OriginationPortfolioReportControllerEXCEL"/>
 	</controller>
@@ -601,23 +621,17 @@
 		<action name="printReceipts" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceipts" icon="file-pdf" image="save.gif" >
 		</action>
-		<!-- 
-		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printExtraordinaryPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintExtraordinaryPayments" icon="file-pdf">
 		</action>
-		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printPrepayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintPrepayments" icon="file-pdf">
 		</action>
-		 -->
 		<subcontroller controller="PurchasePortfolioReportControllerPDF"/>
 		<subcontroller controller="PurchasePortfolioReportControllerEXCEL"/>
 	</controller>
 	
-	<controller name="SalePortfolioReportController">
-		<action name="printPayments" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintPayments" icon="file-pdf" image="save.gif">
-		</action>
-		
+	<controller name="SalePortfolioReportControllerPDF" icon="file-pdf" >
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
@@ -630,17 +644,39 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
-		<action name="printBalancingPortfolioDividens" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintBalancingPortfolioDividends" icon="file-pdf" image="save.gif">
+	</controller>
+	
+	<controller name="SalePortfolioReportControllerEXCEL" icon="file-excel" >
+		<action name="printOverdueBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
 		</action>
-		<!-- 
-		<action name="printExtraordinaryPaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printOverdueBalancesConsolidate" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalancesConsolidate" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
 		</action>
-		<action name="printPrepaymentsSalePortfolio" mode="detail"
-			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
+		<action name="printOvercomeBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOvercomeBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
 		</action>
-		 -->
+		<action name="printTotalBalances" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
+			<set property="format" value="excel"/>
+		</action>
+	</controller>
+	
+	<controller name="SalePortfolioReportController">
+		<action name="printPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintPayments" icon="file-pdf" image="save.gif">
+		</action>
+		<action name="printExtraordinaryPayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintExtraordinaryPayments" icon="file-pdf">
+		</action>
+		<action name="printPrepayments" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintPrepayments" icon="file-pdf">
+		</action>
+		<subcontroller controller="SalePortfolioReportControllerPDF"/>
+		<subcontroller controller="SalePortfolioReportControllerEXCEL"/>
 	</controller>
 	
 	<controller name="AccountPayableMovementController">
@@ -1867,6 +1903,9 @@
 		<action name="printAccountPrepayment" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintAccountPrepayment"  icon="file-pdf">
 		</action>
+		<action name="printAccountPaytable" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountPaytable"  icon="file-pdf">
+		</action>
 	</controller>
 	
 	<controller name="ConsultOriginationPortfolioController">
@@ -1879,6 +1918,9 @@
 		</action>
 		<action name="printAccountPrepayment" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintAccountPrepayment"  icon="file-pdf">
+		</action>
+		<action name="printAccountPaytable" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountPaytable"  icon="file-pdf">
 		</action>
 	</controller>
 	
@@ -1893,6 +1935,9 @@
 		<action name="printAccountPrepayment" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintAccountPrepayment"  icon="file-pdf">
 		</action>
+		<action name="printAccountPaytable" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountPaytable"  icon="file-pdf">
+		</action>
 	</controller>
 	
 	<controller name="ConsultSalePortfolioController">
@@ -1905,6 +1950,9 @@
 		</action>
 		<action name="printAccountPrepayment" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintAccountPrepayment"  icon="file-pdf">
+		</action>
+		<action name="printAccountPaytable" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintAccountPaytable"  icon="file-pdf">
 		</action>
 	</controller>
 	

@@ -16,9 +16,11 @@ import java.math.BigDecimal;
 @Entity
 @Table(name="default_interest_rate")
 @View(members="defaultInterestRateId;"
+		+ "product;"
 		+ "fromDays;"
 		+ "toDays;"
-		+ "rate;")
+		+ "rate;"
+		+ "dailyValue;")
 public class DefaultInterestRate implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -39,6 +41,18 @@ public class DefaultInterestRate implements Serializable {
 	@Required
 	private BigDecimal rate;
 
+	@Column(name="daily_value", nullable=false, precision=11, scale=2)
+	@Required
+	private BigDecimal dailyValue;
+	
+	@ManyToOne
+	@JoinColumn(name="product_id", nullable=false)
+	@Required
+	@NoCreate
+	@NoModify
+	@ReferenceView("Reference")
+	private Product product;
+	
 	public DefaultInterestRate() {
 	}
 
@@ -74,6 +88,20 @@ public class DefaultInterestRate implements Serializable {
 		this.rate = rate;
 	}
 
-	
+	public BigDecimal getDailyValue() {
+		return dailyValue;
+	}
+
+	public void setDailyValue(BigDecimal dailyValue) {
+		this.dailyValue = dailyValue;
+	}
+
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
 
 }

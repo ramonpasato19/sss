@@ -24,14 +24,14 @@
 		<controller name="AccountingLedgerController" />
 		<mode-controller name="DetailOnly" />
 	</module>
-	<module name="LoanPortfolioReport">
-		<model name="ViewLoanPortfolioReport" />
-		<controller name="LoanPortfolioReportController" />
-		<mode-controller name="DetailOnly" />
-	</module>
 	<module name="OriginationPortfolioReport">
 		<model name="ViewOriginationPortfolioReport" />
 		<controller name="OriginationPortfolioReportController" />
+		<mode-controller name="DetailOnly" />
+	</module>
+	<module name="LoanReport">
+		<model name="ViewLoanReport" />
+		<controller name="LoanReportController" />
 		<mode-controller name="DetailOnly" />
 	</module>
 	<module name="PurchasePortfolioReport">

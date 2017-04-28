@@ -5,10 +5,15 @@ import java.math.*;
 import java.util.*;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Parameter;
 import org.openxava.annotations.*;
 
 import com.powerfin.model.types.*;
+import com.powerfin.model.types.Types.*;
 
 /**
  * The persistent class for the product database table.
@@ -19,8 +24,11 @@ import com.powerfin.model.types.*;
 @Views({
 		@View(members = "productClass; " + "productType; " + "productId; "
 				+ "name; " + "currency;"
-				+ "interestRate, defaultInterestRate; " + "singleAccount;"
+				+ "interestRate, defaultInterestType;" 
+				+ "singleAccount;"
 				+ "ownProduct; "
+				+ "daysGrace, daysGraceCollectionFee; "
+				+ "applyDefaultInterestAccrued; "
 				+ "autoCode[prefix, lpad, sequenceDBName, rpad, sufix]; "
 				+ "categoryProducts; "
 				+ "productStatuses"),
@@ -35,17 +43,35 @@ public class Product implements Serializable {
 	@Column(name = "product_id", unique = true, nullable = false, length = 20)
 	private String productId;
 
-	@Column(name = "default_interest_rate", precision = 5, scale = 2)
-	private BigDecimal defaultInterestRate;
+	@Column(name="days_grace")
+	@Required
+	private Integer daysGrace;
 
+	@Column(name="days_grace_collection_fee")
+	@Required
+	private Integer daysGraceCollectionFee;
+	
+	@Column(name="apply_default_interest_accrued")
+	private Types.YesNoIntegerType applyDefaultInterestAccrued;
+	
 	@Column(nullable = false, length = 100)
 	@Required
 	@DisplaySize(30)
 	private String name;
 
+	@Type(type="org.openxava.types.EnumStringType",
+			   parameters={
+				@Parameter(name="strings", value="R,V"), // These are the values stored on the database
+				@Parameter(name="enumType", value="com.powerfin.model.types.Types$RateValue")
+			   }
+		 )
+	@Column(name = "default_interest_type", length = 1)
+	@Required
+	private RateValue defaultInterestType;
+
 	@Column(length = 5)
 	private String prefix;
-
+	
 	@Column(name = "interest_rate", precision = 5, scale = 2)
 	private BigDecimal interestRate;
 
@@ -136,14 +162,6 @@ public class Product implements Serializable {
 
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
-	}
-
-	public BigDecimal getDefaultInterestRate() {
-		return defaultInterestRate;
-	}
-
-	public void setDefaultInterestRate(BigDecimal defaultInterestRate) {
-		this.defaultInterestRate = defaultInterestRate;
 	}
 
 	public BigDecimal getInterestRate() {
@@ -240,6 +258,38 @@ public class Product implements Serializable {
 
 	public void setProductStatuses(List<ProductStatus> productStatuses) {
 		this.productStatuses = productStatuses;
+	}
+
+	public RateValue getDefaultInterestType() {
+		return defaultInterestType;
+	}
+
+	public void setDefaultInterestType(RateValue defaultInterestType) {
+		this.defaultInterestType = defaultInterestType;
+	}
+
+	public Integer getDaysGrace() {
+		return daysGrace;
+	}
+
+	public void setDaysGrace(Integer daysGrace) {
+		this.daysGrace = daysGrace;
+	}
+
+	public Integer getDaysGraceCollectionFee() {
+		return daysGraceCollectionFee;
+	}
+
+	public void setDaysGraceCollectionFee(Integer daysGraceCollectionFee) {
+		this.daysGraceCollectionFee = daysGraceCollectionFee;
+	}
+
+	public Types.YesNoIntegerType getApplyDefaultInterestAccrued() {
+		return applyDefaultInterestAccrued;
+	}
+
+	public void setApplyDefaultInterestAccrued(Types.YesNoIntegerType applyDefaultInterestAccrued) {
+		this.applyDefaultInterestAccrued = applyDefaultInterestAccrued;
 	}
 	
 }

@@ -8,18 +8,30 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOvercomeBalances extends ReportBaseAction {
+public class PrintPrepayments extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
 		String productId = (String)getView().getSubview("product").getValue("productId");
+		Date fromDate = (Date)getView().getValue("fromDate");
+		Date toDate = (Date)getView().getValue("toDate");	
+		
+		if (fromDate==null)
+			throw new OperativeException("from_date_is_required");
+		
+		if (toDate==null)
+			throw new OperativeException("to_date_is_required");
+		
 		if (productId==null)
 			throw new OperativeException("product_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("PRODUCT_ID", productId);
 		addDefaultParameters(parameters);
+		parameters.put("PRODUCT_ID", productId);
+		parameters.put("FROM_DATE", fromDate);
+		parameters.put("TO_DATE", toDate);
+		
 		return parameters;
 	}
 

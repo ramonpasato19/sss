@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan.originationPortfolio;
+package com.powerfin.actions.accountLoan;
 
 import java.util.*;
 
@@ -8,18 +8,20 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOvercomeBalances extends ReportBaseAction {
+public class PrintAccountPaytable extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		String productId = (String)getView().getSubview("product").getValue("productId");
-		if (productId==null)
-			throw new OperativeException("product_is_required");
+		
+		String accountId = (String)getView().getValue("accountId");
+		if (accountId==null)
+			throw new OperativeException("account_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("PRODUCT_ID", productId);
+		parameters.put("ACCOUNT_ID", accountId);
 		addDefaultParameters(parameters);
+		
 		return parameters;
 	}
 

@@ -9,18 +9,16 @@ import com.powerfin.util.report.*;
 import net.sf.jasperreports.engine.*;
 
 public class PrintOverdueBalances extends ReportBaseAction {
-
-	private String format;
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
+		String productId = (String)getView().getSubview("product").getValue("productId");
+		if (productId==null)
+			throw new OperativeException("product_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("PRODUCT_ID", productId);
 		addDefaultParameters(parameters);
 		
 		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
@@ -33,7 +31,7 @@ public class PrintOverdueBalances extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
 		
-		AccountLoanHelper.getAllOverdueBalancesByBroker(personId, projectedAccountingDate);
+		AccountLoanHelper.getAllOverdueBalancesByProduct(productId, projectedAccountingDate);
 		return parameters;
 	}
 
@@ -51,16 +49,4 @@ public class PrintOverdueBalances extends ReportBaseAction {
 	protected String getReportName() throws Exception {
 		return ActionReportHelper.getReportByAction(this.getClass().getName());
 	}
-
-	@Override
-	public String getFormat() {
-		return format;
-	}
-
-	@Override
-	public void setFormat(String format) {
-		this.format = format;
-	}
-	
-	
 }

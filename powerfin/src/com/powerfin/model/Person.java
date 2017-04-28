@@ -145,6 +145,7 @@ public class Person extends AuditEntity implements Serializable {
 	@Transient
 	@ReadOnly
 	@ListProperties("accountId, currency, product.name, code, balance, advanceBalance, advanceSalePortfolioBalance")
+	@CollectionView("simpleBalance")
 	private List<Account> accountPayables;
 
 	@Transient

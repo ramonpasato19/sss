@@ -328,8 +328,8 @@ public class AccountInvoiceDetail {
 	
 	//@Depends("unitPrice, quantity, discount, tax.percentage")
 	public BigDecimal calculateFinalAmount() {
-		BigDecimal finalAmountCalc = calculateAmount();
-		BigDecimal aux = calculateAmount();
+		BigDecimal finalAmountCalc = calculateAmount().setScale(2, RoundingMode.HALF_UP);
+		BigDecimal aux = calculateAmount().setScale(2, RoundingMode.HALF_UP);
 		if(getTax()!=null)
 		{
 			if(getTax().getPercentage()!=null)

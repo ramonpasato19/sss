@@ -13,7 +13,7 @@ public class PrintReceipts extends ReportBaseAction {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
+		String productId = (String)getView().getSubview("product").getValue("productId");
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");	
 		
@@ -23,12 +23,12 @@ public class PrintReceipts extends ReportBaseAction {
 		if (toDate==null)
 			throw new OperativeException("to_date_is_required");
 		
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
+		if (productId==null)
+			throw new OperativeException("product_is_required");
 		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("PRODUCT_ID", productId);
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		

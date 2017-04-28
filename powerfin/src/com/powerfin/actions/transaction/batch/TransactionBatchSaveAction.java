@@ -108,6 +108,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processPurchasePortfolioPayment(transactionBatch, detail);
 					else if (transactionModuleId.equals("SALEPORTFOLIOPAYMENT"))
 						processSalePortfolioPayment(transactionBatch, detail);
+					else if (transactionModuleId.equals("GENERALTRANSACTION"))
+						processGeneralTransaction(transactionBatch, detail);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
@@ -223,5 +225,67 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
 		AccountLoanHelper.postSalePortfolioPaymentSaveAction(transaction);
+	}
+	
+	private void processGeneralTransaction(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+			throws Exception {
+		
+		String[] dataLine;
+		String delimiter = "\t";
+		
+		dataLine = detail.getDetail().split(delimiter);
+		
+		validateDataLine(dataLine);
+		String transactionModuleId = dataLine[0];
+		String debitAccountId = dataLine[1];
+		String categoryDebitAccountId = dataLine[2];
+		String debitSubaccount = dataLine[3];
+		String creditAccountId = dataLine[4];
+		String categoryCreditAccountId = dataLine[5];
+		String creditSubaccount = dataLine[6];
+		String value = dataLine[7];
+		String remark = dataLine[8];
+		
+		BigDecimal transactionValue = new BigDecimal(value);
+
+		TransactionModule transactionModule = XPersistence.getManager().find(TransactionModule.class, transactionModuleId);
+		Account debitAccount = XPersistence.getManager().find(Account.class, debitAccountId);
+		Account creditAccount = XPersistence.getManager().find(Account.class, creditAccountId);
+		
+		Category categoryDebitAccount = XPersistence.getManager().find(Category.class, categoryDebitAccountId);
+		Category categoryCreditAccount = XPersistence.getManager().find(Category.class, categoryCreditAccountId);
+		
+		if (transactionModule==null)
+			throw new OperativeException("transaction_module_not_found_for_batch_process", transactionModuleId);
+		if (debitAccount==null)
+			throw new OperativeException("account_not_found", debitAccountId);
+		if (creditAccount==null)
+			throw new OperativeException("account_not_found", creditAccountId);
+		if (categoryDebitAccount==null)
+			throw new OperativeException("category_not_found", categoryDebitAccountId);
+		if (categoryCreditAccount==null)
+			throw new OperativeException("category_not_found", categoryCreditAccountId);
+		if (!debitAccount.getCurrency().getCurrencyId().equals(creditAccount.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		if (transactionValue.compareTo(BigDecimal.ZERO)<0)
+			throw new OperativeException("value_must_be_greater_than_zero", value);
+		
+		Transaction transaction = TransactionHelper.getNewInitTransaction();
+		transaction.setTransactionModule(transactionModule);
+		transaction.setTransactionStatus(transactionModule.getFinancialTransactionStatus());
+		transaction.setValue(transactionValue);
+		transaction.setRemark(remark);
+		transaction.setCreditAccount(creditAccount);
+		transaction.setDebitAccount(debitAccount);
+		transaction.setCurrency(creditAccount.getCurrency());
+
+		XPersistence.getManager().persist(transaction);
+
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		
+		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(creditAccount, Integer.parseInt(creditSubaccount), transactionValue, transaction, categoryCreditAccount, null));
+		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, Integer.parseInt(debitSubaccount), transactionValue, transaction, categoryDebitAccount, null));
+
+		TransactionHelper.processTransaction(transaction, transactionAccounts);
 	}
 }

@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan.originationPortfolio;
+package com.powerfin.actions.accountLoan;
 
 import java.util.*;
 
@@ -8,7 +8,7 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOvercomeBalances extends ReportBaseAction {
+public class PrintTotalBalances extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {

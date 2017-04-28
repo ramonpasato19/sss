@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan.originationPortfolio;
+package com.powerfin.actions.accountLoan;
 
 import java.util.*;
 
@@ -8,8 +8,8 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintOvercomeBalances extends ReportBaseAction {
-
+public class PrintOverdueBalances extends ReportBaseAction {
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
@@ -20,6 +20,18 @@ public class PrintOvercomeBalances extends ReportBaseAction {
 		Map parameters = new HashMap();
 		parameters.put("PRODUCT_ID", productId);
 		addDefaultParameters(parameters);
+		
+		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
+		if (projectedAccountingDate==null)
+		{
+			projectedAccountingDate = CompanyHelper.getCurrentAccountingDate();
+			getView().getRoot().setValue("projectedAccountingDate",projectedAccountingDate);
+		}
+		
+		parameters.remove("CURRENT_ACCOUNTING_DATE");
+		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
+		
+		AccountLoanHelper.getAllOverdueBalancesByProduct(productId, projectedAccountingDate);
 		return parameters;
 	}
 

@@ -6,29 +6,29 @@ import javax.persistence.*;
 
 import org.openxava.annotations.*;
 
-@View(members="broker;"
+@View(members="product;"
 		+ "fromDate;"
 		+ "toDate;"
 		+ "projectedAccountingDate")
-public class ViewSalePortfolioReport {
+public class ViewLoanReport {
 
 	@Column
 	private Date fromDate;
 	
 	@Column
 	private Date toDate;
-	
+
 	@Column
 	private Date projectedAccountingDate;
 	
 	@ManyToOne
 	@NoCreate
 	@NoModify
-	@ReferenceView("ShortReference")
-	@SearchAction("SearchPerson.SearchBrokerSalePortfolio")
-	private Person broker;
-
-	public ViewSalePortfolioReport() {
+	@ReferenceView("Reference")
+	@SearchAction("SearchProduct.SearchLoanProducts")
+	private Product product;
+	
+	public ViewLoanReport() {
 		
 	}
 
@@ -48,12 +48,12 @@ public class ViewSalePortfolioReport {
 		this.toDate = toDate;
 	}
 
-	public Person getBroker() {
-		return broker;
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setBroker(Person broker) {
-		this.broker = broker;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	public Date getProjectedAccountingDate() {

@@ -12,6 +12,7 @@ import org.openxava.jpa.*;
 
 import com.powerfin.helper.*;
 import com.powerfin.model.superclass.*;
+import com.powerfin.model.types.*;
 
 
 /**
@@ -32,9 +33,12 @@ import com.powerfin.model.superclass.*;
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
 				+ "period;"
+				+ "daysGrace, daysGraceCollectionFee"
+				+ "applyDefaultInterestAccrued;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
 				),
 	@View(name="RequestTXAccountLoan",
 		members="accountId, companyAccountingDate; accountStatus;"
@@ -49,7 +53,8 @@ import com.powerfin.model.superclass.*;
 				+ "period,fixedQuota;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
 				+ "quotas{accountPaytables}"
 				),
 	@View(name="AuthorizeTXAccountLoan",
@@ -60,7 +65,8 @@ import com.powerfin.model.superclass.*;
 				+ "startDatePayment, paymentDay;"
 				+ "period,fixedQuota;"
 				+ "disbursementAccount}"
-				+ "thirdPerson{mortgageInsurer;vehicleInsurer}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
 				+ "quotas{accountPaytables}"
 				),
 	@View(name="ConsultAccountLoan",
@@ -77,12 +83,11 @@ import com.powerfin.model.superclass.*;
 				+ "insuranceMortgageAmount, insuranceAmount"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{#"
-					+ "mortgageInsurerName;"
-					+ "insurerName;"
-					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
-				+ "}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
+				+ "portfolio{#"
+				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
@@ -100,12 +105,11 @@ import com.powerfin.model.superclass.*;
 				+ "insuranceMortgageAmount, insuranceAmount"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{#"
-					+ "mortgageInsurerName;"
-					+ "insurerName;"
-					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
-				+ "}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
+				+ "portfolio{#"
+				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
@@ -123,12 +127,11 @@ import com.powerfin.model.superclass.*;
 				+ "insuranceMortgageAmount, insuranceAmount"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{#"
-					+ "mortgageInsurerName;"
-					+ "insurerName;"
-					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
-				+ "}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
+				+ "portfolio{#"
+				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
@@ -146,12 +149,11 @@ import com.powerfin.model.superclass.*;
 				+ "insuranceMortgageAmount, insuranceAmount"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
-				+ "thirdPerson{#"
-					+ "mortgageInsurerName;"
-					+ "insurerName;"
-					+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-					+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
-				+ "}"
+				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
+				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
+				+ "portfolio{#"
+				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
 				+ "paytable{accountSoldPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
@@ -187,17 +189,13 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private BigDecimal dailyRate;
 
-	@Column(name="day_grace")
+	@Column(name="days_grace")
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
-	private Integer dayGrace;
+	private Integer daysGrace;
 
-	@Column(name="day_grace_collection_fee")
+	@Column(name="days_grace_collection_fee")
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
-	private Integer dayGraceCollectionFee;
-	
-	@Column(name="default_interest_rate", precision=5, scale=2)
-	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
-	private BigDecimal defaultInterestRate;
+	private Integer daysGraceCollectionFee;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="disbursement_date")
@@ -248,6 +246,9 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	//@Required
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Integer insuranceQuotasNumber;
+	
+	@Column(name="apply_default_interest_accrued")
+	private Types.YesNoIntegerType applyDefaultInterestAccrued;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="start_date_payment")
@@ -374,6 +375,10 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota, paymentDate, lastPaymentDate, lastPaymentDateCollection, lastPaymentDateDefaultInterest")
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultAccountLoan")
+	@ListActions({
+		@ListAction("Print.generatePdf"),
+		@ListAction("Print.generateExcel")
+	})
 	private List<AccountPaytable> accountPaytables;
 	
 	//bi-directional many-to-one association to AccountPaytable
@@ -383,6 +388,10 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, lastPaymentDate, paymentDate")
 	@ReadOnly(forViews="ConsultSalePortfolio")
+	@ListActions({
+		@ListAction("Print.generatePdf"),
+		@ListAction("Print.generateExcel")
+	})
 	private List<AccountSoldPaytable> accountSoldPaytables;
 	
 	@Transient
@@ -391,6 +400,10 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@OrderBy("subaccount")
 	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	@ListActions({
+		@ListAction("Print.generatePdf"),
+		@ListAction("Print.generateExcel")
+	})
 	private List<AccountOverdueBalance> accountOverdueBalances;
 	
 	@Transient
@@ -438,28 +451,20 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		this.dailyRate = dailyRate;
 	}
 
-	public Integer getDayGrace() {
-		return this.dayGrace;
+	public Integer getDaysGrace() {
+		return daysGrace;
 	}
 
-	public void setDayGrace(Integer dayGrace) {
-		this.dayGrace = dayGrace;
+	public void setDaysGrace(Integer daysGrace) {
+		this.daysGrace = daysGrace;
 	}
 
-	public Integer getDayGraceCollectionFee() {
-		return dayGraceCollectionFee;
+	public Integer getDaysGraceCollectionFee() {
+		return daysGraceCollectionFee;
 	}
 
-	public void setDayGraceCollectionFee(Integer dayGraceCollectionFee) {
-		this.dayGraceCollectionFee = dayGraceCollectionFee;
-	}
-
-	public BigDecimal getDefaultInterestRate() {
-		return this.defaultInterestRate;
-	}
-
-	public void setDefaultInterestRate(BigDecimal defaultInterestRate) {
-		this.defaultInterestRate = defaultInterestRate;
+	public void setDaysGraceCollectionFee(Integer daysGraceCollectionFee) {
+		this.daysGraceCollectionFee = daysGraceCollectionFee;
 	}
 
 	public Date getDisbursementDate() {
@@ -663,6 +668,14 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		this.vehicleInsurer = vehicleInsurer;
 	}
 
+	public Types.YesNoIntegerType getApplyDefaultInterestAccrued() {
+		return applyDefaultInterestAccrued;
+	}
+
+	public void setApplyDefaultInterestAccrued(Types.YesNoIntegerType applyDefaultInterestAccrued) {
+		this.applyDefaultInterestAccrued = applyDefaultInterestAccrued;
+	}
+
 	public List<AccountPaytable> getAccountPaytables() {
 		//if(account!=null)
 			//return account.getAccountPaytables();
@@ -805,6 +818,15 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	
 	private void updateData()
 	{
+		if (getDaysGrace()==null)
+			setDaysGrace(getProduct().getDaysGrace());
+		
+		if (getDaysGraceCollectionFee()==null)
+			setDaysGraceCollectionFee(getProduct().getDaysGraceCollectionFee());
+		
+		if (getApplyDefaultInterestAccrued()==null)
+			setApplyDefaultInterestAccrued(getProduct().getApplyDefaultInterestAccrued());
+		
 		if (originalAmount==null)
 			originalAmount=amount;
 		

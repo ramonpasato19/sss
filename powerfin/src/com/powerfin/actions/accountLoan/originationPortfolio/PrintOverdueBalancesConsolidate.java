@@ -9,17 +9,16 @@ import com.powerfin.util.report.*;
 import net.sf.jasperreports.engine.*;
 
 public class PrintOverdueBalancesConsolidate extends ReportBaseAction {
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		
-		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
+		String productId = (String)getView().getSubview("product").getValue("productId");
+		if (productId==null)
+			throw new OperativeException("product_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("PRODUCT_ID", productId);
 		addDefaultParameters(parameters);
 		
 		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
@@ -32,7 +31,7 @@ public class PrintOverdueBalancesConsolidate extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
 		
-		AccountLoanHelper.getAllOverdueBalancesByBroker(personId, projectedAccountingDate);
+		AccountLoanHelper.getAllOverdueBalancesByProduct(productId, projectedAccountingDate);
 		return parameters;
 	}
 
