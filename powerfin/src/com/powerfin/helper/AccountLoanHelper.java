@@ -505,7 +505,7 @@ public class AccountLoanHelper {
 		defaultInterestRateOrValue = getDefaultInterestRateOrValue(accountLoan.getAccount().getProduct(), overdueDays);
 		
 		if (defaultInterestRateOrValue==null)
-			throw new OperativeException("default_interest_rate_not_found",overdueBalance.getOverdueDays());
+			throw new OperativeException("default_interest_rate_not_found",accountLoan.getAccount().getAccountId(), overdueBalance.getOverdueDays());
 		
 		if (defaultInterestRateOrValue!=null && defaultInterestRateOrValue.compareTo(BigDecimal.ZERO)==0)
 			return defaultInterest;
