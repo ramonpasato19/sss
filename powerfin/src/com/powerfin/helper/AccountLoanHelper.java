@@ -634,7 +634,13 @@ public class AccountLoanHelper {
 		{
 			for (PrelationOrder prelation : prelationOrders)
 			{
+				if (transactionValue.compareTo(BigDecimal.ZERO)==0)
+					break;
+				
 				valueToApply = getValueToApplyByPrelationOrder(prelation, quota);
+				
+				if (valueToApply.compareTo(BigDecimal.ZERO)==0)
+					break;
 				
 				if (prelation.getAllowPartialPayment().equals(YesNoIntegerType.NO))
 					if (transactionValue.compareTo(valueToApply)<0)					
@@ -646,9 +652,7 @@ public class AccountLoanHelper {
 				transactionAccounts.addAll(getTransactionAccountsByPrelationOrder(prelation, accountLoan, quota, valueToApply, transaction));
 				
 				transactionValue = transactionValue.subtract(valueToApply);
-				
-				if (transactionValue.compareTo(BigDecimal.ZERO)==0)
-					break;
+
 			}		
 		}
 		return transactionAccounts;

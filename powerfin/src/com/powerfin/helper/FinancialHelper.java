@@ -41,6 +41,10 @@ public class FinancialHelper {
 		
 		List<Movement> movements = new ArrayList<Movement>();
 		for (TransactionAccount ta : transactionAccounts) {
+			
+			if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
+				break;
+			
 			String bookAccountParametrized = BookAccountHelper.getBookAccountParametrized(
 					ta.getAccount(), ta.getCategory());
 			

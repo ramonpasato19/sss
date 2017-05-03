@@ -93,8 +93,11 @@ public class BatchSaveAction extends ViewBaseAction  {
 					batchProcessDetail.setBatchProcessStatus(
 							BatchProcessHelper.getBatchProcessStatus(BatchProcessHelper.BATCH_DETAIL_PROCESS_ERROR));
 					batchProcessDetail.setErrorMessage(e.getMessage());
-					transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_ANNULLED_STATUS_ID));
-					XPersistence.getManager().merge(transaction);
+					if (transaction.getTransactionId()!=null)
+					{
+						transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_ANNULLED_STATUS_ID));
+						XPersistence.getManager().merge(transaction);
+					}
 				}
 
 				XPersistence.getManager().merge(batchProcessDetail);

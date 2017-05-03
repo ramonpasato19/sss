@@ -75,9 +75,11 @@ public class TransactionHelper {
 		//Save Transaction Accounts
 		if (transactionAccounts!=null && !transactionAccounts.isEmpty())
 		{
-			transaction.setTransactionAccounts(transactionAccounts);
 			for (TransactionAccount ta : transactionAccounts)
 			{
+				if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
+					break;
+
 				ta.setTransaction(transaction);
 				XPersistence.getManager().persist(ta);
 				transactionAccountSaved.add(ta);

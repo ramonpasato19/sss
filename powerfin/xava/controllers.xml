@@ -554,6 +554,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintReceivableVsPayable" icon="file-pdf" image="save.gif">
+		</action>
 	</controller>
 	
 	<controller name="OriginationPortfolioReportControllerEXCEL"  >
@@ -572,6 +575,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
+		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.originationPortfolio.PrintReceivableVsPayable" icon="file-excel" image="save.gif">
 		</action>
 	</controller>
 	
@@ -602,6 +608,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceivableVsPayable" icon="file-pdf" image="save.gif">
+		</action>
 	</controller>
 	
 	<controller name="PurchasePortfolioReportControllerEXCEL" icon="file-excel" >
@@ -620,6 +629,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
+		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceivableVsPayable" icon="file-excel" image="save.gif">
 		</action>
 	</controller>
 	
@@ -650,6 +662,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintReceivableVsPayable" icon="file-pdf" image="save.gif">
+		</action>
 	</controller>
 	
 	<controller name="SalePortfolioReportControllerEXCEL" icon="file-excel" >
@@ -668,6 +683,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintTotalBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
+		</action>
+		<action name="printReceivableVsPayable" mode="detail"
+			class="com.powerfin.actions.accountLoan.salePortfolio.PrintReceivableVsPayable" icon="file-excel" image="save.gif">
 		</action>
 	</controller>
 	

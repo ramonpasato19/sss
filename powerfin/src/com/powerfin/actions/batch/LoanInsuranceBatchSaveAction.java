@@ -68,7 +68,7 @@ public class LoanInsuranceBatchSaveAction implements IBatchSaveAction  {
 		if (quota.getInsurance()!=null && quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
 		{
 			if (accountLoan.getInsuranceAccount()==null)
-				throw new OperativeException ("insurance_account_not_found");
+				throw new OperativeException ("insurance_account_not_found", accountLoan.getAccountId());
 			
 			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
 			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
@@ -81,7 +81,7 @@ public class LoanInsuranceBatchSaveAction implements IBatchSaveAction  {
 		if (quota.getInsuranceMortgage()!=null && quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
 		{
 			if (accountLoan.getMortgageAccount()==null)
-				throw new OperativeException ("mortgage_account_not_found");
+				throw new OperativeException ("mortgage_account_not_found", accountLoan.getAccountId());
 			
 			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
 			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
