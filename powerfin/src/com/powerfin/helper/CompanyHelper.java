@@ -34,6 +34,12 @@ public class CompanyHelper {
 		return company.getOxorganizationId();
 	}
 	
+	public static String getName()
+	{
+		Company company = (Company)XPersistence.getManager().find(Company.class, CompanyHelper.COMPANY_ID); 
+		return company.getName();
+	}
+	
 	public static String getLogoName()
 	{
 		return "logo-efc.png";

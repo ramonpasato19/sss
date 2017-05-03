@@ -332,7 +332,7 @@ public class Modules implements Serializable {
 	}
 	public String getPowerfinModuleDescription(HttpServletRequest request) { 
 		try {
-			return CompanyHelper.getSchema() + " - " +  current.getLabel() + " - " +UtilApp.dateToString(CompanyHelper.getCurrentAccountingDate());
+			return CompanyHelper.getName() + " - " +  current.getLabel() + " - " +UtilApp.dateToString(CompanyHelper.getCurrentAccountingDate());
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("module_description_problem"), ex);			

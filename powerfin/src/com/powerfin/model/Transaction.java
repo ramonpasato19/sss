@@ -897,8 +897,8 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXSaleForexCustomer", value="SearchAccount.SearchOfficialPayableAccount"),
 		@SearchAction(forViews="RequestTXPurchaseForexBank", value="SearchAccount.SearchOfficialBankAccount"),
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchBankAccount"),
-		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPayableAccount"),
-		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPayableAccount"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchDebitAccountForLoanPayment"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchDebitAccountForLoanPayment"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchSalePortfolioForPayment"),
 		
 	})
