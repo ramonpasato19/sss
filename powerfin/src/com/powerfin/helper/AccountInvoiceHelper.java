@@ -23,7 +23,9 @@ public class AccountInvoiceHelper {
 	public final static String RETENTION_SALE_PRODUCT_TYPE_ID = "205";
 	
 	public final static String CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID = "106";
-	public final static String CREDIT_NOTE_SALE_PRODUCT_TYPE_ID = "206";	
+	public final static String CREDIT_NOTE_SALE_PRODUCT_TYPE_ID = "206";
+	
+	public final static String ORDER_PURCHASE_PRODUCT_TYPE_ID = "207";
 	
 	public static boolean cancelInvoice(Account account) throws Exception {
 		AccountInvoice accountInvoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());

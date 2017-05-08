@@ -180,6 +180,12 @@
 			icon="magnify">
 			<set value="${productType.productTypeId} = '104'" property="condition"/>
 		</action>
+		<action name="SearchOrderPurchase"
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productTypeId} = '207'" property="condition"/>
+		</action>
 	</controller>
 	
 	<controller name="SearchAccountDetail">
@@ -218,6 +224,11 @@
 			hidden="true"
 			icon="magnify">
 			<set value="${personId} IN (SELECT DISTINCT c.brokerPerson.personId FROM Negotiation c WHERE c.brokerPerson.personId IS NOT NULL AND c.negotiationType.negotiationTypeId = '002')" property="condition"/>
+		</action>
+		<action name="SearchInvoices"
+			class="com.powerfin.actions.search.SearchPerson"
+			hidden="true"
+			icon="magnify">
 		</action>
 	</controller>
 	
@@ -2183,6 +2194,7 @@
 			hidden="true"
 			icon="library-plus"/>
 	</controller>
+	
 	<controller name="InventoryControlController" >
 		<action name="printInventoryTotalItems" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryTotalItems" icon="file-pdf" image="save.gif" by-default="if-possible" >
@@ -2193,18 +2205,28 @@
 		<action name="printInventoryProfitMargin" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryProfitMargin" icon="file-pdf">
 		</action>
+		
+		<action name="printInventoryMinimalStock" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryMinimalStock" icon="file-pdf">
+		</action>
+		<action name="printInventoryMovementHistory" mode="detail"
+			class="com.powerfin.actions.inventory.PrintMovementHistory" icon="file-pdf">
+		</action>
 	</controller>
+	
 	<controller name="DownloadInvoicePrestashopController" >
 		<action name="downloadInvoice" mode="detail"
 			class="com.powerfin.actions.integrations.DownloadInvoicePrestashop" icon="file-pdf" image="save.gif" by-default="if-possible" >
 			<set property="sequence" value="1" />
 		</action>
 	</controller>
+	
 	<controller name="PrinterInvoiceController" >
 		<action name="printerInvoice" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
 		</action>
 	</controller>
+	
 	<controller name="AccountItemLotsQuantities">
 		<extends controller="RefreshTXController"/>
 		<extends controller="NewTXController"/>
@@ -2215,6 +2237,7 @@
 			icon="content-save"
 			keystroke="Control S"/>
 	</controller>
+	
 	<controller name="ConsultInvoiceLotsController">
 		<action name="consult" 
 			mode="detail" 
@@ -2234,6 +2257,59 @@
 			icon="file-excel"
 			keystroke="Control Alt X">
 			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="ConsultInvoicePersonController">
+		<action name="consult" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByPerson"
+			icon="content-save" 
+			image="save.gif"
+			by-default="if-possible">
+		</action>
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>
+	</controller>
+	
+	<controller name="RequestTXOrderPurchaseController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.AccountInvoiceOrderPurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="INVOICE_PURCHASE" />
+		</action>
+		<action name="printOrderInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintOrderInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
+		</action>
+	</controller>
+	
+	<controller name="ConvertOrderToInvoiceController">
+		<extends controller="RefreshTXController"/>
+		<action name="convert" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.ConvertInvoiceOrderInvoice"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+		</action>
+		<action name="printOrderInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintOrderInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
 		</action>
 	</controller>
 </controllers>

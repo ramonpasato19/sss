@@ -183,6 +183,30 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				+ "remark{remark;}"
 				),
+	@View(name="RequestTXOrderItems", 
+		members="accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate;"
+				+ "unity;"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "remark{sequentialCode; remark;}"
+				+ "detail{details;}"
+				),		
+	@View(name="AuthorizeTXOrderItems", 
+		members="accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate,"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "remark{sequentialCode; remark;}"
+				+ "detail{details;}"
+				),		
+	@View(name="TXOrderToInvoice", 
+		members="accountId, companyAccountingDate;"
+				+ "issueDate,"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "detail{details;}"
+				),
 	@View(name="reference", members="account;"
 			+ "dueDate, issueDate;"),
 	@View(name="forRetention", 
@@ -225,7 +249,13 @@ import com.powerfin.model.types.*;
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
 		baseCondition = "${account.accountStatus.accountStatusId} IN ('002','005') "
-			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'")
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="TXOrderItems", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+		baseCondition = "${account.accountStatus.accountStatusId} = '002' "
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'")
 })
 public class AccountInvoice extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -300,9 +330,9 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 			+ "amount[accountInvoice.subtotal, "
 			+ "accountInvoice.vat, accountInvoice.total]"
 			)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, AuthorizeTXOrderItems, TXOrderToInvoice")
 	@CollectionViews({
-		@CollectionView(forViews="RequestTXInvoicePurchase, AuthorizeTXInvoicePurchase", value = "InvoicePurchase"),
+		@CollectionView(forViews="RequestTXInvoicePurchase, AuthorizeTXInvoicePurchase, RequestTXOrderItems", value = "InvoicePurchase"),
 		@CollectionView(forViews="RequestTXInvoiceSale, AuthorizeTXInvoiceSale", value = "InvoiceSale"),
 		@CollectionView(forViews="RequestTXCreditNotePurchase, AuthorizeTXCreditNotePurchase", value = "CreditNotePurchase"),
 		@CollectionView(forViews="RequestTXCreditNoteSale, AuthorizeTXCreditNoteSale", value = "CreditNoteSale"),
@@ -386,7 +416,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="RequestTXInvoicePurchase, RequestTXInvoiceSale, RequestTXCreditNotePurchase, RequestTXCreditNoteSale")
+	@ReadOnly(forViews="RequestTXInvoicePurchase, RequestTXInvoiceSale, RequestTXCreditNotePurchase, RequestTXCreditNoteSale, RequestTXOrderItems")
 	private AccountStatus accountStatus;
 	
 	@Transient
@@ -401,6 +431,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		@SearchAction(forViews="RequestTXInvoiceSale", value="SearchProduct.SearchInvoiceSale"),
 		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchProduct.SearchCreditNotePurchase"),
 		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchProduct.SearchCreditNoteSale"),
+		@SearchAction(forViews="RequestTXOrderItems", value="SearchProduct.SearchOrderPurchase"),
 	})
 	private Product product;
 	

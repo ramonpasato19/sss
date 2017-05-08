@@ -903,4 +903,34 @@
 		<mode-controller name="DetailOnly"/>
 	</module>
 	
+	<module name="ViewConsultAccountInvoicePerson">
+		<model name="ViewConsultAccountInvoicePerson"/>
+		<controller name="ConsultInvoicePersonController"/>
+		<mode-controller name="DetailOnly"/>
+	</module>
+	
+	<module name="RequestTXOrderItems">
+		<model name="AccountInvoice" />
+		<controller name="RequestTXOrderPurchaseController" />
+		<view name="RequestTXOrderItems" />
+		<tab name="TXOrderItems" />
+		<mode-controller name="DetailList" />
+	</module>
+	
+	<module name="AuthorizeTXOrderItems">
+		<model name="AccountInvoice" />
+		<controller name="RequestTXOrderPurchaseController" />
+		<view name="AuthorizeTXOrderItems" />
+		<tab name="TXOrderItems" />
+		<mode-controller name="DetailList" />
+	</module>
+ 	
+	<module name="ConvertOrderToInvoice">
+		<model name="AccountInvoice" />
+		<controller name="ConvertOrderToInvoiceController" />
+		<view name="TXOrderToInvoice" />
+		<tab name="TXConvertOrderToInvoice" />
+		<mode-controller name="DetailList" />
+	</module>
+	
 </application>
