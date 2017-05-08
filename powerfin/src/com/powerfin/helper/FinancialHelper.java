@@ -39,11 +39,15 @@ public class FinancialHelper {
 				.setParameter("transactionId", t.getTransactionId())
 				.getResultList();
 		
+		if (transactionAccounts==null || transactionAccounts.isEmpty())
+			throw new OperativeException("unable_to_process_transaction_without_detail_of_accouts");
+		
 		List<Movement> movements = new ArrayList<Movement>();
+		
 		for (TransactionAccount ta : transactionAccounts) {
 			
-			if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
-				break;
+			if (ta.getValue().compareTo(BigDecimal.ZERO)==0 && ta.getQuantity().compareTo(BigDecimal.ZERO)==0)
+				continue;
 			
 			String bookAccountParametrized = BookAccountHelper.getBookAccountParametrized(
 					ta.getAccount(), ta.getCategory());
@@ -90,6 +94,10 @@ public class FinancialHelper {
 				throw new InternalException("book_account_not_found",
 						ta.getAccount().getAccountId(), ta.getSubaccount(), ta.getCategory().getCategoryId(), bookAccountParametrized, ta.getValue());
 		}
+		
+		if (movements.isEmpty())
+			throw new OperativeException("unable_to_process_financial_without_movements", t.getVoucher());
+		
 		validateAccountingEquation(movements);
 		XPersistence.getManager().persist(f);
 		System.out.println("Financial: "+f.getFinancialId());
@@ -407,6 +415,7 @@ public class FinancialHelper {
 			throws Exception {
 		BigDecimal debits = BigDecimal.ZERO;
 		BigDecimal credits = BigDecimal.ZERO;
+
 		for(Movement m : movements)
 		{
 			if (m.getDebitOrCredit().equals(DebitOrCredit.DEBIT))

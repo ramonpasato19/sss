@@ -818,11 +818,9 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	
 	private void updateData()
 	{
-		if (getDaysGrace()==null)
-			setDaysGrace(getProduct().getDaysGrace());
+		setDaysGrace(getProduct().getDaysGrace());
 		
-		if (getDaysGraceCollectionFee()==null)
-			setDaysGraceCollectionFee(getProduct().getDaysGraceCollectionFee());
+		setDaysGraceCollectionFee(getProduct().getDaysGraceCollectionFee());
 		
 		if (getApplyDefaultInterestAccrued()==null)
 			setApplyDefaultInterestAccrued(getProduct().getApplyDefaultInterestAccrued());

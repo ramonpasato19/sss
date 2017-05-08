@@ -640,7 +640,7 @@ public class AccountLoanHelper {
 				valueToApply = getValueToApplyByPrelationOrder(prelation, quota);
 				
 				if (valueToApply.compareTo(BigDecimal.ZERO)==0)
-					break;
+					continue;
 				
 				if (prelation.getAllowPartialPayment().equals(YesNoIntegerType.NO))
 					if (transactionValue.compareTo(valueToApply)<0)					

@@ -9,7 +9,6 @@ import org.openxava.model.*;
 import org.openxava.util.*;
 import org.openxava.validators.*;
 
-import com.powerfin.exception.*;
 import com.powerfin.model.*;
 
 public class TransactionHelper {
@@ -73,43 +72,22 @@ public class TransactionHelper {
 				.executeUpdate();
 		
 		//Save Transaction Accounts
-		if (transactionAccounts!=null && !transactionAccounts.isEmpty())
+		for (TransactionAccount ta : transactionAccounts)
 		{
-			for (TransactionAccount ta : transactionAccounts)
-			{
-				if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
-					break;
-
-				ta.setTransaction(transaction);
-				XPersistence.getManager().persist(ta);
-				transactionAccountSaved.add(ta);
-			}
+			ta.setTransaction(transaction);
+			XPersistence.getManager().persist(ta);
+			transactionAccountSaved.add(ta);
 		}
-		else
-			throw new OperativeException("unable_to_process_transaction_without_detail_of_accouts");
 		
 		transaction.setTransactionAccounts(transactionAccountSaved);
 		
-		//Save Financial
-		if (isFinancialSaved(transaction))
-		{
-			FinancialHelper.saveFinancial(transaction);
-			return true;
-		}
+		processTransaction(transaction);
+		
 		return false;
 	}
 	
 	public static boolean processTransaction(Transaction transaction) throws Exception
 	{		
-		//Clean Transaction Accounts with value ZERO
-		for (TransactionAccount ta : transaction.getTransactionAccounts())
-			if (ta.getValue().compareTo(BigDecimal.ZERO)==0)
-				XPersistence.getManager().remove(ta);
-		
-		//Validate no empty or null Transaction Accounts
-		if (transaction.getTransactionAccounts()==null || transaction.getTransactionAccounts().isEmpty())
-			throw new OperativeException("unable_to_process_transaction_without_detail_of_accouts");
-		
 		//Save Financial
 		if (isFinancialSaved(transaction))
 		{
