@@ -35,7 +35,7 @@ import org.openxava.annotations.View;
 @Table(name="account_item_lots")
 @View(members="account;numberLot;code;manufacturingDate;expireDate;discountDays;discount,discountValue;"
 		 + "quantity; currentQuantity, manualQuantity; comment; unity;cellarLocation;active;accountItemLotsInvoice")
-@Tab(properties="account.accountId, numberLot, account.name, expireDate,quantity, currentQuantity") 
+@Tab(properties="account.accountId, code, numberLot, account.name, expireDate, currentQuantity, manualQuantity")  
 public class AccountItemLots {
 	@Id
 	@Column(name="account_item_lots_id", unique=true, nullable=false, length=32)

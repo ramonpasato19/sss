@@ -25,7 +25,7 @@ public class AccountItemLotsSaveAction extends SaveAction {
 			item = (HashMap) accountItemsLots_it.next();
 			itemMap=(HashMap) item.values().toArray()[2];
 			accountItem=XPersistence.getManager().find(Account.class, itemMap.values().toArray()[1]);
-			if(accountItem.getProduct().getProductClass().getProductClassId().equals("02")){
+			if(accountItem.getProduct().getProductClass().getProductClassId().equals("11")){
 				quantity=quantity.add((BigDecimal) item.values().toArray()[0]);
 				quantityCurrent=quantityCurrent.add((BigDecimal) item.values().toArray()[0]);
 			}else{

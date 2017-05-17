@@ -10,10 +10,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
-import org.openxava.annotations.ReferenceView;
-import org.openxava.annotations.Required;
-import org.openxava.annotations.SearchAction;
-import org.openxava.annotations.View;
+import org.openxava.annotations.*;
 
 @Entity
 @Table(name="account_item_lots_invoice")
@@ -34,6 +31,8 @@ public class AccountItemLotsInvoice {
 	@JoinColumn(name="account_id")
 	@ReferenceView("normal")
 	@Required
+	@NoCreate
+	@NoModify
 	@SearchAction(value="SearchAccount.SearchInvoicePurchaseAndSale")
 	private Account account;
 	

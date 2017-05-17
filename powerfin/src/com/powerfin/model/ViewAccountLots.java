@@ -24,10 +24,10 @@ public class ViewAccountLots {
 	
 	@OneToMany
 	@ReadOnly
-	@ListProperties(value = "account.accountId, account.currency.currencyId, account.name, numberLot , code, expireDate, quantity, currentQuantity")
+	@ListProperties(value = "account.accountId, account.currency.currencyId, account.name, numberLot , code, expireDate, quantity, currentQuantity, manualQuantity")
 	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
 			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
-	@Condition(value = "${expireDate} between ${this.fromDate} and ${this.toDate} and ${currentQuantity} > 0 and ${active}=true ")
+	@Condition(value = "${expireDate} between ${this.fromDate} and ${this.toDate} and (${currentQuantity} > 0 or ${manualQuantity} > 0) and ${active}=true ")
 	@OrderBy(clause="${expireDate} asc")
 	private List<AccountItemLots> accountItems;
 	
