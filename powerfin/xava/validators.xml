@@ -22,6 +22,6 @@
 		<validator-name name="NOT_NULL"/>
 		<for-type type="java.math.BigDecimal"/>
 	</required-validator> 
-					
+	
 </validators>
   

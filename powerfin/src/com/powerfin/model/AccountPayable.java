@@ -117,7 +117,7 @@ public class AccountPayable extends AuditEntity implements Serializable {
 		this.accountIdAux = accountIdAux;
 	}
 
-	public BigDecimal getBalance()
+	public BigDecimal getBalance() throws Exception
 	{
 		return account.getBalance();
 	}

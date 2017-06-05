@@ -57,15 +57,19 @@ public class UtilitySalePortfolioSaveAction implements IBatchSaveAction  {
 				.setParameter("dueDate", transaction.getAccountingDate())
 				.getResultList();
 		
-		AccountPaytable quota = accountPaytables.get(0);
-		
-		ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, 0, quota.getUtilitySalePortfolio(), transaction, CategoryHelper.getCategoryById(CategoryHelper.UTILITY_SALE_PORTFOLIO_PR_CATEGORY));
-		ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
-		
-		ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getUtilitySalePortfolio(), transaction, CategoryHelper.getCategoryById(CategoryHelper.UTILITY_SALE_PORTFOLIO_IN_CATEGORY));
-		ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
+		for (AccountPaytable quota : accountPaytables)
+		{
+			if (quota.getUtilitySalePortfolio() != null && quota.getUtilitySalePortfolio().compareTo(BigDecimal.ZERO)>0)
+			{
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, 0, quota.getUtilitySalePortfolio(), transaction, CategoryHelper.getCategoryById(CategoryHelper.UTILITY_SALE_PORTFOLIO_PR_CATEGORY));
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getUtilitySalePortfolio(), transaction, CategoryHelper.getCategoryById(CategoryHelper.UTILITY_SALE_PORTFOLIO_IN_CATEGORY));
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
+		}
 		
 		return transactionAccounts;
 	}

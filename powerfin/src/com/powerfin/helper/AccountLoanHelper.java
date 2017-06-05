@@ -181,6 +181,8 @@ public class AccountLoanHelper {
 		query+= ") z "
 				+ "order by subaccount ";
 		
+		System.out.println("AccountOverdueBalancequery: "+query);
+		
 		List<Object[]> balances = XPersistence.getManager()
 				.createNativeQuery(query)
 				.setParameter("accountId", account.getAccountId())
@@ -630,29 +632,29 @@ public class AccountLoanHelper {
 		else
 			disbursementAccount = debitAccount;
 		
+		outerloop:
 		for (AccountOverdueBalance quota: overdueBalances)
 		{
 			for (PrelationOrder prelation : prelationOrders)
 			{
 				if (transactionValue.compareTo(BigDecimal.ZERO)==0)
 					break;
-				
+
 				valueToApply = getValueToApplyByPrelationOrder(prelation, quota);
-				
+
 				if (valueToApply.compareTo(BigDecimal.ZERO)==0)
 					continue;
-				
+
 				if (prelation.getAllowPartialPayment().equals(YesNoIntegerType.NO))
 					if (transactionValue.compareTo(valueToApply)<0)					
-						break;
-				
+						break outerloop;
+
 				if (transactionValue.compareTo(valueToApply)<0)
 					valueToApply = transactionValue;
 				
 				transactionAccounts.addAll(getTransactionAccountsByPrelationOrder(prelation, accountLoan, quota, valueToApply, transaction));
-				
-				transactionValue = transactionValue.subtract(valueToApply);
 
+				transactionValue = transactionValue.subtract(valueToApply);
 			}		
 		}
 		return transactionAccounts;

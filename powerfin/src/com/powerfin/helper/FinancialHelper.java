@@ -109,7 +109,7 @@ public class FinancialHelper {
 		}
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
-				updateBalance(financialCategory);			
+				updateBalance(financialCategory);
 
 		System.out.println("End Save Financial -------------------------");
 	}

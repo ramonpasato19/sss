@@ -132,6 +132,12 @@
 			icon="magnify">
 			<set value="${productType.productClass.productClassId} = '06'" property="condition"/>
 		</action>
+		<action name="SearchTermProducts" 
+			class="com.powerfin.actions.search.SearchProduct"
+			hidden="true"
+			icon="magnify">
+			<set value="${productType.productClass.productClassId} = '05'" property="condition"/>
+		</action>
 		<action name="SearchAccountAccountant"
 			class="com.powerfin.actions.search.SearchProduct"
 			hidden="true"
@@ -209,6 +215,12 @@
 			hidden="true"
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '200'" property="condition"/>
+		</action>
+		<action name="SearchAccountTerm"
+			class="com.powerfin.actions.search.SearchGeneralAccount"
+			hidden="true"
+			icon="magnify">
+			<set value="${product.productType.productClass.productClassId} = '05'" property="condition"/>
 		</action>
 	</controller>
 	
@@ -1098,6 +1110,9 @@
 		<action name="printAccountingEntry" mode="detail"
 			class="com.powerfin.actions.transaction.PrintAccountingEntryAction" icon="file-pdf">
 		</action>
+		<action name="printOperativeEntry" mode="detail"
+			class="com.powerfin.actions.transaction.PrintOperativeEntryAction" icon="file-pdf">
+		</action>
 	</controller>
 <!-- END TransactionList ######################################## -->
 
@@ -1665,6 +1680,32 @@
 	</controller>
 <!-- END TXGeneral ######################################## -->
 
+<!-- BEGIN TXAccountTerm ######################################## -->
+	<controller name="RequestTXAccountTermController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.accountTerm.AccountTermSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="AuthorizeTXAccountTermController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXTermDisbursementSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXAccountTerm ######################################## -->
+
 <!-- BEGIN TXAccountLoan ######################################## -->
 	<controller name="RequestTXAccountLoanController">
 		<extends controller="RefreshTXController"/>
@@ -1924,6 +1965,13 @@
 			icon="content-save"
 			image="save.gif">
 			<set value="101" property="negotiationFileTypeId"/>			
+		</action>
+	</controller>
+	
+	<controller name="ConsultAccountTermController">
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountPaytable" mode="detail"
+			class="com.powerfin.actions.accountTerm.PrintAccountPaytable"  icon="file-pdf">
 		</action>
 	</controller>
 	

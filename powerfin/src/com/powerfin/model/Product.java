@@ -29,6 +29,8 @@ import com.powerfin.model.types.Types.*;
 				+ "ownProduct; "
 				+ "daysGrace, daysGraceCollectionFee; "
 				+ "applyDefaultInterestAccrued; "
+				+ "applyAutomaticDebit; "
+				+ "operatingCondition; "
 				+ "autoCode[prefix, lpad, sequenceDBName, rpad, sufix]; "
 				+ "categoryProducts; "
 				+ "productStatuses"),
@@ -44,15 +46,18 @@ public class Product implements Serializable {
 	private String productId;
 
 	@Column(name="days_grace")
-	@Required
 	private Integer daysGrace;
 
 	@Column(name="days_grace_collection_fee")
-	@Required
 	private Integer daysGraceCollectionFee;
 	
 	@Column(name="apply_default_interest_accrued")
+	@Required
 	private Types.YesNoIntegerType applyDefaultInterestAccrued;
+	
+	@Column(name="apply_automatic_debit")
+	@Required
+	private Types.YesNoIntegerType applyAutomaticDebit;
 	
 	@Column(nullable = false, length = 100)
 	@Required
@@ -126,6 +131,14 @@ public class Product implements Serializable {
 	@DescriptionsList(descriptionProperties = "name", depends = "this.productClass", condition = "${productClass.productClassId} = ?")
 	private ProductType productType;
 
+	@ManyToOne
+	@JoinColumn(name="operating_condition_id", nullable=false)
+	@NoCreate
+	@NoModify
+	@DescriptionsList
+	@Required
+	private OperatingCondition operatingCondition;
+	
 	// Transient
 
 	// bi-directional many-to-one association to ProductType
@@ -290,6 +303,22 @@ public class Product implements Serializable {
 
 	public void setApplyDefaultInterestAccrued(Types.YesNoIntegerType applyDefaultInterestAccrued) {
 		this.applyDefaultInterestAccrued = applyDefaultInterestAccrued;
+	}
+
+	public OperatingCondition getOperatingCondition() {
+		return operatingCondition;
+	}
+
+	public void setOperatingCondition(OperatingCondition operatingCondition) {
+		this.operatingCondition = operatingCondition;
+	}
+
+	public Types.YesNoIntegerType getApplyAutomaticDebit() {
+		return applyAutomaticDebit;
+	}
+
+	public void setApplyAutomaticDebit(Types.YesNoIntegerType applyAutomaticDebit) {
+		this.applyAutomaticDebit = applyAutomaticDebit;
 	}
 	
 }

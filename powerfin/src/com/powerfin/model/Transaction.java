@@ -263,6 +263,12 @@ import com.powerfin.model.types.*;
 				+ "loan[debitAccount];" 
 				+ "data[accountLoan];"),
 		
+		//Authorize Account term
+		@View(name = "AuthorizeTXAccountTerm", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "value; transactionStatus;"
+				+ "term[creditAccount];" 
+				+ "data[accountTerm];"),
+		
 		//Authorize Purchase Portfolio
 		@View(name = "AuthorizeTXPurchasePortfolio", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
@@ -394,6 +400,7 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXRetentionSale", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_SALE'"),
 		@Tab(name = "TXRetentionPurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_PURCHASE'"),
 		@Tab(name = "TXAccountLoan", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANDISBURSEMENT'"),
+		@Tab(name = "TXAccountTerm", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TERMOPENING'"),
 		@Tab(name = "TXTransferDue", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERDUE'"),
 		@Tab(name = "TXPurchaseForexCustomer", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEFOREXCUSTOMER'"),
 		@Tab(name = "TXSaleForexCustomer", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEFOREXCUSTOMER'"),
@@ -432,7 +439,7 @@ public class Transaction implements Serializable {
 
 	@Column(length = 4000)
 	@Required
-	@ReadOnly(forViews = "DEFAULT, "
+	@ReadOnly(forViews = ""
 			+ "AuthorizeTXGeneral,"
 			+ "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
@@ -456,6 +463,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio,"
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
@@ -479,7 +487,7 @@ public class Transaction implements Serializable {
 
 	@Column(name="document_number", length = 50)
 	@DisplaySize(20)
-	@ReadOnly(forViews = "DEFAULT, "
+	@ReadOnly(forViews = ""
 			+ "AuthorizeTXGeneral,"
 			+ "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
@@ -503,6 +511,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio,"
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue,"
@@ -534,7 +543,7 @@ public class Transaction implements Serializable {
 
 	@Column(nullable = false, precision = 19, scale = 2)
 	//@Required
-	@ReadOnly(forViews = "DEFAULT, "
+	@ReadOnly(forViews = ""
 			+ "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
 			+ "AuthorizeTXTransferReceived,"
@@ -556,6 +565,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio, "
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
@@ -588,7 +598,7 @@ public class Transaction implements Serializable {
 	})
 	
 	@OnChange(OnModifyTransactionCurrency.class)
-	@ReadOnly(forViews = "DEFAULT, "
+	@ReadOnly(forViews = ""
 			+ "AuthorizeTXGeneral,"
 			+ "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
@@ -612,6 +622,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio, "
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
@@ -640,7 +651,7 @@ public class Transaction implements Serializable {
 		@ReferenceView(value = "simple", 
 				forViews = "TransactionList"),
 	@ReferenceView(value = "forTransaction", 
-			forViews = "DEFAULT, "
+			forViews = ""
 					+ "AuthorizeTXGeneral,"
 					+ "AuthorizeTXOpening, "
 					+ "AuthorizeTXTransferSent, "
@@ -664,6 +675,7 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXRetentionPurchase,"
 					+ "AuthorizeTXRetentionSale,"
 					+ "AuthorizeTXAccountLoan,"
+					+ "AuthorizeTXAccountTerm,"
 					+ "AuthorizeTXPurchasePortfolio, "
 					+ "AuthorizeTXSalePortfolio,"
 					+ "AuthorizeTXTransferDue, "
@@ -679,7 +691,7 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXCreditNoteSale,"
 					)
 	})
-	@ReadOnly(forViews = "DEFAULT, "
+	@ReadOnly(forViews = ""
 			+ "AuthorizeTXGeneral,"
 			+ "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
@@ -703,6 +715,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio, "
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
@@ -752,7 +765,6 @@ public class Transaction implements Serializable {
 	// bi-directional many-to-one association to TransactionStatus
 	@ManyToOne
 	@JoinColumn(name = "transaction_status_id", nullable = false)
-	@ReadOnly(forViews = "DEFAULT")
 	@NoCreate
 	@NoModify
 	@Required
@@ -810,6 +822,7 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXRetentionPurchase,"
 							+ "AuthorizeTXRetentionSale,"
 							+ "AuthorizeTXAccountLoan,"
+							+ "AuthorizeTXAccountTerm,"
 							+ "AuthorizeTXPurchasePortfolio, "
 							+ "AuthorizeTXSalePortfolio,"
 							+ "AuthorizeTXTransferDue, "
@@ -923,6 +936,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio, "
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
@@ -972,6 +986,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionPurchase,"
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
+			+ "AuthorizeTXAccountTerm,"
 			+ "AuthorizeTXPurchasePortfolio, "
 			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue,"
@@ -1105,6 +1120,15 @@ public class Transaction implements Serializable {
 	@ReadOnly
 	private AccountLoan accountLoan;
 
+	@Transient
+	@ManyToOne
+	@NoCreate
+	@NoModify
+	@ReferenceView("AuthorizeTXAccountTerm")
+	@NoFrame
+	@ReadOnly
+	private AccountTerm accountTerm;
+	
 	public Transaction() {
 	}
 
@@ -1323,6 +1347,14 @@ public class Transaction implements Serializable {
 
 	public void setValueDate(Date valueDate) {
 		this.valueDate = valueDate;
+	}
+
+	public AccountTerm getAccountTerm() {
+		return XPersistence.getManager().find(AccountTerm.class, creditAccount.getAccountId());
+	}
+
+	public void setAccountTerm(AccountTerm accountTerm) {
+		this.accountTerm = accountTerm;
 	}
 
 	@PreCreate

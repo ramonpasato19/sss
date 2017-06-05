@@ -29,6 +29,7 @@ import com.powerfin.util.*;
 					+ "name;"
 					+ "transactionalName;"
 					+ "openingDate, accountStatus; "
+					+ "operatingCondition; "
 					+ "product;"
 					+ "person;"
 					+ "categoryAccounts"),
@@ -136,6 +137,13 @@ public class Account extends AuditEntity implements Serializable {
 	private Currency currency;
 
 	@ManyToOne
+	@JoinColumn(name="operating_condition_id", nullable=false)
+	@NoCreate
+	@NoModify
+	@DescriptionsList
+	private OperatingCondition operatingCondition;
+	
+	@ManyToOne
 	@JoinColumn(name="person_id")
 	@NoCreate
 	@NoModify
@@ -186,9 +194,11 @@ public class Account extends AuditEntity implements Serializable {
 	@PreCreate
 	public void onCreate() throws Exception 
 	{
-		
 		if (getProduct()==null)
 			throw new OperativeException("the_product_is_required");
+		
+		if (getOperatingCondition()==null)
+			this.setOperatingCondition(product.getOperatingCondition());
 		
 		if (getProduct().getOwnProduct()==Types.YesNoIntegerType.YES)
 			this.setPerson(CompanyHelper.getDefaultPerson());
@@ -361,6 +371,14 @@ public class Account extends AuditEntity implements Serializable {
 		this.cancellationDate = cancellationDate;
 	}
 
+	public OperatingCondition getOperatingCondition() {
+		return operatingCondition;
+	}
+
+	public void setOperatingCondition(OperatingCondition operatingCondition) {
+		this.operatingCondition = operatingCondition;
+	}
+
 	@Transient
 	public String getTransactionalNameForView() {
 		if (transactionalName!=null && !transactionalName.isEmpty())
@@ -376,17 +394,17 @@ public class Account extends AuditEntity implements Serializable {
 		return accountLoan.getInterestRate();
 	}
 	@Transient
-	public BigDecimal getBalance() {
+	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(accountId);
 	}
 	
 	@Transient
-	public BigDecimal getAdvanceBalance() {
+	public BigDecimal getAdvanceBalance() throws Exception {
 		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_CATEGORY);
 	}
 
 	@Transient
-	public BigDecimal getAdvanceSalePortfolioBalance() {
+	public BigDecimal getAdvanceSalePortfolioBalance() throws Exception {
 		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_SALE_PORTFOLIO_CATEGORY);
 	}
 	
@@ -397,7 +415,5 @@ public class Account extends AuditEntity implements Serializable {
 	public void setTotalOverdueBalance(BigDecimal totalOverdueBalance) {
 		this.totalOverdueBalance = totalOverdueBalance;
 	}
-	
-	
-	
+
 }

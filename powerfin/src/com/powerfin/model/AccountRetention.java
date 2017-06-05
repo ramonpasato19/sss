@@ -253,7 +253,7 @@ public class AccountRetention extends AuditEntity {
 		this.companyAccountingDate = companyAccountingDate;
 	}
 	
-	public BigDecimal getBalance() {
+	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(getAccount().getAccountId());
 	}
 }

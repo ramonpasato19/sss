@@ -6,50 +6,74 @@ import java.util.*;
 import org.openxava.jpa.*;
 
 import com.powerfin.model.*;
+import com.powerfin.util.*;
 
 public class BalanceHelper {
 
-	public static BigDecimal getBalance(String accountId)
+	public static BigDecimal getBalance(String accountId) throws Exception
 	{
-		return getBalance(accountId, 0, CategoryHelper.BALANCE_CATEGORY);
+		return getBalance(accountId, 0, CategoryHelper.BALANCE_CATEGORY, null);
 	}
 	
-	public static BigDecimal getBalance(Account account)
+	public static BigDecimal getBalance(String accountId, Date accountingDateToConsult) throws Exception
 	{
-		return getBalance(account.getAccountId(), 0, CategoryHelper.BALANCE_CATEGORY);
+		return getBalance(accountId, 0, CategoryHelper.BALANCE_CATEGORY, accountingDateToConsult);
 	}
 	
-	public static BigDecimal getBalance(Account account, Integer subaccount, Category category)
+	public static BigDecimal getBalance(Account account) throws Exception
 	{
-		return getBalance(account.getAccountId(), subaccount, category.getCategoryId());
+		return getBalance(account.getAccountId(), 0, CategoryHelper.BALANCE_CATEGORY, null);
+	}
+	
+	public static BigDecimal getBalance(Account account, Date accountingDateToConsult) throws Exception
+	{
+		return getBalance(account.getAccountId(), 0, CategoryHelper.BALANCE_CATEGORY, accountingDateToConsult);
+	}
+	
+	public static BigDecimal getBalance(Account account, Integer subaccount, Category category) throws Exception
+	{
+		return getBalance(account.getAccountId(), subaccount, category.getCategoryId(), null);
+	}
+	
+	public static BigDecimal getBalance(Account account, Integer subaccount, Category category, Date accountingDateToConsult) throws Exception
+	{
+		return getBalance(account.getAccountId(), subaccount, category.getCategoryId(), accountingDateToConsult);
+	}
+	
+	public static BigDecimal getBalance(String account, Integer subaccount, String category) throws Exception
+	{
+		return getBalance(account, subaccount, category, null);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static BigDecimal getBalance(String account, Integer subaccount, String category)
+	public static BigDecimal getBalance(String account, Integer subaccount, String category, Date accountingDate) throws Exception
 	{
-		BigDecimal value = null;
+		BigDecimal value = BigDecimal.ZERO;
 		List<Balance> balances = (List<Balance>) XPersistence.getManager().createQuery("select o from Balance o "
 				+ "where o.account.accountId = :account "
 				+ "and o.subaccount = :subaccount "
 				+ "and o.category.categoryId = :category "
-				+ "and o.toDate = :toDate")
+				+ "and :accountingDate between o.fromDate and o.toDate")
 				.setParameter("account", account)
 				.setParameter("category", category)
 				.setParameter("subaccount", subaccount)
-				.setParameter("toDate", com.powerfin.util.UtilApp.DEFAULT_EXPIRY_DATE)
+				.setParameter("accountingDate", accountingDate==null?UtilApp.DEFAULT_EXPIRY_DATE:accountingDate)
 				.getResultList();
-		if (balances!=null && !balances.isEmpty())
-		{
-			Balance balance = balances.get(0);
-			value = balance.getBalance();
-		}
+		
+		if (balances == null || balances.isEmpty())
+	        return null;
+	    
+		for(Balance balance : balances)
+			if (balance.getBalance()!=null)
+				value = value.add(balance.getBalance());
+		
 		return value;
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static BigDecimal getOfficialBalance(Account account, Integer subaccount, Category category) throws Exception
 	{
-		BigDecimal value = null;
+		BigDecimal value = BigDecimal.ZERO;
 		List<Balance> balances = (List<Balance>) XPersistence.getManager().createQuery("select o from Balance o "
 				+ "where o.account.accountId = :account "
 				+ "and o.subaccount = :subaccount "
@@ -60,11 +84,17 @@ public class BalanceHelper {
 				.setParameter("subaccount", subaccount)
 				.setParameter("toDate", com.powerfin.util.UtilApp.DEFAULT_EXPIRY_DATE)
 				.getResultList();
-		if (balances!=null && !balances.isEmpty())
+		
+		if (balances == null || balances.isEmpty()) 
+	        return null;
+		
+		for(Balance balance : balances)
 		{
-			Balance balance = balances.get(0);
-			BigDecimal exchangeRate = ExchangeRateHelper.getExchangeRate(balance.getAccount().getCurrency());
-			value = balance.getBalance().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP).abs();
+			if (balance.getBalance()!=null)
+			{
+				BigDecimal exchangeRate = ExchangeRateHelper.getExchangeRate(balance.getAccount().getCurrency());
+				value = value.add(balance.getBalance().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP));
+			}
 		}
 		return value;
 	}

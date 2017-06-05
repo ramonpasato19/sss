@@ -10,6 +10,7 @@ public class PrintMovementHistory extends ReportBaseAction{
 	@SuppressWarnings("rawtypes")
 	public Map getParameters() throws Exception {
 		Map parameters = new HashMap();
+		addDefaultParameters(parameters);
 		return parameters;
 	}
 	

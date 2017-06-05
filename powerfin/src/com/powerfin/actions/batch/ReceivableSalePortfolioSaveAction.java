@@ -32,7 +32,8 @@ public class ReceivableSalePortfolioSaveAction implements IBatchSaveAction  {
 	@SuppressWarnings("unchecked")
 	public List<Account> getAccountsToProcess(BatchProcess batchProcess)
 	{
-		List<Account> accounts = XPersistence.getManager().createQuery("SELECT a FROM Account a, AccountPaytable pt "
+		List<Account> accounts = XPersistence.getManager().createQuery(
+				"SELECT a FROM Account a, AccountPaytable pt "
 				+ "WHERE pt.dueDate = :dueDate "
 				+ "AND a.accountId = pt.account.accountId "
 				+ "AND pt.account.accountId IN "
@@ -61,23 +62,29 @@ public class ReceivableSalePortfolioSaveAction implements IBatchSaveAction  {
 				.setParameter("dueDate", transaction.getAccountingDate())
 				.getResultList();
 		
-		AccountPaytable quota = accountPaytables.get(0);
-		
-		ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
-		ta.setRemark(XavaResources.getString("interest_quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
-		
-		ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTDIF_CATEGORY), quota.getDueDate());
-		ta.setRemark(XavaResources.getString("interest_quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
-		
-		ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
-		ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
-		
-		ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPDIF_CATEGORY), quota.getDueDate());
-		ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
-		transactionAccounts.add(ta);
+		for (AccountPaytable quota : accountPaytables)
+		{
+			if (quota.getInterest() != null && quota.getInterest().compareTo(BigDecimal.ZERO)>0)
+			{
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("interest_quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTDIF_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("interest_quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
+			if (quota.getCapital() != null && quota.getCapital().compareTo(BigDecimal.ZERO)>0)
+			{
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, 0, quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPDIF_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("capital_quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
+		}
 		
 		return transactionAccounts;
 	}

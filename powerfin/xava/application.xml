@@ -584,6 +584,22 @@
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END TXGeneral ######################################## -->
+<!-- BEGIN TXAccountTerm ######################################## -->
+	<module name="RequestTXAccountTerm">
+		<model name="AccountTerm" />
+		<controller name="RequestTXAccountTermController" />
+		<view name="RequestTXAccountTerm" />
+		<tab name="RequestTXAccountTerm" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXAccountTerm">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXAccountTermController" />
+		<view name="AuthorizeTXAccountTerm" />
+		<tab name="TXAccountTerm" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXAccountTerm ######################################## -->
 <!-- BEGIN TXLoan ######################################## -->
 	<module name="RequestTXAccountLoan">
 		<model name="AccountLoan" />
@@ -703,6 +719,13 @@
 		<controller name="ConsultAccountLoanController" />
 		<tab name="ConsultAccountLoan" />
 		<view name="ConsultAccountLoan" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="ConsultAccountTerm">
+		<model name="AccountTerm" />
+		<controller name="ConsultAccountTermController" />
+		<tab name="ConsultAccountTerm" />
+		<view name="ConsultAccountTerm" />
 		<mode-controller name="DetailList" />
 	</module>
 	<module name="ConsultOriginationPortfolio">

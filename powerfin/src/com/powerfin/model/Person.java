@@ -28,9 +28,11 @@ import com.powerfin.model.superclass.*;
 			+ "accountPayables{accountPayables};"
 			+ "purchaseInvoices{purchaseInvoices};"
 			+ "saleInvoices{saleInvoices};"
-			+ "loans{loans};"),
+			+ "loans{loans};"
+			+ "investments{investments};"),
 	@View(name = "Reference", members = "personId;" + "identification; " + "name;" + "personType;" + "email"),
 	@View(name = "LoanReference", members = "personId;" + "identification; " + "name;" + "personType;" + "email;" + "accountPayables"),
+	@View(name = "TermReference", members = "personId;" + "identification; " + "name;" + "personType;" + "email;" + "accountPayables"),
 	@View(name = "ShortReference", members = "personId;" + "identification; " + "name;" ),
 	@View(name = "simple", members = "identification, name;") 
 })
@@ -47,7 +49,7 @@ public class Person extends AuditEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequence_id")
 	@SequenceGenerator(name = "sequence_id", sequenceName = "person_sequence", allocationSize = 1)
 	@Hidden
-	@ReadOnly(notForViews = "Reference, ShortReference, LoanReference")
+	@ReadOnly(notForViews = "Reference, ShortReference, LoanReference, TermReference")
 	private Integer personId;
 
 	@Column(length = 100)
@@ -162,6 +164,11 @@ public class Person extends AuditEntity implements Serializable {
 	@ReadOnly
 	@ListProperties("accountId, currency, product.name")
 	private List<Account> loans;
+	
+	@Transient
+	@ReadOnly
+	@ListProperties("accountId, currency, product.name")
+	private List<Account> investments;
 	
 	public Person() {
 	}
@@ -501,10 +508,10 @@ public class Person extends AuditEntity implements Serializable {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
 						+ "WHERE o.person.personId=:personId "
-						+ "AND o.product.productType.productTypeId=:productTypeId "
+						+ "AND o.product.productType.productClass.productClassId = :productClassId "
 						+ "AND o.accountStatus.accountStatusId=:accountStatusId ")
 				.setParameter("personId", personId)
-				.setParameter("productTypeId", "200")
+				.setParameter("productClassId", ProductClassHelper.VIEW)
 				.setParameter("accountStatusId", AccountPayableHelper.STATUS_PAYABLE_ACTIVE)
 				.getResultList();
 	}
@@ -514,14 +521,26 @@ public class Person extends AuditEntity implements Serializable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Account> getLoans() {
+	public List<Account> getInvestments() {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
-						+ "WHERE o.product.productType.productTypeId = :productTypeId "
+						+ "WHERE o.product.productType.productClass.productClassId = :productClassId "
 						+ "AND o.accountStatus.accountStatusId in ('002') "
 						+ "AND o.person.personId=:personId ")
 				.setParameter("personId", personId)
-				.setParameter("productTypeId", "103")
+				.setParameter("productClassId", ProductClassHelper.TERM)
+				.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Account> getLoans() {
+		return (List<Account>) XPersistence.getManager()
+				.createQuery("SELECT o FROM Account o " 
+						+ "WHERE o.product.productType.productClass.productClassId = :productClassId "
+						+ "AND o.accountStatus.accountStatusId in ('002') "
+						+ "AND o.person.personId=:personId ")
+				.setParameter("personId", personId)
+				.setParameter("productClassId", ProductClassHelper.LOAN)
 				.getResultList();
 	}
 	

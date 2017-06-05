@@ -167,7 +167,10 @@ public class NegotiationProcessLoan {
 			accountLoan.setDisbursementDate(accountLoan.getIssueDate());
 			accountLoan.setDisbursementAccount(accountPayable);
 			accountLoan.setContractNumber(loanDTO.getOriginalAccount());
-			accountLoan.setDaysGrace(Integer.parseInt(loanDTO.getDaysGrace()));
+			accountLoan.setDaysGrace(productLoan.getDaysGrace());
+			accountLoan.setDaysGraceCollectionFee(productLoan.getDaysGraceCollectionFee());
+			accountLoan.setApplyDefaultInterestAccrued(productLoan.getApplyDefaultInterestAccrued());
+			accountLoan.setApplyAutomaticDebit(productLoan.getApplyAutomaticDebit());
 			accountLoan.setPerson(person);
 			accountLoan.setProduct(productPayable);
 			if(!UtilApp.isNullOrEmpty(loanDTO.getInsuranceAccountId()))

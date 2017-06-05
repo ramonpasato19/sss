@@ -33,6 +33,7 @@ public class NegotiationProcessPayTable {
 		List<AccountLoan> accountsLoan = null;
         BufferedReader br = null;
         String delimiter = "\t";
+        String accountOld = "0";
         int daysPreviousPeriod = 0;
         int lineNumber = 1;
         int row=0;
@@ -45,9 +46,10 @@ public class NegotiationProcessPayTable {
 	        		dataLine = line.split(delimiter);
 	                validationMessages = NegotiationHelper.validateFieldsLoanPayTable(dataLine);
 	                if(validationMessages.equals(NegotiationHelper.MESSAGE_OK)){
-	                	tableDTO = new NegotiationPaytableDTO(dataLine); 
-	        		
-	                	if(Integer.parseInt(tableDTO.getQuotaNumber()) == 1)
+
+	                	tableDTO = new NegotiationPaytableDTO(dataLine);
+	                	
+	                	if(!tableDTO.getOriginalAccount().equals(accountOld))
 	                	{
 	                		accountsPortfolio = (List<AccountPortfolio>) XPersistence.getManager()
 			     				.createQuery("select a from AccountPortfolio a where a.accountId = :accountId")  
@@ -65,11 +67,12 @@ public class NegotiationProcessPayTable {
 			        		}
 		                	else
 			        			validationMessages=XavaResources.getString("account_loan_not_found_for_create_account_paytable", tableDTO.getOriginalAccount());
-		                	
+		                	daysPreviousPeriod = 0;
 		                	deleteAccountPayTable();
 	                	}
 	                	
 	                	daysPreviousPeriod = createAccountPayTable(daysPreviousPeriod);	                	
+	                	accountOld = tableDTO.getOriginalAccount();
 	                }
 	                NegotiationHelper.createNegotiationOutput(negotiationFile, lineNumber, validationMessages, null);
 	        	}
@@ -155,10 +158,9 @@ public class NegotiationProcessPayTable {
 		BigDecimal currentProvision = dailyProvision.multiply(new BigDecimal(daysCurrentPeriod));
 		BigDecimal accumulatedProvision = currentProvision.subtract(oldProvision).setScale(2, RoundingMode.HALF_UP);
 		return accumulatedProvision;
-		
 	}
 	private void deleteAccountPayTable(){
-				
+
 		XPersistence.getManager().createQuery("DELETE FROM AccountPaytable o "
 				+ "WHERE o.accountId=:accountId ")
 		.setParameter("accountId", accountPortfolio.getAccountId())

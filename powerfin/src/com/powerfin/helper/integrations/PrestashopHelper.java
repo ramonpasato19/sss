@@ -259,7 +259,7 @@ public class PrestashopHelper {
 		}
 		Tax tax = null;
 		if (result.getBigDecimal("tax_amount").compareTo(BigDecimal.ZERO) > 0)
-			tax = XPersistence.getManager().find(Tax.class, "IVA14");
+			tax = XPersistence.getManager().find(Tax.class, XPersistence.getManager().find(Parameter.class, "IVA_PERCENTAGE").getValue());
 		else
 			tax = XPersistence.getManager().find(Tax.class, "IVA0");
 		accountInvoiceDetail.setTax(tax);

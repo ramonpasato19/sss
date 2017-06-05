@@ -17,6 +17,10 @@ public class AccountingClosingDayAction extends SaveAction {
 		Date accountingDate = (Date)getView().getRoot().getValue("accountingDate");
 		Date nextAccountingDate = (Date)getView().getRoot().getValue("nextAccountingDate");
 		
+		generateBalanceAccounting(accountingDate);
+		
+		cleanAccountOverdueBalance();
+		
 		List<BatchProcessType> batchProcessTypes= XPersistence.getManager()
 				.createQuery("SELECT o FROM BatchProcessType o "
 				+ "WHERE o.activated = :activated ")
@@ -57,11 +61,21 @@ public class AccountingClosingDayAction extends SaveAction {
 				XPersistence.getManager().persist(newBatchProcess);
 			}
 			
-			BalanceAccountingHelper.generateBalanceSheet(accountingDate);
-			
 			XPersistence.commit();
 			getView().refresh();
 			addMessage("accountingDate_updated_correctly");
 		}
+	}
+	
+	private void generateBalanceAccounting(Date accountingDate)
+	{
+		BalanceAccountingHelper.generateBalanceSheet(accountingDate);
+	}
+	
+	private void cleanAccountOverdueBalance()
+	{
+		XPersistence.getManager()
+		.createQuery("DELETE FROM AccountOverdueBalance o")
+		.executeUpdate();
 	}
 }

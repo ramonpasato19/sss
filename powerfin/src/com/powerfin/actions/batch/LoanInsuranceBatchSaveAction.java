@@ -61,37 +61,38 @@ public class LoanInsuranceBatchSaveAction implements IBatchSaveAction  {
 				.setParameter("dueDate", transaction.getAccountingDate())
 				.getResultList();
 		
-		AccountPaytable quota = accountPaytables.get(0);
-		
-		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, quota.getAccountId());
-		
-		if (quota.getInsurance()!=null && quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
+		for (AccountPaytable quota : accountPaytables)
 		{
-			if (accountLoan.getInsuranceAccount()==null)
-				throw new OperativeException ("insurance_account_not_found", accountLoan.getAccountId());
+		
+			AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, quota.getAccountId());
 			
-			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
-			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-			transactionAccounts.add(ta);
-			
-			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getInsuranceAccount(), quota.getInsurance(), transaction);
-			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-			transactionAccounts.add(ta);
+			if (quota.getInsurance()!=null && quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
+			{
+				if (accountLoan.getInsuranceAccount()==null)
+					throw new OperativeException ("insurance_account_not_found", accountLoan.getAccountId());
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getInsuranceAccount(), quota.getInsurance(), transaction);
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
+			if (quota.getInsuranceMortgage()!=null && quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
+			{
+				if (accountLoan.getMortgageAccount()==null)
+					throw new OperativeException ("mortgage_account_not_found", accountLoan.getAccountId());
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getMortgageAccount(), quota.getInsuranceMortgage(), transaction);
+				ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
 		}
-		if (quota.getInsuranceMortgage()!=null && quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
-		{
-			if (accountLoan.getMortgageAccount()==null)
-				throw new OperativeException ("mortgage_account_not_found", accountLoan.getAccountId());
-			
-			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
-			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-			transactionAccounts.add(ta);
-			
-			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getMortgageAccount(), quota.getInsuranceMortgage(), transaction);
-			ta.setRemark(XavaResources.getString("quota_number", quota.getSubaccount()));
-			transactionAccounts.add(ta);
-		}
-
 		return transactionAccounts;
 	}
 }

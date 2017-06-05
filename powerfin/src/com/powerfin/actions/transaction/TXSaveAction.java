@@ -125,21 +125,22 @@ public class TXSaveAction extends SaveAction{
 			// Find the just saved transaction
             Map keyValues = getView().getKeyValues(); 
             Transaction transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues); 
+            getTransactionAccounts(transaction);
             boolean financialProcessed = false;
 			
             // Ejecute pre actions
             preSaveAction(transaction);
             
             // Process Transaction
-            if (TransactionHelper.isFinancialSaved(transaction))
-            {
-            	if (transaction.getTransactionAccounts()!=null && !transaction.getTransactionAccounts().isEmpty())
-            		financialProcessed = TransactionHelper.processTransaction(transaction);
-            	else
-            		financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
-            }
+            if (TransactionHelper.isRequest(transaction))
+            	financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
             else
-               	financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+            {
+            	if (TransactionHelper.isFinancialSaved(transaction) && transaction.getTransactionAccounts().isEmpty())
+            		financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+	        	else
+	        		financialProcessed = TransactionHelper.processTransaction(transaction);
+            }
            
 			if (financialProcessed)
 				addMessage("financial_created");

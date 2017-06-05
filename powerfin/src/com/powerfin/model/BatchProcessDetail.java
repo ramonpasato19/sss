@@ -16,7 +16,17 @@ import org.openxava.annotations.*;
  */
 @Entity
 @Table(name="batch_process_detail")
-
+@Views({
+	@View(members="batchProcessDetailId;"
+			+ "batchProcess;"
+			+ "account;"
+			+ "batchProcessStatus;"
+			+ "errorMessage"),
+	@View(name="Reference", members="account;"
+			+ "batchProcessStatus;"
+			+ "errorMessage"),
+})
+		
 public class BatchProcessDetail implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -28,10 +38,14 @@ public class BatchProcessDetail implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name="batch_process_id", nullable=false)
+	@ReferenceView("Reference")
+	@ReadOnly(forViews="Reference")
 	private BatchProcess batchProcess;
 	
 	@ManyToOne
 	@JoinColumn(name="account_id", nullable=false)
+	@ReferenceView("simple")
+	@ReadOnly(forViews="Reference")
 	private Account account;
 
 	@ManyToOne
@@ -39,9 +53,11 @@ public class BatchProcessDetail implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
+	@ReadOnly(forViews="Reference")
 	private BatchProcessStatus batchProcessStatus;
 	
 	@Column(name="error_message", length = 4000)
+	@ReadOnly(forViews="Reference")
 	private String errorMessage;
 
 	public BatchProcessDetail() {

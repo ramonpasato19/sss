@@ -756,7 +756,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		return value;
 	}
 	
-	public BigDecimal getBalance() {
+	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(getAccount().getAccountId());
 	}
 }

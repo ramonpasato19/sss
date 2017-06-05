@@ -22,6 +22,10 @@ import com.powerfin.helper.*;
 			+ "batchProcessType;"
 			+ "batchProcessStatus;"
 			+ "batchProcessDetails;"),
+	@View(name="Reference", members="batchProcessId,"
+			+ "accountingDate; "
+			+ "batchProcessType, "
+			+ "batchProcessStatus;"),
 	@View(name="Execute", members="batchProcessId;"
 			+ "accountingDate; "
 			+ "batchProcessType;"
@@ -66,6 +70,7 @@ public class BatchProcess implements Serializable {
 	
 	@OneToMany(mappedBy="batchProcess")
 	@ListProperties("account.accountId, batchProcessStatus.name, errorMessage")
+	@CollectionView("Reference")
 	@ReadOnly
 	private List<BatchProcessDetail> batchProcessDetails;
 	

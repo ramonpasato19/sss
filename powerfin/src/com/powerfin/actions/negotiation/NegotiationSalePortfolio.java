@@ -62,7 +62,8 @@ public class NegotiationSalePortfolio {
 			     				.getResultList();
 		            	
 		        		payTables = XPersistence.getManager()
-		         				.createQuery("select a from AccountPaytable a where a.accountId = :accountId")  
+		         				.createQuery("select a from AccountPaytable a where a.accountId = :accountId "
+		         						+ "order by a.subaccount")  
 		         				.setParameter("accountId", loanDTO.getOriginalAccount())
 		         				.getResultList();
 		        		

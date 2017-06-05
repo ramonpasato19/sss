@@ -33,7 +33,8 @@ import com.powerfin.model.types.*;
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
 				+ "period;"
-				+ "daysGrace, daysGraceCollectionFee"
+				+ "daysGrace, daysGraceCollectionFee;"
+				+ "applyAutomaticDebit;"
 				+ "applyDefaultInterestAccrued;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
@@ -80,7 +81,8 @@ import com.powerfin.model.types.*;
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
 				+ "period;"
-				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "insuranceMortgageAmount, insuranceAmount;"
+				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
@@ -102,7 +104,8 @@ import com.powerfin.model.types.*;
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
 				+ "period;"
-				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "insuranceMortgageAmount, insuranceAmount;"
+				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
@@ -124,7 +127,8 @@ import com.powerfin.model.types.*;
 				+ "frecuency, quotasNumber;"
 				+ "startDatePayment, paymentDay;"
 				+ "period;"
-				+ "insuranceMortgageAmount, insuranceAmount"
+				+ "insuranceMortgageAmount, insuranceAmount;"
+				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
@@ -248,7 +252,12 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	private Integer insuranceQuotasNumber;
 	
 	@Column(name="apply_default_interest_accrued")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Types.YesNoIntegerType applyDefaultInterestAccrued;
+	
+	@Column(name="apply_automatic_debit")
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
+	private Types.YesNoIntegerType applyAutomaticDebit;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="start_date_payment")
@@ -702,6 +711,14 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		this.projectedAccountingDate = projectedAccountingDate;
 	}
 
+	public Types.YesNoIntegerType getApplyAutomaticDebit() {
+		return applyAutomaticDebit;
+	}
+
+	public void setApplyAutomaticDebit(Types.YesNoIntegerType applyAutomaticDebit) {
+		this.applyAutomaticDebit = applyAutomaticDebit;
+	}
+
 	public String getMortgageInsurerName()
 	{
 		if (this.insuranceAccount!=null)
@@ -822,8 +839,9 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		
 		setDaysGraceCollectionFee(getProduct().getDaysGraceCollectionFee());
 		
-		if (getApplyDefaultInterestAccrued()==null)
-			setApplyDefaultInterestAccrued(getProduct().getApplyDefaultInterestAccrued());
+		setApplyDefaultInterestAccrued(getProduct().getApplyDefaultInterestAccrued());
+		
+		setApplyAutomaticDebit(getProduct().getApplyAutomaticDebit());
 		
 		if (originalAmount==null)
 			originalAmount=amount;

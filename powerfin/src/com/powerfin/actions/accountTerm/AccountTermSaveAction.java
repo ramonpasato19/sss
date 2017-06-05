@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountTerm;
 
 import java.util.*;
 
@@ -13,7 +13,7 @@ import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
-public class AccountLoanSaveAction extends SaveAction{
+public class AccountTermSaveAction extends SaveAction{
 
 	private String accountStatusId;
 	private boolean isCreateAccount;
@@ -47,21 +47,21 @@ public class AccountLoanSaveAction extends SaveAction{
 			addMessage("account_modified", account.getClass().getName());
 		}
 
-		// Create/Update Account Loan
+		// Create/Update Account Term
 		super.execute();
 		
 		if (getErrors().isEmpty()) {
 			accountId = getView().getValueString("accountId");
-			AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountId);
+			AccountTerm accountTerm = XPersistence.getManager().find(AccountTerm.class, accountId);
 	        
-			installment(accountLoan);
+			installment(accountTerm);
 			
             TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, 
-            		AccountLoanHelper.LOAN_DISBURSEMENT_TRANSACTION_MODULE);
+            		AccountTermHelper.TERM_OPENING_TRANSACTION_MODULE);
             List<Transaction> transactions =  (List<Transaction>)XPersistence.getManager().createQuery("SELECT o FROM Transaction o "
-    				+ "WHERE o.transactionModule=:transactionModule AND o.debitAccount=:account")
+    				+ "WHERE o.transactionModule=:transactionModule AND o.creditAccount=:account")
     				.setParameter("transactionModule", tm)
-    				.setParameter("account", accountLoan.getAccount())
+    				.setParameter("account", accountTerm.getAccount())
     				.getResultList();
             
             if (transactions.isEmpty())
@@ -69,16 +69,16 @@ public class AccountLoanSaveAction extends SaveAction{
             	Transaction transaction = TransactionHelper.getNewInitTransaction();
      			transaction.setTransactionModule(tm);
      			transaction.setTransactionStatus(tm.getDefaultTransactionStatus());
-     			transaction.setValue(accountLoan.getAmount());
-     			transaction.setRemark(accountLoan.getAccount().getAccountId());
-     			transaction.setDebitAccount(accountLoan.getAccount());
-     			transaction.setCurrency(accountLoan.getAccount().getCurrency());
+     			transaction.setValue(accountTerm.getAmount());
+     			transaction.setRemark(accountTerm.getAccount().getAccountId());
+     			transaction.setCreditAccount(accountTerm.getAccount());
+     			transaction.setCurrency(accountTerm.getAccount().getCurrency());
      			
      			XPersistence.getManager().persist(transaction);
             }
             else if (transactions.size()>1)
             {
-            	throw new InternalException("multiple_transactions_over_account_in_module", accountLoan.getAccountId(), tm.getTransactionModuleId());
+            	throw new InternalException("multiple_transactions_over_account_in_module", accountTerm.getAccountId(), tm.getTransactionModuleId());
             	
             }
             else
@@ -86,10 +86,10 @@ public class AccountLoanSaveAction extends SaveAction{
             	Transaction transaction = (Transaction)transactions.get(0);
             	transaction.setTransactionModule(tm);
      			transaction.setTransactionStatus(tm.getDefaultTransactionStatus());
-     			transaction.setValue(accountLoan.getAmount());
-     			transaction.setRemark(accountLoan.getAccount().getAccountId());
-     			transaction.setDebitAccount(accountLoan.getAccount());
-     			transaction.setCurrency(accountLoan.getAccount().getCurrency());
+     			transaction.setValue(accountTerm.getAmount());
+     			transaction.setRemark(accountTerm.getAccount().getAccountId());
+     			transaction.setCreditAccount(accountTerm.getAccount());
+     			transaction.setCurrency(accountTerm.getAccount().getCurrency());
      			
      			XPersistence.getManager().merge(transaction);
      			
@@ -112,9 +112,8 @@ public class AccountLoanSaveAction extends SaveAction{
 		
 	}
 	
-	private void installment(AccountLoan accountLoan)
+	private void installment(AccountTerm accountTerm)
 	{
-		new Installment().execute(accountLoan, null);
-		
+		new TermInstallment().execute(accountTerm, null);
 	}
 }

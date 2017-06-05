@@ -23,8 +23,9 @@ public class DownloadInvoicePrestashop extends SaveAction {
 		String url = ParameterHelper.getValue("URL_PRESTASHOP_"+getSequence());
 		String prefix = ParameterHelper.getValue("PREFIX_PRESTASHOP_"+getSequence());
 		
+		ConnectionManager conection=new ConnectionManager(driverName, url, host, user, password, database);
+		
 		try {
-			 ConnectionManager conection=new ConnectionManager(driverName, url, host, user, password, database);
 			 conection.createConnection();
 			 PrestashopHelper helper=new PrestashopHelper(prefix);
 			 Date fromDate = (Date)getView().getValue("fromDate");
@@ -35,7 +36,10 @@ public class DownloadInvoicePrestashop extends SaveAction {
 			 if(helper.getErrors().length()>0)
 				 System.out.println("Error Invoice: "+helper.getErrors());
 			 conection.commit();
+			 conection.closeConnection();
 		  } catch (Exception e) {
+			  if(conection.getConnection()!=null)
+  				  conection.closeConnection();
 			 throw new XavaException("no_connection");
 		  }
 	}

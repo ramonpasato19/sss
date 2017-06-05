@@ -1,5 +1,6 @@
 package com.powerfin.helper;
 
+import java.math.*;
 import java.util.*;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import com.powerfin.model.types.*;
 public class AccountHelper {
 
 	public final static String AUTO_ACCOUNT_ID = "AUTO";
+	public final static String DEFAULT_OPERATING_CONDITION_ID = "001";
 	
 	public static Account updateAccount(Account account)  throws Exception 
 	{
@@ -147,4 +149,52 @@ public class AccountHelper {
 		return accountStatus;
 	}
 
+	public static OperatingCondition getDefaultOperatingCondition() throws Exception
+	{
+		return XPersistence.getManager().find(OperatingCondition.class, AccountHelper.DEFAULT_OPERATING_CONDITION_ID);
+	}
+	
+	public static BigDecimal getDailyProvision(AccountPaytable quota, Date accountingDate) throws Exception
+	{
+		BigDecimal finalProvision = BigDecimal.ZERO;
+		BigDecimal aux = BigDecimal.ZERO;
+		int daysPassed = 0;
+		Calendar startDateCalendar = GregorianCalendar.getInstance();
+		Calendar accountingDateCalendar = GregorianCalendar.getInstance();
+		
+		accountingDateCalendar.setTime(accountingDate);
+		startDateCalendar.add(Calendar.DAY_OF_MONTH, quota.getProvisionDays()*-1);
+
+		if (quota.getDueDate().before(accountingDate))
+			throw new OperativeException("due_date_is_less_than_accounting_date", quota.getAccountId(), quota.getSubaccount(), quota.getDueDate());
+		
+		if (accountingDateCalendar.before(startDateCalendar))
+			throw new OperativeException("accounting_date_is_less_than_or_equal_to_start_date", quota.getAccountId(), quota.getSubaccount(), quota.getDueDate());
+		
+		if (quota.getSubaccount() == null || quota.getSubaccount() <= 0)
+			throw new OperativeException("quota_is_null_or_less_than_zero", quota.getAccountId(), quota.getSubaccount());
+		
+		if (quota.getInterest() == null || quota.getInterest().compareTo(BigDecimal.ZERO) == 0)
+			return finalProvision;
+		
+		if (quota.getProvisionDays() == null || quota.getProvisionDays() <= 0 )
+			throw new OperativeException("provision_days_is_null_or_less_than_zero", quota.getAccountId(), quota.getSubaccount(), quota.getProvisionDays());
+		
+		long difms=accountingDateCalendar.getTimeInMillis() - startDateCalendar.getTimeInMillis();
+		long difd=difms / (1000 * 60 * 60 * 24);
+		
+		daysPassed = new Long(difd).intValue();
+		
+		BigDecimal provisionDaily = quota.getInterest().divide(new BigDecimal(quota.getProvisionDays()),6,RoundingMode.HALF_UP);
+		finalProvision = provisionDaily.multiply(new BigDecimal(daysPassed));
+		/*
+		aux2 = provisionDaily.multiply(new BigDecimal(daysPassed-1)).setScale(2, RoundingMode.HALF_UP);
+		finalProvision = aux1.subtract(aux2).setScale(2, RoundingMode.HALF_UP);
+		*/
+		aux = BalanceHelper.getBalance(quota.getAccount().getAccountId(), quota.getSubaccount(), CategoryHelper.INTEREST_PR_CATEGORY);
+		if (aux!=null)
+			finalProvision = finalProvision.subtract(aux).setScale(2, RoundingMode.HALF_UP);
+		
+		return finalProvision;
+	}
 }

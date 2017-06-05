@@ -1,6 +1,5 @@
 package com.powerfin.helper;
 
-import java.math.*;
 import java.sql.*;
 import java.util.*;
 
@@ -9,11 +8,13 @@ import org.openxava.model.*;
 import org.openxava.util.*;
 import org.openxava.validators.*;
 
+import com.powerfin.exception.*;
 import com.powerfin.model.*;
 
 public class TransactionHelper {
 
 	public final static String TRANSACTION_ANNULLED_STATUS_ID = "003";
+	public final static String TRANSACTION_REQUEST_STATUS_ID = "001";
 	
 	public static Account getAccountByPosition(Transaction transaction, int index) throws Exception{
 		if (transaction.getTransactionAccounts()==null)
@@ -60,18 +61,15 @@ public class TransactionHelper {
 			List<TransactionAccount> transactionAccounts
 			) throws Exception
 	{
-		if (transactionAccounts == null)
-			return processTransaction(transaction);
-
 		List<TransactionAccount> transactionAccountSaved = new ArrayList<TransactionAccount>();
-		
-		//Clean Transaction Accounts
+
+		//Clean Old Transaction Accounts
 		XPersistence.getManager().createQuery("DELETE FROM TransactionAccount ta "
 					+ "WHERE ta.transaction.transactionId = :transactionId")
 				.setParameter("transactionId", transaction.getTransactionId())
 				.executeUpdate();
 		
-		//Save Transaction Accounts
+		//Save New Transaction Accounts
 		for (TransactionAccount ta : transactionAccounts)
 		{
 			ta.setTransaction(transaction);
@@ -80,71 +78,23 @@ public class TransactionHelper {
 		}
 		
 		transaction.setTransactionAccounts(transactionAccountSaved);
+
+		return processTransaction(transaction);
 		
-		processTransaction(transaction);
-		
-		return false;
 	}
 	
 	public static boolean processTransaction(Transaction transaction) throws Exception
-	{		
+	{
 		//Save Financial
 		if (isFinancialSaved(transaction))
 		{
+			if (transaction.getTransactionAccounts()==null || transaction.getTransactionAccounts().isEmpty())
+				throw new OperativeException("unable_to_process_transaction_without_detail_of_accouts");
+			
 			FinancialHelper.saveFinancial(transaction);
 			return true;
 		}
 		return false;
-	}
-	
-	public static void saveTransaction(Transaction transaction, 
-			boolean isNewTransaction, 
-			BigDecimal value, 
-			String remark, 
-			String transactionSubmoduleName, 
-			String transactionStatusId,
-			List<TransactionAccount> transactionAccounts) throws Exception
-	{
-		TransactionStatus transactionStatus = (TransactionStatus)XPersistence.getManager()
-				.find(TransactionStatus.class, transactionStatusId);
-		
-		TransactionModule transactionModule = (TransactionModule)XPersistence.getManager()
-				.find(TransactionModule.class, transactionSubmoduleName);
-		
-		transaction.setTransactionModule(transactionModule);
-		transaction.setValue(value);
-		transaction.setRemark(remark);
-		
-		//Set Transaction Status.
-		if (transactionStatus!=null)
-			transaction.setTransactionStatus(transactionStatus);
-		else
-			transaction.setTransactionStatus(transactionModule.getDefaultTransactionStatus());
-		
-		//Set Voucher on create Transaction
-		if (isNewTransaction)
-			transaction.setVoucher(TransactionHelper.getNewVoucher(transactionModule));
-		
-		//Create or Update Transaction
-		if (isNewTransaction)		
-			XPersistence.getManager().persist(transaction);
-		else
-			XPersistence.getManager().merge(transaction);
-		
-		//Clean Transaction Accounts
-		for (TransactionAccount ta : transaction.getTransactionAccounts())
-			XPersistence.getManager().remove(ta);
-		
-		//Save Transaction Accounts
-		for (TransactionAccount ta : transactionAccounts)
-		{
-			ta.setTransaction(transaction);
-			XPersistence.getManager().persist(ta);
-		}
-		
-		//Save Financial
-		if (transactionStatus.equals(transactionModule.getFinancialTransactionStatus()))
-			FinancialHelper.saveFinancial(transaction);
 	}
 	
 	public static String getNewVoucher(TransactionModule transactionModule) throws Exception
@@ -206,6 +156,13 @@ public class TransactionHelper {
 	public static boolean isFinancialSaved(Transaction transaction)
 	{
 		if (transaction.getTransactionStatus().equals(transaction.getTransactionModule().getFinancialTransactionStatus()))
+			return true;
+		return false;
+	}
+	
+	public static boolean isRequest(Transaction transaction)
+	{
+		if (transaction.getTransactionStatus().getTransactionStatusId().equals(TransactionHelper.TRANSACTION_REQUEST_STATUS_ID))
 			return true;
 		return false;
 	}
