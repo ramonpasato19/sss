@@ -71,27 +71,27 @@ public class AccountInvoiceDetail {
 	@JoinColumn(name = "account_invoice_id", nullable = false)
 	private AccountInvoice accountInvoice;
 
-	@Column(name = "unit_price", nullable = false, precision=13, scale=4)
+	@Column(name = "unit_price", nullable = false, precision=15, scale=6)
 	@Required
 	@DecimalMin(value="0.00")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal unitPrice;
 
-	@Column(name = "discount", nullable = false, precision=13, scale=4)
+	@Column(name = "discount", nullable = false, precision=15, scale=6)
 	@DecimalMin(value="0.00")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
 	
-	@Column(name = "quantity", nullable = false, precision=13, scale=4)
+	@Column(name = "quantity", nullable = false, precision=15, scale=6)
 	@Required
 	@DecimalMin(value="0.01")
 	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal quantity;
 
-	@Column(name = "original_cost", nullable = true, precision=13, scale=4)
+	@Column(name = "original_cost", nullable = true, precision=15, scale=6)
 	private BigDecimal originalCost;
 	
-	@Column(name = "original_price", nullable = true, precision=13, scale=4)
+	@Column(name = "original_price", nullable = true, precision=15, scale=6)
 	private BigDecimal originalPrice;
 	
 	@Column(name = "remark", nullable = true)
@@ -309,7 +309,7 @@ public class AccountInvoiceDetail {
 			amount = getQuantity().multiply(getUnitPrice());
 		if (hasDiscount())
 			amount = amount.subtract(getDiscount());
-		return amount.setScale(4, RoundingMode.HALF_UP);
+		return amount.setScale(6, RoundingMode.HALF_UP);
 	}
 		
 	public boolean hasDiscount()
