@@ -1,10 +1,8 @@
 package com.powerfin.model;
 
 import java.math.*;
-import java.util.*;
 
 import javax.persistence.*;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.*;
@@ -74,18 +72,15 @@ public class AccountInvoiceDetail {
 	@Column(name = "unit_price", nullable = false, precision=15, scale=6)
 	@Required
 	@DecimalMin(value="0.00")
-	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal unitPrice;
 
 	@Column(name = "discount", nullable = false, precision=15, scale=6)
 	@DecimalMin(value="0.00")
-	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal discount;
 	
 	@Column(name = "quantity", nullable = false, precision=15, scale=6)
 	@Required
 	@DecimalMin(value="0.01")
-	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal quantity;
 
 	@Column(name = "original_cost", nullable = true, precision=15, scale=6)
@@ -96,11 +91,6 @@ public class AccountInvoiceDetail {
 	
 	@Column(name = "remark", nullable = true)
 	private String remark;
-	
-	@OneToMany(mappedBy="accountInvoiceDetail", cascade = CascadeType.ALL)
-	@AsEmbedded
-	@ListProperties("tax.name, taxBase, taxPercentage, amount")
-	private List<AccountInvoiceDetailTax> taxes;
 		
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "tax_id", nullable = false)
@@ -108,7 +98,6 @@ public class AccountInvoiceDetail {
 	@NoCreate
 	@NoModify
 	@ReferenceView(value="Simple")
-	//@OnChange(CalculateAmountsOnDetail.class)
 	@SearchActions({
 		@SearchAction(forViews="InvoicePurchase",value="SearchTax.SearchTaxForInvoicePurchase"),
 		@SearchAction(forViews="InvoiceSale",value="SearchTax.SearchTaxForInvoiceSale"),
@@ -119,7 +108,6 @@ public class AccountInvoiceDetail {
 	
 	@Column(name = "tax_adjust", nullable = false, precision=11, scale=2)
 	@DecimalMin(value="0.00")
-	//@OnChange(CalculateAmountsOnDetail.class)
 	private BigDecimal taxAdjust;
 	
 	@Column(name = "tax_percentage", nullable = false, precision=11, scale=2)
@@ -208,14 +196,6 @@ public class AccountInvoiceDetail {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
-	}
-
-	public List<AccountInvoiceDetailTax> getTaxes() {
-		return taxes;
-	}
-
-	public void setTaxes(List<AccountInvoiceDetailTax> taxes) {
-		this.taxes = taxes;
 	}
 
 	public Tax getTax() {
@@ -326,7 +306,6 @@ public class AccountInvoiceDetail {
 		return false;
 	}
 	
-	//@Depends("unitPrice, quantity, discount, tax.percentage")
 	public BigDecimal calculateFinalAmount() {
 		BigDecimal finalAmountCalc = calculateAmount().setScale(2, RoundingMode.HALF_UP);
 		BigDecimal aux = calculateAmount().setScale(2, RoundingMode.HALF_UP);

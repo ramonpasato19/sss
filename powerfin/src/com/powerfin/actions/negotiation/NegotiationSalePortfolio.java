@@ -19,7 +19,7 @@ public class NegotiationSalePortfolio {
 	private AccountPortfolio accountPortfolio = null;
 	private AccountLoan accountLoan = null;
 	List<AccountPaytable> payTables;
-
+	private AccountStatus portfolioStatus = null; 
 	
 	String[] dataLine;
 	String validationMessages;
@@ -52,6 +52,7 @@ public class NegotiationSalePortfolio {
 	                	loanDTO = new NegotiationSalePortfolioDTO(dataLine); 
 	                		        		
 		        		transactionModule = XPersistence.getManager().find(TransactionModule.class,	AccountLoanHelper.SALE_PORTFOLIO_TRANSACTION_MODULE);
+		        		portfolioStatus =  XPersistence.getManager().find(AccountStatus.class,	AccountLoanHelper.PURCHASE_SALE_STATUS_ACTIVE);
 		        		
 		        		if (transactionModule==null)
 		        			validationMessages=XavaResources.getString("transaction_module_not_found", AccountLoanHelper.SALE_PORTFOLIO_TRANSACTION_MODULE);
@@ -189,6 +190,7 @@ public class NegotiationSalePortfolio {
 			accountPortfolio.setSaleSpread(new BigDecimal(loanDTO.getSaleSpreadAmount()));
 			accountPortfolio.setStatusId(negotiationFile.getNegotiation().getNegotiationType().getNegotiationTypeId());
 			accountPortfolio.setSaleNegotiation(negotiationFile.getNegotiation());
+			accountPortfolio.setSaleStatus(portfolioStatus);
 			XPersistence.getManager().merge(accountPortfolio);
 			
 		}catch(Exception e){

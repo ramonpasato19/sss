@@ -46,6 +46,12 @@ public class FinancialHelper {
 		
 		for (TransactionAccount ta : transactionAccounts) {
 			
+			if (ta.getQuantity()==null)
+				ta.setQuantity(BigDecimal.ZERO);
+			
+			if (ta.getValue()==null)
+				ta.setValue(BigDecimal.ZERO);
+			
 			if (ta.getValue().compareTo(BigDecimal.ZERO)==0 && ta.getQuantity().compareTo(BigDecimal.ZERO)==0)
 				continue;
 			
@@ -65,11 +71,11 @@ public class FinancialHelper {
 				m.setDebitOrCredit(ta.getDebitOrCredit());
 				m.setFinancial(f);
 				m.setSubaccount(ta.getSubaccount());
-				m.setQuantity(ta.getQuantity()!=null?ta.getQuantity().abs():BigDecimal.ZERO);
+				m.setQuantity(ta.getQuantity());
 				m.setUnity(ta.getUnity());
 				m.setRemark(ta.getRemark());
 				m.setExchangeRate(ExchangeRateHelper.getExchangeRate(ta.getAccount().getCurrency(), t.getAccountingDate()));
-				m.setValue(ta.getValue()!=null?ta.getValue().abs():BigDecimal.ZERO);
+				m.setValue(ta.getValue().abs());
 				m.setOfficialValue(UtilApp.valueToOfficialValue(ta.getValue(), m.getExchangeRate()));
 
 				if (ta.getOfficialValue().equals(Types.YesNoIntegerType.YES))
@@ -294,7 +300,7 @@ public class FinancialHelper {
 		financialCategory.setOfficialValue(BigDecimal.ZERO);
 		financialCategory.setStock(BigDecimal.ZERO);
 
-		String schema = CompanyHelper.getSchema().toLowerCase();
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		
 		String query = "SELECT "
 		 		+ "SUM(COALESCE(o.value,0)) as value, "

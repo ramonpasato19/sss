@@ -28,12 +28,6 @@ public class CompanyHelper {
 		return company.getAccountingDate();
 	}
 	
-	public static String getSchema()
-	{
-		Company company = (Company)XPersistence.getManager().find(Company.class, CompanyHelper.COMPANY_ID); 
-		return company.getOxorganizationId();
-	}
-	
 	public static String getName()
 	{
 		Company company = (Company)XPersistence.getManager().find(Company.class, CompanyHelper.COMPANY_ID); 
@@ -42,6 +36,6 @@ public class CompanyHelper {
 	
 	public static String getLogoName()
 	{
-		return "logo-efc.png";
+		return "logo.png";
 	}
 }

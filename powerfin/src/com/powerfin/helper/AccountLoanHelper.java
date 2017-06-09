@@ -15,6 +15,8 @@ import com.powerfin.util.*;
 public class AccountLoanHelper {
 	
 	public final static Integer EXPIRATION_FRECUENCY_ID = 1;
+	public final static String PURCHASE_SALE_STATUS_ACTIVE = "002";
+	public final static String STATUS_LOAN_REQUEST = "001";
 	public final static String STATUS_LOAN_ACTIVE = "002";
 	public final static String STATUS_LOAN_CANCEL = "003";
 	public final static String STATUS_PROCESS_FINANCIAL = "002";
@@ -92,7 +94,7 @@ public class AccountLoanHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate, boolean forPrepayment) {
-		String schema = CompanyHelper.getSchema().toLowerCase();
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate == null)
@@ -243,7 +245,7 @@ public class AccountLoanHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate) {
-		String schema = CompanyHelper.getSchema().toLowerCase();
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate == null)

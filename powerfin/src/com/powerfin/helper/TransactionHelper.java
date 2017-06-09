@@ -134,7 +134,7 @@ public class TransactionHelper {
 						.getConnection();
 				Statement stmt = con.createStatement();
 				ResultSet res = stmt
-						.executeQuery("select nextval('"+CompanyHelper.getSchema().toLowerCase()+"."+transactionModule.getSequenceDBName()+"')");
+						.executeQuery("select nextval('"+XPersistence.getDefaultSchema().toLowerCase()+"."+transactionModule.getSequenceDBName()+"')");
 				if (res.next()) {
 					sequence = new Integer(res.getString(1));
 				}

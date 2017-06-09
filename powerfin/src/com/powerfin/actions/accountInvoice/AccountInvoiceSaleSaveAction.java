@@ -47,6 +47,10 @@ public class AccountInvoiceSaleSaveAction extends SaveAction{
 			Account account = XPersistence.getManager().find(Account.class, accountId);
 			account.setCode(externalCode);
 			account.setPerson(XPersistence.getManager().find(Person.class, personId));
+			
+			if (!account.getAccountStatus().getAccountStatusId().equals(AccountInvoiceHelper.STATUS_INVOICE_REQUEST))
+				throw new OperativeException("account_has_already_been_processed", externalCode);
+			
 			account.setAccountStatus(XPersistence.getManager().find(AccountStatus.class, accountStatusId));
 			account = AccountHelper.updateAccount(account);
 			addMessage("account_modified", account.getClass().getName());

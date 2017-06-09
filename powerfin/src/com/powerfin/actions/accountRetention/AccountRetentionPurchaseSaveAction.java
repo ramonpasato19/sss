@@ -45,6 +45,10 @@ public class AccountRetentionPurchaseSaveAction extends SaveAction{
 			Account account = XPersistence.getManager().find(Account.class, accountId);
 			account.setCode(externalCode);
 			account.setPerson(accountInvoice.getAccount().getPerson());
+			
+			if (!account.getAccountStatus().getAccountStatusId().equals(AccountInvoiceHelper.STATUS_RETENTION_REQUEST))
+				throw new OperativeException("account_has_already_been_processed", externalCode);
+			
 			account.setAccountStatus(XPersistence.getManager().find(AccountStatus.class, accountStatusId));
 			account = AccountHelper.updateAccount(account);
 			addMessage("account_modified", account.getClass().getName());

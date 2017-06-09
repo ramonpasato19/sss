@@ -42,6 +42,10 @@ public class AccountTermSaveAction extends SaveAction{
 			Account account = XPersistence.getManager().find(Account.class, accountId);
 			account.setCode(externalCode);
 			account.setPerson(XPersistence.getManager().find(Person.class, personId));
+			
+			if (!account.getAccountStatus().getAccountStatusId().equals(AccountTermHelper.STATUS_TERM_REQUEST))
+				throw new OperativeException("account_has_already_been_processed", accountId);
+			
 			account.setAccountStatus(XPersistence.getManager().find(AccountStatus.class, accountStatusId));
 			account = AccountHelper.updateAccount(account);
 			addMessage("account_modified", account.getClass().getName());

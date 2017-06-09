@@ -113,7 +113,7 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void addSchemaParameter(Map parameters)
 	{
-		parameters.put("SCHEMA", CompanyHelper.getSchema());
+		parameters.put("SCHEMA", XPersistence.getDefaultSchema().toUpperCase());
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -105,7 +105,7 @@ public class ExchangeRateDailySaveAction extends SaveAction {
 			Map keyValues = getView().getKeyValues();
 			ExchangeRateDaily exchangeRateDaily = (ExchangeRateDaily) MapFacade
 					.findEntity(getView().getModelName(), keyValues);
-			String schema = CompanyHelper.getSchema().toLowerCase();
+			String schema = XPersistence.getDefaultSchema().toLowerCase();
 			
 			List<Account> generalAccounts = XPersistence.getManager().createQuery("SELECT a "
 					+ "FROM Account a "

@@ -1,6 +1,7 @@
 package com.powerfin.helper;
 
 import java.math.*;
+import java.util.*;
 
 import org.openxava.jpa.*;
 
@@ -11,9 +12,11 @@ public class AccountInvoiceHelper {
 	
 	public final static String STATUS_INVOICE_CANCEL = "003";
 	public final static String STATUS_INVOICE_WITH_RETENTION = "005";
+	public final static String STATUS_INVOICE_REQUEST = "001";
 	public final static String STATUS_INVOICE_ACTIVE = "002";
 	public final static String STATUS_PROCESS_FINANCIAL = "002";
 	
+	public final static String STATUS_RETENTION_REQUEST = "001";
 	public final static String STATUS_RETENTION_ACTIVE = "002";
 	
 	public final static String INVOICE_PURCHASE_PRODUCT_TYPE_ID = "201";
@@ -41,6 +44,46 @@ public class AccountInvoiceHelper {
 		}
 		
 		return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<AccountInvoiceTax> getCalculatedAccountInvoiceTaxes(AccountInvoice invoice)
+	{
+		String query = "SELECT  "
+				+ "t, "
+				+ "sum(o.amount) "
+				+ "FROM AccountInvoiceDetail o JOIN o.tax t "
+				+ "WHERE o.taxPercentage>0 "
+				+ "AND o.accountInvoice.accountId = :invoice "
+				+ "GROUP BY t"; 
+		
+		List<Object[]> calculatedTaxes = XPersistence.getManager()
+				.createQuery(query)
+			.setParameter("invoice", invoice.getAccountId())
+			.getResultList();
+		
+		List<AccountInvoiceTax> taxes = new ArrayList<AccountInvoiceTax>();
+		for (Object[] tax : calculatedTaxes)
+		{
+			AccountInvoiceTax accountInvoiceTax = new AccountInvoiceTax((Tax)tax[0], (BigDecimal)tax[1]);
+			accountInvoiceTax.setAccountInvoice(invoice);
+			taxes.add(accountInvoiceTax);
+		}
+		return taxes;
+	}
+	
+	public static void persistAccountInvoiceTaxes(AccountInvoice invoice)
+	{	
+		
+		XPersistence.getManager().createQuery("DELETE FROM AccountInvoiceTax o "
+					+ "WHERE o.accountInvoice.accountId = :accountId")
+				.setParameter("accountId", invoice.getAccountId())
+				.executeUpdate();
+
+		List<AccountInvoiceTax> taxes = getCalculatedAccountInvoiceTaxes(invoice);
+
+		for (AccountInvoiceTax tax : taxes)
+			XPersistence.getManager().persist(tax);
 	}
 	
 }

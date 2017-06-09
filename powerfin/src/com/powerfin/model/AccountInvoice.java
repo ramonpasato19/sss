@@ -80,8 +80,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXInvoicePurchase", 
-		members="accountId, companyAccountingDate; accountStatus;"
-				+ "issueDate, dueDate;"
+		members="info{accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate, dueDate;}"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
@@ -102,22 +102,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),
 	@View(name="AuthorizeTXInvoiceSale", 
-		members=""
-				+ "issueDate, dueDate;"
-				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
-				+ "remark{remark;}"
-				+ "detail{details;}"
-				),
-	@View(name="AuthorizeTXCreditNoteSale", 
-		members=""
-				+ "issueDate, dueDate;"
-				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
-				+ "remark{remark;}"
-				+ "detail{details;}"
-				),
-	@View(name="AuthorizeTXCreditNoteSale", 
-		members=""
-				+ "issueDate, dueDate;"
+		members="info{accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate, dueDate;}"
 				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
 				+ "remark{remark;}"
 				+ "detail{details;}"
@@ -134,8 +120,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXCreditNotePurchase", 
-		members="accountId, companyAccountingDate; accountStatus;"
-				+ "issueDate;"
+		members="info{accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate, dueDate;}"
 				+ "accountModified;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -155,8 +141,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXCreditNoteSale", 
-		members="accountId, companyAccountingDate; accountStatus;"
-				+ "issueDate;"
+		members="info{accountId, companyAccountingDate; accountStatus;"
+				+ "issueDate, dueDate;}"
 				+ "accountModified;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -212,48 +198,49 @@ import com.powerfin.model.types.*;
 	@View(name="forRetention", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode;"
-			+ "subtotal, vat, total"),
+			+ "subtotal, taxes, total"),
 	@View(name="forCreditNote", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode;"
-			+ "subtotal, vat, total"),
+			+ "subtotal, taxes, total"),
 	@View(name="selectInvoice", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode")
 })
 @Tabs({
-	@Tab(properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, subtotal, vat, total"),
+	@Tab(properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate"),
 	
-	@Tab(name="TXInvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	@Tab(name="TXInvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	baseCondition = "${account.accountStatus.accountStatusId} IN ('002','005') "
+		+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXCreditNotePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	@Tab(name="TXCreditNotePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 	baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="CreditNotePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
 	baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXCreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	@Tab(name="TXCreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="CreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
-		baseCondition = "${account.accountStatus.accountStatusId} IN ('002','005') "
-			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="TXOrderItems", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	
+	@Tab(name="TXOrderItems", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate, subtotal, vat, total",
+	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '002' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'")
 })
@@ -326,9 +313,9 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@OneToMany(mappedBy="accountInvoice", cascade = CascadeType.ALL)
 	@AsEmbedded
-	@ListProperties("accountDetail.accountId, accountDetail.name, unitPrice, quantity,"
+	@ListProperties("accountDetail.accountId, accountDetail.name, taxPercentage, unitPrice, quantity,"
 			+ "amount[accountInvoice.subtotal, "
-			+ "accountInvoice.vat, accountInvoice.total]"
+			+ "accountInvoice.calculateTaxes, accountInvoice.calculateTotal]"
 			)
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, AuthorizeTXOrderItems, TXOrderToInvoice")
 	@CollectionViews({
@@ -351,6 +338,9 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
 	private List<AccountInvoicePayment> accountInvoicePayments;
 
+	@OneToMany(mappedBy="accountInvoice", cascade = CascadeType.ALL)
+	private List<AccountInvoiceTax> accountInvoiceTaxes;
+	
 	//bi-directional one-to-one association to Account
 	@OneToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
@@ -663,97 +653,40 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		BigDecimal value = BigDecimal.ZERO;
 		for (AccountInvoiceDetail detail: details) {
 			value = value.add(detail.getAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				value = value.add(detailTax.getTaxBase());
-			}
-			*/
 		}
 		return value;
 	}
 	
-	public BigDecimal getSubtotalNotVat() {
-		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			if (detail.getTax().getTaxId().equals("IVANOT"))
-				value = value.add(detail.getAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				if (detailTax.getTax().getTaxId().equals("IVANOT"))
-					value = value.add(detailTax.getTaxBase());
-			}*/
-		}
-		return value;
-	}
-	
-	public BigDecimal getSubtotalExcVat() {
-		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			if (detail.getTax().getTaxId().equals("IVAEXC"))
-				value = value.add(detail.getAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				if (detailTax.getTax().getTaxId().equals("IVAEXC"))
-					value = value.add(detailTax.getTaxBase());
-			}*/
-		}
-		return value;
-	}
-	
-	public BigDecimal getSubtotalZeroVat() {
-		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			if (detail.getTax().getTaxId().equals("IVA0"))
-				value = value.add(detail.getAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				if (detailTax.getTax().getTaxId().equals("IVA0"))
-					value = value.add(detailTax.getTaxBase());
-			}*/
-		}
-		return value;
-	}
-
-	public BigDecimal getSubtotalXXXVat() {
-		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			if (detail.getTaxAmount()!=null)
-				value = value.add(detail.getAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				if (detailTax.getTax().getTaxId().equals("IVA12"))
-					value = value.add(detailTax.getTaxBase());
-			}*/
-		}
-		return value;
-	}	
-	
-	public BigDecimal getVat()
+	public BigDecimal getCalculateTaxes()
 	{
 		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			if (detail.getTaxAmount()!=null)
-				value = value.add(detail.getTaxAmount());
-			/*
-			for (AccountInvoiceDetailTax detailTax: detail.getTaxes())
-			{
-				if (detailTax.getTax().getTaxId().equals("IVA12"))
-					value = value.add(detailTax.getAmount());
-			}*/
-		}
+
+		List<AccountInvoiceTax> taxes = AccountInvoiceHelper.getCalculatedAccountInvoiceTaxes(this);
+
+		for (AccountInvoiceTax tax : taxes)
+			value = value.add(tax.getTaxAmount());
+		
 		return value;
 	}
-	public BigDecimal getTotal() {
+	
+	public BigDecimal getTaxes()
+	{
 		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			value = value.add(detail.getFinalAmount());
+
+		for (AccountInvoiceTax tax: accountInvoiceTaxes) {
+			if (tax.getTaxAmount()!=null)
+				value = value.add(tax.getTaxAmount());
 		}
+		
 		return value;
+	}
+	
+	public BigDecimal getTotal() {
+		return getSubtotal().add(getTaxes());
+	}
+	
+	public BigDecimal getCalculateTotal() {
+		return getSubtotal().add(getCalculateTaxes());
 	}
 	
 	public BigDecimal getBalance() throws Exception {

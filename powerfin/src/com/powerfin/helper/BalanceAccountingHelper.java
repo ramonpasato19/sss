@@ -41,7 +41,7 @@ public class BalanceAccountingHelper {
 		
 		if (!accountingDate.before(CompanyHelper.getCurrentAccountingDate()))
 		{
-			String schema = CompanyHelper.getSchema().toLowerCase();
+			String schema = XPersistence.getDefaultSchema().toLowerCase();
 			XPersistence.getManager()
 			.createNativeQuery("delete from "+schema+".balance_accounting where accounting_date = :accountingDate")
 			.setParameter("accountingDate", accountingDate)

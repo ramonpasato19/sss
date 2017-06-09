@@ -52,7 +52,7 @@ import com.powerfin.model.types.*;
 			+ "description;"
 			)
 })
-@Tab(properties="registrationDate, accountId, code, name, description, retailPrice, countryId.name, account.alternateCode ")
+@Tab(properties="registrationDate, accountId, account.alternateCode, code, name, description, retailPrice, countryId.name ")
 public class AccountItem extends AuditEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;

@@ -2,6 +2,7 @@ package com.powerfin.helper;
 
 import java.sql.*;
 
+import org.openxava.jpa.*;
 import org.openxava.util.*;
 
 import com.powerfin.model.*;
@@ -44,7 +45,7 @@ public class ProductHelper {
 						.getConnection();
 				Statement stmt = con.createStatement();
 				ResultSet res = stmt
-						.executeQuery("select nextval('"+CompanyHelper.getSchema().toLowerCase()+"."+product.getSequenceDBName()+"')");
+						.executeQuery("select nextval('"+XPersistence.getDefaultSchema().toLowerCase()+"."+product.getSequenceDBName()+"')");
 				if (res.next()) {
 					sequence = new Integer(res.getString(1));
 				}

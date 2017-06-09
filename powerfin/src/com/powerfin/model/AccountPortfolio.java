@@ -65,7 +65,21 @@ public class AccountPortfolio implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="sale_negotiation_id", nullable=true)
 	private Negotiation saleNegotiation;
-		
+	
+	@ManyToOne
+	@JoinColumn(name="purchase_status_id", nullable=false)
+	@DescriptionsList
+	@NoCreate
+	@NoModify
+	private AccountStatus purchaseStatus;
+	
+	@ManyToOne
+	@JoinColumn(name="sale_status_id", nullable=false)
+	@DescriptionsList
+	@NoCreate
+	@NoModify
+	private AccountStatus saleStatus;
+	
 	public AccountPortfolio() {
 	}
 
@@ -172,4 +186,21 @@ public class AccountPortfolio implements Serializable {
 	public void setSaleNegotiation(Negotiation saleNegotiation) {
 		this.saleNegotiation = saleNegotiation;
 	}
+
+	public AccountStatus getPurchaseStatus() {
+		return purchaseStatus;
+	}
+
+	public void setPurchaseStatus(AccountStatus purchaseStatus) {
+		this.purchaseStatus = purchaseStatus;
+	}
+
+	public AccountStatus getSaleStatus() {
+		return saleStatus;
+	}
+
+	public void setSaleStatus(AccountStatus saleStatus) {
+		this.saleStatus = saleStatus;
+	}
+	
 }

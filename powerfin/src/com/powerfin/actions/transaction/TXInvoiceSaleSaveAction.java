@@ -23,7 +23,7 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 		BigDecimal detailAmount = null;
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		Unity unity = null;
-		
+		TransactionAccount ta = null;
 		account = invoice.getAccountModified()!=null?invoice.getAccountModified().getAccount():account;
 		
 		if (invoice.getDetails()==null || invoice.getDetails().isEmpty() || invoice.getTotal().compareTo(BigDecimal.ZERO)==0)
@@ -33,7 +33,6 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 		{
 			unity = detail.getUnity()==null?transaction.getOrigenUnity():detail.getUnity();
 			detailAmount = detail.calculateAmount().setScale(2, RoundingMode.HALF_UP);
-			TransactionAccount ta = null;
 			
 			//Invoice
 			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, detailAmount, transaction);
@@ -61,16 +60,18 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 			//AccountAccountant
 			else
 				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, transaction));
+		}
+		
+		//Taxes
+		List<AccountInvoiceTax> taxes = AccountInvoiceHelper.getCalculatedAccountInvoiceTaxes(invoice);
+		
+		for (AccountInvoiceTax tax : taxes)
+		{
+			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, tax.getTaxAmount(), transaction);
+			ta.setRemark(XavaResources.getString("tax_item", tax.getTax().getName()));
+			transactionAccounts.add(ta);
 			
-			//Tax
-			if (detail.hasTax())
-			{
-				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, detail.getTaxAmount(), transaction);
-				ta.setRemark(XavaResources.getString("tax_item", detail.getAccountDetail().getName()));
-				transactionAccounts.add(ta);
-				
-				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, detail.getTaxAmount(), transaction, detail.getTax().getCategory()));
-			}
+			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, tax.getTaxAmount(), transaction, tax.getTax().getCategory()));
 		}
 
 		return transactionAccounts;
@@ -87,6 +88,8 @@ public class TXInvoiceSaleSaveAction extends TXSaveAction {
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
 					updateStock(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getAmount(), invoice.getRegistrationDate());
+			
+			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 		}
 	}
 
