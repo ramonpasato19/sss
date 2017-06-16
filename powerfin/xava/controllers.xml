@@ -2253,12 +2253,14 @@
 		<action name="printInventoryProfitMargin" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryProfitMargin" icon="file-pdf">
 		</action>
-		
 		<action name="printInventoryMinimalStock" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryMinimalStock" icon="file-pdf">
 		</action>
 		<action name="printInventoryMovementHistory" mode="detail"
 			class="com.powerfin.actions.inventory.PrintMovementHistory" icon="file-pdf">
+		</action>
+		<action name="printInvoiceForItem" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInvoiceForItemAction" icon="file-pdf">
 		</action>
 	</controller>
 	

@@ -216,7 +216,7 @@ import com.powerfin.model.types.*;
 	@Tab(name="InvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.externalCode, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",

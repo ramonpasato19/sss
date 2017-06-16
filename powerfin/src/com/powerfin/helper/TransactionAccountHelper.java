@@ -89,6 +89,7 @@ public class TransactionAccountHelper {
 			BigDecimal value, Transaction transaction, Category category, Types.YesNoIntegerType updateBalance, Types.YesNoIntegerType officialValue) throws Exception {
 		return TransactionAccountHelper.createTransactionAccount(account, 0, category, DebitOrCredit.CREDIT, value, transaction, updateBalance, officialValue, null);
 	}
+	
 	public static TransactionAccount createCustomDebitTransactionAccount(Account account,
 			BigDecimal value, Transaction transaction, Category category, Types.YesNoIntegerType updateBalance, Types.YesNoIntegerType officialValue) throws Exception {
 		return TransactionAccountHelper.createTransactionAccount(account, 0, category, DebitOrCredit.DEBIT, value, transaction, updateBalance, officialValue, null);

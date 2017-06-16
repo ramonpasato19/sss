@@ -5,7 +5,8 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 import org.openxava.jpa.XPersistence;
-import com.powerfin.helper.StockHelper;
+
+import com.powerfin.helper.*;
 import com.powerfin.model.AccountInvoice;
 import com.powerfin.model.AccountItem;
 import com.powerfin.model.Stock;
@@ -38,10 +39,29 @@ public class UpdateStock {
 		BigDecimal quantityAve=BigDecimal.ZERO;
 		BigDecimal valueUnit=BigDecimal.ZERO;
 		BigDecimal valueTot=BigDecimal.ZERO;
+		BigDecimal quantitySale=BigDecimal.ZERO;
+		
+		for (Stock st : stocks)
+			if(st.getAccountInvoiceId().getProduct().getProductType().getProductTypeId().equals(AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID))
+				quantitySale=quantitySale.add(st.getQuantity().abs());
+		
+		BigDecimal quantityNow=BigDecimal.ZERO; 
 		for (Stock st : stocks){
-			valueUnit=st.getQuantity().multiply(st.getAverageValue());
-			valueTot=valueTot.add(valueUnit);
-			quantityAve=quantityAve.add(st.getQuantity());
+			if(st.getAccountInvoiceId().getProduct().getProductType().getProductTypeId().equals(AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID)){
+				if(quantitySale.compareTo(st.getQuantity())>0){
+					quantitySale=quantitySale.subtract(st.getQuantity());
+				}else{
+					if(quantitySale.compareTo(BigDecimal.ZERO)==0){
+						quantityNow=st.getQuantity();
+					}else{
+						quantityNow=st.getQuantity().subtract(quantitySale);
+						quantitySale=BigDecimal.ZERO;
+					}
+					valueUnit=quantityNow.multiply(st.getValue());
+					valueTot=valueTot.add(valueUnit);
+					quantityAve=quantityAve.add(quantityNow);
+				}
+			}
 		}
 		valueTot=valueTot.add(newCost.multiply(newQuantity));
 		quantityAve=quantityAve.add(newQuantity);

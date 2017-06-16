@@ -72,7 +72,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			AccountHelper.updateAccount(a);
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStock(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getAmount(), invoice.getRegistrationDate());
+					updateStock(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getUnitPrice(), invoice.getRegistrationDate());
 			
 			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 		}
@@ -82,6 +82,6 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 	{
 		AccountItem accountItem=(AccountItem) XPersistence.getManager().find(AccountItem.class, item.getAccountId());
 		UpdateStock update=new UpdateStock();
-		update.updateItemStock(accountItem, invoice, quantity, amount.divide(quantity, 4, RoundingMode.HALF_UP), registrerDate);
+		update.updateItemStock(accountItem, invoice, quantity, amount, registrerDate);
 	}
 }

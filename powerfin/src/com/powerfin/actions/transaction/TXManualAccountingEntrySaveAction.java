@@ -8,6 +8,6 @@ public class TXManualAccountingEntrySaveAction extends TXSaveAction {
 
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
-		return null;
+		return transaction.getTransactionAccounts();
 	}
 }

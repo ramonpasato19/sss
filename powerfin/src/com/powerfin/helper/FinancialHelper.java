@@ -238,19 +238,19 @@ public class FinancialHelper {
 			//Validate NegativeBalance
 			if (!CategoryHelper.getAllowsNegativeBalance(financialCategory.getAccount(), financialCategory.getCategory()))
 			{			
-				if (newBalance.getBalance().compareTo(BigDecimal.ZERO)<0)
-					throw new OperativeException("the_account_balance_can_not_be_negative",
-							financialCategory.getAccount().getAccountId(),
-							financialCategory.getSubaccount(),
-							financialCategory.getCategory().getCategoryId(),
-							newBalance.getBalance());
-				
 				if (newBalance.getStock().compareTo(BigDecimal.ZERO)<0)
 					throw new OperativeException("the_account_stock_can_not_be_negative",
 							financialCategory.getAccount().getAccountId(),
 							financialCategory.getSubaccount(),
 							financialCategory.getCategory().getCategoryId(),
 							newBalance.getStock());
+				
+				if (newBalance.getBalance().compareTo(BigDecimal.ZERO)<0)
+					throw new OperativeException("the_account_balance_can_not_be_negative",
+							financialCategory.getAccount().getAccountId(),
+							financialCategory.getSubaccount(),
+							financialCategory.getCategory().getCategoryId(),
+							newBalance.getBalance());
 			}
 			
 			XPersistence.getManager().persist(newBalance);
