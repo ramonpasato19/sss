@@ -6,6 +6,8 @@ import java.time.*;
 import java.time.temporal.*;
 import java.util.*;
 
+import com.powerfin.exception.*;
+
 public class UtilApp {
 
 	/**
@@ -39,6 +41,13 @@ public class UtilApp {
 		return formatDate.format(date);
 	}
 
+	public static Date stringToDate(String dateString) throws ParseException {
+		if (dateString == null)
+			throw new InternalException("string_to_convert_is_null");
+
+		return formatDate.parse(dateString);
+	}
+	
 	static {
 		try {
 			DEFAULT_EXPIRY_DATE = formatDate.parse("2999-12-31");

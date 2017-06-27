@@ -22,7 +22,8 @@ public class NegotiationProcessLoan {
 	private Account account = null;
 	private Account accountPayable;
 	private AccountLoan accountLoan = null;
-	private AccountStatus portfolioStatus = null; 
+	private AccountStatus portfolioStatusActive = null;
+	private AccountStatus portfolioStatusRequest = null;
 	
 	String[] dataLine;
 	String validationMessages;
@@ -71,7 +72,8 @@ public class NegotiationProcessLoan {
 		        		productPayable = XPersistence.getManager().find(Product.class, loanDTO.getProductPayable());
 		        		productLoan = XPersistence.getManager().find(Product.class, loanDTO.getProductLoan());
 		        		transactionModule = XPersistence.getManager().find(TransactionModule.class,	AccountLoanHelper.PURCHASE_PORTFOLIO_TRANSACTION_MODULE);
-		        		portfolioStatus =  XPersistence.getManager().find(AccountStatus.class,	AccountLoanHelper.PURCHASE_SALE_STATUS_ACTIVE);
+		        		portfolioStatusActive =  XPersistence.getManager().find(AccountStatus.class, AccountLoanHelper.PURCHASE_SALE_STATUS_ACTIVE);
+		        		portfolioStatusRequest =  XPersistence.getManager().find(AccountStatus.class, AccountLoanHelper.PURCHASE_SALE_STATUS_REQUEST);
 		        		
 		        		if (person==null)
 		        			validationMessages=XavaResources.getString("person_not_found_for_create_account", loanDTO.getIdentification());
@@ -227,7 +229,8 @@ public class NegotiationProcessLoan {
 			accountPortfolio.setPurchaseSpread(new BigDecimal(loanDTO.getPurchaseSpreadAmount()));
 			accountPortfolio.setStatusId(negotiationFile.getNegotiation().getNegotiationType().getNegotiationTypeId());
 			accountPortfolio.setPurchaseNegotiation(negotiationFile.getNegotiation());
-			accountPortfolio.setPurchaseStatus(portfolioStatus);
+			accountPortfolio.setPurchaseStatus(portfolioStatusActive);
+			accountPortfolio.setSaleStatus(portfolioStatusRequest);
 			XPersistence.getManager().persist(accountPortfolio);
 			
 		}catch(Exception e){

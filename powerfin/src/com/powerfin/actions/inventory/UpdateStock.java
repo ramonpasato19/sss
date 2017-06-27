@@ -32,40 +32,58 @@ public class UpdateStock {
 
 	@SuppressWarnings("unchecked")
 	private BigDecimal calculeAverageValue(AccountItem accountItem, BigDecimal newCost, BigDecimal newQuantity)	{
-		List<Stock> stocks = XPersistence.getManager()
-				.createQuery("select st from Stock st where st.accountId.accountId=:accountItemId")
+		
+		List<Object> stocksSale = XPersistence.getManager()
+				.createQuery("SELECT COALESCE(SUM(ABS(st.quantity)),0) "
+						+ "FROM Stock st "
+						+ "WHERE st.accountId.accountId = :accountItemId "
+						+ "AND st.quantity < 0 ")
 				.setParameter("accountItemId", accountItem.getAccountId())
 				.getResultList();
+		
 		BigDecimal quantityAve=BigDecimal.ZERO;
 		BigDecimal valueUnit=BigDecimal.ZERO;
 		BigDecimal valueTot=BigDecimal.ZERO;
 		BigDecimal quantitySale=BigDecimal.ZERO;
+		BigDecimal quantityNow=BigDecimal.ZERO;
 		
-		for (Stock st : stocks)
-			if(st.getAccountInvoiceId().getProduct().getProductType().getProductTypeId().equals(AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID))
-				quantitySale=quantitySale.add(st.getQuantity().abs());
+		if(stocksSale!=null && !stocksSale.isEmpty())
+				quantitySale=quantitySale.add((BigDecimal)stocksSale.get(0));
+
+		List<Stock> stocksPurchase = XPersistence.getManager()
+				.createQuery("SELECT st "
+						+ "FROM Stock st "
+						+ "WHERE st.accountId.accountId = :accountItemId "
+						+ "AND st.quantity > 0 ")
+				.setParameter("accountItemId", accountItem.getAccountId())
+				.getResultList();
 		
-		BigDecimal quantityNow=BigDecimal.ZERO; 
-		for (Stock st : stocks){
-			if(st.getAccountInvoiceId().getProduct().getProductType().getProductTypeId().equals(AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID)){
-				if(quantitySale.compareTo(st.getQuantity())>0){
-					quantitySale=quantitySale.subtract(st.getQuantity());
-				}else{
-					if(quantitySale.compareTo(BigDecimal.ZERO)==0){
-						quantityNow=st.getQuantity();
-					}else{
-						quantityNow=st.getQuantity().subtract(quantitySale);
-						quantitySale=BigDecimal.ZERO;
-					}
-					valueUnit=quantityNow.multiply(st.getValue());
-					valueTot=valueTot.add(valueUnit);
-					quantityAve=quantityAve.add(quantityNow);
+		for (Stock st : stocksPurchase)
+		{
+			if(quantitySale.compareTo(st.getQuantity())>0){
+				quantitySale=quantitySale.subtract(st.getQuantity());
+			}
+			else
+			{
+				if(quantitySale.compareTo(BigDecimal.ZERO)==0)
+				{
+					quantityNow=st.getQuantity();
 				}
+				else
+				{
+					quantityNow=st.getQuantity().subtract(quantitySale);
+					quantitySale=BigDecimal.ZERO;
+				}
+				valueUnit=quantityNow.multiply(st.getValue());
+				valueTot=valueTot.add(valueUnit);
+				quantityAve=quantityAve.add(quantityNow);
 			}
 		}
+
 		valueTot=valueTot.add(newCost.multiply(newQuantity));
 		quantityAve=quantityAve.add(newQuantity);
 		BigDecimal valueAverage=valueTot.divide(quantityAve, 4, RoundingMode.HALF_UP);
+
 		return valueAverage;
 	}
 

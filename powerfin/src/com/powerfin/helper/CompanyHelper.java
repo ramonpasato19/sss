@@ -34,6 +34,11 @@ public class CompanyHelper {
 		return company.getName();
 	}
 	
+	public static Unity getDefaultUnity() throws Exception
+	{
+		return XPersistence.getManager().find(Unity.class, ParameterHelper.getValue("DEFAULT_UNITY_ID"));
+	}
+	
 	public static String getLogoName()
 	{
 		return "logo.png";

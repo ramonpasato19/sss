@@ -56,34 +56,24 @@ public class NegotiationSalePortfolio {
 		        		
 		        		if (transactionModule==null)
 		        			validationMessages=XavaResources.getString("transaction_module_not_found", AccountLoanHelper.SALE_PORTFOLIO_TRANSACTION_MODULE);
-		        		
-		        		List<AccountPortfolio> accounts = XPersistence.getManager()
-			     				.createQuery("select a from AccountPortfolio a where a.accountId = :accountId")  
-			     				.setParameter("accountId", loanDTO.getOriginalAccount())
-			     				.getResultList();
 		            	
 		        		payTables = XPersistence.getManager()
 		         				.createQuery("select a from AccountPaytable a where a.accountId = :accountId "
 		         						+ "order by a.subaccount")  
 		         				.setParameter("accountId", loanDTO.getOriginalAccount())
 		         				.getResultList();
+		        			        		
+		        		accountLoan = XPersistence.getManager().find(AccountLoan.class, loanDTO.getOriginalAccount());
+		        		accountPortfolio = XPersistence.getManager().find(AccountPortfolio.class, loanDTO.getOriginalAccount());
 		        		
-		        		List<AccountLoan> accountsLoan = (List<AccountLoan>) XPersistence.getManager()
-			     				.createQuery("select a from AccountLoan a where a.accountId = :accountId")  
-			     				.setParameter("accountId", loanDTO.getOriginalAccount())
-			     				.getResultList();
-		        		
-		        		
-		        		if(accounts!=null && !accounts.isEmpty()){
-		            		accountPortfolio = accounts.get(0);
-		            	}else
+		        		if(accountPortfolio == null)
 		            		validationMessages=XavaResources.getString("account_portfolio_not_found", loanDTO.getOriginalAccount());
-		        			
-		        		if(accountsLoan!=null && !accountsLoan.isEmpty()){
-		            		accountLoan = accountsLoan.get(0);
-		            	}else
-		            		validationMessages=XavaResources.getString("account_loan_not_found", loanDTO.getOriginalAccount());
-		        			
+		        		
+		        		if(accountPortfolio.getSaleStatus().getAccountStatusId() == AccountLoanHelper.PURCHASE_SALE_STATUS_ACTIVE)
+		            		validationMessages=XavaResources.getString("account_already_sale", loanDTO.getOriginalAccount());
+		        		
+		        		if(accountLoan == null)
+		            		validationMessages=XavaResources.getString("account_loan_not_found", loanDTO.getOriginalAccount());        			
 		        		
 		        		if(payTables==null || payTables.isEmpty())
 		        			validationMessages=XavaResources.getString("sale_portfolio_not_process_paytables_not_found", loanDTO.getOriginalAccount());

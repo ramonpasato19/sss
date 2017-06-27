@@ -256,11 +256,11 @@
 			icon="magnify">
 			<set value="${product.productType.productTypeId} = '200'" property="condition"/>
 		</action>
-		<action name="SearchDebitAccountForLoanPayment"
+		<action name="SearchPayableAndCashAccount"
 			class="com.powerfin.actions.search.SearchAccount"
 			hidden="true"
 			icon="magnify">
-			<set value="${product.productType.productTypeId} in ('200','101')" property="condition"/>
+			<set value="${product.productType.productTypeId} in ('200','100','101')" property="condition"/>
 		</action>
 		<action name="SearchAccountSaleNegotiation"
 			class="com.powerfin.actions.search.SearchAccountSaleNegotiation"

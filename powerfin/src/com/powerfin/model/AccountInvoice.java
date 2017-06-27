@@ -649,7 +649,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		this.unity = unity;
 	}
 
-	public BigDecimal getSubtotal() {
+	public BigDecimal getSubtotal() throws Exception {
 		BigDecimal value = BigDecimal.ZERO;
 		for (AccountInvoiceDetail detail: details) {
 			value = value.add(detail.getAmount());
@@ -657,7 +657,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		return value;
 	}
 	
-	public BigDecimal getCalculateTaxes()
+	public BigDecimal getCalculateTaxes() throws Exception
 	{
 		BigDecimal value = BigDecimal.ZERO;
 
@@ -669,23 +669,24 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		return value;
 	}
 	
-	public BigDecimal getTaxes()
+	public BigDecimal getTaxes() throws Exception
 	{
 		BigDecimal value = BigDecimal.ZERO;
-
-		for (AccountInvoiceTax tax: accountInvoiceTaxes) {
-			if (tax.getTaxAmount()!=null)
-				value = value.add(tax.getTaxAmount());
+		if(accountInvoiceTaxes!=null)
+		{
+			for (AccountInvoiceTax tax: accountInvoiceTaxes) {
+				if (tax.getTaxAmount()!=null)
+					value = value.add(tax.getTaxAmount());
+			}
 		}
-		
 		return value;
 	}
 	
-	public BigDecimal getTotal() {
+	public BigDecimal getTotal() throws Exception {
 		return getSubtotal().add(getTaxes());
 	}
 	
-	public BigDecimal getCalculateTotal() {
+	public BigDecimal getCalculateTotal() throws Exception {
 		return getSubtotal().add(getCalculateTaxes());
 	}
 	

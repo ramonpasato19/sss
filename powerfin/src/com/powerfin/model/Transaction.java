@@ -901,7 +901,7 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXAdvance", value="SearchAccount.SearchPayableAccount"),
 		@SearchAction(forViews="RequestTXAdvancePayment", value="SearchAccount.SearchPayableAccount"),
 		@SearchAction(forViews="RequestTXThirdAdvancePayment", value="SearchAccount.SearchPayableAccount"),
-		@SearchAction(forViews="RequestTXInvoiceSalePayment", value="SearchAccount.SearchPayableAccount"),
+		@SearchAction(forViews="RequestTXInvoiceSalePayment", value="SearchAccount.SearchPayableAndCashAccount"),
 		@SearchAction(forViews="RequestTXInvoicePurchasePayment", value="SearchAccount.SearchInvoicePurchaseToPayment"),
 		@SearchAction(forViews="RequestTXInvoicePurchaseCheckPayment", value="SearchAccount.SearchInvoicePurchaseToPayment"),
 		@SearchAction(forViews="RequestTXCheckPaymentPayable", value="SearchAccount.SearchPayableAccount"),
@@ -910,8 +910,8 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXSaleForexCustomer", value="SearchAccount.SearchOfficialPayableAccount"),
 		@SearchAction(forViews="RequestTXPurchaseForexBank", value="SearchAccount.SearchOfficialBankAccount"),
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchBankAccount"),
-		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchDebitAccountForLoanPayment"),
-		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchDebitAccountForLoanPayment"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPayableAndCashAccount"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPayableAndCashAccount"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchSalePortfolioForPayment"),
 		
 	})

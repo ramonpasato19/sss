@@ -16,6 +16,7 @@ public class AccountLoanHelper {
 	
 	public final static Integer EXPIRATION_FRECUENCY_ID = 1;
 	public final static String PURCHASE_SALE_STATUS_ACTIVE = "002";
+	public final static String PURCHASE_SALE_STATUS_REQUEST = "001";
 	public final static String STATUS_LOAN_REQUEST = "001";
 	public final static String STATUS_LOAN_ACTIVE = "002";
 	public final static String STATUS_LOAN_CANCEL = "003";
