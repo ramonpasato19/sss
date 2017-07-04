@@ -242,7 +242,10 @@ import com.powerfin.model.types.*;
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '002' "
-			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'")
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="TXConvertInvoicePurchaseToSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+		baseCondition = "${account.accountStatus.accountStatusId} in ('002','005') "
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'")
 })
 public class AccountInvoice extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;

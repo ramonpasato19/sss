@@ -2362,4 +2362,16 @@
 			class="com.powerfin.actions.accountInvoice.PrintOrderInvoice" icon="file-pdf" image="save.gif" by-default="if-possible" >
 		</action>
 	</controller>
+	
+	<controller name="ConvertInvoicePurchaseToSale">
+		<extends controller="RefreshTXController"/>
+		<action name="convert" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.ConvertInvoicePurchaseToSale"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+		</action>
+	</controller>
+	
 </controllers>

@@ -956,4 +956,12 @@
 		<mode-controller name="DetailList" />
 	</module>
 	
+	<module name="ConvertInvoicePurchaseToSale">
+		<model name="AccountInvoice" />
+		<controller name="ConvertInvoicePurchaseToSale" />
+		<view name="TXOrderToInvoice" />
+		<tab name="TXConvertInvoicePurchaseToSale" />
+		<mode-controller name="DetailList" />
+	</module>
+
 </application>
