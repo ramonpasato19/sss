@@ -443,7 +443,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
 	@ReferenceView("forRetention")
 	@Actions({
-		@Action(forViews="RequestTXInvoiceSale", value = "ConvertLoteInvoicePurchaseToSale.convert", alwaysEnabled=true ),
+		@Action(forViews="RequestTXInvoiceSale", value = "ConvertInvoicePurchaseToSale.import", alwaysEnabled=true ),
 	})
 	@SearchActions({
 		@SearchAction(forViews="RequestTXInvoiceSale", value="SearchAccount.SearchInvoicePurchaseActiveCancel"),

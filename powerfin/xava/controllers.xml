@@ -2378,6 +2378,10 @@
 			by-default="if-possible"
 			keystroke="F3">
 		</action>
+		<action name="import"
+			class="com.powerfin.actions.accountInvoice.ConvertInvoicePurchaseToSale"
+            hidden="true">
+        </action>
 	</controller>
-	
+    
 </controllers>
