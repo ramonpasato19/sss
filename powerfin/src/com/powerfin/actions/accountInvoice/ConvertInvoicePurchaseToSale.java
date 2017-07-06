@@ -1,46 +1,21 @@
 package com.powerfin.actions.accountInvoice;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.List;
+import java.math.*;
+import java.util.*;
 
-import org.openxava.actions.SaveAction;
-import org.openxava.jpa.XPersistence;
+import org.openxava.actions.*;
+import org.openxava.jpa.*;
 
-import com.powerfin.helper.*;
-import com.powerfin.model.Account;
-import com.powerfin.model.AccountInvoice;
-import com.powerfin.model.AccountInvoiceDetail;
-import com.powerfin.model.InvoiceVoucherType;
+import com.powerfin.model.*;
 
 public class ConvertInvoicePurchaseToSale extends SaveAction{
 
 	public void execute() throws Exception {
-		AccountInvoice accountInvoicePurchase=XPersistence.getManager().find(AccountInvoice.class, getView().getValueString("accountId"));
-
-		String externalCode = "";
 		
-		// Crea la cuenta
-		Account account = AccountHelper.createAccount(AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID, accountInvoicePurchase.getPerson().getPersonId(), AccountInvoiceHelper.STATUS_INVOICE_REQUEST, null, externalCode, accountInvoicePurchase.getAccountId());
-		addMessage("account_created", account.getClass().getName());
-		// Crea la cuenta de Facura
-		AccountInvoice accountInvoice = new AccountInvoice();
-		accountInvoice.setAccountId(account.getAccountId());
-		accountInvoice.setAccount(account);
-		accountInvoice.setPerson(accountInvoicePurchase.getPerson());
-		accountInvoice.setProduct(account.getProduct());
-		accountInvoice.setIssueDate(accountInvoicePurchase.getIssueDate());
-		accountInvoice.setRegistrationDate(accountInvoicePurchase.getRegistrationDate());
-		InvoiceVoucherType typeInvoice = XPersistence.getManager().find(InvoiceVoucherType.class, "01");
-		accountInvoice.setInvoiceVoucherType(typeInvoice);
-		accountInvoice.setRemark("FACTURA DE LA COMPRA "+accountInvoicePurchase.getAccountId());
-		accountInvoice.setUserRegistering(accountInvoicePurchase.getUserRegistering());
-		accountInvoice.setEstablishmentCode(accountInvoicePurchase.getEstablishmentCode());
-		accountInvoice.setEmissionPointCode(accountInvoicePurchase.getEmissionPointCode());
-		accountInvoice.setSequentialCode(accountInvoicePurchase.getSequentialCode());
-		accountInvoice.setAuthorizationCode(ParameterHelper.getValue("AUTHORIZATION_CODE"));
-		accountInvoice.setUnity(accountInvoicePurchase.getUnity());
-		XPersistence.getManager().persist(accountInvoice);
+		// Tomo la factura de compra que se necesita
+		AccountInvoice accountInvoicePurchase=XPersistence.getManager().find(AccountInvoice.class, getView().getValueString("invoices.accountId"));
+		// Tomo la nueva factura de venta 
+		AccountInvoice accountInvoice=XPersistence.getManager().find(AccountInvoice.class, getView().getValueString("accountId"));
 		
 		// Creacion de los detalles
 		List <AccountInvoiceDetail> invoiceDetails=accountInvoicePurchase.getDetails();

@@ -100,6 +100,7 @@ import com.powerfin.model.types.*;
 				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
 				+ "remark{remark;}"
 				+ "detail{details;}"
+				+ "Invoices{invoices}"
 				),
 	@View(name="AuthorizeTXInvoiceSale", 
 		members="info{accountId, companyAccountingDate; accountStatus;"
@@ -198,7 +199,7 @@ import com.powerfin.model.types.*;
 	@View(name="forRetention", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode;"
-			+ "subtotal, taxes, total"),
+			+ "subtotal, taxes, total; quantityAccountsItems"),
 	@View(name="forCreditNote", 
 			members="accountId;accountStatus;"
 			+ "establishmentCode, emissionPointCode, sequentialCode;"
@@ -433,6 +434,21 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@DefaultValueCalculator(com.powerfin.calculators.CurrentAccountingDateCalculator.class)
 	@ReadOnly
 	private Date companyAccountingDate;
+	
+	@Transient
+	@ManyToOne
+	@Required
+	@NoCreate
+	@NoModify
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReferenceView("forRetention")
+	@Actions({
+		@Action(forViews="RequestTXInvoiceSale", value = "ConvertLoteInvoicePurchaseToSale.convert", alwaysEnabled=true ),
+	})
+	@SearchActions({
+		@SearchAction(forViews="RequestTXInvoiceSale", value="SearchAccount.SearchInvoicePurchaseActiveCancel"),
+	})
+	private AccountInvoice invoices;
 	
 	public AccountInvoice() {
 	}
@@ -696,4 +712,17 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(getAccount().getAccountId());
 	}
+	
+	public AccountInvoice getInvoices() {
+		return invoices;
+	}
+	
+	public void setInvoices(AccountInvoice invoices) {
+		this.invoices = invoices;
+	}
+
+	public int getQuantityAccountsItems() {
+		return details.size();				
+	}
+	
 }

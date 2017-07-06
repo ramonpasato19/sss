@@ -315,6 +315,12 @@
 			icon="magnify">
 			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} = '002' " property="condition"/>
 		</action>
+		<action name="SearchInvoicePurchaseActiveCancel" 
+			class="com.powerfin.actions.search.SearchAccountInvoice"
+			hidden="true"
+			icon="magnify">
+			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} in ('002','003','005') " property="condition"/>
+		</action>
 		<action name="SearchActiveInvoiceSale" 
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
