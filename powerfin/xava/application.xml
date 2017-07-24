@@ -964,4 +964,34 @@
 		<mode-controller name="DetailList" />
 	</module>
 
+	<module name="ChangeBranch">
+		<model name="BranchUser" />
+		<controller name="ChangeBranchController" />
+		<view name="ChangeBranch" />
+		<mode-controller name="DetailList" />
+	</module>
+	
+	<module name="NewUserBranch">
+		<model name="BranchUser" />
+		<controller name="NewUserBranchController" />
+		<view name="NewUserBranch" />
+		<mode-controller name="DetailList" />
+	</module>
+
+<!-- BEGIN TXTransferItem ######################################## -->
+	<module name="RequestTXTransferItem">
+		<model name="Transaction" />
+		<controller name="RequestTXTransferItemController" />
+		<view name="RequestTXTransferItem" />
+		<tab name="TXTransferItem" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXTransferItem">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXTransferItemController" />
+		<view name="AuthorizeTXTransferItem" />
+		<tab name="TXTransferItem" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXTransferItem ######################################## -->
 </application>

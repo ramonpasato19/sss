@@ -20,7 +20,8 @@ import com.powerfin.model.types.*;
 @Entity
 @Table(name="account_invoice")
 @Views({
-	@View(members="accountId, companyAccountingDate; accountStatus;"
+	@View(members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity; "
 				+ "issueDate, dueDate;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -32,7 +33,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),
 	@View(name="InvoicePurchase", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate, dueDate;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -45,7 +47,8 @@ import com.powerfin.model.types.*;
 				+ "balances{balance;}"
 				),
 	@View(name="ConsultPurchaseInvoice", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate, dueDate;"
 				+ "taxDeclaration{invoiceTaxSupport;invoiceVoucherType;invoiceProviderType; partRelated;}"
 				+ "person{person;}"
@@ -57,7 +60,8 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				),
 	@View(name="InvoiceSale", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate, dueDate;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -67,9 +71,9 @@ import com.powerfin.model.types.*;
 				+ "balances{balance;}"
 				),		
 	@View(name="RequestTXInvoicePurchase", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus;"
+				+ "branch, unity;"
 				+ "issueDate, dueDate; "
-				+ "unity;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
@@ -80,7 +84,7 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXInvoicePurchase", 
-		members="info{accountId, companyAccountingDate; accountStatus;"
+		members="info{accountId, companyAccountingDate; accountStatus; branch; "
 				+ "issueDate, dueDate;}"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -92,9 +96,9 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),
 	@View(name="RequestTXInvoiceSale", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate, dueDate; "
-				+ "unity; "
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
@@ -103,16 +107,16 @@ import com.powerfin.model.types.*;
 				+ "Invoices{invoices}"
 				),
 	@View(name="AuthorizeTXInvoiceSale", 
-		members="info{accountId, companyAccountingDate; accountStatus;"
+		members="info{accountId, companyAccountingDate; accountStatus; branch; "
 				+ "issueDate, dueDate;}"
 				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
 				+ "remark{remark;}"
 				+ "detail{details;}"
 				),
 	@View(name="RequestTXCreditNotePurchase", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate;"
-				+ "unity;"
 				+ "accountModified;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -121,7 +125,7 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXCreditNotePurchase", 
-		members="info{accountId, companyAccountingDate; accountStatus;"
+		members="info{accountId, companyAccountingDate; accountStatus; branch; "
 				+ "issueDate, dueDate;}"
 				+ "accountModified;"
 				+ "person{person;}"
@@ -131,9 +135,9 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),
 	@View(name="RequestTXCreditNoteSale", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus; "
+				+ "branch, unity;"
 				+ "issueDate;"
-				+ "unity;"
 				+ "accountModified;"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -142,7 +146,7 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXCreditNoteSale", 
-		members="info{accountId, companyAccountingDate; accountStatus;"
+		members="info{accountId, companyAccountingDate; accountStatus; branch; "
 				+ "issueDate, dueDate;}"
 				+ "accountModified;"
 				+ "person{person;}"
@@ -152,14 +156,16 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),
 	@View(name="PrintTXInvoiceSale", 
-		members=""
-				+ "accountId; issueDate, dueDate;"
+		members="#accountId; "
+				+ "branch, unity;"
+				+ "issueDate, dueDate;"
 				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
 				+ "remark{remark;}"
 				+ "detail{details;}"
 			),
 	@View(name="ConsultInvoiceActive", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus;"
+				+ "branch, unity;"
 				+ "issueDate, dueDate;"
 				+ "taxDeclaration{invoiceTaxSupport;invoiceVoucherType;invoiceProviderType; partRelated;}"
 				+ "person{person;}"
@@ -171,16 +177,17 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				),
 	@View(name="RequestTXOrderItems", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus;"
+				+ "branch, unity;"
 				+ "issueDate;"
-				+ "unity;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "remark{sequentialCode; remark;}"
 				+ "detail{details;}"
 				),		
 	@View(name="AuthorizeTXOrderItems", 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="#accountId, companyAccountingDate; accountStatus;"
+				+ "branch, unity;"
 				+ "issueDate,"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -188,7 +195,8 @@ import com.powerfin.model.types.*;
 				+ "detail{details;}"
 				),		
 	@View(name="TXOrderToInvoice", 
-		members="accountId, companyAccountingDate;"
+		members="#accountId, companyAccountingDate;"
+				+ "branch, unity;"
 				+ "issueDate,"
 				+ "person{person;}"
 				+ "product{product;}"
@@ -209,42 +217,42 @@ import com.powerfin.model.types.*;
 			+ "establishmentCode, emissionPointCode, sequentialCode")
 })
 @Tabs({
-	@Tab(properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate"),
+	@Tab(properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate"),
 	
-	@Tab(name="TXInvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXInvoicePurchase", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="InvoicePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
+	@Tab(name="InvoicePurchase", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.externalCode, issueDate",
+	@Tab(name="TXInvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.externalCode, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="InvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
+	@Tab(name="InvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 	baseCondition = "${account.accountStatus.accountStatusId} IN ('002','005') "
 		+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXCreditNotePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXCreditNotePurchase", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 	baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="CreditNotePurchase", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
+	@Tab(name="CreditNotePurchase", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate, balance",
 	baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXCreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXCreditNoteSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="CreditNoteSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
+	@Tab(name="CreditNoteSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.CREDIT_NOTE_SALE_PRODUCT_TYPE_ID+"'"),
 	
-	@Tab(name="TXOrderItems", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXOrderItems", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXConvertOrderToInvoice", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '002' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.ORDER_PURCHASE_PRODUCT_TYPE_ID+"'"),
-	@Tab(name="TXConvertInvoicePurchaseToSale", properties="account.accountId, account.currency.currencyId, account.person.name, account.code, issueDate",
+	@Tab(name="TXConvertInvoicePurchaseToSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} in ('002','005') "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"'")
 })
@@ -255,6 +263,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@Column(name="account_id", unique=true, nullable=false)
 	@ReadOnly(notForViews="forRetention, forCreditNote")
 	@Hidden
+	@DisplaySize(25)
 	private String accountId;
 	
 	@Temporal(TemporalType.DATE)
@@ -389,7 +398,6 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@ManyToOne
 	@JoinColumn(name="unity_id")
-	@Required
 	@NoCreate
 	@NoModify
 	@DescriptionsList(descriptionProperties = "name")
@@ -415,6 +423,13 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@Transient
 	@ManyToOne
+	@DescriptionsList(descriptionProperties="branchId, name")
+	@NoCreate
+	@NoModify
+	private Branch branch;
+	
+	@Transient
+	@ManyToOne
 	@Required
 	@NoCreate
 	@NoModify
@@ -437,7 +452,6 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@Transient
 	@ManyToOne
-	@Required
 	@NoCreate
 	@NoModify
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
@@ -537,6 +551,17 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		this.product = product;
 	}
 
+	public Branch getBranch() {
+		if (account!=null)
+			return account.getBranch();
+		else 
+			return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
 	public InvoiceTaxSupport getInvoiceTaxSupport() {
 		return invoiceTaxSupport;
 	}
@@ -724,5 +749,4 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	public int getQuantityAccountsItems() {
 		return details.size();				
 	}
-	
 }

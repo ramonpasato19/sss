@@ -54,9 +54,65 @@ public class AccountHelper {
 				throw new OperativeException("the_person_already_has_an_account",product.getName());
 		}
 	}
+	
+	public static Account createAccount(Account account)  throws Exception 
+	{
+		return createAccount(account.getAccountId(), account.getProduct(), account.getPerson(), account.getAccountStatus(),
+				account.getName(), account.getCode(), account.getAlternateCode(), account.getTransactionalName(), account.getBranch());
+	}
+	
+	public static Account createAccount(String productId, Integer personId,
+			String accountStatusId, String name, String code, String alternateCode)  throws Exception {
+		return createAccount(null, productId, personId, accountStatusId, name, code, alternateCode, null, null);
+	}
+	
+	public static Account createAccount(String productId, Integer personId,
+			String accountStatusId, String name, String code, String alternateCode, Integer branchId)  throws Exception {
+		return createAccount(null, productId, personId, accountStatusId, name, code, alternateCode, null, branchId);
+	}
+	
+	public static Account createAccount(String accountId, String productId, Integer personId,
+			String accountStatusId)  throws Exception {
+		return createAccount(accountId, productId, personId, accountStatusId, null, null, null);
+	}
+	
+	public static Account createAccount(String accountId, String productId, Integer personId,
+			String accountStatusId, Integer branchId)  throws Exception {
+		return createAccount(accountId, productId, personId, accountStatusId, null, null, null, branchId);
+	}
+	
+	public static Account createAccount(String accountId, String productId, Integer personId,
+			String accountStatusId, String name, String code, String alternateCode)  throws Exception {
+		return createAccount(accountId, productId, personId, accountStatusId, name, code, alternateCode, null, null);
+	}
+	
+	public static Account createAccount(String accountId, String productId, Integer personId,
+			String accountStatusId, String name, String code, String alternateCode, Integer branchId)  throws Exception {
+		return createAccount(accountId, productId, personId, accountStatusId, name, code, alternateCode, null, branchId);
+	}
+	
+	public static Account createAccount(String accountId, String productId, Integer personId,
+			String accountStatusId, String name, String code, String alternateCode, String transactionalName, Integer branchId)  throws Exception {
+		
+		AccountStatus accountStatus = null;
+		Product product = null;
+		Person person = null;
+		Branch branch = null;
+		
+		if (accountStatusId!=null)
+			accountStatus = XPersistence.getManager().find(AccountStatus.class, accountStatusId);
+		if (productId!=null)
+			product = XPersistence.getManager().find(Product.class, productId);
+		if (personId!=null)
+			person = XPersistence.getManager().find(Person.class, personId);
+		if (branchId!=null)
+			branch = XPersistence.getManager().find(Branch.class, branchId);
+		
+		return createAccount(accountId, product, person, accountStatus, name, code, alternateCode, transactionalName, branch);
+	}
 
 	public static Account createAccount(String accountId, Product product, Person person, AccountStatus accountStatus,
-			String name, String code, String alternateCode, String transactionalName)  throws Exception 
+			String name, String code, String alternateCode, String transactionalName, Branch branch)  throws Exception 
 	{
 		Account a = new Account();
 		a.setAccountId(accountId);
@@ -67,70 +123,11 @@ public class AccountHelper {
 		a.setAlternateCode(alternateCode);
 		a.setAccountStatus(accountStatus);	
 		a.setTransactionalName(transactionalName);
-		
+		a.setBranch(branch==null?UserHelper.getRegisteredBranch():branch);
 		XPersistence.getManager().persist(a);
 		return a;
 	}
 	
-	public static Account createAccount(Account account)  throws Exception 
-	{
-		return createAccount(account.getAccountId(), account.getProduct(), account.getPerson(), account.getAccountStatus(),
-				account.getName(), account.getCode(), account.getAlternateCode(), account.getTransactionalName());
-	}
-	
-	public static Account createAccount(String productId, Integer personId,
-			String accountStatusId, String name, String code, String alternateCode)  throws Exception {
-		
-		AccountStatus accountStatus = null;
-		Product product = null;
-		Person person = null;
-		
-		if (accountStatusId!=null)
-			accountStatus = XPersistence.getManager().find(AccountStatus.class, accountStatusId);
-		if (productId!=null)
-			product = XPersistence.getManager().find(Product.class, productId);
-		if (personId!=null)
-			person = XPersistence.getManager().find(Person.class, personId);
-		return createAccount(null, product, person, accountStatus, name, code, alternateCode, null);
-	}
-	
-	public static Account createAccount(String accountId, String productId, Integer personId,
-			String accountStatusId, String name, String code, String alternateCode, String transactionalName)  throws Exception {
-		
-		AccountStatus accountStatus = null;
-		Product product = null;
-		Person person = null;
-		
-		if (accountStatusId!=null)
-			accountStatus = XPersistence.getManager().find(AccountStatus.class, accountStatusId);
-		if (productId!=null)
-			product = XPersistence.getManager().find(Product.class, productId);
-		if (personId!=null)
-			person = XPersistence.getManager().find(Person.class, personId);
-		return createAccount(accountId, product, person, accountStatus, name, code, alternateCode, transactionalName);
-	}
-	
-	public static Account createAccount(String accountId, String productId, Integer personId,
-			String accountStatusId, String name, String code, String alternateCode)  throws Exception {
-		
-		AccountStatus accountStatus = null;
-		Product product = null;
-		Person person = null;
-		
-		if (accountStatusId!=null)
-			accountStatus = XPersistence.getManager().find(AccountStatus.class, accountStatusId);
-		if (productId!=null)
-			product = XPersistence.getManager().find(Product.class, productId);
-		if (personId!=null)
-			person = XPersistence.getManager().find(Person.class, personId);
-		return createAccount(accountId, product, person, accountStatus, name, code, alternateCode, null);
-	}
-	
-	public static Account createAccount(String accountId, String productId, Integer personId,
-			String accountStatusId)  throws Exception {
-		return createAccount(accountId, productId, personId, accountStatusId, null, null, null);
-	}
-
 	@SuppressWarnings("unchecked")
 	public static AccountStatus getDefaultAccountStatusByProduct(Product product)  throws Exception 
 	{

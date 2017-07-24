@@ -12,9 +12,9 @@ import org.openxava.application.meta.*;
 import org.openxava.util.*;
 
 import com.openxava.naviox.impl.*;
-import com.openxava.naviox.model.*;
 import com.openxava.naviox.util.*;
 import com.powerfin.helper.*;
+import com.powerfin.model.*;
 import com.powerfin.util.*;
 
 /**
@@ -332,7 +332,13 @@ public class Modules implements Serializable {
 	}
 	public String getPowerfinModuleDescription(HttpServletRequest request) { 
 		try {
-			return CompanyHelper.getName() + " - " +  current.getLabel() + " - " +UtilApp.dateToString(CompanyHelper.getCurrentAccountingDate());
+			return XavaResources.getString("module_initials")
+					+ ": " 
+					+ current.getLabel() 
+					+ ", "
+					+ XavaResources.getString("accountingDate_initials")
+					+ ": " 
+					+ UtilApp.dateToString(CompanyHelper.getCurrentAccountingDate());
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("module_description_problem"), ex);			

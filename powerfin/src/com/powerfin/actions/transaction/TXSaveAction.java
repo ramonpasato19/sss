@@ -110,7 +110,7 @@ public class TXSaveAction extends SaveAction{
 			throw new OperativeException("account_is_required");
 		}
 	}
-		
+
 	@SuppressWarnings("rawtypes")
 	public void execute() throws Exception
 	{
@@ -125,7 +125,7 @@ public class TXSaveAction extends SaveAction{
 			// Find the just saved transaction
             Map keyValues = getView().getKeyValues(); 
             Transaction transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues); 
-            getTransactionAccounts(transaction);
+            
             boolean financialProcessed = false;
 			
             // Ejecute pre actions

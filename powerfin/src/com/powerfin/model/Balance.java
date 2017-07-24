@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.*;
+import org.openxava.annotations.*;
 
 
 /**
@@ -74,6 +75,11 @@ public class Balance implements Serializable {
 	@Column(name="stock", precision=13, scale=4)
 	private BigDecimal stock;
 
+	@ManyToOne
+	@JoinColumn(name="branch_id")
+	@DescriptionsList(descriptionProperties = "name")
+	private Branch branch;
+	
 	public Balance() {
 	}
 
@@ -179,6 +185,14 @@ public class Balance implements Serializable {
 	}
 	public void setStock(BigDecimal stock) {
 		this.stock = stock;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
 	}
 
 }

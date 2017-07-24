@@ -230,7 +230,7 @@ public class PrestashopHelper {
 			}
 		}
 		TransactionModule transactionModule = XPersistence.getManager().find(TransactionModule.class, "INVOICE_SALE");
-		Transaction transaction = new Transaction();
+		Transaction transaction = TransactionHelper.getNewInitTransaction();
 		transaction.setValue(result.getBigDecimal("total_paid_tax_incl"));
 		transaction.setRemark("FACTURA GENERADA DESDE YALOBOX");
 		transaction.setUserRequesting(Users.getCurrentUserInfo().getId());

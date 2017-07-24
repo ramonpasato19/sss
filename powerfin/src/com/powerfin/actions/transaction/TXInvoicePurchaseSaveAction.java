@@ -39,7 +39,7 @@ public class TXInvoicePurchaseSaveAction extends TXSaveAction {
 			
 			//AccountItem
 			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, costCategory));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, costCategory, account.getBranch()));
 			//AccountAccountant
 			else
 				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), detailAmount, transaction));

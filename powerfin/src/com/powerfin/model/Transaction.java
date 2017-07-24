@@ -31,13 +31,15 @@ import com.powerfin.model.types.*;
 				+ "accountingDate;"
 				+ "transactionStatus;"
 				+ "transactionAccounts"),
-		@View(name="TransactionList", members = "transactionId;"
-				+ "voucher;" + "currency; transactionModule;" + "realValue;"
+		
+		@View(name="TransactionList", members = "voucher;" + "currency; transactionModule;" + "value;"
 				+ "remark;" + "requestDate, userRequesting;"
 				+ "authorizationDate, userAuthorizing;" 
 				+ "accountingDate, documentNumber;"
+				+ "originationBranch, destinationBranch;"
 				+ "transactionStatus;"
 				+ "transactionAccounts"),
+		
 		//General transaction
 		@View(name="RequestTXGeneral", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "remark;" + "transactionStatus;"
@@ -45,11 +47,11 @@ import com.powerfin.model.types.*;
 		@View(name="AuthorizeTXGeneral", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "remark;" + "transactionStatus;"
 				+ "transactionAccounts;"),
+		
 		//ManualAccountingEntry
 		@View(name="RequestTXManualAccountingEntry", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "remark;" + "transactionStatus;"
 				+ "transactionAccounts;"),
-		//ManualAccountingEntry
 		@View(name="AuthorizeTXManualAccountingEntry", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "remark;" + "transactionStatus;"
 				+ "transactionAccounts;"),
@@ -220,28 +222,24 @@ import com.powerfin.model.types.*;
 		//Authorize Invoice Purchase
 		@View(name = "AuthorizeTXInvoicePurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "origenUnity;"
 				+ "invoice[creditAccount];" 
 				+ "data[accountInvoicePurchase];"),
 		
 		//Authorize Invoice Sale
 		@View(name = "AuthorizeTXInvoiceSale", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "origenUnity;"
 				+ "invoice[debitAccount];" 
 				+ "data[accountInvoiceSale];"),
 		
 		//Authorize Credit Note Purchase
 		@View(name = "AuthorizeTXCreditNotePurchase", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "origenUnity;"
 				+ "creditNote[debitAccount];" 
 				+ "data[accountInvoiceSale];"),
 
 		//Authorize Credit Note Sale
 		@View(name = "AuthorizeTXCreditNoteSale", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "value; transactionStatus;"
-				+ "origenUnity;"
 				+ "creditNote[creditAccount];" 
 				+ "data[accountInvoicePurchase];"),
 				
@@ -371,6 +369,16 @@ import com.powerfin.model.types.*;
 				+ "debitAccount[debitAccount];" 
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
 		
+		//Transfer Items between Branch
+		@View(name="RequestTXTransferItem", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "remark;" + "transactionStatus; "
+				+ "originationBranch, destinationBranch; "
+				+ "transactionAccounts;"),
+		@View(name="AuthorizeTXTransferItem", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "remark;" + "transactionStatus;"
+				+ "originationBranch, destinationBranch; "
+				+ "transactionAccounts;"),
+		
 })
 @Tabs({
 		@Tab(properties = "voucher, currency.currencyId, transactionModule.transactionModuleId, value, transactionStatus.name, requestDate, authorizationDate, accountingDate"),
@@ -393,12 +401,12 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXInvoicePurchasePayment", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICEPURCHASEPAYMENT'"),
 		@Tab(name = "TXInvoicePurchaseCheckPayment", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICEPURCHASECHECKPAYMENT'"),
 		@Tab(name = "TXCheckPaymentPayable", properties = "debitAccount.person.name, voucher, currency.currencyId, remark, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CHECKPAYMENTPAYABLE'"),
-		@Tab(name = "TXInvoicePurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_PURCHASE'"),
-		@Tab(name = "TXInvoiceSale", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_SALE'"),
-		@Tab(name = "TXCreditNotePurchase", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTEPURCHASE'"),
-		@Tab(name = "TXCreditNoteSale", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTESALE'"),
-		@Tab(name = "TXRetentionSale", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_SALE'"),
-		@Tab(name = "TXRetentionPurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_PURCHASE'"),
+		@Tab(name = "TXInvoicePurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, creditAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_PURCHASE'"),
+		@Tab(name = "TXInvoiceSale", properties = "debitAccount.person.name, voucher, debitAccount.code, debitAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INVOICE_SALE'"),
+		@Tab(name = "TXCreditNotePurchase", properties = "debitAccount.person.name, voucher, debitAccount.code, debitAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTEPURCHASE'"),
+		@Tab(name = "TXCreditNoteSale", properties = "creditAccount.person.name, voucher, creditAccount.code, creditAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'CREDITNOTESALE'"),
+		@Tab(name = "TXRetentionSale", properties = "debitAccount.person.name, voucher, debitAccount.code, debitAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_SALE'"),
+		@Tab(name = "TXRetentionPurchase", properties = "creditAccount.person.name, voucher, creditAccount.code, creditAccount.branch.name, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'RETENTION_PURCHASE'"),
 		@Tab(name = "TXAccountLoan", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANDISBURSEMENT'"),
 		@Tab(name = "TXAccountTerm", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TERMOPENING'"),
 		@Tab(name = "TXTransferDue", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERDUE'"),
@@ -413,7 +421,7 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXPurchasePortfolioPaymentValueDate", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
 		@Tab(name = "TXSalePortfolioPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
 		@Tab(name = "TXLoanPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANPAYMENT'"),
-		
+		@Tab(name = "TXTransferItem", properties = "voucher, currency.currencyId, remark, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERITEM'"),
 })
 public class Transaction implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -477,6 +485,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	private String remark;
 
@@ -525,6 +534,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	private String documentNumber;
 	
@@ -579,6 +589,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	private BigDecimal value;
 
@@ -636,6 +647,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	private Currency currency;
 	
@@ -689,6 +701,7 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXLoanPayment,"
 					+ "AuthorizeTXCreditNotePurchase,"
 					+ "AuthorizeTXCreditNoteSale,"
+					+ "AuthorizeTXTransferItem,"
 					)
 	})
 	@ReadOnly(forViews = ""
@@ -729,6 +742,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	
 	@DescriptionsLists({ 
@@ -758,6 +772,7 @@ public class Transaction implements Serializable {
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPayment", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPaymentValueDate", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
 		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSalePortfolioPayment", condition = "${transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferItem", condition = "${transactionModuleId} = 'TRANSFERITEM'"),
 		
 	})
 	private TransactionModule transactionModule;
@@ -797,6 +812,7 @@ public class Transaction implements Serializable {
 							+ "RequestTXPurchasePortfolioPayment,"
 							+ "RequestTXPurchasePortfolioPaymentValueDate,"
 							+ "RequestTXSalePortfolioPayment,"
+							+ "RequestTXTransferItem,"
 							),
 			@DescriptionsList(descriptionProperties = "name", condition = "${transactionStatusId} IN ('001','002','003')", 
 					forViews = "AuthorizeTXGeneral, "
@@ -836,6 +852,7 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXLoanPayment,"
 							+ "AuthorizeTXCreditNotePurchase,"
 							+ "AuthorizeTXCreditNoteSale,"
+							+ "AuthorizeTXTransferItem,"
 							) 
 			})
 	@ReferenceView(forViews = "DEFAULT, TransactionList", value = "simple")
@@ -851,13 +868,22 @@ public class Transaction implements Serializable {
 		@ListProperties(forViews="AuthorizeTXManualAccountingEntry,RequestTXManualAccountingEntry",
 					value="account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
 		@ListProperties(forViews="AuthorizeTXGeneral,RequestTXGeneral",
-		value="account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
+					value="account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
+		@ListProperties(forViews="AuthorizeTXTransferItem,RequestTXTransferItem",
+					value="debitOrCredit, branch.name, account.accountId, account.code, account.alternateCode, account.name, quantity, value"),
 	})
-	@ReadOnly(forViews = "AuthorizeTXGeneral,AuthorizeTXManualAccountingEntry")
+	@ReadOnly(forViews = "AuthorizeTXGeneral, AuthorizeTXManualAccountingEntry, AuthorizeTXTransferItem")
 	@CollectionViews({
 		@CollectionView(forViews="TransactionList",value="ForList"),
 		@CollectionView(forViews="AuthorizeTXManualAccountingEntry,RequestTXManualAccountingEntry",value="ForManualEntry"),
+		@CollectionView(forViews="AuthorizeTXTransferItem,RequestTXTransferItem",value="ForTransferItem"),
 		@CollectionView(forViews="AuthorizeTXGeneral,RequestTXGeneral",value="ForGeneral")
+		
+	})
+	
+	@ListActions({
+		@ListAction("Print.generatePdf"),
+		@ListAction("Print.generateExcel")
 	})
 	private List<TransactionAccount> transactionAccounts;
 
@@ -949,6 +975,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
 	private Account debitAccount;
@@ -999,6 +1026,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
+			+ "AuthorizeTXTransferItem,"
 			)
 	@SearchActions({ 
 		@SearchAction(forViews="RequestTXOpening", value = "SearchAccount.SearchShareholderAccount"),
@@ -1062,9 +1090,27 @@ public class Transaction implements Serializable {
 	private Category secondaryCategory;
 	
 	@ManyToOne
-	@JoinColumn(name="origen_unity_id")
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@JoinColumn(name="origination_branch_id")
+	@ReadOnly(forViews="AuthorizeTXTransferItem")
 	@DescriptionsList(descriptionProperties = "name")
+	@NoCreate
+	@NoModify
+	private Branch originationBranch;
+	
+	@ManyToOne
+	@JoinColumn(name="destination_branch_id")
+	@ReadOnly(forViews="AuthorizeTXTransferItem")
+	@DescriptionsList(descriptionProperties = "name")
+	@NoCreate
+	@NoModify
+	private Branch destinationBranch;
+	
+	@ManyToOne
+	@JoinColumn(name="origen_unity_id")
+	@ReadOnly(forViews="AuthorizeTXTransferItem, AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@DescriptionsList(descriptionProperties = "name")
+	@NoCreate
+	@NoModify
 	private Unity origenUnity;
 	
 	//-------------------------
@@ -1379,7 +1425,7 @@ public class Transaction implements Serializable {
 		fillAuthorizingInfo();
 	}
 
-	public void fillRequestingInfo() {
+	public void fillRequestingInfo() throws Exception {
 		if (!transactionStatus.equals(transactionModule.getFinancialTransactionStatus()))
 		{
 			requestDate = new Date();
@@ -1392,7 +1438,7 @@ public class Transaction implements Serializable {
 			
 	}
 
-	public void fillAuthorizingInfo() {
+	public void fillAuthorizingInfo() throws Exception {
 		if (transactionStatus.equals(transactionModule.getFinancialTransactionStatus()))
 		{
 			authorizationDate = new Date();
@@ -1400,7 +1446,7 @@ public class Transaction implements Serializable {
 		}
 	}
 	
-	public BigDecimal getRealValue()
+	public BigDecimal getRealValue() throws Exception
 	{
 		BigDecimal realValue = BigDecimal.ZERO;
 		for (TransactionAccount ta : transactionAccounts)
@@ -1416,6 +1462,22 @@ public class Transaction implements Serializable {
 
 	public void setOrigenUnity(Unity origenUnity) {
 		this.origenUnity = origenUnity;
+	}
+
+	public Branch getOriginationBranch() {
+		return originationBranch;
+	}
+
+	public void setOriginationBranch(Branch originationBranch) {
+		this.originationBranch = originationBranch;
+	}
+
+	public Branch getDestinationBranch() {
+		return destinationBranch;
+	}
+
+	public void setDestinationBranch(Branch destinationBranch) {
+		this.destinationBranch = destinationBranch;
 	}
 
 }

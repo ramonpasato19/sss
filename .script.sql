@@ -1,23 +1,39 @@
-CREATE TABLE
-    account_invoice_tax
-    (
-        account_invoice_tax_id CHARACTER VARYING(32) NOT NULL,
-        account_invoice_id CHARACTER VARYING(20) NOT NULL,
-        tax_id CHARACTER VARYING(10) NOT NULL,
-        tax_percentage NUMERIC(5,2) NOT NULL,
-        tax_base NUMERIC(11,2) NOT NULL,
-        tax_amount NUMERIC(11,2) NOT NULL,
-        CONSTRAINT account_invoice_tax_pk PRIMARY KEY (account_invoice_tax_id),
-        CONSTRAINT account_inv_tax_account_inv_fk FOREIGN KEY (account_invoice_id) REFERENCES account_invoice (account_id),
-        CONSTRAINT account_inv_tax_tax_fk FOREIGN KEY (tax_id) REFERENCES tax (tax_id)
-    );
 
-ALTER TABLE account_portfolio ADD COLUMN purchase_status_id CHARACTER VARYING(3);
-ALTER TABLE account_portfolio ADD COLUMN sale_status_id CHARACTER VARYING(3);
-update account_portfolio set purchase_status_id = '002', sale_status_id = '002';
-ALTER TABLE account_portfolio ADD CONSTRAINT acc_por_pur_status_fk FOREIGN KEY (purchase_status_id) REFERENCES account_status (account_status_id);
-ALTER TABLE account_portfolio ADD CONSTRAINT acc_por_sale_status_fk FOREIGN KEY (sale_status_id) REFERENCES account_status (account_status_id);
-ALTER TABLE account_portfolio ALTER COLUMN purchase_status_id SET NOT NULL;
-ALTER TABLE account_portfolio ALTER COLUMN sale_status_id SET NOT NULL;
+ALTER TABLE transaction ADD COLUMN origination_branch_id INTEGER;
+ALTER TABLE transaction ADD CONSTRAINT tran_ori_branch_fk FOREIGN KEY (origination_branch_id) REFERENCES branch (branch_id);
 
-drop table account_invoice_detail_tax;
+ALTER TABLE transaction ADD COLUMN destination_branch_id INTEGER;
+ALTER TABLE transaction ADD CONSTRAINT tran_dest_branch_fk FOREIGN KEY (destination_branch_id) REFERENCES branch (branch_id);
+
+ALTER TABLE account ADD COLUMN branch_id INTEGER;
+UPDATE account SET branch_id = 1;
+ALTER TABLE account ALTER COLUMN branch_id SET NOT NULL;
+ALTER TABLE account ADD CONSTRAINT account_branch_fk FOREIGN KEY (branch_id) REFERENCES branch (branch_id);
+
+ALTER TABLE transaction_account ADD COLUMN branch_id INTEGER;
+UPDATE transaction_account SET branch_id = 1;
+ALTER TABLE transaction_account ALTER COLUMN branch_id SET NOT NULL;
+ALTER TABLE transaction_account ADD CONSTRAINT tran_account_branch_fk FOREIGN KEY (branch_id) REFERENCES branch (branch_id);
+
+ALTER TABLE movement ADD COLUMN branch_id INTEGER;
+UPDATE movement SET branch_id = 1;
+ALTER TABLE movement ALTER COLUMN branch_id SET NOT NULL;
+ALTER TABLE movement ADD CONSTRAINT movement_branch_fk FOREIGN KEY (branch_id) REFERENCES branch (branch_id);
+
+ALTER TABLE balance ADD COLUMN branch_id INTEGER;
+UPDATE balance SET branch_id = 1;
+ALTER TABLE balance ALTER COLUMN branch_id SET NOT NULL;
+ALTER TABLE balance ADD CONSTRAINT balance_branch_fk FOREIGN KEY (branch_id) REFERENCES branch (branch_id);
+
+ALTER TABLE balance DROP CONSTRAINT balance_uk;
+ALTER TABLE balance ADD CONSTRAINT balance_uk UNIQUE (account_id, subaccount, category_id, branch_id, to_date);
+
+ALTER TABLE balance ADD CONSTRAINT balance_ck_fd_td CHECK (FROM_DATE<=TO_DATE);
+
+
+INSERT INTO parameter (parameter_id, value, description, type) VALUES ('MAIN_BRANCH_ID', '1', 'SUCURSAL PRINCIPAL', null);
+
+INSERT INTO transaction_module (transaction_module_id, name, prefix, sequence_db_name, financial_transaction_status_id, default_transaction_status_id, sufix, lpad, rpad) VALUES ('TRANSFERITEM', 'TRANSFERENCIA DE ITEMS ENTRE SUCURSALES', 'TX', 'VOUCHER', '002', '001', '', '000000', '');
+
+insert into branch_user
+select name, name, 1 from oxusers;

@@ -17,6 +17,7 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 
 	private String accountStatusId;
 	private String transactionModuleId;
+	Integer branchId = null;
 	
 	@SuppressWarnings("unchecked")
 	public void execute() throws Exception {
@@ -25,7 +26,11 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		accountStatusId = getView().getSubview("accountStatus").getValueString("accountStatusId");	
 		String productId = getView().getSubview("product").getValueString("productId");
 		Integer personId = getView().getSubview("person").getValueInt("personId");
+		
 		String externalCode = "";
+		
+		Map<String, Integer> branchMap = (Map<String, Integer>) getView().getRoot().getValue("branch");
+		branchId = (Integer)branchMap.get("branchId");
 		
 		if (!UtilApp.fieldIsEmpty(getView().getValueString("establishmentCode")))
 			externalCode += getView().getValueString("establishmentCode")+"-";
@@ -38,7 +43,7 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		
 		if (getView().isKeyEditable()) { //Create Account
 			
-			Account account = AccountHelper.createAccount(productId, personId, accountStatusId, null, externalCode, null);
+			Account account = AccountHelper.createAccount(productId, personId, accountStatusId, null, externalCode, null, branchId);
 			getView().setValue("accountId", account.getAccountId());
 			addMessage("account_created", account.getClass().getName());
 		}
@@ -46,6 +51,7 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		{
 			Account account = XPersistence.getManager().find(Account.class, accountId);
 			account.setCode(externalCode);
+			account.setBranch(XPersistence.getManager().find(Branch.class, branchId));
 			account.setPerson(XPersistence.getManager().find(Person.class, personId));
 			
 			if (!account.getAccountStatus().getAccountStatusId().equals(AccountInvoiceHelper.STATUS_INVOICE_REQUEST))
@@ -120,6 +126,10 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		
 		if (getTransactionModuleId() == null || getTransactionModuleId().isEmpty())
 			throw new InternalException("property_transactionModuleId_is_required");
+		
+		if (branchId == null)
+			throw new OperativeException("branch_is_required");
+		
 	}
 
 	public String getTransactionModuleId() {

@@ -12,6 +12,7 @@ import org.hibernate.annotations.*;
 import org.hibernate.annotations.Parameter;
 import org.openxava.annotations.*;
 
+import com.powerfin.actions.inventory.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.types.*;
 import com.powerfin.model.types.Types.*;
@@ -30,19 +31,28 @@ import com.powerfin.model.types.Types.*;
 			+ "value;"
 			+ "remark"),
 	@View(name="ForManualEntry", members="account; "
+			+ "branch;"
 			+ "debitOrCredit;"
 			+ "value;"
 			+ "remark;"),
 	@View(name="ForGeneral", members="account; "
 			+ "category; "
+			+ "branch;"
 			+ "subaccount; "
 			+ "debitOrCredit;"
 			+ "value;"
+			+ "quantity;"
 			+ "remark;"),
 	@View(name="ForList", members="account; "
 			+ "debitOrCredit;"
 			+ "value;"
-			+ "remark;")
+			+ "remark;"),
+	@View(name="ForTransferItem", members="account; "
+			+ "quantity;"
+			+ "averageCost;"
+			+ "value;"
+			+ "debitOrCredit;")
+	
 })
 @Tab(properties="account.code, account.name, subaccount, category.categoryId, debitOrCredit, value")
 public class TransactionAccount implements Serializable {
@@ -62,15 +72,19 @@ public class TransactionAccount implements Serializable {
 	@NoModify
 	@SearchActions({
 		@SearchAction(forViews="ForManualEntry", value="SearchAccount.SearchAccountToManualEntry"),
-		@SearchAction(forViews="ForGeneral", value="SearchAccount.SearchAccount")
+		@SearchAction(forViews="ForGeneral", value="SearchAccount.SearchAccount"),
+		@SearchAction(forViews="ForTransferItem", value="SearchAccount.SearchAccountItem")
 	})
 	@Required
+	@OnChange(forViews="ForTransferItem", value=OnChangeAccountTransferItemAction.class)
 	private Account account;
 
 	//bi-directional many-to-one association to Category
 	@ManyToOne
 	@JoinColumn(name="category_id", nullable=false)
 	@ReferenceView("Reference")
+	@NoCreate
+	@NoModify
 	private Category category;
 
 	@Type(type="org.openxava.types.EnumStringType",
@@ -81,6 +95,7 @@ public class TransactionAccount implements Serializable {
 	 )
 	@Column(name="debit_or_credit", nullable=false, length=1)
 	@Required
+	@ReadOnly(forViews="ForTransferItem")
 	private DebitOrCredit debitOrCredit;
 	
 	@Column(nullable=false)
@@ -91,6 +106,8 @@ public class TransactionAccount implements Serializable {
 	
 	@Column(nullable=false, precision=19, scale=2)
 	@Required
+	@DisplaySize(20)
+	@ReadOnly(forViews="ForTransferItem")
 	private BigDecimal value;
 
 	@Column(length = 4000)
@@ -112,15 +129,29 @@ public class TransactionAccount implements Serializable {
 	private Transaction transaction;
 
 	@Column(name="quantity", precision=13, scale=4)
+	@DisplaySize(20)
+	@OnChange(forViews="ForTransferItem", value=OnChangeQuantityTransferItemAction.class)
 	private BigDecimal quantity;
 
 	@ManyToOne
 	@JoinColumn(name="unity_id")
 	private Unity unity;
 
+	@ManyToOne
+	@JoinColumn(name="branch_id")
+	@NoCreate
+	@NoModify
+	@DescriptionsList(descriptionProperties = "name")
+	@ReadOnly(forViews="TransferItem")
+	private Branch branch;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="registration_date", nullable=false)
 	private Date registrationDate;
+	
+	@Transient
+	@ReadOnly
+	private BigDecimal averageCost;
 	
 	public TransactionAccount() {
 	}
@@ -222,12 +253,16 @@ public class TransactionAccount implements Serializable {
 	}
 
 	@PrePersist
-	public void onPersist()
+	public void onPersist() throws Exception
 	{
-		if (category==null)
+		if (branch == null)
+			branch = CompanyHelper.getDefaultBranch();
+		if (category == null)
 			category = CategoryHelper.getBalanceCategory();
-		if (subaccount==null)
-			subaccount=0;
+		if (subaccount == null)
+			subaccount = 0;
+		if (quantity == null)
+			quantity = BigDecimal.ZERO;
 		if (updateBalance==null)
 			updateBalance = YesNoIntegerType.YES;
 		if (officialValue==null)
@@ -257,6 +292,22 @@ public class TransactionAccount implements Serializable {
 
 	public void setRegistrationDate(Date registrationDate) {
 		this.registrationDate = registrationDate;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+
+	public BigDecimal getAverageCost() {
+		return averageCost;
+	}
+
+	public void setAverageCost(BigDecimal averageCost) {
+		this.averageCost = averageCost;
 	}
 
 }

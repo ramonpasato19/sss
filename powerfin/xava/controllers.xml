@@ -2359,7 +2359,7 @@
 		<extends controller="RefreshTXController"/>
 		<action name="convert" 
 			mode="detail" 
-			class="com.powerfin.actions.accountInvoice.ConvertInvoiceOrderInvoice"
+			class="com.powerfin.actions.accountInvoice.ConvertOrderInvoiceToInvoicePurchase"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3">
@@ -2373,15 +2373,70 @@
 		<extends controller="RefreshTXController"/>
 		<action name="convert" 
 			mode="detail" 
-			class="com.powerfin.actions.accountInvoice.ConvertInvoicePurchaseToSale"
+			class="com.powerfin.actions.accountInvoice.ImportInvoicePurchaseDetailToSale"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3">
 		</action>
 		<action name="import"
-			class="com.powerfin.actions.accountInvoice.ConvertInvoicePurchaseToSale"
+			class="com.powerfin.actions.accountInvoice.ImportInvoicePurchaseDetailToSale"
             hidden="true">
         </action>
 	</controller>
+    
+    <controller name="ChangeBranchController">
+    	<extends controller="Print"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.user.ChangeBranchSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="NewUserBranchController">
+    	<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>
+		</action>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.user.NewUserBranchSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+<!-- BEGIN TXTransferItem ######################################## -->
+	<controller name="AuthorizeTXTransferItemController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXTransferItemSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransferItemController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXTransferItemSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXTransferItem ######################################## -->
     
 </controllers>

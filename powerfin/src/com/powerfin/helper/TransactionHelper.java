@@ -32,7 +32,7 @@ public class TransactionHelper {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public static Transaction initTransaction(boolean isKeyEditable, Map keyValues) throws Exception
+	public static Transaction initTransaction_(boolean isKeyEditable, Map keyValues) throws Exception
 	{
 		Transaction t = new Transaction();
 		if(!isKeyEditable)
@@ -42,27 +42,31 @@ public class TransactionHelper {
 			List<TransactionAccount> list = new ArrayList<TransactionAccount>(); 
 			t.setTransactionAccounts(list);
 		}
+		
 		return t;
 	}
 	
 	public static Transaction getNewInitTransaction() throws Exception
 	{
 		Transaction t = new Transaction();
+		
 		if (t.getTransactionAccounts()==null)
 		{
 			List<TransactionAccount> list = new ArrayList<TransactionAccount>(); 
 			t.setTransactionAccounts(list);
 		}
+		
 		t.setAccountingDate(CompanyHelper.getCurrentAccountingDate());
+
 		return t;
 	}
 	
-	public static boolean processTransaction(Transaction transaction, 
+	public static boolean processTransaction(Transaction transaction,
 			List<TransactionAccount> transactionAccounts
 			) throws Exception
 	{
 		List<TransactionAccount> transactionAccountSaved = new ArrayList<TransactionAccount>();
-
+		
 		//Clean Old Transaction Accounts
 		XPersistence.getManager().createQuery("DELETE FROM TransactionAccount ta "
 					+ "WHERE ta.transaction.transactionId = :transactionId")
@@ -72,11 +76,16 @@ public class TransactionHelper {
 		//Save New Transaction Accounts
 		for (TransactionAccount ta : transactionAccounts)
 		{
+			if (ta.getTransactionAccountId()!=null)
+			{
+				XPersistence.getManager().detach(ta);
+				ta.setTransactionAccountId(null);
+			}
 			ta.setTransaction(transaction);
 			XPersistence.getManager().persist(ta);
 			transactionAccountSaved.add(ta);
 		}
-		
+
 		transaction.setTransactionAccounts(transactionAccountSaved);
 
 		return processTransaction(transaction);

@@ -4,22 +4,23 @@ import java.util.*;
 
 import org.openxava.actions.*;
 import org.openxava.jpa.*;
+import org.openxava.util.*;
 
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
-public class ConvertInvoiceOrderInvoice extends SaveAction{
+public class ConvertOrderInvoiceToInvoicePurchase extends SaveAction{
 
 	public void execute() throws Exception {
 		AccountInvoice accountOrder=XPersistence.getManager().find(AccountInvoice.class, getView().getValueString("accountId"));
 		//String transactionModuleId;
 		
-		String accountStatusId = "001";	
+		String accountStatusId = AccountInvoiceHelper.STATUS_INVOICE_REQUEST;	
 		String productId = "202";
 		String externalCode = "";
 		
 		// Crea la cuenta
-		Account account = AccountHelper.createAccount(productId, accountOrder.getPerson().getPersonId(), accountStatusId, null, externalCode, accountOrder.getAccountId());
+		Account account = AccountHelper.createAccount(productId, accountOrder.getPerson().getPersonId(), accountStatusId, null, externalCode, accountOrder.getAccountId(), accountOrder.getAccount().getBranch().getBranchId());
 		addMessage("account_created", account.getClass().getName());
 		// Crea la cuenta de Facura
 		AccountInvoice accountInvoice = new AccountInvoice();
@@ -31,7 +32,7 @@ public class ConvertInvoiceOrderInvoice extends SaveAction{
 		accountInvoice.setRegistrationDate(accountOrder.getRegistrationDate());
 		InvoiceVoucherType typeInvoice = XPersistence.getManager().find(InvoiceVoucherType.class, "01");
 		accountInvoice.setInvoiceVoucherType(typeInvoice);
-		accountInvoice.setRemark("FACTURA POR LA ORDEN "+accountOrder.getAccountId());
+		accountInvoice.setRemark(XavaResources.getString("invoice_based_on_order", accountOrder.getAccountId()));
 		accountInvoice.setUserRegistering(accountOrder.getUserRegistering());
 		accountInvoice.setEstablishmentCode(accountOrder.getEstablishmentCode());
 		accountInvoice.setEmissionPointCode(accountOrder.getEmissionPointCode());

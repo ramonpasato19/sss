@@ -8,17 +8,17 @@ import org.hibernate.annotations.*;
 import org.openxava.annotations.*;
 
 import com.openxava.naviox.model.*;
-import com.powerfin.helper.*;
 
 @Entity
 @Table(name="branch_user")
 @Views({
-	@View(members="branchUserId;user;branch"),
-	@View(name="ChangeBranch", members="userName; branch")
+	@View(members="user; branch"),
+	@View(name="NewUserBranch", members="user; branch"),
+	@View(name="ChangeBranch", members="user; branch")
 })
 @Tabs({
 	@Tab(properties="user.name, branch.name"),
-	@Tab(name="ChangeBranch", properties="user.name, branch.name"),
+	@Tab(name="ChangeBranch", properties="user.name, branch.name ")
 })
 public class BranchUser {
 
@@ -26,6 +26,7 @@ public class BranchUser {
 	@Hidden
 	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	@Column(name="branch_user_id", unique=true, nullable=false, length=32)
+	@ReadOnly
 	private String branchUserId;
 	
 	//bi-directional many-to-one association to Category
@@ -33,8 +34,9 @@ public class BranchUser {
 	@JoinColumn(name="user_name", nullable=false)
 	@NoCreate
 	@NoModify
-	@NoFrame
-	@ReadOnly
+	@DescriptionsList
+	@Required
+	@ReadOnly(forViews="ChangeBranch")
 	private User user;
 	
 	//bi-directional many-to-one association to Category
@@ -43,7 +45,7 @@ public class BranchUser {
 	@Required
 	@NoCreate
 	@NoModify
-	@ReferenceView("Reference")
+	@DescriptionsList(descriptionProperties="branchId, name")
 	private Branch branch;
 	
 	@Transient
@@ -86,12 +88,5 @@ public class BranchUser {
 	
 	public void setUserName(String userName) {
 		this.userName = userName;
-	}
-
-	@PrePersist
-	public void onPrePersist()
-	{
-		if (getUser()==null)
-			setUser(UserHelper.getCurrent());
 	}
 }

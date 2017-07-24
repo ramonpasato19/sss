@@ -21,7 +21,12 @@ import java.util.List;
  */
 @Entity
 @Table(name="financial")
-
+@View(members="accountingDate;"
+		+ "remark;"
+		+ "voucher;"
+		+ "financialStatus;"
+		+ "origenUnityId;"
+		+ "movements")
 public class Financial extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -50,6 +55,7 @@ public class Financial extends AuditEntity implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="financial_status_id", nullable=false)
 	@Required
+	@DescriptionsList
 	private FinancialStatus financialStatus;
 
 	//bi-directional many-to-one association to Movement

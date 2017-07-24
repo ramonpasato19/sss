@@ -77,7 +77,8 @@ public class FinancialHelper {
 				m.setExchangeRate(ExchangeRateHelper.getExchangeRate(ta.getAccount().getCurrency(), t.getAccountingDate()));
 				m.setValue(ta.getValue().abs());
 				m.setOfficialValue(UtilApp.valueToOfficialValue(ta.getValue(), m.getExchangeRate()));
-
+				m.setBranch(ta.getBranch());
+				
 				if (ta.getOfficialValue().equals(Types.YesNoIntegerType.YES))
 				{
 					m.setOfficialValue(ta.getValue().abs());
@@ -154,6 +155,8 @@ public class FinancialHelper {
 		for (Date date = start.getTime(); start.before(end); start.add(
 				Calendar.DATE, 1), date = start.getTime()) {
 			System.out.println(new StringBuffer("Updating Balance: ") 
+					.append(financialCategory.getBranch().getBranchId())
+					.append("|")
 					.append(financialCategory.getAccount().getAccountId())
 					.append("|")
 					.append(financialCategory.getSubaccount())
@@ -177,6 +180,7 @@ public class FinancialHelper {
 			newBalance.setOfficialBalance(financialCategory.getOfficialValue());
 			newBalance.setDueDate(financialCategory.getDueDate());
 			newBalance.setStock(financialCategory.getStock());
+			newBalance.setBranch(financialCategory.getBranch());
 			
 			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.YES))
 				newBalance.setOfficialBalance(BigDecimal.ZERO);			
@@ -190,12 +194,13 @@ public class FinancialHelper {
 									+ "WHERE o.account = :account "
 									+ "AND o.subaccount = :subaccount "
 									+ "AND o.category = :category "
+									+ "AND o.branch = :branch "
 									+ "AND o.fromDate >= :fromDate")
 					.setParameter("fromDate", date)
 					.setParameter("account", financialCategory.getAccount())
-					.setParameter("subaccount",
-							financialCategory.getSubaccount())
+					.setParameter("subaccount", financialCategory.getSubaccount())
 					.setParameter("category", financialCategory.getCategory())
+					.setParameter("branch", financialCategory.getBranch())
 					.executeUpdate();
 			
 			System.out.println("Future Balances removed: "+balancesDeleted);
@@ -205,8 +210,13 @@ public class FinancialHelper {
 				oldToDate.setTime(date);
 				oldToDate.add(Calendar.DAY_OF_YEAR, -1);
 				oldBalanceOnDate.setToDate(oldToDate.getTime());
+				
 				XPersistence.getManager().merge(oldBalanceOnDate);
+				XPersistence.getManager().flush();
+				
 				System.out.println(new StringBuffer("Old Balance expired: ")
+						.append(financialCategory.getBranch().getBranchId())
+						.append("|")
 						.append(oldBalanceOnDate.getAccount().getAccountId())
 						.append("|")
 						.append(oldBalanceOnDate.getSubaccount())
@@ -217,7 +227,11 @@ public class FinancialHelper {
 						.append("|")
 						.append(oldBalanceOnDate.getOfficialBalance())
 						.append("|")
-						.append(oldBalanceOnDate.getStock()));
+						.append(oldBalanceOnDate.getStock())
+						.append("|")
+						.append(oldBalanceOnDate.getBalanceId())
+						.append("|")
+						.append(UtilApp.dateToString(oldBalanceOnDate.getToDate())));
 				
 				newBalance.setDueDate(oldBalanceOnDate.getDueDate());
 				newBalance.setBalance(newBalance.getBalance().add(oldBalanceOnDate.getBalance()));
@@ -252,11 +266,13 @@ public class FinancialHelper {
 							financialCategory.getCategory().getCategoryId(),
 							newBalance.getBalance());
 			}
-			
+
 			XPersistence.getManager().persist(newBalance);
 			
 			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
-				System.out.println(new StringBuffer("Persist New Balance: ") 
+				System.out.println(new StringBuffer("Persist New Balance: ")
+						.append(financialCategory.getBranch().getBranchId())
+						.append("|")
 						.append(newBalance.getAccount().getAccountId())
 						.append("|")
 						.append(newBalance.getSubaccount())
@@ -274,6 +290,8 @@ public class FinancialHelper {
 						.append(UtilApp.dateToString(newBalance.getToDate())));
 			else
 				System.out.println(new StringBuffer("Persist New Balance: ")
+						.append(financialCategory.getBranch().getBranchId())
+						.append("|")
 						.append(newBalance.getAccount().getAccountId())
 						.append("|")
 						.append(newBalance.getSubaccount())
@@ -311,6 +329,7 @@ public class FinancialHelper {
 				+ "AND o.account_id = :account "
 				+ "AND o.subaccount = :subaccount "
 				+ "AND o.category_id = :category "
+				+ "AND o.branch_id = :branch "
 				+ "AND o.financial_id = f.financial_id";
 		
 		 List<Object[]> acumulatedMovements = XPersistence.getManager()
@@ -319,6 +338,7 @@ public class FinancialHelper {
 				 .setParameter("account", financialCategory.getAccount().getAccountId())
 				 .setParameter("subaccount", financialCategory.getSubaccount())
 				 .setParameter("category", financialCategory.getCategory().getCategoryId())
+				 .setParameter("branch", financialCategory.getBranch().getBranchId())
 				 .getResultList();
 		
 		if (acumulatedMovements != null && !acumulatedMovements.isEmpty()) {
@@ -351,11 +371,13 @@ public class FinancialHelper {
 								+ "WHERE o.account = :account "
 								+ "AND o.subaccount = :subaccount "
 								+ "AND o.category = :category "
+								+ "AND o.branch = :branch "
 								+ "AND o.fromDate = :fromDate")
 				.setParameter("fromDate", fromDate)
 				.setParameter("account", financialCategory.getAccount())
 				.setParameter("subaccount", financialCategory.getSubaccount())
 				.setParameter("category", financialCategory.getCategory())
+				.setParameter("branch", financialCategory.getBranch())
 				.getResultList();
 		if (balances != null && !balances.isEmpty() && balances.size() > 0) {
 			return (Balance) balances.get(0);
@@ -378,11 +400,13 @@ public class FinancialHelper {
 								+ "WHERE :date between fromDate AND toDate "
 								+ "AND o.account = :account "
 								+ "AND o.subaccount = :subaccount "
-								+ "AND o.category = :category ")
+								+ "AND o.category = :category "
+								+ "AND o.branch = :branch ")
 				.setParameter("date", oldToDate.getTime())
 				.setParameter("account", financialCategory.getAccount())
 				.setParameter("subaccount", financialCategory.getSubaccount())
 				.setParameter("category", financialCategory.getCategory())
+				.setParameter("branch", financialCategory.getBranch())
 				.getResultList();
 		if (balances != null && !balances.isEmpty() && balances.size() > 0) {
 			return (Balance) balances.get(0);
@@ -404,17 +428,27 @@ public class FinancialHelper {
 		{
 			if (financialCategory.getAccount().getAccountId().equals(m.getAccount().getAccountId()) &&
 					financialCategory.getSubaccount()==m.getSubaccount() &&
-					financialCategory.getCategory().getCategoryId().equals(m.getCategory().getCategoryId()))
+					financialCategory.getCategory().getCategoryId().equals(m.getCategory().getCategoryId()) &&
+					financialCategory.getBranch().getBranchId().equals(m.getBranch().getBranchId())
+					)
 			{
 				addFinancialCategory = false;
 				break;
 			}
 		}
 		if (addFinancialCategory) 
-			financialCategories.add( new FinancialCategoryDTO(m.getAccount(),
-					m.getSubaccount(), m.getCategory(), m.getBookAccount(),
-							m.getFinancial().getAccountingDate(),
-							m.getExchangeRate(), updateBalance, isOfficialValue, allowCurrencyAdjustment, dueDate));
+			financialCategories.add( new FinancialCategoryDTO(
+					m.getAccount(),
+					m.getSubaccount(), 
+					m.getCategory(), 
+					m.getBookAccount(),
+					m.getFinancial().getAccountingDate(),
+					m.getExchangeRate(), 
+					updateBalance, 
+					isOfficialValue, 
+					allowCurrencyAdjustment, 
+					dueDate, 
+					m.getBranch()));
 	}
 
 	private static void validateAccountingEquation(List<Movement> movements)

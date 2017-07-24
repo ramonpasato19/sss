@@ -94,6 +94,11 @@ public class Movement implements Serializable {
 	@JoinColumn(name="unity_id")
 	private Unity unity;
 
+	@ManyToOne
+	@JoinColumn(name="branch_id")
+	@DescriptionsList(descriptionProperties = "name")
+	private Branch branch;
+	
 	public Movement() {
 	}
 
@@ -230,10 +235,20 @@ public class Movement implements Serializable {
 		this.unity = unity;
 	}
 	
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+
 	public String toString()
 	{
 		StringBuffer sb = new StringBuffer();
 		sb.append("Movement");
+		sb.append("|");
+		sb.append(getBranch().getBranchId());
 		sb.append("|");
 		sb.append(getAccount().getAccountId());
 		sb.append("|");

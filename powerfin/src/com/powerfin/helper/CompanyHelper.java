@@ -39,6 +39,11 @@ public class CompanyHelper {
 		return XPersistence.getManager().find(Unity.class, ParameterHelper.getValue("DEFAULT_UNITY_ID"));
 	}
 	
+	public static Branch getDefaultBranch() throws Exception
+	{
+		return XPersistence.getManager().find(Branch.class, Integer.parseInt(ParameterHelper.getValue("MAIN_BRANCH_ID")));
+	}
+	
 	public static String getLogoName()
 	{
 		return "logo.png";

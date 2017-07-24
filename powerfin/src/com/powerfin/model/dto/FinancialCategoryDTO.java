@@ -20,6 +20,7 @@ public class FinancialCategoryDTO {
 	private Types.YesNoIntegerType updateBalance;
 	private Types.YesNoIntegerType isOfficialValue;
 	private Types.YesNoIntegerType allowCurrencyAdjustment;
+	private Branch branch;
 	
 	public FinancialCategoryDTO(Account account, 
 			int subaccount,
@@ -30,7 +31,8 @@ public class FinancialCategoryDTO {
 			Types.YesNoIntegerType updateBalance, 
 			Types.YesNoIntegerType isOfficialValue,
 			Types.YesNoIntegerType allowCurrencyAdjustment,
-			Date dueDate) {
+			Date dueDate,
+			Branch branch) {
 		super();
 		this.account = account;
 		this.subaccount = subaccount;
@@ -45,6 +47,7 @@ public class FinancialCategoryDTO {
 		this.isOfficialValue = isOfficialValue;
 		this.allowCurrencyAdjustment = allowCurrencyAdjustment;
 		this.dueDate = dueDate;
+		this.branch = branch;
 	}
 
 	public FinancialCategoryDTO() {
@@ -153,6 +156,14 @@ public class FinancialCategoryDTO {
 
 	public void setStock(BigDecimal stock) {
 		this.stock = stock;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
 	}
 
 	

@@ -18,7 +18,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name="account_paytable")
-
+@Tab(properties="accountId, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection")
 public class AccountPaytable implements Serializable {
 	private static final long serialVersionUID = 1L;
 

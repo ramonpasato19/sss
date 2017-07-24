@@ -8,7 +8,7 @@ import org.openxava.jpa.*;
 
 import com.powerfin.model.*;
 
-public class ConvertInvoicePurchaseToSale extends SaveAction{
+public class ImportInvoicePurchaseDetailToSale extends SaveAction{
 
 	public void execute() throws Exception {
 		

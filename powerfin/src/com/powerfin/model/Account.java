@@ -30,6 +30,7 @@ import com.powerfin.util.*;
 					+ "transactionalName;"
 					+ "openingDate, accountStatus; "
 					+ "operatingCondition; "
+					+ "branch; "
 					+ "product;"
 					+ "person;"
 					+ "categoryAccounts"),
@@ -38,8 +39,8 @@ import com.powerfin.util.*;
 					+ "name;"
 					+ "product;"
 					+ "person;"),
-	@View(name="simple", members="accountId; transactionalNameForView;"),
-	@View(name="simpleBalance", members="accountId; transactionalNameForView;balance"),
+	@View(name="simple", members="accountId, branchName; transactionalNameForView;"),
+	@View(name="simpleBalance", members="accountId; transactionalNameForView; branchName; balance"),
 	@View(name="normal", members="accountId, code; name;"),
 	@View(name="report", members="accountId, alternateCode; name;"),
 	@View(name="Shareholder", 
@@ -83,7 +84,7 @@ import com.powerfin.util.*;
 					+ "accountOverdueBalances")
 })
 @Tabs({
-	@Tab(properties="accountId, code, name, product.productId, product.name, currency.currencyId")
+	@Tab(properties="accountId, branch.name, code, name, product.productId, product.name, currency.currencyId")
 })
 public class Account extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -163,6 +164,13 @@ public class Account extends AuditEntity implements Serializable {
 	})
 	private Product product;
 
+	@ManyToOne
+	@JoinColumn(name="branch_id")
+	@DescriptionsList(descriptionProperties = "name")
+	@NoCreate
+	@NoModify
+	private Branch branch;
+	
 	//bi-directional many-to-one association to CategoryAccount
 	@OneToMany(mappedBy="account")
 	@ReadOnly
@@ -221,6 +229,12 @@ public class Account extends AuditEntity implements Serializable {
 		
 		if (getAccountStatus()==null)
 			this.setAccountStatus(AccountHelper.getDefaultAccountStatusByProduct(getProduct()));
+		
+		if (getBranch()==null)
+			this.setBranch(CompanyHelper.getDefaultBranch());
+		
+		if (getBranch()==null)
+			throw new OperativeException("the_branch_is_required");
 		
 		if (getPerson()==null)
 			throw new OperativeException("the_person_is_required");
@@ -414,6 +428,18 @@ public class Account extends AuditEntity implements Serializable {
 
 	public void setTotalOverdueBalance(BigDecimal totalOverdueBalance) {
 		this.totalOverdueBalance = totalOverdueBalance;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
+	public String getBranchName() {
+		return branch.getName();
 	}
 
 }
