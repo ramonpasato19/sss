@@ -113,6 +113,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processGeneralTransaction(transactionBatch, detail);
 					else if (transactionModuleId.equals("INVOICESALEFUELSTATION"))
 						processSaleInvoiceFuelStation(transactionBatch, detail);
+					else if (transactionModuleId.equals("INVOICE_PURCHASE"))
+						processPurchaseInvoice(transactionBatch, detail);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
@@ -453,6 +455,169 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			TransactionHelper.processTransaction(transaction, transactionAccounts);
 			
 			AccountInvoiceHelper.postInvoiceSalePaymentSaveAction(transaction);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void processPurchaseInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+			throws Exception {
+		
+		String[] dataLine;
+		String delimiter = "\t";
+		
+		dataLine = detail.getDetail().split(delimiter);
+		
+		validateDataLine(dataLine);
+		BigDecimal transactionValue = BigDecimal.ZERO;
+		String remark = "";
+		Person person = null;
+		String personExternalCode = new String(dataLine[0]);
+		String identification = new String(dataLine[1]);
+		String personName = new String(dataLine[2]);
+		String invoiceExternalCode = new String(dataLine[3]);
+		String issueDateString = new String(dataLine[4]);
+		Date issueDate = UtilApp.stringToDate(issueDateString);
+		String hour = new String(dataLine[5]);
+		String establishmentCode = new String(dataLine[6]);
+		String emissionPointCode = new String(dataLine[7]);
+		String sequentialCode = new String(dataLine[8]);
+		String authorizationCode = new String(dataLine[9]);
+		String dispenser = new String(dataLine[10]);
+		String externalProduct = new String(dataLine[11]);
+		String accountItemId = new String(dataLine[12]);
+		BigDecimal quantity = new BigDecimal(dataLine[13]);
+		BigDecimal unitPrice = new BigDecimal(dataLine[14]);
+		BigDecimal amount = new BigDecimal(dataLine[15]);
+		BigDecimal taxAmount = new BigDecimal(dataLine[16]);
+		BigDecimal total = new BigDecimal(dataLine[17]);
+		String paymentType = new String(dataLine[18]);
+		String productId = new String(dataLine[19]);
+		String boxAccountId = new String(dataLine[20]);
+		
+		transactionValue = total;
+		remark = "COMPRA DE PRODUCTOS: "+externalProduct+", FECHA: "+issueDateString+" "+hour;
+		String reamrkPayment = "PAGO FACT: "+invoiceExternalCode+", PRODUCTO: "+externalProduct+", FECHA: "+issueDateString+" "+hour;
+		Account accountItem = XPersistence.getManager().find(Account.class, accountItemId);
+		if (accountItem == null)
+			throw new OperativeException("account_item_not_found", accountItemId);
+		
+		List<Person> persons = XPersistence.getManager().createQuery("SELECT o FROM Person o "
+				 +"WHERE o.identification = :identification")
+			.setParameter("identification", identification)
+			.getResultList();
+
+		if(!persons.isEmpty())
+			person = persons.get(0);
+		else
+		{
+			person = new Person();
+			person.setIdentification(identification);
+			person.setIdentificationType(XPersistence.getManager().find(IdentificationType.class, "CED"));
+			person.setPersonType(XPersistence.getManager().find(PersonType.class, PersonHelper.NATURAL_PERSON));
+			person.setName(personName);
+			person.setExternalCode(personExternalCode);
+			XPersistence.getManager().persist(person);
+			
+			NaturalPerson naturalPerson = new NaturalPerson();
+			naturalPerson.setGender(XPersistence.getManager().find(Gender.class, "M"));
+			naturalPerson.setPersonId(person.getPersonId());
+			naturalPerson.setFirstName(".");
+			naturalPerson.setPaternalSurname(personName);
+			naturalPerson.setIdentification(identification);
+			naturalPerson.setIdentificationType(person.getIdentificationType());
+			naturalPerson.setMaritalStatus(XPersistence.getManager().find(MaritalStatus.class, "999"));
+			XPersistence.getManager().persist(naturalPerson);
+			
+		}
+		
+		Account account = AccountHelper.createAccount(productId, person.getPersonId(), null, null, invoiceExternalCode, null);
+		
+		AccountInvoice accountInvoice = new AccountInvoice();
+		accountInvoice.setAccountId(account.getAccountId());
+		accountInvoice.setAccount(account);
+		accountInvoice.setPerson(person);
+		accountInvoice.setProduct(account.getProduct());
+		accountInvoice.setIssueDate(issueDate);
+		InvoiceVoucherType typeInvoice = XPersistence.getManager().find(InvoiceVoucherType.class, "01");
+		accountInvoice.setInvoiceVoucherType(typeInvoice);
+		accountInvoice.setRemark(remark);
+		accountInvoice.setEstablishmentCode(establishmentCode);
+		accountInvoice.setEmissionPointCode(emissionPointCode);
+		accountInvoice.setSequentialCode(sequentialCode);
+		accountInvoice.setAuthorizationCode(authorizationCode);
+		Unity unity = XPersistence.getManager().find(Unity.class, ParameterHelper.getValue("DEFAULT_UNITY_ID"));
+		accountInvoice.setUnity(unity);
+		XPersistence.getManager().persist(accountInvoice);
+		
+		AccountInvoiceDetail accountInvoiceDetail = new AccountInvoiceDetail();
+		accountInvoiceDetail.setAccountInvoice(accountInvoice);
+		accountInvoiceDetail.setAccountDetail(accountItem);
+		Tax tax = null;
+		if (taxAmount.compareTo(BigDecimal.ZERO) > 0)
+		{
+			tax = XPersistence.getManager().find(Tax.class, XPersistence.getManager().find(Parameter.class, "IVA_PERCENTAGE").getValue());
+			accountInvoiceDetail.setTaxAmount(taxAmount);
+		}
+		else
+		{
+			tax = XPersistence.getManager().find(Tax.class, "IVA0");
+			accountInvoiceDetail.setTaxAmount(BigDecimal.ZERO);
+		}
+		accountInvoiceDetail.setTax(tax);
+		accountInvoiceDetail.setQuantity(quantity);
+		accountInvoiceDetail.setUnitPrice(unitPrice);
+		accountInvoiceDetail.setDiscount(BigDecimal.ZERO);
+		accountInvoiceDetail.setAmount(amount);
+		accountInvoiceDetail.setFinalAmount(total);
+		XPersistence.getManager().persist(accountInvoiceDetail);
+		
+		List<AccountInvoiceDetail> details =  new ArrayList<AccountInvoiceDetail>();
+		details.add(accountInvoiceDetail);
+		accountInvoice.setDetails(details);
+		
+		//InvoiceTransaction
+		Transaction transaction = TransactionHelper.getNewInitTransaction();
+		transaction.setTransactionModule(transactionBatch.getTransactionModule());
+		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+		transaction.setValue(transactionValue);
+		transaction.setRemark(remark);
+		transaction.setCreditAccount(account);
+		transaction.setCurrency(account.getCurrency());
+		transaction.setOrigenUnity(unity);
+		
+		XPersistence.getManager().persist(transaction);
+		
+		List<TransactionAccount> transactionAccounts = AccountInvoiceHelper.getTransactionAccountsForInvoicePurchase(transaction);
+		
+		TransactionHelper.processTransaction(transaction, transactionAccounts);
+
+		AccountInvoiceHelper.postInvoicePurchaseSaveAction(transaction);
+		
+		//PaymentInvoiceTransaction
+		Account boxAccount = XPersistence.getManager().find(Account.class, boxAccountId);
+		if (boxAccount != null)
+		{
+			TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, "TRANSFERDUE");
+			transaction = TransactionHelper.getNewInitTransaction();
+			transaction.setTransactionModule(tm);
+			transaction.setTransactionStatus(tm.getFinancialTransactionStatus());
+			transaction.setValue(transactionValue);
+			transaction.setRemark(reamrkPayment);
+			transaction.setDebitAccount(account);
+			transaction.setCreditAccount(boxAccount);
+			transaction.setCurrency(account.getCurrency());
+			transaction.setOrigenUnity(unity);
+			
+			XPersistence.getManager().persist(transaction);
+			
+			transactionAccounts = new ArrayList<TransactionAccount>();
+			
+			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(account, accountInvoice.getCalculateTotal(), transaction));
+			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(boxAccount, accountInvoice.getCalculateTotal(), transaction));
+	
+			TransactionHelper.processTransaction(transaction, transactionAccounts);
+			
+			AccountInvoiceHelper.postInvoicePurchasePaymentSaveAction(transaction);
 		}
 	}
 }

@@ -2424,6 +2424,9 @@
 			keystroke="F3" >
 			<set property="resetAfter" value="false" />
 		</action>
+		<action name="printDocumentTransfer" mode="detail"
+			class="com.powerfin.actions.transaction.PrintDocumentTransfer" icon="file-pdf">
+		</action>
 	</controller>
 	<controller name="RequestTXTransferItemController">
 		<extends controller="RefreshTXController"/>
