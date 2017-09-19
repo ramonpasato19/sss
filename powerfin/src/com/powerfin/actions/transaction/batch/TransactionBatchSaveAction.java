@@ -85,6 +85,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 
 		} else if (subAction.equals("PROCESS")) {
 			
+			TransactionBatchDetail oldDetail = null;
+			
 			if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_REQUEST_STATUS))
 				throw new OperativeException("please_collect_information");
 			
@@ -103,6 +105,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			
 			for (TransactionBatchDetail detailIte : details) {
 				TransactionBatchDetail detail = XPersistence.getManager().find(TransactionBatchDetail.class, detailIte.getTransactionBatchDetailId());
+				
 				try {
 					
 					if (transactionModuleId.equals("PURCHASEPORTFOLIOPAYMENT"))
@@ -115,6 +118,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processSaleInvoiceFuelStation(transactionBatch, detail);
 					else if (transactionModuleId.equals("INVOICE_PURCHASE"))
 						processPurchaseInvoice(transactionBatch, detail);
+					else if (transactionModuleId.equals("INVOICE_SALE"))
+						processSaleInvoice(transactionBatch, detail, oldDetail);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
@@ -128,8 +133,10 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 					detail.setErrorMessage(e.getMessage());
 					XPersistence.getManager().merge(detail);
 				}
-
+				
 				XPersistence.commit();
+				
+				oldDetail = detail;
 			}
 			
 			transactionBatch = XPersistence.getManager().find(TransactionBatch.class, transactionBatchId);
@@ -618,6 +625,218 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			TransactionHelper.processTransaction(transaction, transactionAccounts);
 			
 			AccountInvoiceHelper.postInvoicePurchasePaymentSaveAction(transaction);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail, TransactionBatchDetail oldDetail)
+			throws Exception {
+		
+		String[] dataLine;
+		String[] oldDataLine;
+		String delimiter = "\t";
+		boolean newInvoice = true;
+		
+		dataLine = detail.getDetail().split(delimiter);
+
+		validateDataLine(dataLine);
+		BigDecimal transactionValue = BigDecimal.ZERO;
+		String remark = "";
+		Person person = null;
+		String personExternalCode = new String(dataLine[0]);
+		String identification = new String(dataLine[1]);
+		String personName = new String(dataLine[2]);
+		String invoiceExternalCode = new String(dataLine[3]);
+		String issueDateString = new String(dataLine[4]);
+		Date issueDate = UtilApp.stringToDate(issueDateString);
+		String hour = new String(dataLine[5]);
+		String establishmentCode = new String(dataLine[6]);
+		String emissionPointCode = new String(dataLine[7]);
+		String sequentialCode = new String(dataLine[8]);
+		String authorizationCode = new String(dataLine[9]);
+		String dispenser = new String(dataLine[10]);
+		String externalProduct = new String(dataLine[11]);
+		String accountItemId = new String(dataLine[12]);
+		BigDecimal quantity = new BigDecimal(dataLine[13]);
+		BigDecimal unitPrice = new BigDecimal(dataLine[14]);
+		BigDecimal amount = new BigDecimal(dataLine[15]);
+		BigDecimal taxAmount = new BigDecimal(dataLine[16]);
+		BigDecimal total = new BigDecimal(dataLine[17]);
+		String paymentType = new String(dataLine[18]);
+		String productId = new String(dataLine[19]);
+		String boxAccountId = new String(dataLine[20]);
+		Integer branchId = new Integer(dataLine[21]);
+		Integer lastDetail = new Integer(dataLine[22]);
+		
+		if (oldDetail!=null)
+		{
+			oldDataLine = oldDetail.getDetail().split(delimiter);
+			String oldInvoiceExternalCode = new String(oldDataLine[3]);
+			
+			if (oldInvoiceExternalCode.equals(invoiceExternalCode))
+				newInvoice = false;
+		}
+			
+		transactionValue = total;
+		remark = "VENTA PRODUCTOS, FACTURA: "+invoiceExternalCode+", FECHA: "+issueDateString+" "+hour+", SUCURSAL: "+branchId;
+		String reamrkPayment = "COBRO FACT: "+invoiceExternalCode+", FECHA: "+issueDateString+" "+hour;
+		
+		Account accountItem = XPersistence.getManager().find(Account.class, accountItemId);
+		if (accountItem == null)
+		{
+			List<Account> accountItems = XPersistence.getManager().createQuery("SELECT o FROM Account o "
+					+ "WHERE o.code = :code")
+				.setParameter("code", externalProduct)
+				.getResultList();
+
+			if(!accountItems.isEmpty())
+				accountItem = accountItems.get(0);
+			else
+				throw new OperativeException("account_item_not_found", externalProduct, accountItemId);
+		}
+		
+		List<Person> persons = XPersistence.getManager().createQuery("SELECT o FROM Person o "
+				+ "WHERE o.identification = :identification")
+			.setParameter("identification", identification)
+			.getResultList();
+
+		if(!persons.isEmpty())
+			person = persons.get(0);
+		else
+		{
+			person = new Person();
+			person.setIdentification(identification);
+			person.setIdentificationType(XPersistence.getManager().find(IdentificationType.class, "CED"));
+			person.setPersonType(XPersistence.getManager().find(PersonType.class, PersonHelper.NATURAL_PERSON));
+			person.setName(personName);
+			person.setExternalCode(personExternalCode);
+			XPersistence.getManager().persist(person);
+			
+			NaturalPerson naturalPerson = new NaturalPerson();
+			naturalPerson.setGender(XPersistence.getManager().find(Gender.class, "M"));
+			naturalPerson.setPersonId(person.getPersonId());
+			naturalPerson.setFirstName(".");
+			naturalPerson.setPaternalSurname(personName);
+			naturalPerson.setIdentification(identification);
+			naturalPerson.setIdentificationType(person.getIdentificationType());
+			naturalPerson.setMaritalStatus(XPersistence.getManager().find(MaritalStatus.class, "999"));
+			XPersistence.getManager().persist(naturalPerson);
+			
+		}
+		
+		Account account = null;
+		AccountInvoice accountInvoice = null;
+		Unity unity = null;
+		
+		if (newInvoice)
+		{
+			account = AccountHelper.createAccount(productId, person.getPersonId(), null, null, invoiceExternalCode, null, branchId);
+			accountInvoice = new AccountInvoice();
+			accountInvoice.setAccountId(account.getAccountId());
+			accountInvoice.setAccount(account);
+			accountInvoice.setPerson(person);
+			accountInvoice.setProduct(account.getProduct());
+			accountInvoice.setIssueDate(issueDate);
+			InvoiceVoucherType typeInvoice = XPersistence.getManager().find(InvoiceVoucherType.class, "01");
+			accountInvoice.setInvoiceVoucherType(typeInvoice);
+			accountInvoice.setRemark(remark);
+			accountInvoice.setEstablishmentCode(establishmentCode);
+			accountInvoice.setEmissionPointCode(emissionPointCode);
+			accountInvoice.setSequentialCode(sequentialCode);
+			accountInvoice.setAuthorizationCode(authorizationCode);
+			unity = XPersistence.getManager().find(Unity.class, ParameterHelper.getValue("DEFAULT_UNITY_ID"));
+			accountInvoice.setUnity(unity);
+			XPersistence.getManager().persist(accountInvoice);
+		}
+		else
+		{
+			List<Account> invoices = XPersistence.getManager().createQuery("SELECT a FROM Account a "
+					+ "WHERE a.code = :code")
+					.setParameter("code", invoiceExternalCode)
+					.getResultList();
+			
+			if(!invoices.isEmpty())
+				account = invoices.get(0);
+			else 
+				throw new OperativeException("account_invoice_is_not_created", invoiceExternalCode, externalProduct, accountItemId);
+				
+			accountInvoice = (AccountInvoice) XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
+			unity = accountInvoice.getUnity();
+		}
+		
+		AccountInvoiceDetail accountInvoiceDetail = new AccountInvoiceDetail();
+		accountInvoiceDetail.setAccountInvoice(accountInvoice);
+		accountInvoiceDetail.setAccountDetail(accountItem);
+		Tax tax = null;
+		if (taxAmount.compareTo(BigDecimal.ZERO) > 0)
+		{
+			tax = XPersistence.getManager().find(Tax.class, XPersistence.getManager().find(Parameter.class, "IVA_PERCENTAGE").getValue());
+			accountInvoiceDetail.setTaxAmount(taxAmount);
+		}
+		else
+		{
+			tax = XPersistence.getManager().find(Tax.class, "IVA0");
+			accountInvoiceDetail.setTaxAmount(BigDecimal.ZERO);
+		}
+		accountInvoiceDetail.setTax(tax);
+		accountInvoiceDetail.setQuantity(quantity);
+		accountInvoiceDetail.setUnitPrice(unitPrice);
+		accountInvoiceDetail.setDiscount(BigDecimal.ZERO);
+		accountInvoiceDetail.setAmount(amount);
+		accountInvoiceDetail.setFinalAmount(total);
+		XPersistence.getManager().persist(accountInvoiceDetail);
+		
+		accountInvoice.setDetails(XPersistence.getManager().createQuery("SELECT o FROM AccountInvoiceDetail o "
+				+ "WHERE o.accountInvoice.accountId = :accountInvoiceId")
+				.setParameter("accountInvoiceId", accountInvoice.getAccountId())
+				.getResultList());		
+		
+		//InvoiceTransaction
+		if (lastDetail == 1)
+		{
+			Transaction transaction = TransactionHelper.getNewInitTransaction();
+			transaction.setTransactionModule(transactionBatch.getTransactionModule());
+			transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+			transaction.setValue(transactionValue);
+			transaction.setRemark(remark);
+			transaction.setDebitAccount(account);
+			transaction.setCurrency(account.getCurrency());
+			transaction.setOrigenUnity(unity);
+			
+			XPersistence.getManager().persist(transaction);
+			
+			List<TransactionAccount> transactionAccounts = AccountInvoiceHelper.getTransactionAccountsForInvoiceSale(transaction);
+			
+			TransactionHelper.processTransaction(transaction, transactionAccounts);
+	
+			AccountInvoiceHelper.postInvoiceSaleSaveAction(transaction);
+	
+			//PaymentInvoiceTransaction
+			Account boxAccount = XPersistence.getManager().find(Account.class, boxAccountId);
+			if (boxAccount != null)
+			{
+				TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, "INVOICESALEPAYMENT");
+				transaction = TransactionHelper.getNewInitTransaction();
+				transaction.setTransactionModule(tm);
+				transaction.setTransactionStatus(tm.getFinancialTransactionStatus());
+				transaction.setValue(transactionValue);
+				transaction.setRemark(reamrkPayment);
+				transaction.setCreditAccount(account);
+				transaction.setDebitAccount(boxAccount);
+				transaction.setCurrency(account.getCurrency());
+				transaction.setOrigenUnity(unity);
+				
+				XPersistence.getManager().persist(transaction);
+				
+				transactionAccounts = new ArrayList<TransactionAccount>();
+				
+				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, accountInvoice.getCalculateTotal(), transaction));
+				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(boxAccount, accountInvoice.getCalculateTotal(), transaction));
+		
+				TransactionHelper.processTransaction(transaction, transactionAccounts);
+				
+				AccountInvoiceHelper.postInvoiceSalePaymentSaveAction(transaction);
+			}
 		}
 	}
 }

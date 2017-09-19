@@ -2442,4 +2442,10 @@
 	</controller>
 <!-- END TXTransferItem ######################################## -->
     
+    <controller name="BackupController">
+		<action name="backup" mode="detail"
+			class="com.powerfin.actions.company.BackupAction" icon="content-save" image="save.gif" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
 </controllers>

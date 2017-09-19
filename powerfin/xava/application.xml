@@ -994,4 +994,14 @@
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END TXTransferItem ######################################## -->
+
+<!-- BEGIN Backup ######################################## -->
+	<module name="Backup">
+		<model name="Company" />
+		<controller name="BackupController" />
+		<view name="Backup" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END Backup ######################################## -->
+
 </application>
