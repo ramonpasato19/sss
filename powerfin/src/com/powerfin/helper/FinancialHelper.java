@@ -456,6 +456,11 @@ public class FinancialHelper {
 		BigDecimal debits = BigDecimal.ZERO;
 		BigDecimal credits = BigDecimal.ZERO;
 
+		BigDecimal oDebits = BigDecimal.ZERO;
+		BigDecimal oCredits = BigDecimal.ZERO;
+		
+		System.out.println("Validate Accounting Equation...");
+		
 		for(Movement m : movements)
 		{
 			if (m.getDebitOrCredit().equals(DebitOrCredit.DEBIT))
@@ -463,10 +468,20 @@ public class FinancialHelper {
 			else
 				credits = credits.add(m.getOfficialValue().abs());
 		}
-		System.out.println("Validate Accounting Equation...");
-		System.out.println(new StringBuffer("D:").append(debits).append("|C:").append(credits));
+		System.out.println(new StringBuffer("OD:").append(debits).append("|OC:").append(credits));
 		if (credits.compareTo(debits)!=0)
-			throw new InternalException("transaction_unbalanced", debits, credits);	
+		{	
+			for(Movement m : movements)
+			{
+				if (m.getDebitOrCredit().equals(DebitOrCredit.DEBIT))
+					oDebits = oDebits.add(m.getValue().abs());
+				else
+					oCredits = oCredits.add(m.getValue().abs());
+			}
+			System.out.println(new StringBuffer("D:").append(oDebits).append("|C:").append(oCredits));
+			if (oCredits.compareTo(oDebits)!=0)
+				throw new InternalException("transaction_unbalanced", debits, credits, oDebits, oCredits);
+		}
 	}
 
 	public static FinancialStatus getDefaultFinancialStatus() throws Exception {

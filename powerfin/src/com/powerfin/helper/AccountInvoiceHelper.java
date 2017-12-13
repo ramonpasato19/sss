@@ -168,6 +168,10 @@ public class AccountInvoiceHelper {
 	
 	public static List<TransactionAccount> getTransactionAccountsForInvoiceSale(Transaction transaction) throws Exception
 	{
+		return getTransactionAccountsForInvoiceSale(transaction, 1);
+	}
+	public static List<TransactionAccount> getTransactionAccountsForInvoiceSale(Transaction transaction, Integer accountingCostOfSale) throws Exception
+	{
 		Category costCategory = CategoryHelper.getCostCategory();
 		Category saleCostCategory = CategoryHelper.getSaleCostCategory();
 		Account account = transaction.getDebitAccount();
@@ -201,20 +205,29 @@ public class AccountInvoiceHelper {
 			//AccountItem
 			if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
 			{
-				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getBalanceCategory(), account.getBranch()));
-				
 				AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId());
 				if (accountItem == null)
 					throw new InternalException("account_item_not_found", detail.getAccountDetail().getAccountId());
-				if (accountItem.getAverageValue() == null)
-					throw new OperativeException("average_cost_is_null", detail.getAccountDetail().getAccountId());
-				if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<0)
-					throw new OperativeException("average_cost_is_negative", detail.getAccountDetail().getAccountId());
 				
-				totalAverageCost = accountItem.getAverageValue().multiply(detail.getQuantity()).setScale(2, RoundingMode.HALF_UP);
-				
-				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, costCategory, account.getBranch()));
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, saleCostCategory, account.getBranch()));
+				if (invoice.getInvoiceVoucherType().getInvoiceVoucherTypeId().equals("EX"))
+					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getCostCategory(), account.getBranch()));
+				else
+				{
+					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getBalanceCategory(), account.getBranch()));
+					
+					//Accounting Cost Of Sale
+					if (accountingCostOfSale == 1)
+					{
+						if (accountItem.getAverageValue() == null)
+							throw new OperativeException("average_cost_is_null", detail.getAccountDetail().getAccountId());
+						if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<0)
+							throw new OperativeException("average_cost_is_negative", detail.getAccountDetail().getAccountId());
+						
+						totalAverageCost = accountItem.getAverageValue().multiply(detail.getQuantity()).setScale(2, RoundingMode.HALF_UP);
+						transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, costCategory, account.getBranch()));
+						transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, saleCostCategory, account.getBranch()));
+					}
+				}
 			}
 			//AccountAccountant
 			else

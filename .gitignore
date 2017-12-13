@@ -2,6 +2,7 @@
 # Created by https://www.gitignore.io/api/eclipse
 
 ### POWERFIN ###
+powerfin/web/WEB-INF/.gitignore
 powerfin/web/WEB-INF/classes/*
 powerfin/web/WEB-INF/lib/*.jar
 powerfin/web/WEB-INF/lib/addons.jar
@@ -14,6 +15,7 @@ powerfin/web/WEB-INF/classes/powerfin-labels_es.properties
 ### Eclipse ###
 
 RemoteSystemsTempFiles
+Servers
 .metadata
 bin/
 tmp/

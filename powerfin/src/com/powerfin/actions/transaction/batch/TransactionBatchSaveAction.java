@@ -84,9 +84,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			addMessage("complete_collection");
 
 		} else if (subAction.equals("PROCESS")) {
-			
-			TransactionBatchDetail oldDetail = null;
-			
+						
 			if (transactionBatch.getTransactionBatchStatus().getTransactionBatchStatusId().equals(TransactionBatchHelper.TRANSACTION_BATCH_REQUEST_STATUS))
 				throw new OperativeException("please_collect_information");
 			
@@ -119,7 +117,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 					else if (transactionModuleId.equals("INVOICE_PURCHASE"))
 						processPurchaseInvoice(transactionBatch, detail);
 					else if (transactionModuleId.equals("INVOICE_SALE"))
-						processSaleInvoice(transactionBatch, detail, oldDetail);
+						processSaleInvoice(transactionBatch, detail);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
@@ -135,8 +133,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 				}
 				
 				XPersistence.commit();
-				
-				oldDetail = detail;
 			}
 			
 			transactionBatch = XPersistence.getManager().find(TransactionBatch.class, transactionBatchId);
@@ -629,11 +625,10 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail, TransactionBatchDetail oldDetail)
+	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)//, TransactionBatchDetail oldDetail)
 			throws Exception {
 		
 		String[] dataLine;
-		String[] oldDataLine;
 		String delimiter = "\t";
 		boolean newInvoice = true;
 		
@@ -642,7 +637,12 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		validateDataLine(dataLine);
 		BigDecimal transactionValue = BigDecimal.ZERO;
 		String remark = "";
+		
 		Person person = null;
+		Account account = null;
+		AccountInvoice accountInvoice = null;
+		Unity unity = null;
+		
 		String personExternalCode = new String(dataLine[0]);
 		String identification = new String(dataLine[1]);
 		String personName = new String(dataLine[2]);
@@ -667,33 +667,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		String boxAccountId = new String(dataLine[20]);
 		Integer branchId = new Integer(dataLine[21]);
 		Integer lastDetail = new Integer(dataLine[22]);
-		
-		if (oldDetail!=null)
-		{
-			oldDataLine = oldDetail.getDetail().split(delimiter);
-			String oldInvoiceExternalCode = new String(oldDataLine[3]);
-			
-			if (oldInvoiceExternalCode.equals(invoiceExternalCode))
-				newInvoice = false;
-		}
-			
-		transactionValue = total;
-		remark = "VENTA PRODUCTOS, FACTURA: "+invoiceExternalCode+", FECHA: "+issueDateString+" "+hour+", SUCURSAL: "+branchId;
-		String reamrkPayment = "COBRO FACT: "+invoiceExternalCode+", FECHA: "+issueDateString+" "+hour;
-		
-		Account accountItem = XPersistence.getManager().find(Account.class, accountItemId);
-		if (accountItem == null)
-		{
-			List<Account> accountItems = XPersistence.getManager().createQuery("SELECT o FROM Account o "
-					+ "WHERE o.code = :code")
-				.setParameter("code", externalProduct)
-				.getResultList();
-
-			if(!accountItems.isEmpty())
-				accountItem = accountItems.get(0);
-			else
-				throw new OperativeException("account_item_not_found", externalProduct, accountItemId);
-		}
+		Integer authorizeInvoice = new Integer(dataLine[23]);
+		Integer accountingCostOfSale = new Integer(dataLine[24]);
 		
 		List<Person> persons = XPersistence.getManager().createQuery("SELECT o FROM Person o "
 				+ "WHERE o.identification = :identification")
@@ -724,9 +699,41 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			
 		}
 		
-		Account account = null;
-		AccountInvoice accountInvoice = null;
-		Unity unity = null;
+		List<Account> invoices = XPersistence.getManager().createQuery(
+				"SELECT a FROM Account a "
+				+ "WHERE a.code = :code "
+				+ "AND a.person.personId = :personId "
+				+ "AND a.product.productId = :productId ")
+				.setParameter("code", invoiceExternalCode)
+				.setParameter("personId", person.getPersonId())
+				.setParameter("productId", productId)
+				.getResultList();
+		
+		if(!invoices.isEmpty())
+		{
+			account = invoices.get(0);
+			accountInvoice = (AccountInvoice) XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
+			unity = accountInvoice.getUnity();
+			newInvoice = false;
+		}
+		
+		transactionValue = total;
+		remark = "VENTA PRODUCTOS, FACTURA: "+invoiceExternalCode+", CAJA: "+dispenser+", FECHA: "+issueDateString+" "+hour+", SUCURSAL: "+branchId;
+		String reamrkPayment = "COBRO FACT: "+invoiceExternalCode+", CAJA: "+dispenser+", FECHA: "+issueDateString+" "+hour;
+		
+		Account accountItem = XPersistence.getManager().find(Account.class, accountItemId);
+		if (accountItem == null)
+		{
+			List<Account> accountItems = XPersistence.getManager().createQuery("SELECT o FROM Account o "
+					+ "WHERE o.code = :code")
+				.setParameter("code", externalProduct)
+				.getResultList();
+
+			if(!accountItems.isEmpty())
+				accountItem = accountItems.get(0);
+			else
+				throw new OperativeException("account_item_not_found", externalProduct, accountItemId);
+		}
 		
 		if (newInvoice)
 		{
@@ -748,21 +755,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			accountInvoice.setUnity(unity);
 			XPersistence.getManager().persist(accountInvoice);
 		}
-		else
-		{
-			List<Account> invoices = XPersistence.getManager().createQuery("SELECT a FROM Account a "
-					+ "WHERE a.code = :code")
-					.setParameter("code", invoiceExternalCode)
-					.getResultList();
-			
-			if(!invoices.isEmpty())
-				account = invoices.get(0);
-			else 
-				throw new OperativeException("account_invoice_is_not_created", invoiceExternalCode, externalProduct, accountItemId);
-				
-			accountInvoice = (AccountInvoice) XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
-			unity = accountInvoice.getUnity();
-		}
+
 		
 		AccountInvoiceDetail accountInvoiceDetail = new AccountInvoiceDetail();
 		accountInvoiceDetail.setAccountInvoice(accountInvoice);
@@ -796,7 +789,10 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		{
 			Transaction transaction = TransactionHelper.getNewInitTransaction();
 			transaction.setTransactionModule(transactionBatch.getTransactionModule());
-			transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+			if (authorizeInvoice == 1)
+				transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+			else
+				transaction.setTransactionStatus(transactionBatch.getTransactionModule().getDefaultTransactionStatus());
 			transaction.setValue(transactionValue);
 			transaction.setRemark(remark);
 			transaction.setDebitAccount(account);
@@ -804,38 +800,41 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			transaction.setOrigenUnity(unity);
 			
 			XPersistence.getManager().persist(transaction);
-			
-			List<TransactionAccount> transactionAccounts = AccountInvoiceHelper.getTransactionAccountsForInvoiceSale(transaction);
-			
-			TransactionHelper.processTransaction(transaction, transactionAccounts);
-	
-			AccountInvoiceHelper.postInvoiceSaleSaveAction(transaction);
-	
-			//PaymentInvoiceTransaction
-			Account boxAccount = XPersistence.getManager().find(Account.class, boxAccountId);
-			if (boxAccount != null)
+						
+			if (authorizeInvoice == 1)
 			{
-				TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, "INVOICESALEPAYMENT");
-				transaction = TransactionHelper.getNewInitTransaction();
-				transaction.setTransactionModule(tm);
-				transaction.setTransactionStatus(tm.getFinancialTransactionStatus());
-				transaction.setValue(transactionValue);
-				transaction.setRemark(reamrkPayment);
-				transaction.setCreditAccount(account);
-				transaction.setDebitAccount(boxAccount);
-				transaction.setCurrency(account.getCurrency());
-				transaction.setOrigenUnity(unity);
+				List<TransactionAccount> transactionAccounts = AccountInvoiceHelper.getTransactionAccountsForInvoiceSale(transaction, accountingCostOfSale);
 				
-				XPersistence.getManager().persist(transaction);
-				
-				transactionAccounts = new ArrayList<TransactionAccount>();
-				
-				transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, accountInvoice.getCalculateTotal(), transaction));
-				transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(boxAccount, accountInvoice.getCalculateTotal(), transaction));
-		
 				TransactionHelper.processTransaction(transaction, transactionAccounts);
-				
-				AccountInvoiceHelper.postInvoiceSalePaymentSaveAction(transaction);
+		
+				AccountInvoiceHelper.postInvoiceSaleSaveAction(transaction);
+		
+				//PaymentInvoiceTransaction
+				Account boxAccount = XPersistence.getManager().find(Account.class, boxAccountId);
+				if (boxAccount != null)
+				{
+					TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, "INVOICESALEPAYMENT");
+					transaction = TransactionHelper.getNewInitTransaction();
+					transaction.setTransactionModule(tm);
+					transaction.setTransactionStatus(tm.getFinancialTransactionStatus());
+					transaction.setValue(transactionValue);
+					transaction.setRemark(reamrkPayment);
+					transaction.setCreditAccount(account);
+					transaction.setDebitAccount(boxAccount);
+					transaction.setCurrency(account.getCurrency());
+					transaction.setOrigenUnity(unity);
+					
+					XPersistence.getManager().persist(transaction);
+					
+					transactionAccounts = new ArrayList<TransactionAccount>();
+					
+					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, accountInvoice.getCalculateTotal(), transaction));
+					transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(boxAccount, accountInvoice.getCalculateTotal(), transaction));
+			
+					TransactionHelper.processTransaction(transaction, transactionAccounts);
+					
+					AccountInvoiceHelper.postInvoiceSalePaymentSaveAction(transaction);
+				}
 			}
 		}
 	}
