@@ -535,6 +535,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-pdf" image="save.gif">
 		</action>
+		<action name="printList" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintList" icon="file-pdf" image="save.gif">
+		</action>
 	</controller>
 	
 	<controller name="LoanReportControllerEXCEL"  >
@@ -553,6 +556,9 @@
 		<action name="printTotalBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintTotalBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
+		</action>
+		<action name="printList" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintList" icon="file-excel" image="save.gif">
 		</action>
 	</controller>
 	
@@ -580,7 +586,6 @@
 		<action name="printRenewedAccountTerm" mode="detail"
 			class="com.powerfin.actions.accountTerm.PrintRenewedAccounts" icon="file-pdf">
 		</action>
-		
 	</controller>
 	
 	<controller name="OriginationPortfolioReportControllerPDF" >
@@ -637,7 +642,7 @@
 		<subcontroller controller="OriginationPortfolioReportControllerEXCEL"/>
 	</controller>
 	
-	<controller name="PurchasePortfolioReportControllerPDF" icon="file-pdf" >
+	<controller name="PurchasePortfolioReportControllerPDF">
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
@@ -655,7 +660,7 @@
 		</action>
 	</controller>
 	
-	<controller name="PurchasePortfolioReportControllerEXCEL" icon="file-excel" >
+	<controller name="PurchasePortfolioReportControllerEXCEL">
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>
@@ -691,7 +696,7 @@
 		<subcontroller controller="PurchasePortfolioReportControllerEXCEL"/>
 	</controller>
 	
-	<controller name="SalePortfolioReportControllerPDF" icon="file-pdf" >
+	<controller name="SalePortfolioReportControllerPDF">
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalances" icon="file-pdf" image="save.gif">
 		</action>
@@ -709,7 +714,7 @@
 		</action>
 	</controller>
 	
-	<controller name="SalePortfolioReportControllerEXCEL" icon="file-excel" >
+	<controller name="SalePortfolioReportControllerEXCEL">
 		<action name="printOverdueBalances" mode="detail"
 			class="com.powerfin.actions.accountLoan.salePortfolio.PrintOverdueBalances" icon="file-excel" image="save.gif">
 			<set property="format" value="excel"/>

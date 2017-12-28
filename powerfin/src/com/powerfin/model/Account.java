@@ -29,6 +29,7 @@ import com.powerfin.util.*;
 					+ "name;"
 					+ "transactionalName;"
 					+ "openingDate, accountStatus; "
+					+ "cancellationDate;"
 					+ "operatingCondition; "
 					+ "branch; "
 					+ "product;"

@@ -83,7 +83,7 @@ public class TermPaymentBatchSaveAction implements IBatchSaveAction  {
 				ta.setRemark(XavaResources.getString("capital_payment_quota_number", quota.getSubaccount()));
 				transactionAccounts.add(ta);
 				
-				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
 				ta.setRemark(XavaResources.getString("capital_payment_quota_number", quota.getSubaccount()));
 				transactionAccounts.add(ta);
 			}
