@@ -168,7 +168,7 @@ public class AccountLoanHelper {
 				+ "else "
 				+ "0 "
 				+ "end) interest, "
-				+ "ap.insurance, ap.insurance_mortgage, "
+				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
 				+ "0 receivable_fee, 0 legal_fee, "
 				+ "0 days_overdue, "
 				+ "0 real_days_overdue, "

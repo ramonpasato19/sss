@@ -986,6 +986,10 @@
 			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
 			<set property="type" value="sale"/>
 		</action>
+		<action name="printAccountInvoiceDispatchByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceDispatchByDateAction" icon="file-pdf">
+			<set property="type" value="sale"/>
+		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-pdf"
@@ -2469,4 +2473,39 @@
 			<set property="resetAfter" value="false" />
 		</action>
 	</controller>
+	
+	<controller name="LogController">
+		<action name="show" mode="detail"
+			class="com.powerfin.actions.company.ShowLogAction" icon="content-save" image="save.gif" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="PortfolioRecoveryManagmentDetailController">
+		<action name="new" mode="detail" class="com.powerfin.actions.portfolioRecoveryManagment.PortfolioRecoveryManagmentDetailSaveAction"
+			image="save.gif" icon="content-save" keystroke="F3">
+		</action>
+		
+	</controller>
+	
+	<controller name="PortfolioRecoveryManagementController">
+		<action  name="new" 
+			class="org.openxava.actions.NewAction"
+			icon="library-plus"
+			keystroke="Control N">
+			<set property="restoreModel" value="true"/>			
+		</action>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S">
+			<set property="resetAfter" value="false" />
+		</action>
+		<action name="printPortfolioRecoveryManagementDetail" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPortfolioRecoveryManagementDetail" icon="file-excel" image="save.gif" >			
+		</action>
+	</controller>
+	
 </controllers>

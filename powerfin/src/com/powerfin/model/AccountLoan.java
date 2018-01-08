@@ -162,9 +162,31 @@ import com.powerfin.model.types.*;
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
 	
+	@View(name="ReferencePortfolioRecoveryManagement", 
+			members="accountId ;"			
+					+"generalInformation{#"
+					+ "identificationType,"+"identification;"
+					+ "name,"+ "maritalStatus;"
+					+ "email,"+ "activity;"
+					+ "nationality;"
+					+ "homePhoneNumber1,"
+					+ "homePhoneNumber2;"	
+					+ "cellPhoneNumber1"
+					+ "};"
+					+ "homeAddress{#"					
+					+ "homeDistrict[country,region;state,city;district];"
+					+ "homeMainStreet, homeNumber; "
+					+ "homeSideStreet;homeSector;"			
+					+ "};"
+					+ "PersonalReference{"
+					+ "nameReference1,addressReference1, homePhoneReference1, cellPhoneReference1,workPhoneReference1,relationshipReference1;"
+					+ "nameReference2,addressReference2, homePhoneReference2, cellPhoneReference2,workPhoneReference2,relationshipReference2;"
+					+ "nameReference3,addressReference3, homePhoneReference3, cellPhoneReference3,workPhoneReference3,relationshipReference3;"
+					+ "};")
+	
 })
 @Tabs({
-	@Tab(properties=""),
+	@Tab(properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
 	@Tab(name="TXAccountLoan", properties="account.accountId, account.person.name, account.code, account.accountStatus.name, account.product.name"),
 	@Tab(name="ConsultPurchasePortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
 	@Tab(name="ConsultOriginationPortfolio", properties="account.accountId, account.person.name, account.accountStatus.name, account.product.name"),
@@ -175,8 +197,8 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Column(name="account_id", unique=true, nullable=false)
-	@ReadOnly
+	@Column(name="account_id", unique=true, nullable=false, length=20)
+	@ReadOnly(notForViews="ReferencePortfolioRecoveryManagement" )
 	@Hidden
 	private String accountId;
 
@@ -351,6 +373,20 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	private Person person;
 	
+	
+	@Transient
+	@ManyToOne
+	@Required
+	@ReferenceView(value="Reference")
+	private NaturalPerson naturalPerson;
+	
+	@Transient
+	@ManyToOne
+	@Required
+	@ReferenceView(value="Reference")
+	private LegalPerson legalPerson;
+	
+	
 	@Transient
 	@ManyToOne
 	@DescriptionsList
@@ -424,6 +460,195 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		@Action(forViews="ConsultSalePortfolio", value = "AccountLoan.GetOverdueBalanceSPForConsult", alwaysEnabled=true )
 	})
 	private Date projectedAccountingDate;
+	
+	
+	
+	
+	///////////////////////////////////////////////////////////////////////
+	// Campos usados para mostrar la información de Deudor
+	//////////////////////////////////////////////////////////////////////
+	@Transient
+	@Column(length=10)
+	@ReadOnly
+	private String identificationType;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String identification;
+	
+	@Transient
+	@ReadOnly
+	private String name;
+	
+	@Transient
+	@ReadOnly
+	private String email;
+	
+	@Transient
+	@ReadOnly
+	private String activity;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String maritalStatus;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String nationality;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String homePhoneNumber1;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String homePhoneNumber2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String cellPhoneNumber1;
+	
+	@Transient
+	@ReadOnly
+	private String homeMainStreet;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String homeNumber;
+	
+	@Transient
+	@ReadOnly
+	private String homeSideStreet;
+	
+	@Transient
+	@ReadOnly
+	private String homeSector;
+	
+	/////////////////////////////////////////////////////////
+	// Dirección
+	/////////////////////////////////////////////////////////
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String country;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String region;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String state;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)
+	private String city;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=30)	
+	private String district;
+	
+	/////////////////////////////////////////////////////////
+	// Referencias Personales
+	/////////////////////////////////////////////////////////
+	@Transient
+	@ReadOnly
+	@Column(length=35)
+	private String nameReference1;
+	
+	@Transient
+	@ReadOnly
+	private String addressReference1;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String homePhoneReference1;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String cellPhoneReference1;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String workPhoneReference1;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String relationshipReference1;
+	
+	
+	@Transient
+	@ReadOnly	
+	@Column(length=35)
+	private String nameReference2;
+	
+	@Transient
+	@ReadOnly
+	private String addressReference2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String homePhoneReference2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String cellPhoneReference2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String workPhoneReference2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String relationshipReference2;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=35)
+	private String nameReference3;
+	
+	@Transient
+	@ReadOnly
+	private String addressReference3;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String homePhoneReference3;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String cellPhoneReference3;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=15)
+	private String workPhoneReference3;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	private String relationshipReference3;
 	
 	public AccountLoan() {
 	}
@@ -581,6 +806,37 @@ public class AccountLoan extends AuditEntity implements Serializable {
 
 	public void setPerson(Person person) {
 		this.person = person;
+	}
+	
+	
+	public NaturalPerson getNaturalPerson() {
+		if (account!=null) {
+			try {
+				if (account.getPerson().getPersonType().getPersonTypeId().equals("NAT")) {
+					naturalPerson = XPersistence.getManager().find(NaturalPerson.class, account.getPerson().getPersonId());				
+				}				
+			} catch (Exception e) {
+			}
+		}
+		return naturalPerson;
+	}
+	public void setNaturalPerson(NaturalPerson naturalPerson) {
+		this.naturalPerson = naturalPerson;
+	}
+	
+	public LegalPerson getLegalPerson() {
+		if (account!=null) {
+			try {
+				if (account.getPerson().getPersonType().getPersonTypeId().equals("LEG")) {
+					legalPerson = XPersistence.getManager().find(LegalPerson.class, account.getPerson().getPersonId());				
+				}				
+			} catch (Exception e) {
+			}
+		}
+		return legalPerson;
+	}
+	public void setLegalPerson(NaturalPerson naturalPerson) {
+		this.naturalPerson = naturalPerson;
 	}
 
 	public AccountStatus getAccountStatus() {
@@ -820,6 +1076,12 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	public void setAccountSoldPaytables(List<AccountSoldPaytable> accountSoldPaytables) {
 		this.accountSoldPaytables = accountSoldPaytables;
 	}
+	
+	
+	
+	
+	
+	
 
 	@PrePersist
 	public void onCreate()
@@ -857,4 +1119,441 @@ public class AccountLoan extends AuditEntity implements Serializable {
 			setQuotasNumber(1);
 		}
 	}
+	
+	
+	public void loadPersonalData() {
+		Account account = XPersistence.getManager().find(Account.class, (String)getAccount().getAccountId());
+		Person person =  account.getPerson();
+		
+		if (person.getPersonType().getPersonTypeId().equals("NAT")) {
+			NaturalPerson naturalPerson = XPersistence.getManager().find(NaturalPerson.class, account.getPerson().getPersonId());
+			fillDataNaturalPerson(naturalPerson);
+		}
+		else{
+			LegalPerson legalPerson = XPersistence.getManager().find(LegalPerson.class, account.getPerson().getPersonId());
+			fillDataLegalPerson(legalPerson);
+		}
+	}
+	
+	
+	public void fillDataLegalPerson(LegalPerson legalPerson) {
+		
+		this.setIdentificationType(legalPerson.getIdentificationType().getIdentificationTypeId());
+		this.setIdentification(legalPerson.getIdentification());
+		this.setName(legalPerson.getName());
+		this.setEmail(legalPerson.getEmail());
+		this.setActivity(legalPerson.getActivity());
+		this.setHomePhoneNumber1(legalPerson.getHomePhoneNumber1());
+		this.setHomePhoneNumber2(legalPerson.getHomePhoneNumber2());
+		this.setHomeMainStreet(legalPerson.getHomeMainStreet());
+		this.setHomeNumber(legalPerson.getHomeNumber());
+		this.setHomeSideStreet(legalPerson.getHomeSideStreet());
+		this.setHomeSector(legalPerson.getHomeSector());
+		
+		try {
+			District district = XPersistence.getManager().find(District.class, legalPerson.getHomeDistrict().getDistrictId());
+			
+			fillDistrict(district);						
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	private void fillDataNaturalPerson(NaturalPerson naturalPerson) {
+		
+		this.setIdentificationType(naturalPerson.getIdentificationType().getIdentificationTypeId());
+		this.setIdentification(naturalPerson.getIdentification());
+		this.setName(naturalPerson.getName());
+		this.setEmail(naturalPerson.getEmail());
+		this.setActivity(naturalPerson.getActivity());
+		this.setHomePhoneNumber1(naturalPerson.getHomePhoneNumber1());
+		this.setHomePhoneNumber2(naturalPerson.getHomePhoneNumber2());
+		this.setHomeMainStreet(naturalPerson.getHomeMainStreet());
+		this.setHomeNumber(naturalPerson.getHomeNumber());
+		this.setHomeSideStreet(naturalPerson.getHomeSideStreet());
+		this.setHomeSector(naturalPerson.getHomeSector());
+		
+		
+		
+		
+		
+		try {
+			List<PersonalReference> personalReferences=naturalPerson.getPersonalReferences();
+			if (personalReferences!=null) {
+				if (personalReferences.size()>=1) {					
+					fillPersonalReference(personalReferences.get(0), 1);					 
+				}
+				if (personalReferences.size()>=2) {
+					fillPersonalReference(personalReferences.get(1), 2);
+				}
+				if (personalReferences.size()>=3) {
+					fillPersonalReference(personalReferences.get(2), 3);
+				}
+			}
+			
+			if (naturalPerson.getHomeDistrict()!=null)
+			{
+				District district = XPersistence.getManager().find(District.class, naturalPerson.getHomeDistrict().getDistrictId());
+				fillDistrict(district);
+			}
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void fillPersonalReference(PersonalReference personalReference, int index) {
+		Person person = personalReference.getPerson();
+		if (index==1) {
+			if (person!=null) {
+				this.setNameReference1(person.getName());				
+			}
+			this.setAddressReference1(personalReference.getAddress());
+			this.setHomePhoneReference1(personalReference.getHomePhone());
+			this.setCellPhoneReference1(personalReference.getCellPhone());
+			this.setWorkPhoneReference1(personalReference.getWorkPhone());
+			this.setRelationshipReference1(personalReference.getRelationship());
+		}else if (index == 2) {
+			if (person!=null) {
+				this.setNameReference2(person.getName());				
+			}
+			this.setAddressReference2(personalReference.getAddress());
+			this.setHomePhoneReference2(personalReference.getHomePhone());
+			this.setCellPhoneReference2(personalReference.getCellPhone());
+			this.setWorkPhoneReference2(personalReference.getWorkPhone());
+			this.setRelationshipReference2(personalReference.getRelationship());
+		}else if (index == 3) {
+			if (person!=null) {
+				this.setNameReference3(person.getName());				
+			}
+			this.setAddressReference3(personalReference.getAddress());
+			this.setHomePhoneReference3(personalReference.getHomePhone());
+			this.setCellPhoneReference3(personalReference.getCellPhone());
+			this.setWorkPhoneReference3(personalReference.getWorkPhone());
+			this.setRelationshipReference3(personalReference.getRelationship());
+		}
+	}
+	
+	
+	
+	private void fillDistrict(District district) throws Exception{
+	
+		this.setCountry(district.getCountry().getName());
+		this.setRegion(district.getRegion().getName());
+		this.setState(district.getState().getName());
+		this.setCity(district.getCity().getName());
+		this.setDistrict(district.getName());
+	}
+	
+	
+
+	public String getIdentificationType() {
+		if (identificationType==null && account!=null) {
+			loadPersonalData();
+		}
+		return identificationType;
+
+	}
+
+	public void setIdentificationType(String identificationType) {
+		this.identificationType = identificationType;
+	}
+
+	public String getIdentification() {
+		return identification;
+	}
+
+	public void setIdentification(String identification) {
+		this.identification = identification;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getActivity() {
+		return activity;
+	}
+
+	public void setActivity(String activity) {
+		this.activity = activity;
+	}
+
+	public String getMaritalStatus() {
+		return maritalStatus;
+	}
+
+	public void setMaritalStatus(String maritalStatus) {
+		this.maritalStatus = maritalStatus;
+	}
+
+	public String getNationality() {
+		return nationality;
+	}
+
+	public void setNationality(String nationality) {
+		this.nationality = nationality;
+	}
+
+	public String getHomePhoneNumber1() {
+		return homePhoneNumber1;
+	}
+
+	public void setHomePhoneNumber1(String homePhoneNumber1) {
+		this.homePhoneNumber1 = homePhoneNumber1;
+	}
+
+	public String getHomePhoneNumber2() {
+		return homePhoneNumber2;
+	}
+
+	public void setHomePhoneNumber2(String homePhoneNumber2) {
+		this.homePhoneNumber2 = homePhoneNumber2;
+	}
+
+	public String getCellPhoneNumber1() {
+		return cellPhoneNumber1;
+	}
+
+	public void setCellPhoneNumber1(String cellPhoneNumber1) {
+		this.cellPhoneNumber1 = cellPhoneNumber1;
+	}
+
+	public String getHomeMainStreet() {
+		return homeMainStreet;
+	}
+
+	public void setHomeMainStreet(String homeMainStreet) {
+		this.homeMainStreet = homeMainStreet;
+	}
+
+	public String getHomeNumber() {
+		return homeNumber;
+	}
+
+	public void setHomeNumber(String homeNumber) {
+		this.homeNumber = homeNumber;
+	}
+
+	public String getHomeSideStreet() {
+		return homeSideStreet;
+	}
+
+	public void setHomeSideStreet(String homeSideStreet) {
+		this.homeSideStreet = homeSideStreet;
+	}
+
+	public String getHomeSector() {
+		return homeSector;
+	}
+
+	public void setHomeSector(String homeSector) {
+		this.homeSector = homeSector;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getDistrict() {
+		return district;
+	}
+
+	public void setDistrict(String district) {
+		this.district = district;
+	}
+
+	public String getNameReference1() {
+		return nameReference1;
+	}
+
+	public void setNameReference1(String nameReference1) {
+		this.nameReference1 = nameReference1;
+	}
+
+	public String getAddressReference1() {
+		return addressReference1;
+	}
+
+	public void setAddressReference1(String addressReference1) {
+		this.addressReference1 = addressReference1;
+	}
+
+	public String getHomePhoneReference1() {
+		return homePhoneReference1;
+	}
+
+	public void setHomePhoneReference1(String homePhoneReference1) {
+		this.homePhoneReference1 = homePhoneReference1;
+	}
+
+	public String getCellPhoneReference1() {
+		return cellPhoneReference1;
+	}
+
+	public void setCellPhoneReference1(String cellPhoneReference1) {
+		this.cellPhoneReference1 = cellPhoneReference1;
+	}
+
+	public String getWorkPhoneReference1() {
+		return workPhoneReference1;
+	}
+
+	public void setWorkPhoneReference1(String workPhoneReference1) {
+		this.workPhoneReference1 = workPhoneReference1;
+	}
+
+	public String getRelationshipReference1() {
+		return relationshipReference1;
+	}
+
+	public void setRelationshipReference1(String relationshipReference1) {
+		this.relationshipReference1 = relationshipReference1;
+	}
+
+	public String getNameReference2() {
+		return nameReference2;
+	}
+
+	public void setNameReference2(String nameReference2) {
+		this.nameReference2 = nameReference2;
+	}
+
+	public String getAddressReference2() {
+		return addressReference2;
+	}
+
+	public void setAddressReference2(String addressReference2) {
+		this.addressReference2 = addressReference2;
+	}
+
+	public String getHomePhoneReference2() {
+		return homePhoneReference2;
+	}
+
+	public void setHomePhoneReference2(String homePhoneReference2) {
+		this.homePhoneReference2 = homePhoneReference2;
+	}
+
+	public String getCellPhoneReference2() {
+		return cellPhoneReference2;
+	}
+
+	public void setCellPhoneReference2(String cellPhoneReference2) {
+		this.cellPhoneReference2 = cellPhoneReference2;
+	}
+
+	public String getWorkPhoneReference2() {
+		return workPhoneReference2;
+	}
+
+	public void setWorkPhoneReference2(String workPhoneReference2) {
+		this.workPhoneReference2 = workPhoneReference2;
+	}
+
+	public String getRelationshipReference2() {
+		return relationshipReference2;
+	}
+
+	public void setRelationshipReference2(String relationshipReference2) {
+		this.relationshipReference2 = relationshipReference2;
+	}
+
+	public String getNameReference3() {
+		return nameReference3;
+	}
+
+	public void setNameReference3(String nameReference3) {
+		this.nameReference3 = nameReference3;
+	}
+
+	public String getAddressReference3() {
+		return addressReference3;
+	}
+
+	public void setAddressReference3(String addressReference3) {
+		this.addressReference3 = addressReference3;
+	}
+
+	public String getHomePhoneReference3() {
+		return homePhoneReference3;
+	}
+
+	public void setHomePhoneReference3(String homePhoneReference3) {
+		this.homePhoneReference3 = homePhoneReference3;
+	}
+
+	public String getCellPhoneReference3() {
+		return cellPhoneReference3;
+	}
+
+	public void setCellPhoneReference3(String cellPhoneReference3) {
+		this.cellPhoneReference3 = cellPhoneReference3;
+	}
+
+	public String getWorkPhoneReference3() {
+		return workPhoneReference3;
+	}
+
+	public void setWorkPhoneReference3(String workPhoneReference3) {
+		
+		this.workPhoneReference3 = workPhoneReference3;
+	}
+
+	public String getRelationshipReference3() {
+		return relationshipReference3;
+	}
+
+	public void setRelationshipReference3(String relationshipReference3) {
+		this.relationshipReference3 = relationshipReference3;
+	}
+
+	public void setLegalPerson(LegalPerson legalPerson) {
+		this.legalPerson = legalPerson;
+	}
+	
 }

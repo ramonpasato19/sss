@@ -1009,4 +1009,20 @@
 	</module>
 <!-- END Backup ######################################## -->
 
+<!-- BEGIN Log ######################################## -->
+	<module name="Log">
+		<model name="Company" />
+		<controller name="LogController" />
+		<view name="Log" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END Log ######################################## -->
+
+<!-- REPORTE DE GESTION DE COBRANZAS -->
+	<module name="PortfolioRecoveryManagement">
+		<model name="PortfolioRecoveryManagement" />
+		<controller name="PortfolioRecoveryManagementController" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END GESTION DE COBRANZAS -->
 </application>

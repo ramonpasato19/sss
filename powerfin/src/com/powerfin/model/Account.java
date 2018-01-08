@@ -82,7 +82,9 @@ import com.powerfin.util.*;
 					+ "name;"
 					+ "interestRate,"
 					+ "totalOverdueBalance;"
-					+ "accountOverdueBalances")
+					+ "accountOverdueBalances"),
+	@View(name="ReferencePortfolioRecoveryManagement", 
+			members="accountId; code; account.person.name;")
 })
 @Tabs({
 	@Tab(properties="accountId, branch.name, code, name, product.productId, product.name, currency.currencyId")
@@ -124,7 +126,6 @@ public class Account extends AuditEntity implements Serializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="cancellation_date", nullable=true)
-	@ReadOnly
 	private Date cancellationDate;
 	
 	@ManyToOne

@@ -21,12 +21,14 @@ import com.powerfin.model.types.Types.*;
 @Views({
 	@View(members="companyId;name;oxorganizationId;accountingDate;person;officialCurrency"),
 	@View(name="AccountingClosingDay", members="companyId; name; accountingDate; nextAccountingDate; batchProcesses"),
-	@View(name="Backup", members="companyId; name; oxorganizationId; accountingDate; output")
+	@View(name="Backup", members="companyId; name; oxorganizationId; accountingDate; output"),
+	@View(name="Log", members="companyId; accountingDate; name; oxorganizationId; lines; output")
 })
 @Tabs({
 	@Tab(properties="companyId, name, accountingDate, person.name, officialCurrency.currencyId"),
 	@Tab(name="AccountingClosingDay", properties="companyId, name, accountingDate"),
-	@Tab(name="Backup", properties="companyId, name, accountingDate")
+	@Tab(name="Backup", properties="companyId, name, accountingDate"),
+	@Tab(name="Log", properties="companyId, name, accountingDate")
 })
 public class Company implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -37,11 +39,11 @@ public class Company implements Serializable {
 	private Integer companyId;
 
 	@Column(nullable=false, length=100)
-	@ReadOnly(forViews="AccountingClosingDay, Backup")
+	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private String name;
 
 	@Column(name="oxorganization_id", length=50)
-	@ReadOnly(forViews="AccountingClosingDay, Backup")
+	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private String oxorganizationId;
 	
 	@Column(name="logo", length=50)
@@ -49,13 +51,13 @@ public class Company implements Serializable {
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="accounting_date", nullable=false)
-	@ReadOnly(forViews="AccountingClosingDay, Backup")
+	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private Date accountingDate;
 	
 	//bi-directional many-to-one association to Person
 	@ManyToOne
 	@JoinColumn(name="person_id", nullable=false)
-	@ReadOnly(forViews="AccountingClosingDay, Backup")
+	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	@NoCreate
 	@NoModify
 	private Person person;
@@ -65,7 +67,7 @@ public class Company implements Serializable {
 	@JoinColumn(name="official_currency_id", nullable=false)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AccountingClosingDay, Backup")
+	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private Currency officialCurrency;
 
 	@Transient
@@ -81,8 +83,11 @@ public class Company implements Serializable {
 	
 	@Transient
 	@Stereotype("TEXT_AREA")
-	@ReadOnly
+	@ReadOnly(notForViews="Log")
 	private String output;
+	
+	@Transient
+	private Integer lines;
 	
 	public Company() {
 	}
@@ -173,6 +178,14 @@ public class Company implements Serializable {
 
 	public void setOutput(String output) {
 		this.output = output;
+	}
+
+	public Integer getLines() {
+		return lines;
+	}
+
+	public void setLines(Integer lines) {
+		this.lines = lines;
 	}
 
 }

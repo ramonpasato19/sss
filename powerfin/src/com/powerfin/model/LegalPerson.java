@@ -16,28 +16,44 @@ import com.powerfin.model.superclass.*;
  */
 @Entity
 @Table(name="legal_person")
-@View(members="#"
-		+ "personId,"
-		+ "name;"
-		+ "generalInformation{#"
-			+ "identificationType;"
-			+ "identification;"
-			+ "businessName;"
-			+ "email;"
-			+ "activity;"
-			+ "incorporationDate;}"
-		+ "workAddress{#"
-			+ "homeDistrict;"
-			+ "homeMainStreet, homeNumber; "
-			+ "homeSideStreet;homeSector;"
-			+ "homePhoneNumber1;homePhoneNumber2;}"
-		+ "PersonIncome{personIncomes}"
-		+ "PersonExpense{personExpenses}"
-		+ "PersonDeposit{personDeposits}"
-		+ "PersonLoan{personLoans}"
-		+ "PersonImmovable{personImmovables}"
-		+ "PersonMovable{personMovables}"
-		+ "")
+@Views({
+	@View(members="#"
+			+ "personId,"
+			+ "name;"
+			+ "generalInformation{#"
+				+ "identificationType;"
+				+ "identification;"
+				+ "businessName;"
+				+ "email;"
+				+ "activity;"
+				+ "incorporationDate;}"
+			+ "workAddress{#"
+				+ "homeDistrict;"
+				+ "homeMainStreet, homeNumber; "
+				+ "homeSideStreet;homeSector;"
+				+ "homePhoneNumber1;homePhoneNumber2;}"
+			+ "PersonIncome{personIncomes}"
+			+ "PersonExpense{personExpenses}"
+			+ "PersonDeposit{personDeposits}"
+			+ "PersonLoan{personLoans}"
+			+ "PersonImmovable{personImmovables}"
+			+ "PersonMovable{personMovables}"
+			+ ""),
+	@View(name = "Reference", members="#"			
+			+ "generalInformation{#"
+				+ "identificationType;"
+				+ "identification;"
+				+ "businessName;"
+				+ "email;"
+				+ "activity;"
+				+ "incorporationDate;}"
+			+ "workAddress{#"
+				+ "homeDistrict;"
+				+ "homeMainStreet, homeNumber; "
+				+ "homeSideStreet;homeSector;"
+				+ "homePhoneNumber1;homePhoneNumber2;}"),
+	@View(name="Simple", members="identification; name")}
+)
 @Tab(properties="personId, person.identification, person.name, person.email")
 public class LegalPerson extends CommonPerson implements Serializable {
 	private static final long serialVersionUID = 1L;

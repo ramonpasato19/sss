@@ -20,6 +20,19 @@ public class PrintTotalBalances extends ReportBaseAction {
 		Map parameters = new HashMap();
 		parameters.put("BROKER_PERSON_ID", personId);
 		addDefaultParameters(parameters);
+		
+		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
+		if (projectedAccountingDate==null)
+		{
+			projectedAccountingDate = CompanyHelper.getCurrentAccountingDate();
+			getView().getRoot().setValue("projectedAccountingDate",projectedAccountingDate);
+		}
+		
+		parameters.remove("CURRENT_ACCOUNTING_DATE");
+		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
+		
+		AccountLoanHelper.getAllOverdueBalancesSalePortfolioByBroker(personId, projectedAccountingDate);
+		
 		return parameters;
 	}
 

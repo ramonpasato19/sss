@@ -28,7 +28,7 @@ public class ViewConsultAccountInvoice {
 		
 	@OneToMany
 	@ReadOnly
-	@ListProperties(value="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
+	@ListProperties(value="account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
 	@ListActions({
 		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
@@ -53,7 +53,7 @@ public class ViewConsultAccountInvoice {
 	
 	@OneToMany
 	@ReadOnly
-	@ListProperties(value="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
+	@ListProperties(value="account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
 	@ListActions({
 		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
 		@ListAction("ConsultPurchaseInvoiceController.generateExcel")

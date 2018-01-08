@@ -1,10 +1,9 @@
 package com.powerfin.actions.inventory;
 
-import java.math.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
-import org.openxava.actions.*;
-
-import com.powerfin.model.types.*;
+import org.openxava.actions.OnChangePropertyBaseAction;
 
 public class OnChangeQuantityTransferItemAction  extends OnChangePropertyBaseAction{
 

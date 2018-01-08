@@ -18,7 +18,8 @@ import com.powerfin.model.types.Types.*;
  */
 @Entity
 @Table(name="natural_person")
-@View(members="#"
+@Views({
+	@View(members="#"
 		+ "personId,"
 		+ "name;"
 		+ "generalInformation{#"
@@ -57,7 +58,36 @@ import com.powerfin.model.types.Types.*;
 		+ "PersonImmovable{personImmovables}"
 		+ "PersonMovable{personMovables}"
 		+ "PersonalReference{personalReferences}"
-		+ "")
+		+ ""),
+	@View(name="Reference", members="#"
+		+ "generalInformation{#"
+			+ "identificationType, identification;"
+			+ "name;"
+			+ "maritalStatus;"
+			+ "email, activity;"
+			+ "nationality;"
+			+ "cellPhoneNumber1}"
+		+ "homeAddress{#"
+			+ "location{"
+				+ "homeType;"
+				+ "homeDistrict;"
+				+ "homeMainStreet, homeNumber; "
+				+ "homeSideStreet;homeSector;"
+				+ "homePhoneNumber1;}"
+			+ "rental{#"
+				+ "homeRenterName; homeResidenceTime;"
+				+ "homeRenterPhoneNumber; homeRentalValue;}}"
+		+ "work{#"
+			+ "workIdentification;"
+			+ "workPlace;"
+			+ "workDistrict;"
+			+ "workAddress;"
+			+ "workActivity;"
+			+ "workPhoneNumber, workPhoneExtension;"
+			+ "workPosition, workSeniority}"				
+		+ "PersonalReference{#personalReferences}"),
+	@View(name="Simple", members="identification; name")}
+)
 @Tab(properties="personId, person.identification, person.name, person.email")
 public class NaturalPerson extends CommonPerson implements Serializable {
 	private static final long serialVersionUID = 1L;
