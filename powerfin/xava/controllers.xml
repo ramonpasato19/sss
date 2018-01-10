@@ -1760,34 +1760,6 @@
 	</controller>
 <!-- END TXAccountLoan ######################################## -->
 
-<!-- BEGIN TXPurchasePortfolio ######################################## -->
-	<controller name="AuthorizeTXPurchasePortfolioController">
-		<extends controller="RefreshTXController"/>
-		<action name="save" 
-			mode="detail" 
-			class="com.powerfin.actions.transaction.TXPurchasePortfolioSaveAction"
-			icon="content-save" 
-			by-default="if-possible"
-			keystroke="F3" >
-			<set property="resetAfter" value="false" />
-		</action>
-	</controller>
-<!-- END TXPurchasePortfolio ######################################## -->
-
-<!-- BEGIN TXSalePortfolio ######################################## -->
-	<controller name="AuthorizeTXSalePortfolioController">
-		<extends controller="RefreshTXController"/>
-		<action name="save" 
-			mode="detail" 
-			class="com.powerfin.actions.transaction.TXSalePortfolioSaveAction"
-			icon="content-save" 
-			by-default="if-possible"
-			keystroke="F3" >
-			<set property="resetAfter" value="false" />
-		</action>
-	</controller>
-<!-- END TXSalePortfolio ######################################## -->
-
 <!-- BEGIN TXPurchaseForexCustomer ######################################## -->
 	<controller name="RequestTXPurchaseForexCustomerController">
 		<extends controller="RefreshTXController"/>
@@ -1980,19 +1952,29 @@
 	</controller>
 	
 	<controller name="ProcessSaleNegotiationButtonBarController">
-		<action name="processLoan" 
+		<action name="processSalePortfolio" 
 			mode="detail" 
 			class="com.powerfin.actions.negotiation.NegotiationProcess">
 			<set value="101" property="negotiationFileTypeId"/>		
 		</action>
+		<action name="saleLoan" 
+			mode="detail" 
+			class="com.powerfin.actions.negotiation.NegotiationProcess">
+			<set value="102" property="negotiationFileTypeId"/>		
+		</action>
 	</controller>
 	<controller name="ProcessSaleNegotiationTopBarController">
-		<action  name="processLoanTop" 
+		<action  name="processSalePortfolioTop" 
 			mode="detail"
 			class="com.powerfin.actions.negotiation.NegotiationProcess"
-			icon="content-save"
-			image="save.gif">
+			icon="content-save">
 			<set value="101" property="negotiationFileTypeId"/>			
+		</action>
+		<action  name="saleLoanTop" 
+			mode="detail"
+			class="com.powerfin.actions.negotiation.NegotiationProcess"
+			icon="content-save">
+			<set value="102" property="negotiationFileTypeId"/>			
 		</action>
 	</controller>
 	

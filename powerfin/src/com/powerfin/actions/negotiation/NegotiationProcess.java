@@ -58,9 +58,9 @@ public class NegotiationProcess extends SaveAction {
 						 new NegotiationProcessPerson(negotiationFile);
 				 negotiationProcessPerson.execute(fileString);
 				
-			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_LOAN)){
-				 NegotiationProcessLoan negotiationProcessLoan =
-						 new NegotiationProcessLoan(negotiationFile);
+			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_PROCESS_PURCHASE_PORTFOLIO)){
+				 NegotiationProcessPurchasePortfolio negotiationProcessLoan =
+						 new NegotiationProcessPurchasePortfolio(negotiationFile);
 				 negotiationProcessLoan.execute(fileString);
 				 
 			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_PAYTABLE)){ 
@@ -73,9 +73,13 @@ public class NegotiationProcess extends SaveAction {
 						 new NegotiationDisbursementLoan(negotiationFile);
 				 negotiationDisbursementLoan.execute(fileString);
 				 
-			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_SALE_PORTFOLIO)){ 
-				 NegotiationSalePortfolio negotiationProcessPayTable =
-						 new NegotiationSalePortfolio(negotiationFile);
+			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_PROCESS_SALE_PORTFOLIO)){ 
+				 NegotiationProcessSalePortfolio negotiationProcessPayTable =
+						 new NegotiationProcessSalePortfolio(negotiationFile);
+				 negotiationProcessPayTable.execute(fileString);
+			 }else if(negotiationFileTypeId.equals(NegotiationHelper.FILE_TYPE_ID_SALE)){ 
+				 NegotiationSaleLoan negotiationProcessPayTable =
+						 new NegotiationSaleLoan(negotiationFile);
 				 negotiationProcessPayTable.execute(fileString);
 			 }
 			

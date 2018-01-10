@@ -51,6 +51,9 @@ public class AccountPortfolio implements Serializable {
 	@Column(name="status_id", length=3)
 	private String statusId;
 
+	@Column(name = "sale_portfolio_utility_distribution", length = 10)
+	private String salePortfolioUtilityDistribution;
+	
 	//bi-directional one-to-one association to Account
 	@OneToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
@@ -201,6 +204,14 @@ public class AccountPortfolio implements Serializable {
 
 	public void setSaleStatus(AccountStatus saleStatus) {
 		this.saleStatus = saleStatus;
+	}
+
+	public String getSalePortfolioUtilityDistribution() {
+		return salePortfolioUtilityDistribution;
+	}
+
+	public void setSalePortfolioUtilityDistribution(String salePortfolioUtilityDistribution) {
+		this.salePortfolioUtilityDistribution = salePortfolioUtilityDistribution;
 	}
 	
 }

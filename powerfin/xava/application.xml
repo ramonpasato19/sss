@@ -621,24 +621,6 @@
 		<mode-controller name="DetailList" />
 	</module>
 <!-- END TXLoan ######################################## -->
-<!-- BEGIN TXPurchasePortfolio ######################################## -->
-	<module name="AuthorizeTXPurchasePortfolio">
-		<model name="Transaction" />
-		<controller name="AuthorizeTXPurchasePortfolioController" />
-		<view name="AuthorizeTXPurchasePortfolio" />
-		<tab name="TXPurchasePortfolio" />
-		<mode-controller name="DetailList" />
-	</module>
-<!-- END TXPurchasePortfolio ######################################## -->
-<!-- BEGIN TXSalePortfolio ######################################## -->
-	<module name="AuthorizeTXSalePortfolio">
-		<model name="Transaction" />
-		<controller name="AuthorizeTXSalePortfolioController" />
-		<view name="AuthorizeTXSalePortfolio" />
-		<tab name="TXSalePortfolio" />
-		<mode-controller name="DetailList" />
-	</module>
-<!-- END TXPurchasePortfolio ######################################## -->
 <!-- BEGIN TXPurchaseForexCustomer ######################################## -->
 	<module name="RequestTXPurchaseForexCustomer">
 		<model name="Transaction" />

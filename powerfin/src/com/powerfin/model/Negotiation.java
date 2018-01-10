@@ -57,7 +57,8 @@ import com.powerfin.model.superclass.*;
 		+ "debitCreditAccount; "
 		+ "]"
 		+ "results{#"
-		+ "loans{negotiationOutputsSale}"
+		+ "loans{negotiationOutputsSalePurchasePortfolio}"
+		+ "sale{negotiationOutputsSale}"
 		+ "}"
 		),
 @View(name="ConsultPurchaseNegotiation", members="generalInformation[#"
@@ -228,11 +229,25 @@ public class Negotiation extends AuditEntity implements Serializable {
 	@ReadOnly
 	@OrderBy("negotiation.negotiationId")
 	@ListProperties("fileName, lineNumber, result")
-	@Condition("${negotiation.negotiationId} = ${this.negotiationId} AND ${fileType} = '101' " //101 - VENTA
+	@Condition("${negotiation.negotiationId} = ${this.negotiationId} AND ${fileType} = '101' " //101 - PROCESS SALE PORTFOLIO
 			+ "AND ${file} IN "
 			+ " (select nf.file from NegotiationFile nf "
 			+ "where nf.negotiation.negotiationId=${this.negotiationId} "
 			+ "and nf.negotiationFileType.negotiationFileTypeId='101')")
+	private List<NegotiationOutput> negotiationOutputsSalePurchasePortfolio;
+	
+	//bi-directional many-to-one association to NegotiationOutput
+	@Transient
+	@OneToMany
+	@NoCreate
+	@ReadOnly
+	@OrderBy("negotiation.negotiationId")
+	@ListProperties("fileName, lineNumber, result")
+	@Condition("${negotiation.negotiationId} = ${this.negotiationId} AND ${fileType} = '102' " //102 - PROCESS SALE
+			+ "AND ${file} IN "
+			+ " (select nf.file from NegotiationFile nf "
+			+ "where nf.negotiation.negotiationId=${this.negotiationId} "
+			+ "and nf.negotiationFileType.negotiationFileTypeId='102')")
 	private List<NegotiationOutput> negotiationOutputsSale;
 	
 	//bi-directional many-to-one association to NegotiationOutput
@@ -453,6 +468,15 @@ public class Negotiation extends AuditEntity implements Serializable {
 
 	public void setNegotiationOutputsDisbursement(List<NegotiationOutput> negotiationOutputsDisbursement) {
 		this.negotiationOutputsDisbursement = negotiationOutputsDisbursement;
+	}
+
+	public List<NegotiationOutput> getNegotiationOutputsSalePurchasePortfolio() {
+		return negotiationOutputsSalePurchasePortfolio;
+	}
+
+	public void setNegotiationOutputsSalePurchasePortfolio(
+			List<NegotiationOutput> negotiationOutputsSalePurchasePortfolio) {
+		this.negotiationOutputsSalePurchasePortfolio = negotiationOutputsSalePurchasePortfolio;
 	}
 	
 }

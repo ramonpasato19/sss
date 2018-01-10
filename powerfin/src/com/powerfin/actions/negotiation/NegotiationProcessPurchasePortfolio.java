@@ -12,7 +12,7 @@ import com.powerfin.model.*;
 import com.powerfin.model.dto.*;
 import com.powerfin.util.*;
 
-public class NegotiationProcessLoan {
+public class NegotiationProcessPurchasePortfolio {
 	
 	private Person person;
 	private Product productPayable;
@@ -30,7 +30,7 @@ public class NegotiationProcessLoan {
 	
 	NegotiationLoanDTO loanDTO;
 	
-	public NegotiationProcessLoan(NegotiationFile negotiationFile) {
+	public NegotiationProcessPurchasePortfolio(NegotiationFile negotiationFile) {
 		this.negotiationFile = negotiationFile;
 	}
 	

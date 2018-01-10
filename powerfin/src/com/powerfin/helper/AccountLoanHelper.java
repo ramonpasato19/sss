@@ -184,8 +184,6 @@ public class AccountLoanHelper {
 		query+= ") z "
 				+ "order by subaccount ";
 		
-		System.out.println("AccountOverdueBalancequery: "+query);
-		
 		List<Object[]> balances = XPersistence.getManager()
 				.createNativeQuery(query)
 				.setParameter("accountId", account.getAccountId())
@@ -1089,5 +1087,31 @@ public class AccountLoanHelper {
 			transactionAccounts.add(ta);			
 		}
 		return transactionAccounts;
+	}
+	
+	public static BigDecimal getIncomeUtilityDistribution(AccountPortfolio accountPortfolio)
+	{
+		String distributionUtility = accountPortfolio.getSalePortfolioUtilityDistribution();
+
+		if (distributionUtility==null)
+			return BigDecimal.ZERO;
+		
+		try
+		{
+			String[] distribution = distributionUtility.split("/");
+			BigDecimal liabilityDistribution = new BigDecimal(distribution[0]);
+			BigDecimal incomeDistribution = new BigDecimal(distribution[1]);
+			BigDecimal utility = accountPortfolio.getSaleSpread().subtract(accountPortfolio.getPurchaseSpread());
+			
+			if (liabilityDistribution.add(incomeDistribution).compareTo(new BigDecimal(100))!=0)
+				throw new InternalException("sale_portfolio_utility_distribution_is_incorrect", distributionUtility);
+			
+			return utility.multiply(incomeDistribution.divide(new BigDecimal(100), 10, RoundingMode.HALF_UP)).setScale(2, RoundingMode.HALF_UP);
+		}
+		catch(Exception e)
+		{
+			throw new InternalException("sale_portfolio_utility_distribution_is_incorrect", distributionUtility);
+		}
+		
 	}
 }

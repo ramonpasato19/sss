@@ -23,17 +23,28 @@ public class AccountShareholder extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@AsEmbedded
-	@NoFrame
+	@Column(name="account_id", unique=true, nullable=false)
+	@DisplaySize(20)
+	@ReadOnly
+	private String accountId;
+	
+	//bi-directional one-to-one association to Account
 	@OneToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
-	@ReferenceView("Shareholder")
 	private Account account;
 	
 	@Column(name="percentage_participation", precision=5, scale=2)
 	private BigDecimal percentageParticipation;
 		
 	public AccountShareholder() {
+	}
+
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
 	}
 
 	public Account getAccount() {

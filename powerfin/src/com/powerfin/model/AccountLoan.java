@@ -376,13 +376,13 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	
 	@Transient
 	@ManyToOne
-	@Required
+	//@Required
 	@ReferenceView(value="Reference")
 	private NaturalPerson naturalPerson;
 	
 	@Transient
 	@ManyToOne
-	@Required
+	//@Required
 	@ReferenceView(value="Reference")
 	private LegalPerson legalPerson;
 	

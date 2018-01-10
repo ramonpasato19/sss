@@ -3,6 +3,7 @@ package com.powerfin.actions.transaction;
 import java.util.*;
 
 import com.powerfin.exception.*;
+import com.powerfin.helper.ActionReportHelper;
 import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
@@ -35,7 +36,7 @@ public class PrintOperativeEntryAction extends ReportBaseAction {
 
 	@Override
 	protected String getReportName() throws Exception {
-		return "ACCOUNTINGENTRY";
+		return ActionReportHelper.getReportByAction(this.getClass().getName());
 	}
 
 }

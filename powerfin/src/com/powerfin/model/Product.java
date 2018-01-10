@@ -31,6 +31,7 @@ import com.powerfin.model.types.Types.*;
 				+ "applyDefaultInterestAccrued; "
 				+ "applyAutomaticDebit; "
 				+ "operatingCondition; "
+				+ "salePortfolioUtilityDistribution; "
 				+ "autoCode[prefix, lpad, sequenceDBName, rpad, sufix]; "
 				+ "categoryProducts; "
 				+ "productStatuses"),
@@ -76,6 +77,9 @@ public class Product implements Serializable {
 
 	@Column(length = 5)
 	private String prefix;
+	
+	@Column(name = "sale_portfolio_utility_distribution", length = 10)
+	private String salePortfolioUtilityDistribution;
 	
 	@Column(name = "interest_rate", precision = 5, scale = 2)
 	private BigDecimal interestRate;
@@ -319,6 +323,14 @@ public class Product implements Serializable {
 
 	public void setApplyAutomaticDebit(Types.YesNoIntegerType applyAutomaticDebit) {
 		this.applyAutomaticDebit = applyAutomaticDebit;
+	}
+
+	public String getSalePortfolioUtilityDistribution() {
+		return salePortfolioUtilityDistribution;
+	}
+
+	public void setSalePortfolioUtilityDistribution(String salePortfolioUtilityDistribution) {
+		this.salePortfolioUtilityDistribution = salePortfolioUtilityDistribution;
 	}
 	
 }

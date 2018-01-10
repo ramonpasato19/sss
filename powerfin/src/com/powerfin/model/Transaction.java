@@ -267,18 +267,6 @@ import com.powerfin.model.types.*;
 				+ "term[creditAccount];" 
 				+ "data[accountTerm];"),
 		
-		//Authorize Purchase Portfolio
-		@View(name = "AuthorizeTXPurchasePortfolio", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
-				+ "value; transactionStatus;"
-				+ "loan[debitAccount];" 
-				+ "data[accountLoan];"),
-		
-		//Authorize Sale Portfolio
-		@View(name = "AuthorizeTXSalePortfolio", members = "#currency;transactionModule, voucher; accountingDate, companyAccountingDate;"
-				+ "value; transactionStatus;"
-				+ "loan[debitAccount];" 
-				+ "data[accountLoan];"),
-		
 		//Transfer Due, Invoice purchase
 		@View(name = "RequestTXTransferDue", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "invoice[debitAccount];"
@@ -415,8 +403,6 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXPurchaseForexBank", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEFOREXBANK'"),
 		@Tab(name = "TXSaleForexBank", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEFOREXBANK'"),
 		@Tab(name = "TXInBatch", properties = "transactionModule.name, voucher, debitAccount.accountId, creditAccount.accountId, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001'"),
-		@Tab(name = "TXPurchasePortfolio", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIO'"),
-		@Tab(name = "TXSalePortfolio", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEPORTFOLIO'"),
 		@Tab(name = "TXPurchasePortfolioPayment", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
 		@Tab(name = "TXPurchasePortfolioPaymentValueDate", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
 		@Tab(name = "TXSalePortfolioPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
@@ -472,8 +458,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio,"
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -521,8 +505,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio,"
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue,"
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -576,8 +558,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio, "
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -634,8 +614,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio, "
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -688,8 +666,6 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXRetentionSale,"
 					+ "AuthorizeTXAccountLoan,"
 					+ "AuthorizeTXAccountTerm,"
-					+ "AuthorizeTXPurchasePortfolio, "
-					+ "AuthorizeTXSalePortfolio,"
 					+ "AuthorizeTXTransferDue, "
 					+ "AuthorizeTXPurchaseForexCustomer,"
 					+ "AuthorizeTXSaleForexCustomer,"
@@ -729,8 +705,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio, "
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -839,8 +813,6 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXRetentionSale,"
 							+ "AuthorizeTXAccountLoan,"
 							+ "AuthorizeTXAccountTerm,"
-							+ "AuthorizeTXPurchasePortfolio, "
-							+ "AuthorizeTXSalePortfolio,"
 							+ "AuthorizeTXTransferDue, "
 							+ "AuthorizeTXPurchaseForexCustomer,"
 							+ "AuthorizeTXSaleForexCustomer,"
@@ -963,8 +935,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio, "
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue, "
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"
@@ -1014,8 +984,6 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXRetentionSale,"
 			+ "AuthorizeTXAccountLoan,"
 			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXPurchasePortfolio, "
-			+ "AuthorizeTXSalePortfolio,"
 			+ "AuthorizeTXTransferDue,"
 			+ "AuthorizeTXPurchaseForexCustomer,"
 			+ "AuthorizeTXSaleForexCustomer,"

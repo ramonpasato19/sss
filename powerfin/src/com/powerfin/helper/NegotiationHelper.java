@@ -11,10 +11,11 @@ import com.powerfin.util.*;
 public class NegotiationHelper {
 	
 	public final static String FILE_TYPE_ID_PERSON = "001"; 
-	public final static String FILE_TYPE_ID_LOAN = "002"; 
+	public final static String FILE_TYPE_ID_PROCESS_PURCHASE_PORTFOLIO = "002"; 
 	public final static String FILE_TYPE_ID_PAYTABLE = "003";
 	public final static String FILE_TYPE_ID_DISBURSEMENT = "004";
-	public final static String FILE_TYPE_ID_SALE_PORTFOLIO = "101";
+	public final static String FILE_TYPE_ID_PROCESS_SALE_PORTFOLIO = "101";
+	public final static String FILE_TYPE_ID_SALE = "102";
 		
 	public final static Integer PERSON_FILE_NUM_COLUMNS = 18;
 	public final static Integer LOAN_FILE_NUM_COLUMNS = 19;
@@ -244,7 +245,7 @@ public class NegotiationHelper {
 					return XavaResources.getString("spread_rate_loan_is_required");
 				else if(!UtilApp.isValidDecimalNumber(loanDTO.getSaleSpreadRate()))
 					return XavaResources.getString("number_decimal_format_is_required","spread_rate");
-								
+				
 	        }else{
 	        	return XavaResources.getString("not_number_columns_required");
 	        }

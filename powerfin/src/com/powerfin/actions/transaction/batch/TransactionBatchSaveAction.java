@@ -472,7 +472,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			AccountInvoiceHelper.postInvoiceSaleSaveAction(transaction);
 	
 			//PaymentInvoiceTransaction
-			Account boxAccount = XPersistence.getManager().find(Account.class, boxAccountId);
+			Account boxAccount = boxAccountId!=null?XPersistence.getManager().find(Account.class, boxAccountId):null;
 			if (boxAccount != null)
 			{
 				TransactionModule tm = XPersistence.getManager().find(TransactionModule.class, "INVOICESALEPAYMENT");

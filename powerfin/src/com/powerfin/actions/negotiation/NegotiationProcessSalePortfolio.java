@@ -12,7 +12,7 @@ import com.powerfin.model.*;
 import com.powerfin.model.dto.*;
 import com.powerfin.util.*;
 
-public class NegotiationSalePortfolio {
+public class NegotiationProcessSalePortfolio {
 	
 	private TransactionModule transactionModule;
 	private NegotiationFile negotiationFile = null;
@@ -26,7 +26,7 @@ public class NegotiationSalePortfolio {
 	
 	NegotiationSalePortfolioDTO loanDTO;
 	
-	public NegotiationSalePortfolio(NegotiationFile negotiationFile) {
+	public NegotiationProcessSalePortfolio(NegotiationFile negotiationFile) {
 		this.negotiationFile = negotiationFile;
 	}
 	
@@ -181,6 +181,7 @@ public class NegotiationSalePortfolio {
 			accountPortfolio.setStatusId(negotiationFile.getNegotiation().getNegotiationType().getNegotiationTypeId());
 			accountPortfolio.setSaleNegotiation(negotiationFile.getNegotiation());
 			accountPortfolio.setSaleStatus(portfolioStatus);
+			accountPortfolio.setSalePortfolioUtilityDistribution(accountLoan.getAccount().getProduct().getSalePortfolioUtilityDistribution());
 			XPersistence.getManager().merge(accountPortfolio);
 			
 		}catch(Exception e){
@@ -194,7 +195,14 @@ public class NegotiationSalePortfolio {
 		int daysPreviousPeriod = 0;
 		int daysCurrentPeriod = 0;
 		BigDecimal utility = accountPortfolio.getSaleSpread().subtract(accountPortfolio.getPurchaseSpread());
+		
 		try{
+					
+			BigDecimal incomeUtility = AccountLoanHelper.getIncomeUtilityDistribution(accountPortfolio);
+			
+			if (incomeUtility.compareTo(BigDecimal.ZERO) > 0)
+				utility = utility.subtract(incomeUtility).setScale(2, RoundingMode.HALF_UP);
+			
 			for (AccountPaytable accountPaytable : payTables)
 			{
 				daysCurrentPeriod = 0;
@@ -230,7 +238,7 @@ public class NegotiationSalePortfolio {
   			transaction.setTransactionStatus(transactionModule.getDefaultTransactionStatus());
   			transaction.setValue(new BigDecimal(loanDTO.getAmount()));
   			transaction.setRemark(accountPortfolio.getAccount().getAccountId());
-  			transaction.setDebitAccount(accountPortfolio.getAccount());
+  			transaction.setCreditAccount(accountPortfolio.getAccount());
   			transaction.setCurrency(accountPortfolio.getAccount().getCurrency());
   			
   			XPersistence.getManager().persist(transaction);
