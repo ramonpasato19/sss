@@ -40,7 +40,7 @@ import org.openxava.calculators.CurrentDateCalculator;
 @Views({ @View(members = "#portfolioRecoveryManagementId;" + "beginDate,"
 		+ "finalDate;portfolioRecoveryManagementStatus," + "portfolioRecoveryManagementType;" + "accountLoan;"
 		+ "portfolioRecoveryManagementDetails") })
-@Tabs({ @Tab(properties = "portfolioRecoveryManagementId,accountLoan.accountId") })
+@Tabs({ @Tab(properties = "portfolioRecoveryManagementId,accountLoan.accountId, accountLoan.account.name,accountLoan.account.person.identification") })
 public class PortfolioRecoveryManagement implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -74,7 +74,7 @@ public class PortfolioRecoveryManagement implements Serializable {
 	@NoFrame
 	@NoCreate
 	@NoModify
-	@DescriptionsList(descriptionProperties = "name", condition = "${portfolioRecoveryManagementStatusId} in ('PEN','GES','ABO','PAG') ")
+	@DescriptionsList(descriptionProperties = "name")
 	private PortfolioRecoveryManagementStatus portfolioRecoveryManagementStatus;
 
 	@ManyToOne
@@ -82,14 +82,14 @@ public class PortfolioRecoveryManagement implements Serializable {
 	@NoFrame
 	@NoCreate
 	@NoModify
-	@DescriptionsList(descriptionProperties = "name", condition = "${portfolioRecoveryManagementTypeId} in ('PRE','VEN','JUD') ")
+	@DescriptionsList(descriptionProperties = "name")
 	private PortfolioRecoveryManagementType portfolioRecoveryManagementType;
 
 	@OneToMany(mappedBy = "portfolioRecoveryManagement", cascade = CascadeType.ALL)
 	@ListProperties("numberDetail, management, portfolioRecoveryManagementDetailResult.description, resultDate, userCreate, userUpdate, dateCreate, dateUpdate")
 	@OrderBy("dateCreate")
-	@RemoveAction(value = "")
-	@NewAction("PortfolioRecoveryManagmentDetailController.new")
+	@RemoveAction("")		
+	@NewAction("PortfolioRecoveryManagmentDetailController.new")	
 	private List<PortfolioRecoveryManagementDetail> portfolioRecoveryManagementDetails;
 
 	public PortfolioRecoveryManagement() {

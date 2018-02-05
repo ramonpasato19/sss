@@ -1010,5 +1010,12 @@
 		<controller name="PortfolioRecoveryManagementController" />
 		<mode-controller name="DetailList" />
 	</module>
+	
+	<module name="PortfolioRecoveryManagementConsolidateReport">
+		<model name="ViewPortfolioRecoveryManagementReport"/>
+		<controller name="PortfolioRecoveryManagementConsolidatedReportController"/>
+		<mode-controller name="DetailOnly"/>
+	</module>
+
 <!-- END GESTION DE COBRANZAS -->
 </application>

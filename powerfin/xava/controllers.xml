@@ -2482,8 +2482,17 @@
 	</controller>
 	
 	<controller name="PortfolioRecoveryManagmentDetailController">
-		<action name="new" mode="detail" class="com.powerfin.actions.portfolioRecoveryManagment.PortfolioRecoveryManagmentDetailSaveAction"
-			image="save.gif" icon="content-save" keystroke="F3">
+		<action name="new" mode="detail" class="com.powerfin.actions.portfolioRecoveryManagment.PortfolioRecoveryManagmentDetailSaveAction"		
+			image="save.gif" icon="content-save" keystroke="F3">			
+		</action>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="Control S">
+			<set property="resetAfter" value="false" />
+			<set property="refreshAfter" value="true" />
 		</action>
 		
 	</controller>
@@ -2505,6 +2514,12 @@
 		</action>
 		<action name="printPortfolioRecoveryManagementDetail" mode="detail"
 			class="com.powerfin.actions.accountLoan.PrintPortfolioRecoveryManagementDetail" icon="file-excel" image="save.gif" >			
+		</action>
+	</controller>
+	
+	<controller name="PortfolioRecoveryManagementConsolidatedReportController">	
+		<action name="printPortfolioRecoveryManagementConsolidated" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintPortfolioRecoveryManagement" icon="file-excel" image="save.gif" >			
 		</action>
 	</controller>
 	

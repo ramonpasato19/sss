@@ -25,12 +25,14 @@ public class PortfolioRecoveryManagmentDetailSaveAction  extends  CreateNewEleme
 			throw new OperativeException("select_the_loan_to_manage");
 		}
 		super.execute();
+		removeActions("Collection.saveAndStay"); 
 		Account account = XPersistence.getManager().find(Account.class, accountLoan.get("accountId"));
 		Integer number = getCollectionElementView().getCollectionSize()+1;
 		
 		
 		getCollectionElementView().setValue("numberDetail",number);
 		if (account!=null) {
+			AccountLoanHelper.generateOverdueBalances(account);
 			List<AccountOverdueBalance> accountOverdueBalances =  AccountLoanHelper.getOverdueBalances(account);
 			BigDecimal capital = BigDecimal.ZERO;
 			BigDecimal defaultInterest = BigDecimal.ZERO;
