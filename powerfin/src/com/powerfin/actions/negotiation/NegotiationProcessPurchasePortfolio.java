@@ -24,6 +24,7 @@ public class NegotiationProcessPurchasePortfolio {
 	private AccountLoan accountLoan = null;
 	private AccountStatus portfolioStatusActive = null;
 	private AccountStatus portfolioStatusRequest = null;
+	private AccountPortfolioStatus accountPortfolioStatus = null;
 	
 	String[] dataLine;
 	String validationMessages;
@@ -40,7 +41,7 @@ public class NegotiationProcessPurchasePortfolio {
         String delimiter = "\t";
         int lineNumber = 1;
         int row=0;
-       
+        accountPortfolioStatus = XPersistence.getManager().find(AccountPortfolioStatus.class, AccountLoanHelper.PURCHASE_PORTFOLIO_STATUS_ID);
     	try {
     		
 			br = new BufferedReader(new StringReader(fileString));
@@ -227,7 +228,7 @@ public class NegotiationProcessPurchasePortfolio {
 			accountPortfolio.setPurchaseRate(new BigDecimal(loanDTO.getPurchaseSpreadRate()));
 			accountPortfolio.setPurchaseAmount(accountLoan.getAmount());
 			accountPortfolio.setPurchaseSpread(new BigDecimal(loanDTO.getPurchaseSpreadAmount()));
-			accountPortfolio.setStatusId(negotiationFile.getNegotiation().getNegotiationType().getNegotiationTypeId());
+			accountPortfolio.setAccountPortfolioStatus(accountPortfolioStatus);
 			accountPortfolio.setPurchaseNegotiation(negotiationFile.getNegotiation());
 			accountPortfolio.setPurchaseStatus(portfolioStatusActive);
 			accountPortfolio.setSaleStatus(portfolioStatusRequest);

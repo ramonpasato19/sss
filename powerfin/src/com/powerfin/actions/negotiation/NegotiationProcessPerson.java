@@ -59,8 +59,9 @@ public class NegotiationProcessPerson {
 		                else
 		                	processByLegalPersonType();
 		                
-		                naturalPerson=null;
-		    			person=null;
+		                legalPerson = null;
+		                naturalPerson = null;
+		    			person = null;
 	                }
 	        		NegotiationHelper.createNegotiationOutput(negotiationFile, lineNumber, validationMessages, null);
 	        	}

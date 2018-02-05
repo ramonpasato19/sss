@@ -1050,7 +1050,7 @@ public class Transaction implements Serializable {
 		@DescriptionsList(forViews="RequestTXAdvance, AuthorizeTXAdvance, "
 				+ "RequestTXAdvancePayment, AuthorizeTXAdvancePayment, "
 				+ "RequestTXThirdAdvancePayment, AuthorizeTXThirdAdvancePayment", 
-				condition="${categoryId} in ('ADVANCE','ADVSALPORT')")
+				condition="${categoryType.categoryTypeId} = '002'")
 	})
 	@ReadOnly(forViews = "AuthorizeTXAdvance, AuthorizeTXAdvancePayment, AuthorizeTXThirdAdvancePayment")
 	@NoCreate

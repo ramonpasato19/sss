@@ -576,6 +576,18 @@
 		<subcontroller controller="LoanReportControllerEXCEL"/>
 	</controller>
 	
+	<controller name="PayableReportController">
+		<action name="printPayableBalances" mode="detail"
+			class="com.powerfin.actions.accountPayable.PrintPayableBalances" icon="file-pdf" image="save.gif" >
+		</action>
+		<action name="printReceivableBalances" mode="detail"
+			class="com.powerfin.actions.accountPayable.PrintReceivableBalances" icon="file-pdf">
+		</action>
+		<action name="printConsolidateBalances" mode="detail"
+			class="com.powerfin.actions.accountPayable.PrintConsolidateBalances" icon="file-pdf">
+		</action>
+	</controller>
+	
 	<controller name="TermReportController">
 		<action name="printActiveAccountTerm" mode="detail"
 			class="com.powerfin.actions.accountTerm.PrintActiveAccounts" icon="file-pdf" image="save.gif" >
@@ -1129,6 +1141,12 @@
 	</controller>
 	<controller name="PersonListController">		
 		<extends controller="RefreshTXController"/>
+		<action name="printActiveLoans" mode="detail"
+			class="com.powerfin.actions.person.PrintActiveLoans" icon="file-pdf">
+		</action>
+		<action name="printActiveTerms" mode="detail"
+			class="com.powerfin.actions.person.PrintActiveTerms" icon="file-pdf">
+		</action>
 	</controller>
 <!-- END Person ######################################## -->
 

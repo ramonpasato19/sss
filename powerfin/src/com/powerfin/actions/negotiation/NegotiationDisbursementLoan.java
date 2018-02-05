@@ -162,7 +162,13 @@ public class NegotiationDisbursementLoan {
 		        					}
 		        					if (portfolio.getPurchaseSpread().compareTo(BigDecimal.ZERO)<0)
 		        					{
-		        						//TODO: Falta realizar el proceso cuando el spread es negativo, ganacia en spread de compra. 
+		        						ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, portfolio.getPurchaseSpread().abs(), transaction, CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_PR_CATEGORY_LIABILITY));
+		        						ta.setRemark(XavaResources.getString("purchase_spread"));
+		        						transactionAccounts.add(ta);
+		        						
+		        						ta = TransactionAccountHelper.createCustomDebitTransactionAccount(portfolio.getPurchaseNegotiation().getDebitCreditAccount(), portfolio.getPurchaseSpread().abs(), transaction);
+		        						ta.setRemark(XavaResources.getString("purchase_spread"));
+		        						transactionAccounts.add(ta); 
 		        					}
 		        				}
 		        				

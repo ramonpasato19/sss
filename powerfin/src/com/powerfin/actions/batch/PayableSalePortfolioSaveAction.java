@@ -32,15 +32,20 @@ public class PayableSalePortfolioSaveAction implements IBatchSaveAction  {
 	@SuppressWarnings("unchecked")
 	public List<Account> getAccountsToProcess(BatchProcess batchProcess)
 	{
+		//Obtiene las cuotas de tabla de amortizacion de venta de operaciones vendidas activas
 		List<Account> accounts = XPersistence.getManager().createQuery("SELECT a FROM Account a, AccountSoldPaytable pt "
 				+ "WHERE pt.dueDate = :dueDate "
 				+ "AND a.accountId = pt.account.accountId "
 				+ "AND pt.account.accountId IN "
-				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '002' AND o.saleStatus = '002') "
+				+ "(SELECT o.account.accountId FROM AccountPortfolio o "
+				+ "WHERE o.accountPortfolioStatus.accountPortfolioStatusId = :accountPortfolioStatusId "
+				+ "AND o.saleStatus.accountStatusId = :accountStatusId) "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())
+				.setParameter("accountStatusId", AccountLoanHelper.STATUS_LOAN_ACTIVE)
 				.setParameter("productClassId", ProductClassHelper.LOAN)
+				.setParameter("accountPortfolioStatusId", AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID)
 				.getResultList();
 
 		return accounts;

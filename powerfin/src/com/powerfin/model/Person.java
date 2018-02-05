@@ -24,12 +24,13 @@ import com.powerfin.model.superclass.*;
 			+ "identificationType;" 
 			+ "identification;" 
 			+ "name;"
-			+ "personType;" 
+			+ "personType;"
+			+ "projectedAccountingDate;" 
 			+ "accountPayables{accountPayables};"
 			+ "purchaseInvoices{purchaseInvoices};"
 			+ "saleInvoices{saleInvoices};"
-			+ "loans{loans};"
-			+ "investments{investments};"),
+			+ "loans{accountLoans};"
+			+ "terms{accountTerms};"),
 	@View(name = "Reference", members = "personId;" + "identification; " + "name;" + "personType;" + "email"),
 	@View(name = "LoanReference", members = "personId;" + "identification; " + "name;" + "personType;" + "email;" + "accountPayables"),
 	@View(name = "TermReference", members = "personId;" + "identification; " + "name;" + "personType;" + "email;" + "accountPayables"),
@@ -53,25 +54,31 @@ public class Person extends AuditEntity implements Serializable {
 	private Integer personId;
 
 	@Column(length = 100)
+	@ReadOnly(forViews="PersonList")
 	private String activity;
 
 	@Column(length = 50)
+	@ReadOnly(forViews="PersonList")
 	private String email;
 
 	@Column(name = "external_code", length = 50)
+	@ReadOnly(forViews="PersonList")
 	private String externalCode;
 
 	@Column(length = 50)
 	@DisplaySize(20)
 	@Required
+	@ReadOnly(forViews="PersonList")
 	private String identification;
 
 	@Column(length = 150)
 	@DisplaySize(50)
 	@Required
+	@ReadOnly(forViews="PersonList")
 	private String name;
 
 	@Column(name = "other_income_source", length = 100)
+	@ReadOnly(forViews="PersonList")
 	private String otherIncomeSource;
 
 	// bi-directional many-to-one association to Account
@@ -97,6 +104,7 @@ public class Person extends AuditEntity implements Serializable {
 	@NoModify
 	@DescriptionsList(descriptionProperties = "name")
 	@Required
+	@ReadOnly(forViews="PersonList")
 	private IdentificationType identificationType;
 
 	// bi-directional many-to-one association to City
@@ -106,6 +114,7 @@ public class Person extends AuditEntity implements Serializable {
 	@NoModify
 	@DescriptionsList(descriptionProperties = "name")
 	@Required
+	@ReadOnly(forViews="PersonList")
 	private PersonType personType;
 
 	// bi-directional many-to-one association to PersonCreditCard
@@ -145,6 +154,11 @@ public class Person extends AuditEntity implements Serializable {
 	private List<TradeReference> tradeReferences;
 
 	@Transient
+	@Column
+	@ReadOnly(notForViews = "PersonList")
+	private Date projectedAccountingDate;
+	
+	@Transient
 	@ReadOnly
 	@ListProperties("accountId, currency, product.name, code, balance, advanceBalance, advanceSalePortfolioBalance")
 	@CollectionView("simpleBalance")
@@ -163,12 +177,12 @@ public class Person extends AuditEntity implements Serializable {
 	@Transient
 	@ReadOnly
 	@ListProperties("accountId, currency, product.name")
-	private List<Account> loans;
+	private List<Account> accountLoans;
 	
 	@Transient
 	@ReadOnly
 	@ListProperties("accountId, currency, product.name")
-	private List<Account> investments;
+	private List<Account> accountTerms;
 	
 	public Person() {
 	}
@@ -521,7 +535,7 @@ public class Person extends AuditEntity implements Serializable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Account> getInvestments() {
+	public List<Account> getAccountTerms() {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
 						+ "WHERE o.product.productType.productClass.productClassId = :productClassId "
@@ -533,7 +547,7 @@ public class Person extends AuditEntity implements Serializable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<Account> getLoans() {
+	public List<Account> getAccountLoans() {
 		return (List<Account>) XPersistence.getManager()
 				.createQuery("SELECT o FROM Account o " 
 						+ "WHERE o.product.productType.productClass.productClassId = :productClassId "
@@ -574,6 +588,14 @@ public class Person extends AuditEntity implements Serializable {
 
 	public void setSaleInvoices(List<Account> saleInvoices) {
 		this.saleInvoices = saleInvoices;
+	}
+
+	public Date getProjectedAccountingDate() {
+		return projectedAccountingDate;
+	}
+
+	public void setProjectedAccountingDate(Date projectedAccountingDate) {
+		this.projectedAccountingDate = projectedAccountingDate;
 	}
 
 	

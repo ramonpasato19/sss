@@ -23,10 +23,12 @@ import com.powerfin.model.types.*;
 			+ "bookAccount;"
 			+ "bookAccountId;"
 			+ "allowsNegativeBalance;"
-			+ "expiresZeroBalance"),
+			+ "expiresZeroBalance;"
+			+ "printable;"
+			+ "categoryType"),
 	@View(name="Reference", members="categoryId, name;")
 })
-@Tab(properties="categoryId, name, bookAccount, bookAccountName")
+@Tab(properties="categoryId, name, bookAccount, bookAccountName, categoryType.name, printable")
 public class Category implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -60,6 +62,19 @@ public class Category implements Serializable {
 	@Column(name="expires_zero_balance", nullable=false)
 	@Required
 	private Types.YesNoIntegerType expiresZeroBalance;
+	
+	@Column(name="printable", nullable=false)
+	@Required
+	private Types.YesNoIntegerType printable;
+	
+	// bi-directional many-to-one association to IdentificationType
+	@ManyToOne
+	@JoinColumn(name = "category_type_id", nullable = false)
+	@NoCreate
+	@NoModify
+	@DescriptionsList(descriptionProperties = "name")
+	@Required
+	private CategoryType categoryType;
 	
 	public Category() {
 	}
@@ -120,6 +135,22 @@ public class Category implements Serializable {
 
 	public void setExpiresZeroBalance(Types.YesNoIntegerType expiresZeroBalance) {
 		this.expiresZeroBalance = expiresZeroBalance;
+	}
+
+	public CategoryType getCategoryType() {
+		return categoryType;
+	}
+
+	public void setCategoryType(CategoryType categoryType) {
+		this.categoryType = categoryType;
+	}
+
+	public Types.YesNoIntegerType getPrintable() {
+		return printable;
+	}
+
+	public void setPrintable(Types.YesNoIntegerType printable) {
+		this.printable = printable;
 	}
 
 }

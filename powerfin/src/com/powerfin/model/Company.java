@@ -83,7 +83,7 @@ public class Company implements Serializable {
 	
 	@Transient
 	@Stereotype("TEXT_AREA")
-	@ReadOnly(notForViews="Log")
+	@ReadOnly
 	private String output;
 	
 	@Transient

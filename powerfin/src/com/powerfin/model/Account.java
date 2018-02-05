@@ -25,7 +25,7 @@ import com.powerfin.util.*;
 @Table(name="account")
 @Views({
 	@View(members="accountId;"
-					+ "code, alternateCode; "
+					+ "code, alternateCode, externalCode; "
 					+ "name;"
 					+ "transactionalName;"
 					+ "openingDate, accountStatus; "

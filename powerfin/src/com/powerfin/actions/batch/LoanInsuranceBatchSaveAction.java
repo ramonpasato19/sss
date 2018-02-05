@@ -37,11 +37,12 @@ public class LoanInsuranceBatchSaveAction implements IBatchSaveAction  {
 				+ "WHERE pt.dueDate = :dueDate "
 				+ "AND (coalesce(pt.insurance,0) > 0 OR coalesce(pt.insuranceMortgage,0) > 0) "
 				+ "AND a.accountId = pt.account.accountId "
-				+ "AND a.accountStatus.accountStatusId = '002' "
+				+ "AND a.accountStatus.accountStatusId = :accountStatusId "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())
 				.setParameter("productClassId", ProductClassHelper.LOAN)
+				.setParameter("accountStatusId", AccountLoanHelper.STATUS_LOAN_ACTIVE)
 				.getResultList();
 		
 		return accounts;

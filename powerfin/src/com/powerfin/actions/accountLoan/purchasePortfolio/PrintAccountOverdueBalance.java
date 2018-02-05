@@ -36,7 +36,7 @@ public class PrintAccountOverdueBalance extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", accountingDate);
 		
-		AccountLoanHelper.getOverdueBalances(a, accountingDate, false);
+		AccountLoanHelper.generateOverdueBalances(a, accountingDate, false);
 		
 		return parameters;
 	}

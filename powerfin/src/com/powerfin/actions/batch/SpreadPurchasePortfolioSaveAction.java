@@ -32,17 +32,20 @@ public class SpreadPurchasePortfolioSaveAction implements IBatchSaveAction  {
 	@SuppressWarnings("unchecked")
 	public List<Account> getAccountsToProcess(BatchProcess batchProcess)
 	{
+		//Obtiene las cuotas de operaciones activas y que no sean operaciones vendidas
 		List<Account> accounts = XPersistence.getManager().createQuery("SELECT a FROM Account a, AccountPaytable pt "
 				+ "WHERE pt.dueDate = :dueDate "
 				+ "AND coalesce(pt.purchaseSpread, 0) > 0 "
 				+ "AND a.accountId = pt.account.accountId "
-				+ "AND pt.account.accountId IN "
-				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '001') "
-				+ "AND a.accountStatus.accountStatusId = '002' "
+				+ "AND pt.account.accountId NOT IN "
+				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.accountPortfolioStatus.accountPortfolioStatusId = :accountPortfolioStatusId) "
+				+ "AND a.accountStatus.accountStatusId = :accountStatusId "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())
+				.setParameter("accountStatusId", AccountLoanHelper.STATUS_LOAN_ACTIVE)
 				.setParameter("productClassId", ProductClassHelper.LOAN)
+				.setParameter("accountPortfolioStatusId", AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID)
 				.getResultList();
 		
 		return accounts;

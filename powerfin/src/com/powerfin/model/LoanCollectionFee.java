@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name="loan_collection_fee")
 @View(members="loanCollectionFeeId;"
+		+ "product;"
 		+ "fromAmount;"
 		+ "toAmount;"
 		+ "fromDays;"
@@ -49,6 +50,14 @@ public class LoanCollectionFee implements Serializable {
 	@Required
 	private BigDecimal value;
 
+	@ManyToOne
+	@JoinColumn(name="product_id", nullable=false)
+	@Required
+	@NoCreate
+	@NoModify
+	@ReferenceView("Reference")
+	private Product product;
+	
 	public LoanCollectionFee() {
 	}
 
@@ -100,5 +109,12 @@ public class LoanCollectionFee implements Serializable {
 		this.value = value;
 	}
 
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
+	}
 
 }

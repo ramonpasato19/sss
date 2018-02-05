@@ -35,7 +35,7 @@ public class PrintAccountPrepayment extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", accountingDate);
 		
-		AccountLoanHelper.getOverdueBalances(a, accountingDate, true);
+		AccountLoanHelper.generateOverdueBalancesSalePortfolio(a, accountingDate, true);
 		
 		return parameters;
 	}

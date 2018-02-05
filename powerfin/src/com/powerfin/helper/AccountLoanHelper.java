@@ -3,6 +3,8 @@ package com.powerfin.helper;
 import java.math.*;
 import java.util.*;
 
+import javax.persistence.TemporalType;
+
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 
@@ -25,320 +27,369 @@ public class AccountLoanHelper {
 	public final static String SALE_PORTFOLIO_TRANSACTION_MODULE = "SALEPORTFOLIO";
 	public final static String PURCHASE_PORTFOLIO_TRANSACTION_MODULE = "PURCHASEPORTFOLIO";
 	
-	@SuppressWarnings("unchecked")
+	public final static String PURCHASE_PORTFOLIO_STATUS_ID = "001";
+	public final static String SALE_PORTFOLIO_STATUS_ID = "002";
+	public final static String REPURCHASE_PORTFOLIO_STATUS_ID = "003";
+	
 	public static void getAllOverdueBalancesByProduct(String productId, Date projectedAccountingDate) {
+		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
-			accountingDate =projectedAccountingDate; 
-		String query = "SELECT a FROM Account a "
-				+ "WHERE a.accountStatus.accountStatusId  = '002' "
-				+ "AND a.product.productId = :productId ";
+			accountingDate = projectedAccountingDate;
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		
-		List<Account> accounts = XPersistence.getManager()
-				.createQuery(query)
-				.setParameter("productId", productId)
-				.getResultList();
-		if (accounts!=null && !accounts.isEmpty())
-		{
-			for(Account a:accounts)
-				getOverdueBalances(a, accountingDate, false);
-		}
+		String queryAccount = "SELECT a.account_id "
+				+ "FROM "+schema+".account a, "+schema+".product p " 
+				+ "WHERE a.product_id = p.account_id "
+				+ "AND p.product_id = '"+productId+"' "
+				+ "AND a.account_status_id  = '002'";
+		
+		generateOverdueBalances(queryAccount, accountingDate, false);
+		
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static void getAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
+		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
-			accountingDate = projectedAccountingDate; 
-		String query = "SELECT a FROM Account a, AccountPortfolio p, Negotiation n "
-				+ "WHERE a.accountId = p.accountId "
-				+ "AND a.accountStatus.accountStatusId  = '002' "
-				+ "AND p.purchaseNegotiation.negotiationId = n.negotiationId "
-				+ "AND n.brokerPerson.personId = :brokerPersonId ";
+			accountingDate = projectedAccountingDate;
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		
-		List<Account> accounts = XPersistence.getManager()
-				.createQuery(query)
-				.setParameter("brokerPersonId", brokerPersonId)
-				.getResultList();
-		if (accounts!=null && !accounts.isEmpty())
-		{
-			for(Account a:accounts)
-				getOverdueBalances(a, accountingDate, false);
-		}
+		String queryAccount = "SELECT a.account_id "
+				+ "FROM "+schema+".account a, "+schema+".account_portfolio p, "+schema+".negotiation n "
+				+ "WHERE a.account_id = p.account_id "
+				+ "AND a.account_status_id  = '002' "
+				+ "AND p.purchase_negotiation_id = n.negotiation_id "
+				+ "AND n.broker_person_id = "+brokerPersonId;
+		
+		generateOverdueBalances(queryAccount, accountingDate, false);
 	}
 	
-	@SuppressWarnings("unchecked")
+	public static void getAllOverdueBalancesByPerson(Integer personId, Date projectedAccountingDate) {
+		
+		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate!=null)
+			accountingDate = projectedAccountingDate;
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
+		
+		String queryAccount = "SELECT a.account_id "
+				+ "FROM "+schema+".account a, "+schema+".product p, "+schema+".product_type pt " 
+				+ "WHERE a.product_id = p.account_id "
+				+ "AND p.product_type_id = pt.product_type_id "
+				+ "AND pt.product_class_id = '"+ProductClassHelper.LOAN+"' "
+				+ "AND a.account_status_id  = '002' "
+				+ "AND a.person_id = "+personId;
+		
+		generateOverdueBalances(queryAccount, accountingDate, false);
+	}
+	
 	public static void getAllOverdueBalancesSalePortfolioByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
 			accountingDate = projectedAccountingDate;
-		String query = "SELECT a FROM Account a, AccountPortfolio p, Negotiation n "
-				+ "WHERE a.accountId = p.accountId "
-				+ "AND a.accountStatus.accountStatusId  = '002' "
-				+ "AND p.saleNegotiation.negotiationId = n.negotiationId "
-				+ "AND n.brokerPerson.personId = :brokerPersonId ";
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
 		
-		List<Account> accounts = XPersistence.getManager()
-				.createQuery(query)
-				.setParameter("brokerPersonId", brokerPersonId)
-				.getResultList();
-		if (accounts!=null && !accounts.isEmpty())
-		{
-			for(Account a:accounts)
-				getOverdueBalancesSalePortfolio(a, accountingDate);
-		}
+		String queryAccount = "SELECT a.account_id "
+				+ "FROM "+schema+".account a, "+schema+".account_portfolio p, "+schema+".negotiation n "
+				+ "WHERE a.account_id = p.account_id "
+				+ "AND p.sale_status_id  = '002' "
+				+ "AND p.sale_negotiation_id = n.negotiation_id "
+				+ "AND n.broker_person_id = "+brokerPersonId;
+		
+		generateOverdueBalancesSalePortfolio(queryAccount, accountingDate, false);
 	}
 	
-	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
-		return getOverdueBalances(account, null, false);
+	@Deprecated
+	public static List<AccountOverdueBalance> getOverdueBalancesOld(Account account) {
+		return getOverdueBalancesOld(account, null, false);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
+		return (List<AccountOverdueBalance>)XPersistence.getManager()
+				.createQuery("SELECT o FROM AccountOverdueBalance o "
+						+ "WHERE o.account.accountId = :accountId")
+				.setParameter("accountId", account.getAccountId())
+				.getResultList();
+	}
+	
+	public static void generateOverdueBalances(Account account) {
+		generateOverdueBalances(account, CompanyHelper.getCurrentAccountingDate());
+	}
+	
+	public static void generateOverdueBalances(Account account, Date projectedAccountingDate) {
+		generateOverdueBalances(account, projectedAccountingDate, false);
+	}
+	
+	public static void generateOverdueBalances(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		String queryAccount = "'"+account.getAccountId()+"'";
+		generateOverdueBalances(queryAccount, projectedAccountingDate, forPrepayment);
+	}
+	
+	public static void generateOverdueBalances(String queryAccount, Date projectedAccountingDate, boolean forPrepayment) {
+		
 		String schema = XPersistence.getDefaultSchema().toLowerCase();
-		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		
 		if (projectedAccountingDate == null)
 			projectedAccountingDate = accountingDate;
 		
-		String query = "select * from ( "
-				//overdue quotas in balance
-				+ "select subaccount, "
-				+ "due_date, "
-				+ "sum(capital) capital, "
-				+ "sum(interest) interest, "
-				+ "sum(insurance) insurance, "
-				+ "sum(insurance_mortgage) insurance_mortgage, "
-				+ "sum(receivable_fee) receivable_fee, "
-				+ "sum(legal_fee) legal_fee, "
-				+ "days_overdue, "
-				+ "real_days_overdue, "
-				+ "last_payment_date, "
-				+ "last_payment_date_collection, "
-				+ "last_payment_date_default_int "
+		if (projectedAccountingDate.before(accountingDate))
+			accountingDate = projectedAccountingDate;
+		
+		XPersistence.getManager()
+		.createNativeQuery("DELETE FROM "+schema+".account_overdue_balance o "
+				+ "WHERE o.account_id in ("+ queryAccount+")")
+		.executeUpdate();
+		
+		XPersistence.commit();
+		
+		String query = "insert into "+schema+".account_overdue_balance ("
+				+ "account_overdue_balance_id, account_id, subaccount, due_date, capital, interest, "
+				+ "insurance, insurance_mortgage, receivable_fee, legal_fee, "
+				+ "overdue_days, real_overdue_days, last_payment_date, last_payment_date_collection, "
+				+ "last_payment_date_default_int, accounting_date, default_interest, collection_fee, total) ";
+		
+		query += 
+				"select z.*, "
+				+ "capital+interest+default_interest+insurance+insurance_mortgage+receivable_fee+legal_fee as total "
 				+ "from ( "
-				+ "select b.subaccount, ap.due_date, "
-				+ "COALESCE((case when b.category_id = 'CAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
-				+ "COALESCE((case when b.category_id = 'INTERESTPR' then COALESCE(b.balance,0) else 0 end),0) interest, "
-				+ "COALESCE((case when b.category_id = 'INSURANRE' then COALESCE(b.balance,0) else 0 end),0) insurance, "
-				+ "COALESCE((case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end),0) insurance_mortgage, "
-				+ "COALESCE((case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end),0) receivable_fee, "
-				+ "COALESCE((case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end),0) legal_fee, "
-				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
-				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
-				+ "ap.last_payment_date, "
-				+ "ap.last_payment_date_collection,"
-				+ "ap.last_payment_date_default_int "
-				+ "from "+schema+".balance b, "+schema+".account_paytable ap "
-				+ "where b.account_id = :accountId "
-				+ "and b.to_date = :toDate "
-				+ "and b.category_id in ('CAPITAL','INTERESTPR','INSURANRE','MORTGAGERE','LEGALFEERE','RECEIFEERE') "
-				+ "and b.account_id = ap.account_id "
-				+ "and b.subaccount = ap.subaccount "
+				+ "select x.*, "
+				+ schema+".get_default_interest(x.real_overdue_days, x.overdue_days, capital+insurance+insurance_mortgage, x.account_id, x.last_payment_date_default_int) default_interest, "
+				+ schema+".get_collection_fee(x.overdue_days, capital+interest+insurance+insurance_mortgage, x.account_id, x.last_payment_date_collection) collection_fee "
+				+ "from ( "
+				+ "select 'odue-'||b.account_id||'-'||b.subaccount id, "
+				+ "b.account_id, b.subaccount, ap.due_date,  "
+				+ "COALESCE(max(CASE WHEN b.category_id = 'CAPITAL' THEN balance END),0) capital, "
+				+ "COALESCE(max(CASE WHEN b.category_id = 'INTERESTPR' THEN balance END),0) interest, " 
+				+ "COALESCE(max(CASE WHEN b.category_id = 'INSURANRE' THEN balance END),0) insurance,  "
+				+ "COALESCE(max(CASE WHEN b.category_id = 'MORTGAGERE' THEN balance END),0) insurance_mortgage, " 
+				+ "COALESCE(max(CASE WHEN b.category_id = 'RECEIFEERE' THEN balance END),0) receivable_fee,  "
+				+ "COALESCE(max(CASE WHEN b.category_id = 'LEGALFEERE' THEN balance END),0) legal_fee,  "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) overdue_days,  "
+				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_overdue_days, " 
+				+ "ap.last_payment_date,  "
+				+ "ap.last_payment_date_collection, "
+				+ "ap.last_payment_date_default_int, "
+				+ "cast(:projectedAccountingDate as date) accounting_date "
+				+ "from "+schema+".balance b, "+schema+".account_paytable ap  "
+				+ "where b.to_date = :toDate "
+				+ "and b.category_id in ('CAPITAL','INTERESTPR','INSURANRE','MORTGAGERE','LEGALFEERE','RECEIFEERE') " 
+				+ "and b.account_id = ap.account_id  "
+				+ "and b.subaccount = ap.subaccount  "
 				+ "and ap.due_date <= :accountingDate "
-				+ "and ap.payment_date is null "
-				+ ") x group by subaccount, due_date, days_overdue, "
-				+ " real_days_overdue, last_payment_date,last_payment_date_collection,last_payment_date_default_int ";
+				+ "and b.account_id in ("+queryAccount+") "
+				+ "group by b.account_id, b.subaccount, ap.due_date, ap.last_payment_date_default_int, ap.last_payment_date, ap.last_payment_date_collection "
+				+ ") as x  ";
 		
 		
 		if (projectedAccountingDate.after(accountingDate))
 		{
 				//overdue quota on projected date
 			query +="union all "
-				+"select ap.subaccount, ap.due_date, COALESCE(ap.capital,0), COALESCE(ap.interest,0), "
-				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
-				+ "0 receivable_fee, 0 legal_fee, "
+				+ "select 'proj-'||account_id||'-'||subaccount id, "
+				+ "ap. account_id, "
+				+ "ap.subaccount, "
+				+ "ap.due_date, "
+				+ "COALESCE(ap.capital,0) capital, "
+				+ "COALESCE(ap.interest,0) interest, "
+				+ "COALESCE(ap.insurance,0) insurance, "
+				+ "COALESCE(ap.insurance_mortgage,0) insurance_mortgage, "
+				+ "0 receivable_fee, "
+				+ "0 legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
 				+ "null last_payment_date, "
 				+ "null last_payment_date_collection, "
-				+ "null last_payment_date_default_int "
+				+ "null last_payment_date_default_int, "
+				+ "cast(:projectedAccountingDate as date) accounting_date, "
+				+ schema+".get_default_interest(COALESCE(:projectedAccountingDate - ap.due_date, 0), COALESCE(:projectedAccountingDate - ap.due_date, 0), "
+				+ "COALESCE(ap.capital,0) + COALESCE(ap.insurance,0) + COALESCE(ap.insurance_mortgage,0), " 
+				+ "ap.account_id, ap.last_payment_date_default_int) default_interest, "
+				+ schema+".get_collection_fee(COALESCE(:projectedAccountingDate - ap.due_date, 0), "
+				+ "COALESCE(ap.capital,0) + COALESCE(ap.interest,0) + COALESCE(ap.insurance,0) + COALESCE(ap.insurance_mortgage,0), " 
+				+ "ap.account_id, ap.last_payment_date_collection) collection_fee "
 				+ "from "+schema+".account_paytable ap "
-				+ "where ap.account_id = :accountId "
-				+ "and ap.due_date > :accountingDate "
-				+ "and ap.due_date <= :projectedAccountingDate ";
+				+ "where ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate "
+				+ "and ap.account_id in ("+queryAccount+") ";
 			
 		}
 		if (forPrepayment)
 		{
 			query +=  "union all "
-				+ "select ap.subaccount, ap.due_date, capital, "
+				+ "select 'prep-'||ap.account_id||'-'||ap.subaccount id, "
+				+ "ap.account_id, "
+				+ "ap.subaccount, "
+				+ "ap.due_date, "
+				+ "capital, "
 				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
 				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
 				+ "else "
 				+ "0 "
 				+ "end) interest, "
-				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
-				+ "0 receivable_fee, 0 legal_fee, "
+				+ "COALESCE(ap.insurance,0), "
+				+ "COALESCE(ap.insurance_mortgage,0), "				
+				+ "0 receivable_fee, "
+				+ "0 legal_fee, "
 				+ "0 days_overdue, "
 				+ "0 real_days_overdue, "
 				+ "null last_payment_date, "
 				+ "null last_payment_date_collection, "
-				+ "null last_payment_date_default_int "
+				+ "null last_payment_date_default_int, "
+				+ "cast(:projectedAccountingDate as date) accounting_date, "
+				+ "0 as default_interest, "
+				+ "0 as collection_fee "
 				+ "from "+schema+".account_paytable ap "
-				+ "where ap.account_id = :accountId "
-				+ "and ap.due_date > :projectedAccountingDate ";
-				//+ "and (ap.due_date-ap.provision_days) <= :projectedAccountingDate "
+				+ "where ap.due_date > :projectedAccountingDate "
+				+ "and ap.account_id in ("+queryAccount+") ";
 		}
 
 		query+= ") z "
-				+ "order by subaccount ";
-		
-		List<Object[]> balances = XPersistence.getManager()
-				.createNativeQuery(query)
-				.setParameter("accountId", account.getAccountId())
-				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
-				.setParameter("accountingDate", accountingDate)
-				.setParameter("projectedAccountingDate", projectedAccountingDate)
-				.getResultList();
-		
-		if (balances!=null && !balances.isEmpty())
-		{
-			for (Object[] balance : balances)
-			{
-				AccountOverdueBalance overdueBalance = new AccountOverdueBalance();
-				overdueBalance.setAccountId(account.getAccountId());
-				overdueBalance.setAccountingDate(accountingDate);
-				overdueBalance.setSubaccount((Integer) balance[0]);
-				overdueBalance.setDueDate((Date) balance[1]);
-				overdueBalance.setCapital((BigDecimal) balance[2]);
-				overdueBalance.setInterest((BigDecimal) balance[3]);
-				overdueBalance.setInsurance((BigDecimal) balance[4]);
-				overdueBalance.setInsuranceMortgage((BigDecimal) balance[5]);
-				overdueBalance.setReceivableFee((BigDecimal) balance[6]);
-				overdueBalance.setLegalFee((BigDecimal) balance[7]);
-				overdueBalance.setOverdueDays((Integer) balance[8]);
-				overdueBalance.setRealOverdueDays((Integer) balance[9]);
-				overdueBalance.setLastPaymentDate((Date) balance[10]);
-				overdueBalance.setLastPaymentDateCollection((Date) balance[11]);
-				overdueBalance.setLastPaymentDateDefaultInterest((Date) balance[12]);
-				overdueBalance.setDefaultInterest(getDefaultInterestByQuota(overdueBalance));
-				overdueBalance.setCollectionFee(getCollectionFeeByQuota(overdueBalance));
-				BigDecimal total = overdueBalance.getCapital()
-						.add(overdueBalance.getInterest())
-						.add(overdueBalance.getInsurance())
-						.add(overdueBalance.getInsuranceMortgage())
-						.add(overdueBalance.getDefaultInterest())
-						.add(overdueBalance.getCollectionFee())
-						.add(overdueBalance.getReceivableFee())
-						.add(overdueBalance.getLegalFee());
-				overdueBalance.setTotal(total);
-				if (total.compareTo(BigDecimal.ZERO)>0)
-					overdueBalances.add(overdueBalance);
-			}
-		}		
-		XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
-				+ "WHERE o.accountId=:accountId ")
-		.setParameter("accountId", account.getAccountId())
+				+ "order by z.account_id, z.subaccount";
+
+		System.out.println(query);
+		XPersistence.getManager().createNativeQuery(query)
+		.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE, TemporalType.DATE)
+		.setParameter("accountingDate", accountingDate, TemporalType.DATE)
+		.setParameter("projectedAccountingDate", projectedAccountingDate, TemporalType.DATE)
 		.executeUpdate();
-		
-		for (AccountOverdueBalance overdueBalance:overdueBalances)
-			XPersistence.getManager().persist(overdueBalance);
+
 		XPersistence.commit();
-		return overdueBalances;
+
 	}
 	
-	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account) {
-		return getOverdueBalancesSalePortfolio(account, CompanyHelper.getCurrentAccountingDate());
+	public static void generateOverdueBalancesSalePortfolio(Account account) {
+		generateOverdueBalancesSalePortfolio(account, CompanyHelper.getCurrentAccountingDate());
+	}
+	
+	public static void generateOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate) {
+		generateOverdueBalancesSalePortfolio(account, projectedAccountingDate, false);
+	}
+	
+	public static void generateOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		String queryAccount = "'"+account.getAccountId()+"'";
+		generateOverdueBalancesSalePortfolio(queryAccount, projectedAccountingDate, forPrepayment);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate) {
+	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account) {
+		return (List<AccountOverdueBalance>)XPersistence.getManager()
+				.createQuery("SELECT o FROM AccountOverdueBalance o "
+						+ "WHERE o.account.accountId = :accountId")
+				.setParameter("accountId", account.getAccountId())
+				.getResultList();
+	}
+	
+	@Deprecated
+	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolioOld(Account account, Date projectedAccountingDate) {
+		return getOverdueBalancesSalePortfolioOld(account, projectedAccountingDate, false);
+	}
+	
+	public static void generateOverdueBalancesSalePortfolio(String queryAccount, Date projectedAccountingDate, boolean forPrepayment) {
 		String schema = XPersistence.getDefaultSchema().toLowerCase();
-		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate == null)
 			projectedAccountingDate = accountingDate;
 		
-		String query = "select * from ("
-				+ "select subaccount, "
+		if (projectedAccountingDate.before(accountingDate))
+			accountingDate = projectedAccountingDate;
+		
+		XPersistence.getManager().createNativeQuery("DELETE FROM "+schema+".account_overdue_balance o "
+				+ "WHERE o.account_id in ("+ queryAccount+")"
+				)
+		.executeUpdate();
+		
+		XPersistence.commit();
+		
+		String query = "insert into "+schema+".account_overdue_balance ("
+				+ "account_overdue_balance_id, account_id, subaccount, due_date, capital, interest, total, "
+				+ "overdue_days, last_payment_date, accounting_date)";
+		
+		query += "select * from ("
+				+ "select 's-odue-'||account_id||'-'||subaccount id, "
+				+ "account_id, "
+				+ "subaccount, "
 				+ "due_date, "
 				+ "sum(capital) capital, "
 				+ "sum(interest) interest, "
+				+ "sum(capital+interest) total, "
 				+ "days_overdue, "
-				+ "last_payment_date "
+				+ "last_payment_date, "
+				+ "cast(:projectedAccountingDate as date) "
 				+ "from ( "
-				+ "select b.subaccount, ap.due_date, "
+				+ "select b.account_id, b.subaccount, ap.due_date, "
 				+ "COALESCE((case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
 				+ "COALESCE((case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end),0) interest, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "ap.last_payment_date "
 				+ "from "+schema+".balance b, "+schema+".account_sold_paytable ap "
-				+ "where b.account_id = :accountId "
-				+ "and b.to_date = :toDate "
+				+ "where b.to_date = :toDate "
 				+ "and b.category_id in ('SCAPITAL','INTERESTIN') "
 				+ "and b.account_id = ap.account_id "
 				+ "and b.subaccount = ap.subaccount "
 				+ "and ap.due_date <= :accountingDate "
-				+ "and ap.payment_date is null "
-				+ ") x group by subaccount, due_date, days_overdue, last_payment_date "
+				+ "and b.account_id in ("+queryAccount+")"
+				+ ") x group by account_id, subaccount, due_date, days_overdue, last_payment_date ";
 				
-				+ "union all "
-				+ "select ap.subaccount, ap.due_date, ap.capital, ap.interest, "
-				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
-				+ "null last_payment_date "
-				+ "from "+schema+".account_sold_paytable ap "
-				+ "where ap.account_id = :accountId "
-				+ "and ap.due_date > :accountingDate "
-				+ "and ap.due_date <= :projectedAccountingDate "
-				
-				+ "union all "
-				+ "select ap.subaccount, ap.due_date, 0 capital, "
-				+ "(case when ap.due_date<=:projectedAccountingDate then ap.interest "
-				+ "else "
-				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
-				+ "end) interest, "
-				+ "0 days_overdue, "
-				+ "null last_payment_date "
-				+ "from "+schema+".account_sold_paytable ap "
-				+ "where ap.account_id = :accountId "
-				+ "and ap.due_date > :projectedAccountingDate "
-				+ "and (ap.due_date-ap.provision_days) <= :projectedAccountingDate "
-				
-				+ ") z "
-				+ "order by z.subaccount";
-		System.out.println(query);
-		System.out.println(account.getAccountId());
-		System.out.println(projectedAccountingDate);
-		List<Object[]> balances = XPersistence.getManager()
-				.createNativeQuery(query)
-				.setParameter("accountId", account.getAccountId())
-				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
-				.setParameter("accountingDate", accountingDate)
-				.setParameter("projectedAccountingDate", projectedAccountingDate)
-				.getResultList();
-		
-		if (balances!=null && !balances.isEmpty())
+		if (projectedAccountingDate.after(accountingDate))
 		{
-			for (Object[] balance : balances)
-			{				
-				AccountOverdueBalance overdueBalance = new AccountOverdueBalance();
-				overdueBalance.setAccountId(account.getAccountId());
-				overdueBalance.setAccountingDate(accountingDate);
-				overdueBalance.setSubaccount((Integer) balance[0]);
-				overdueBalance.setDueDate((Date) balance[1]);
-				overdueBalance.setCapital((BigDecimal) balance[2]);
-				overdueBalance.setInterest((BigDecimal) balance[3]);
-				overdueBalance.setOverdueDays((Integer) balance[4]);
-				overdueBalance.setLastPaymentDate((Date) balance[5]);
-				BigDecimal total = overdueBalance.getCapital()
-						.add(overdueBalance.getInterest());
-				overdueBalance.setTotal(total);
-				if (total.compareTo(BigDecimal.ZERO)>0)
-					overdueBalances.add(overdueBalance);
-			}
-		}		
-		XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
-				+ "WHERE o.accountId=:accountId ")
-		.setParameter("accountId", account.getAccountId())
+				//overdue quota on projected date
+			query +=" union all "
+				+ "select 's-proj-'||ap.account_id||'-'||ap.subaccount id, "
+				+ "ap.account_id, "
+				+ "ap.subaccount, "
+				+ "ap.due_date, "
+				+ "COALESCE(ap.capital,0) capital, "
+				+ "COALESCE(ap.interest,0) interest, "
+				+ "COALESCE(ap.capital,0) + COALESCE(ap.interest,0) as total, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "null last_payment_date, "
+				+ ":projectedAccountingDate "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate "
+				+ "and ap.account_id in ("+queryAccount+") ";
+		}
+			
+		if (forPrepayment)
+		{
+			query += " union all "
+				+ "select 's-prep-'||ap.account_id||'-'||ap.subaccount id, "
+				+ "ap.account_id, "
+				+ "ap.subaccount, "
+				+ "ap.due_date, "
+				+ "COALESCE(ap.capital,0), "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "else "
+				+ "0 "
+				+ "end) interest, "
+				+ "COALESCE(ap.capital,0) + "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "else "
+				+ "0 "
+				+ "end) total, "
+				+ "0 days_overdue, "
+				+ "null last_payment_date, "
+				+ ":projectedAccountingDate "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.due_date > :projectedAccountingDate "
+				+ "and ap.account_id in ("+queryAccount+") ";
+		}
+
+			query+= ") z "
+					+ "order by z.account_id, z.subaccount";
+		System.out.println(query);
+		XPersistence.getManager().createNativeQuery(query)
+		.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE, TemporalType.DATE)
+		.setParameter("accountingDate", accountingDate, TemporalType.DATE)
+		.setParameter("projectedAccountingDate", projectedAccountingDate, TemporalType.DATE)
 		.executeUpdate();
-		
-		for (AccountOverdueBalance overdueBalance:overdueBalances)
-			XPersistence.getManager().persist(overdueBalance);
 
 		XPersistence.commit();
-		
-		return overdueBalances;
+
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -360,6 +411,7 @@ public class AccountLoanHelper {
 		else
 			return BigDecimal.ZERO;
 	}
+	
 	@SuppressWarnings("unchecked")
 	public static BigDecimal getBalanceByQuotaSalePortfolio(String accountId, int subaccount)
 	{
@@ -471,7 +523,7 @@ public class AccountLoanHelper {
 		if (overdueBalance.getLastPaymentDateCollection()!=null)
 			return BigDecimal.ZERO;
 		
-		return getLoanCollectionFee(overdueDays, amount);
+		return getLoanCollectionFee(accountLoan.getAccount().getProduct(), overdueDays, amount);
 		
 	}
 	
@@ -569,14 +621,16 @@ public class AccountLoanHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static BigDecimal getLoanCollectionFee(int overdueDays, BigDecimal amount)
+	private static BigDecimal getLoanCollectionFee(Product product, int overdueDays, BigDecimal amount)
 	{		
 		List<LoanCollectionFee> fees = XPersistence.getManager()
 				.createQuery("SELECT o FROM LoanCollectionFee o "
 				+ "WHERE :overdueDays BETWEEN o.fromDays AND o.toDays "
-				+ "AND :amount BETWEEN o.fromAmount AND o.toAmount ")
+				+ "AND :amount BETWEEN o.fromAmount AND o.toAmount "
+				+ "AND o.product.productId = :productId")
 				.setParameter("overdueDays", overdueDays)
 				.setParameter("amount", amount)
+				.setParameter("productId", product.getProductId())
 				.getResultList();
 		
 		if (fees != null && !fees.isEmpty()){
@@ -593,12 +647,15 @@ public class AccountLoanHelper {
 			AccountLoan accountLoan, Account debitAccount, 
 			BigDecimal transactionValue) throws Exception
 	{
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(
-				accountLoan.getAccount(),
+		String queryAccount = "'"+accountLoan.getAccountId()+"'";
+		
+		AccountLoanHelper.generateOverdueBalances(
+				queryAccount,
 				transaction.getValueDate()==null?transaction.getAccountingDate():transaction.getValueDate(),
 				false);
 		
-		
+		List<AccountOverdueBalance> overdueBalances =  AccountLoanHelper.getOverdueBalances(accountLoan.getAccount());
+				
 		List<PrelationOrder> prelationOrders = XPersistence.getManager()
 				.createQuery("SELECT o FROM PrelationOrder o "
 						+ "WHERE o.product.productId = :productId "
@@ -1113,5 +1170,267 @@ public class AccountLoanHelper {
 			throw new InternalException("sale_portfolio_utility_distribution_is_incorrect", distributionUtility);
 		}
 		
+	}
+	
+	@Deprecated
+	@SuppressWarnings("unchecked")
+	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolioOld(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
+		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
+		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate == null)
+			projectedAccountingDate = accountingDate;
+		
+		String query = "select * from ("
+				+ "select subaccount, "
+				+ "due_date, "
+				+ "sum(capital) capital, "
+				+ "sum(interest) interest, "
+				+ "days_overdue, "
+				+ "last_payment_date "
+				+ "from ( "
+				+ "select b.account_id, b.subaccount, ap.due_date, "
+				+ "COALESCE((case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
+				+ "COALESCE((case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end),0) interest, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "ap.last_payment_date "
+				+ "from "+schema+".balance b, "+schema+".account_sold_paytable ap "
+				+ "where b.account_id = :accountId "
+				+ "and b.to_date = :toDate "
+				+ "and b.category_id in ('SCAPITAL','INTERESTIN') "
+				+ "and b.account_id = ap.account_id "
+				+ "and b.subaccount = ap.subaccount "
+				+ "and ap.due_date <= :accountingDate "
+				+ ") x group by account_id, subaccount, due_date, days_overdue, last_payment_date ";
+				
+		if (projectedAccountingDate.after(accountingDate))
+		{
+				//overdue quota on projected date
+			query +="union all "
+				+ "select ap.subaccount, "
+				+ "ap.due_date, "
+				+ "COALESCE(ap.capital,0) capital, "
+				+ "COALESCE(ap.interest,0) interest, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "null last_payment_date "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate ";
+		}
+			
+		if (forPrepayment)
+		{
+			query +=  "union all "
+				+ "select ap.subaccount, "
+				+ "ap.due_date, "
+				+ "COALESCE(ap.capital,0), "
+				+ "(case when (COALESCE(ap.due_date,0)-COALESCE(ap.provision_days,0)) <= :projectedAccountingDate then "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "else "
+				+ "0 "
+				+ "end) interest, "
+				+ "0 days_overdue, "
+				+ "null last_payment_date "
+				+ "from "+schema+".account_sold_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :projectedAccountingDate ";
+		}
+	
+			query+= ") z "
+					+ "order by z.subaccount";
+
+		List<Object[]> balances = XPersistence.getManager()
+				.createNativeQuery(query)
+				.setParameter("accountId", account.getAccountId())
+				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+				.setParameter("accountingDate", accountingDate)
+				.setParameter("projectedAccountingDate", projectedAccountingDate)
+				.getResultList();
+		
+		if (balances!=null && !balances.isEmpty())
+		{
+			for (Object[] balance : balances)
+			{				
+				AccountOverdueBalance overdueBalance = new AccountOverdueBalance();
+				overdueBalance.setAccountId(account.getAccountId());
+				overdueBalance.setAccountingDate(accountingDate);
+				overdueBalance.setSubaccount((Integer) balance[0]);
+				overdueBalance.setDueDate((Date) balance[1]);
+				overdueBalance.setCapital((BigDecimal) balance[2]);
+				overdueBalance.setInterest((BigDecimal) balance[3]);
+				overdueBalance.setOverdueDays((Integer) balance[4]);
+				overdueBalance.setLastPaymentDate((Date) balance[5]);
+				
+				overdueBalance.setInsurance(BigDecimal.ZERO);
+				overdueBalance.setInsuranceMortgage(BigDecimal.ZERO);
+				overdueBalance.setReceivableFee(BigDecimal.ZERO);
+				overdueBalance.setLegalFee(BigDecimal.ZERO);
+				overdueBalance.setRealOverdueDays(0);
+				overdueBalance.setLastPaymentDateCollection(null);
+				overdueBalance.setLastPaymentDateDefaultInterest(null);
+				overdueBalance.setDefaultInterest(BigDecimal.ZERO);
+				overdueBalance.setCollectionFee(BigDecimal.ZERO);
+				
+				BigDecimal total = overdueBalance.getCapital()
+						.add(overdueBalance.getInterest());
+				overdueBalance.setTotal(total);
+				if (total.compareTo(BigDecimal.ZERO)>0)
+					overdueBalances.add(overdueBalance);
+			}
+		}		
+		
+		
+		for (AccountOverdueBalance overdueBalance:overdueBalances)
+			XPersistence.getManager().persist(overdueBalance);
+
+		XPersistence.commit();
+		
+		return overdueBalances;
+	}
+	
+	@Deprecated
+	@SuppressWarnings("unchecked")
+	public static List<AccountOverdueBalance> getOverdueBalancesOld(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
+		List<AccountOverdueBalance> overdueBalances = new ArrayList<AccountOverdueBalance>();
+		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate == null)
+			projectedAccountingDate = accountingDate;
+		
+		String query = "select * from ( "
+				//overdue quotas in balance
+				+ "select subaccount, "
+				+ "due_date, "
+				+ "sum(capital) capital, "
+				+ "sum(interest) interest, "
+				+ "sum(insurance) insurance, "
+				+ "sum(insurance_mortgage) insurance_mortgage, "
+				+ "sum(receivable_fee) receivable_fee, "
+				+ "sum(legal_fee) legal_fee, "
+				+ "days_overdue, "
+				+ "real_days_overdue, "
+				+ "last_payment_date, "
+				+ "last_payment_date_collection, "
+				+ "last_payment_date_default_int "
+				+ "from ( "
+				+ "select b.subaccount, ap.due_date, "
+				+ "COALESCE((case when b.category_id = 'CAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
+				+ "COALESCE((case when b.category_id = 'INTERESTPR' then COALESCE(b.balance,0) else 0 end),0) interest, "
+				+ "COALESCE((case when b.category_id = 'INSURANRE' then COALESCE(b.balance,0) else 0 end),0) insurance, "
+				+ "COALESCE((case when b.category_id = 'MORTGAGERE' then COALESCE(b.balance,0) else 0 end),0) insurance_mortgage, "
+				+ "COALESCE((case when b.category_id = 'RECEIFEERE' then COALESCE(b.balance,0) else 0 end),0) receivable_fee, "
+				+ "COALESCE((case when b.category_id = 'LEGALFEERE' then COALESCE(b.balance,0) else 0 end),0) legal_fee, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_days_overdue, "
+				+ "ap.last_payment_date, "
+				+ "ap.last_payment_date_collection,"
+				+ "ap.last_payment_date_default_int "
+				+ "from "+schema+".balance b, "+schema+".account_paytable ap "
+				+ "where b.account_id = :accountId "
+				+ "and b.to_date = :toDate "
+				+ "and b.category_id in ('CAPITAL','INTERESTPR','INSURANRE','MORTGAGERE','LEGALFEERE','RECEIFEERE') "
+				+ "and b.account_id = ap.account_id "
+				+ "and b.subaccount = ap.subaccount "
+				+ "and ap.due_date <= :accountingDate "
+				+ ") x group by subaccount, due_date, days_overdue, "
+				+ " real_days_overdue, last_payment_date,last_payment_date_collection,last_payment_date_default_int ";
+		
+		
+		if (projectedAccountingDate.after(accountingDate))
+		{
+				//overdue quota on projected date
+			query +="union all "
+				+"select ap.subaccount, ap.due_date, COALESCE(ap.capital,0), COALESCE(ap.interest,0), "
+				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
+				+ "0 receivable_fee, 0 legal_fee, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
+				+ "null last_payment_date, "
+				+ "null last_payment_date_collection, "
+				+ "null last_payment_date_default_int "
+				+ "from "+schema+".account_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :accountingDate "
+				+ "and ap.due_date <= :projectedAccountingDate ";
+			
+		}
+		if (forPrepayment)
+		{
+			query +=  "union all "
+				+ "select ap.subaccount, ap.due_date, capital, "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "round((ap.interest/ap.provision_days)*(:projectedAccountingDate-(ap.due_date-ap.provision_days)),2) "
+				+ "else "
+				+ "0 "
+				+ "end) interest, "
+				+ "COALESCE(ap.insurance,0), COALESCE(ap.insurance_mortgage,0), "
+				+ "0 receivable_fee, 0 legal_fee, "
+				+ "0 days_overdue, "
+				+ "0 real_days_overdue, "
+				+ "null last_payment_date, "
+				+ "null last_payment_date_collection, "
+				+ "null last_payment_date_default_int "
+				+ "from "+schema+".account_paytable ap "
+				+ "where ap.account_id = :accountId "
+				+ "and ap.due_date > :projectedAccountingDate ";
+				//+ "and (ap.due_date-ap.provision_days) <= :projectedAccountingDate "
+		}
+
+		query+= ") z "
+				+ "order by subaccount ";
+		
+		List<Object[]> balances = XPersistence.getManager()
+				.createNativeQuery(query)
+				.setParameter("accountId", account.getAccountId())
+				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+				.setParameter("accountingDate", accountingDate)
+				.setParameter("projectedAccountingDate", projectedAccountingDate)
+				.getResultList();
+		
+		if (balances!=null && !balances.isEmpty())
+		{
+			for (Object[] balance : balances)
+			{
+				AccountOverdueBalance overdueBalance = new AccountOverdueBalance();
+				overdueBalance.setAccountId(account.getAccountId());
+				overdueBalance.setAccountingDate(accountingDate);
+				overdueBalance.setSubaccount((Integer) balance[0]);
+				overdueBalance.setDueDate((Date) balance[1]);
+				overdueBalance.setCapital((BigDecimal) balance[2]);
+				overdueBalance.setInterest((BigDecimal) balance[3]);
+				overdueBalance.setInsurance((BigDecimal) balance[4]);
+				overdueBalance.setInsuranceMortgage((BigDecimal) balance[5]);
+				overdueBalance.setReceivableFee((BigDecimal) balance[6]);
+				overdueBalance.setLegalFee((BigDecimal) balance[7]);
+				overdueBalance.setOverdueDays((Integer) balance[8]);
+				overdueBalance.setRealOverdueDays((Integer) balance[9]);
+				overdueBalance.setLastPaymentDate((Date) balance[10]);
+				overdueBalance.setLastPaymentDateCollection((Date) balance[11]);
+				overdueBalance.setLastPaymentDateDefaultInterest((Date) balance[12]);
+				overdueBalance.setDefaultInterest(getDefaultInterestByQuota(overdueBalance));
+				overdueBalance.setCollectionFee(getCollectionFeeByQuota(overdueBalance));
+				BigDecimal total = overdueBalance.getCapital()
+						.add(overdueBalance.getInterest())
+						.add(overdueBalance.getInsurance())
+						.add(overdueBalance.getInsuranceMortgage())
+						.add(overdueBalance.getDefaultInterest())
+						.add(overdueBalance.getCollectionFee())
+						.add(overdueBalance.getReceivableFee())
+						.add(overdueBalance.getLegalFee());
+				overdueBalance.setTotal(total);
+				if (total.compareTo(BigDecimal.ZERO)>0)
+					overdueBalances.add(overdueBalance);
+			}
+		}		
+		XPersistence.getManager().createQuery("DELETE FROM AccountOverdueBalance o "
+				+ "WHERE o.accountId=:accountId ")
+		.setParameter("accountId", account.getAccountId())
+		.executeUpdate();
+		
+		for (AccountOverdueBalance overdueBalance:overdueBalances)
+			XPersistence.getManager().persist(overdueBalance);
+		XPersistence.commit();
+		return overdueBalances;
 	}
 }

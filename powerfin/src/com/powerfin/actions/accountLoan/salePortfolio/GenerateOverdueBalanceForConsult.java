@@ -36,7 +36,7 @@ public class GenerateOverdueBalanceForConsult extends ViewBaseAction {
 		}
 
 		//Obtain list overdue balances
-		AccountLoanHelper.getOverdueBalancesSalePortfolio(account.getAccount(), accountingDate);
+		AccountLoanHelper.generateOverdueBalancesSalePortfolio(account.getAccount(), accountingDate);
 			
 		getView().refreshCollections();
 		

@@ -14,7 +14,6 @@ import org.openxava.annotations.*;
  */
 @Entity
 @Table(name="account_portfolio")
-@NamedQuery(name="AccountPortfolio.findAll", query="SELECT a FROM AccountPortfolio a")
 public class AccountPortfolio implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -33,9 +32,6 @@ public class AccountPortfolio implements Serializable {
 	@Column(name="purchase_spread", precision=11, scale=2)
 	private BigDecimal purchaseSpread;
 
-	@Column(name="purchased_from_person", precision=11, scale=2)
-	private BigDecimal purchasedFromPerson;
-
 	@Column(name="sale_amount", precision=11, scale=2)
 	private BigDecimal saleAmount;
 
@@ -45,14 +41,15 @@ public class AccountPortfolio implements Serializable {
 	@Column(name="sale_spread", precision=11, scale=2)
 	private BigDecimal saleSpread;
 
-	@Column(name="sold_to_person")
-	private Integer soldToPerson;
-
-	@Column(name="status_id", length=3)
-	private String statusId;
-
 	@Column(name = "sale_portfolio_utility_distribution", length = 10)
 	private String salePortfolioUtilityDistribution;
+
+	@ManyToOne
+	@JoinColumn(name="account_portfolio_status_id", nullable=false)
+	@DescriptionsList
+	@NoCreate
+	@NoModify
+	private AccountPortfolioStatus accountPortfolioStatus;
 	
 	//bi-directional one-to-one association to Account
 	@OneToOne
@@ -118,14 +115,6 @@ public class AccountPortfolio implements Serializable {
 		this.purchaseSpread = purchaseSpread;
 	}
 
-	public BigDecimal getPurchasedFromPerson() {
-		return this.purchasedFromPerson;
-	}
-
-	public void setPurchasedFromPerson(BigDecimal purchasedFromPerson) {
-		this.purchasedFromPerson = purchasedFromPerson;
-	}
-
 	public BigDecimal getSaleAmount() {
 		return this.saleAmount;
 	}
@@ -150,20 +139,12 @@ public class AccountPortfolio implements Serializable {
 		this.saleSpread = saleSpread;
 	}
 
-	public Integer getSoldToPerson() {
-		return this.soldToPerson;
+	public AccountPortfolioStatus getAccountPortfolioStatus() {
+		return accountPortfolioStatus;
 	}
 
-	public void setSoldToPerson(Integer soldToPerson) {
-		this.soldToPerson = soldToPerson;
-	}
-
-	public String getStatusId() {
-		return this.statusId;
-	}
-
-	public void setStatusId(String statusId) {
-		this.statusId = statusId;
+	public void setAccountPortfolioStatus(AccountPortfolioStatus accountPortfolioStatus) {
+		this.accountPortfolioStatus = accountPortfolioStatus;
 	}
 
 	public Account getAccount() {

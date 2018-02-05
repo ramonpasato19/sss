@@ -32,17 +32,21 @@ public class LoanInterestBatchSaveAction implements IBatchSaveAction  {
 	@SuppressWarnings("unchecked")
 	public List<Account> getAccountsToProcess(BatchProcess batchProcess)
 	{
+		//Obtiene las cuotas de operaciones activas y que no sean operaciones vendidas
 		List<Account> accounts = XPersistence.getManager().createQuery("SELECT a FROM Account a, AccountPaytable pt "
 				+ "WHERE pt.dueDate = :dueDate "
 				+ "AND coalesce(pt.interest,0) > 0 "
 				+ "AND a.accountId = pt.account.accountId "
-				+ "AND pt.account.accountId NOT IN "
-				+ "(SELECT o.account.accountId FROM AccountPortfolio o WHERE o.statusId = '002') "
-				+ "AND a.accountStatus.accountStatusId = '002' "
+				+ "AND a.accountStatus.accountStatusId = :accountStatusId "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
+				+ "AND pt.account.accountId NOT IN "
+				+ "(SELECT o.account.accountId FROM AccountPortfolio o "
+				+ "WHERE o.accountPortfolioStatus.accountPortfolioStatusId = :accountPortfolioStatusId) "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())
+				.setParameter("accountStatusId", AccountLoanHelper.STATUS_LOAN_ACTIVE)
 				.setParameter("productClassId", ProductClassHelper.LOAN)
+				.setParameter("accountPortfolioStatusId", AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID)
 				.getResultList();
 		
 		return accounts;

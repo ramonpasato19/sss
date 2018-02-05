@@ -38,7 +38,7 @@ public class ViewAccountMovement {
 	@NoCreate
 	@NoModify
 	@DescriptionsLists({
-		@DescriptionsList(forViews="ViewAccountPayableMovement", descriptionProperties="name", condition="${categoryId} in ('BALANCE','ADVANCE','ADVSALPORT')"),
+		@DescriptionsList(forViews="ViewAccountPayableMovement", descriptionProperties="name", condition="${printable} = 1"),
 		@DescriptionsList(forViews="ViewAccountMovement", descriptionProperties="categoryId, name")
 	})
 	private Category category;
