@@ -37,10 +37,8 @@ public class GenerateOverdueBalanceValueDate extends ViewBaseAction {
 			getView().getRoot().setValue("valueDate",accountingDate);
 		}
 		
-		//Obtain list overdue balances
-		AccountLoanHelper.generateOverdueBalances(account, accountingDate, false);
-		
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(account);
+		//Obtain list overdue balances		
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(account, accountingDate, false);
 		
 		for (AccountOverdueBalance overdueBalance:overdueBalances)
 			totalOverdueBalance=totalOverdueBalance.add(overdueBalance.getTotal());

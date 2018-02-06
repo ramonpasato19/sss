@@ -32,7 +32,6 @@ public class PortfolioRecoveryManagmentDetailSaveAction  extends  CreateNewEleme
 		
 		getCollectionElementView().setValue("numberDetail",number);
 		if (account!=null) {
-			AccountLoanHelper.generateOverdueBalances(account);
 			List<AccountOverdueBalance> accountOverdueBalances =  AccountLoanHelper.getOverdueBalances(account);
 			BigDecimal capital = BigDecimal.ZERO;
 			BigDecimal defaultInterest = BigDecimal.ZERO;

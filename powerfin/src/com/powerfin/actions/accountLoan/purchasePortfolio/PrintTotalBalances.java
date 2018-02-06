@@ -31,7 +31,7 @@ public class PrintTotalBalances extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
 		
-		AccountLoanHelper.getAllOverdueBalancesByBroker(personId, projectedAccountingDate);
+		AccountLoanHelper.generateAllOverdueBalancesByBroker(personId, projectedAccountingDate);
 		
 		return parameters;
 	}

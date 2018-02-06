@@ -31,7 +31,7 @@ public class AccountLoanHelper {
 	public final static String SALE_PORTFOLIO_STATUS_ID = "002";
 	public final static String REPURCHASE_PORTFOLIO_STATUS_ID = "003";
 	
-	public static void getAllOverdueBalancesByProduct(String productId, Date projectedAccountingDate) {
+	public static void generateAllOverdueBalancesByProduct(String productId, Date projectedAccountingDate) {
 		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
@@ -48,7 +48,7 @@ public class AccountLoanHelper {
 		
 	}
 	
-	public static void getAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
+	public static void generateAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
 		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
@@ -65,7 +65,7 @@ public class AccountLoanHelper {
 		generateOverdueBalances(queryAccount, accountingDate, false);
 	}
 	
-	public static void getAllOverdueBalancesByPerson(Integer personId, Date projectedAccountingDate) {
+	public static void generateAllOverdueBalancesByPerson(Integer personId, Date projectedAccountingDate) {
 		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
@@ -83,7 +83,7 @@ public class AccountLoanHelper {
 		generateOverdueBalances(queryAccount, accountingDate, false);
 	}
 	
-	public static void getAllOverdueBalancesSalePortfolioByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
+	public static void generateAllOverdueBalancesSalePortfolioByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
 			accountingDate = projectedAccountingDate;
@@ -106,6 +106,17 @@ public class AccountLoanHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static List<AccountOverdueBalance> getOverdueBalances(Account account) {
+		generateOverdueBalances(account);
+		return (List<AccountOverdueBalance>)XPersistence.getManager()
+				.createQuery("SELECT o FROM AccountOverdueBalance o "
+						+ "WHERE o.account.accountId = :accountId")
+				.setParameter("accountId", account.getAccountId())
+				.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<AccountOverdueBalance> getOverdueBalances(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		generateOverdueBalances(account, projectedAccountingDate, forPrepayment);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
 						+ "WHERE o.account.accountId = :accountId")
@@ -274,6 +285,17 @@ public class AccountLoanHelper {
 	
 	@SuppressWarnings("unchecked")
 	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account) {
+		generateOverdueBalancesSalePortfolio(account);
+		return (List<AccountOverdueBalance>)XPersistence.getManager()
+				.createQuery("SELECT o FROM AccountOverdueBalance o "
+						+ "WHERE o.account.accountId = :accountId")
+				.setParameter("accountId", account.getAccountId())
+				.getResultList();
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<AccountOverdueBalance> getOverdueBalancesSalePortfolio(Account account, Date projectedAccountingDate, boolean forPrepayment) {
+		generateOverdueBalancesSalePortfolio(account, projectedAccountingDate, forPrepayment);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
 						+ "WHERE o.account.accountId = :accountId")

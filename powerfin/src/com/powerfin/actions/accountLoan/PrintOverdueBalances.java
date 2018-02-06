@@ -31,7 +31,7 @@ public class PrintOverdueBalances extends ReportBaseAction {
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
 		
-		AccountLoanHelper.getAllOverdueBalancesByProduct(productId, projectedAccountingDate);
+		AccountLoanHelper.generateAllOverdueBalancesByProduct(productId, projectedAccountingDate);
 		return parameters;
 	}
 
