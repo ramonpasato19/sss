@@ -131,7 +131,7 @@ public class CategoryHelper {
 				return true;
 		}
 
-		if (category.equals(Types.YesNoIntegerType.YES))
+		if (category.getAllowsNegativeBalance().equals(Types.YesNoIntegerType.YES))
 			return true;
 		
 		return false;

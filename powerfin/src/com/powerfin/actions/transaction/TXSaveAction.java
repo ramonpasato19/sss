@@ -4,6 +4,7 @@ import java.math.*;
 import java.util.*;
 
 import org.openxava.actions.*;
+import org.openxava.jpa.XPersistence;
 import org.openxava.model.*;
 
 import com.powerfin.exception.*;
@@ -127,29 +128,39 @@ public class TXSaveAction extends SaveAction{
             Transaction transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues); 
             
             boolean financialProcessed = false;
-			
-            // Ejecute pre actions
-            preSaveAction(transaction);
             
-            // Process Transaction
-            if (TransactionHelper.isRequest(transaction))
-            	financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
-            else
-            {
-            	if (TransactionHelper.isFinancialSaved(transaction) && transaction.getTransactionAccounts().isEmpty())
-            		financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
-	        	else
-	        		financialProcessed = TransactionHelper.processTransaction(transaction);
-            }
-           
-			if (financialProcessed)
-				addMessage("financial_created");
-			
-			// Ejecute post actions
-			postSaveAction(transaction);
-			
-			//Clear all fields
-			getView().clear();
+			try {
+	
+	            // Ejecute pre actions
+	            preSaveAction(transaction);
+	            
+	            // Process Transaction
+	            if (TransactionHelper.isRequest(transaction))
+	            	financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+	            else
+	            {
+	            	if (TransactionHelper.isFinancialSaved(transaction) && transaction.getTransactionAccounts().isEmpty())
+	            		financialProcessed = TransactionHelper.processTransaction(transaction, getTransactionAccounts(transaction));
+		        	else
+		        		financialProcessed = TransactionHelper.processTransaction(transaction);
+	            }
+	           
+				if (financialProcessed)
+					addMessage("financial_created");
+				
+				// Ejecute post actions
+				postSaveAction(transaction);
+				
+				//Clear all fields
+				getView().clear();
+			}
+			catch (Exception e)
+			{
+				transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues);
+				transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_REQUEST_STATUS_ID));
+				XPersistence.getManager().merge(transaction);
+				throw e;
+			}
 		}
 	}
 }

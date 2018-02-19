@@ -182,12 +182,12 @@ public class Account extends AuditEntity implements Serializable {
 	//bi-directional many-to-one association to CategoryAccount
 	@OneToMany(mappedBy="account")
 	@OrderBy("subaccount")
-	@ListProperties("subaccount, dueDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota")
+	@ListProperties("subaccount, dueDate, paymentDate, provisionDays, capitalReduced, capital, interest, totalDividend, insurance, insuranceMortgage, totalQuota")
 	private List<AccountPaytable> accountPaytables;
 	
 	@OneToMany(mappedBy="account")
 	@OrderBy("subaccount")
-	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, defaultInterest, insurance, insuranceMortgage, collectionFee, legalFee, receivableFee, total")
+	@ListProperties("subaccount, dueDate, paymentDate, overdueDays, capital, interest, defaultInterest, insurance, insuranceMortgage, collectionFee, legalFee, receivableFee, total")
 	private List<AccountOverdueBalance> accountOverdueBalances;
 
 	@Transient

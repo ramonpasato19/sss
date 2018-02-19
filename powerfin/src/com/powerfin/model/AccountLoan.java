@@ -443,7 +443,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@AsEmbedded
 	@OneToMany(mappedBy="account")
 	@OrderBy("subaccount")
-	@ListProperties("subaccount, dueDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
+	@ListProperties("subaccount, dueDate, paymentDate, overdueDays, capital, interest, insuranceMortgage, insurance, defaultInterest, collectionFee, legalFee, receivableFee, total")
 	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio")
 	@ListActions({
 		@ListAction("Print.generatePdf"),

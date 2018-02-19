@@ -147,7 +147,7 @@ public class BatchProcessType implements Serializable {
 		}
 	}
 	
-	public Integer getCountErrorDetails() throws Exception
+	public Long getCountErrorDetails() throws Exception
 	{
 		try
 		{
@@ -166,7 +166,7 @@ public class BatchProcessType implements Serializable {
 		}
 	}
 	
-	public Integer getCountSatisfactoryDetails() throws Exception
+	public Long getCountSatisfactoryDetails() throws Exception
 	{
 		try
 		{
@@ -185,7 +185,7 @@ public class BatchProcessType implements Serializable {
 		}
 	}
 	
-	public Integer getCountRequestDetails() throws Exception
+	public Long getCountRequestDetails() throws Exception
 	{
 		try
 		{
@@ -204,7 +204,7 @@ public class BatchProcessType implements Serializable {
 		}
 	}
 	
-	public Integer getCountTotalDetails() throws Exception
+	public Long getCountTotalDetails() throws Exception
 	{
 		try
 		{

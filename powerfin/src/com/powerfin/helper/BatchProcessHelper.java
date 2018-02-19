@@ -35,5 +35,46 @@ public class BatchProcessHelper {
 		return XPersistence.getManager().find(BatchProcessStatus.class, batchPorcessStatusId);
 	}
 	
+	public static Long getCountErrorDetails(BatchProcess batchProcess) throws Exception
+	{
+		return (Long) XPersistence.getManager()
+			.createQuery("SELECT coalesce(COUNT(o),0) FROM BatchProcessDetail o "
+					+ "WHERE o.batchProcess.batchProcessId = :batchProcessId "
+					+ "AND o.batchProcessStatus.batchProcessStatusId = :batchProcessStatusId")
+			.setParameter("batchProcessId", batchProcess.getBatchProcessId())
+			.setParameter("batchProcessStatusId", BatchProcessHelper.BATCH_DETAIL_PROCESS_ERROR)
+			.getSingleResult();
+	}
+	
+	public static Long getCountSatisfactoryDetails(BatchProcess batchProcess) throws Exception
+	{
+		return (Long) XPersistence.getManager()
+			.createQuery("SELECT coalesce(COUNT(o),0) FROM BatchProcessDetail o "
+					+ "WHERE o.batchProcess.batchProcessId = :batchProcessId "
+					+ "AND o.batchProcessStatus.batchProcessStatusId = :batchProcessStatusId")
+			.setParameter("batchProcessId", batchProcess.getBatchProcessId())
+			.setParameter("batchProcessStatusId", BatchProcessHelper.BATCH_DETAIL_PROCESS_OK)
+			.getSingleResult();
+	}
+	
+	public static Long getCountRequestDetails(BatchProcess batchProcess) throws Exception
+	{
+		return (Long) XPersistence.getManager()
+			.createQuery("SELECT coalesce(COUNT(o),0) FROM BatchProcessDetail o "
+					+ "WHERE o.batchProcess.batchProcessId = :batchProcessId "
+					+ "AND o.batchProcessStatus.batchProcessStatusId = :batchProcessStatusId")
+			.setParameter("batchProcessId", batchProcess.getBatchProcessId())
+			.setParameter("batchProcessStatusId", BatchProcessHelper.BATCH_DETAIL_CREATE_STATUS)
+			.getSingleResult();
+	}
+	
+	public static Long getCountTotalDetails(BatchProcess batchProcess) throws Exception
+	{
+		return (Long) XPersistence.getManager()
+			.createQuery("SELECT coalesce(COUNT(o),0) FROM BatchProcessDetail o "
+					+ "WHERE o.batchProcess.batchProcessId = :batchProcessId ")
+			.setParameter("batchProcessId", batchProcess.getBatchProcessId())
+			.getSingleResult();
+	}
 	
 }

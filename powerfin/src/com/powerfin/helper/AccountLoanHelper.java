@@ -40,9 +40,9 @@ public class AccountLoanHelper {
 		
 		String queryAccount = "SELECT a.account_id "
 				+ "FROM "+schema+".account a, "+schema+".product p " 
-				+ "WHERE a.product_id = p.account_id "
+				+ "WHERE a.product_id = p.product_id "
 				+ "AND p.product_id = '"+productId+"' "
-				+ "AND a.account_status_id  = '002'";
+				+ "AND a.account_status_id  = '"+STATUS_LOAN_ACTIVE+"'";
 		
 		generateOverdueBalances(queryAccount, accountingDate, false);
 		
@@ -158,12 +158,12 @@ public class AccountLoanHelper {
 		String query = "insert into "+schema+".account_overdue_balance ("
 				+ "account_overdue_balance_id, account_id, subaccount, due_date, capital, interest, "
 				+ "insurance, insurance_mortgage, receivable_fee, legal_fee, "
-				+ "overdue_days, real_overdue_days, last_payment_date, last_payment_date_collection, "
+				+ "overdue_days, real_overdue_days, payment_date, last_payment_date, last_payment_date_collection, "
 				+ "last_payment_date_default_int, accounting_date, default_interest, collection_fee, total) ";
 		
 		query += 
 				"select z.*, "
-				+ "capital+interest+default_interest+insurance+insurance_mortgage+receivable_fee+legal_fee as total "
+				+ "capital+interest+default_interest+insurance+insurance_mortgage+collection_fee+receivable_fee+legal_fee as total "
 				+ "from ( "
 				+ "select x.*, "
 				+ schema+".get_default_interest(x.real_overdue_days, x.overdue_days, capital+insurance+insurance_mortgage, x.account_id, x.last_payment_date_default_int) default_interest, "
@@ -179,6 +179,7 @@ public class AccountLoanHelper {
 				+ "COALESCE(max(CASE WHEN b.category_id = 'LEGALFEERE' THEN balance END),0) legal_fee,  "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) overdue_days,  "
 				+ "COALESCE(:projectedAccountingDate - ap.last_payment_date_default_int, 0) real_overdue_days, " 
+				+ "ap.payment_date,  "
 				+ "ap.last_payment_date,  "
 				+ "ap.last_payment_date_collection, "
 				+ "ap.last_payment_date_default_int, "
@@ -189,8 +190,9 @@ public class AccountLoanHelper {
 				+ "and b.account_id = ap.account_id  "
 				+ "and b.subaccount = ap.subaccount  "
 				+ "and ap.due_date <= :accountingDate "
+				+ "and ap.payment_date is null "
 				+ "and b.account_id in ("+queryAccount+") "
-				+ "group by b.account_id, b.subaccount, ap.due_date, ap.last_payment_date_default_int, ap.last_payment_date, ap.last_payment_date_collection "
+				+ "group by b.account_id, b.subaccount, ap.due_date, ap.payment_date, ap.last_payment_date_default_int, ap.last_payment_date, ap.last_payment_date_collection "
 				+ ") as x  ";
 		
 		
@@ -210,9 +212,10 @@ public class AccountLoanHelper {
 				+ "0 legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
-				+ "null last_payment_date, "
-				+ "null last_payment_date_collection, "
-				+ "null last_payment_date_default_int, "
+				+ "ap.payment_date,  "
+				+ "ap.last_payment_date,  "
+				+ "ap.last_payment_date_collection, "
+				+ "ap.last_payment_date_default_int, "
 				+ "cast(:projectedAccountingDate as date) accounting_date, "
 				+ schema+".get_default_interest(COALESCE(:projectedAccountingDate - ap.due_date, 0), COALESCE(:projectedAccountingDate - ap.due_date, 0), "
 				+ "COALESCE(ap.capital,0) + COALESCE(ap.insurance,0) + COALESCE(ap.insurance_mortgage,0), " 
@@ -245,9 +248,10 @@ public class AccountLoanHelper {
 				+ "0 legal_fee, "
 				+ "0 days_overdue, "
 				+ "0 real_days_overdue, "
-				+ "null last_payment_date, "
-				+ "null last_payment_date_collection, "
-				+ "null last_payment_date_default_int, "
+				+ "ap.payment_date,  "
+				+ "ap.last_payment_date,  "
+				+ "ap.last_payment_date_collection, "
+				+ "ap.last_payment_date_default_int, "
 				+ "cast(:projectedAccountingDate as date) accounting_date, "
 				+ "0 as default_interest, "
 				+ "0 as collection_fee "
@@ -326,7 +330,7 @@ public class AccountLoanHelper {
 		
 		String query = "insert into "+schema+".account_overdue_balance ("
 				+ "account_overdue_balance_id, account_id, subaccount, due_date, capital, interest, total, "
-				+ "overdue_days, last_payment_date, accounting_date)";
+				+ "overdue_days, payment_date, last_payment_date, accounting_date)";
 		
 		query += "select * from ("
 				+ "select 's-odue-'||account_id||'-'||subaccount id, "
@@ -337,6 +341,7 @@ public class AccountLoanHelper {
 				+ "sum(interest) interest, "
 				+ "sum(capital+interest) total, "
 				+ "days_overdue, "
+				+ "payment_date, "
 				+ "last_payment_date, "
 				+ "cast(:projectedAccountingDate as date) "
 				+ "from ( "
@@ -344,6 +349,7 @@ public class AccountLoanHelper {
 				+ "COALESCE((case when b.category_id = 'SCAPITAL' then COALESCE(b.balance,0) else 0 end),0) capital, "
 				+ "COALESCE((case when b.category_id = 'INTERESTIN' then COALESCE(b.balance,0) else 0 end),0) interest, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
+				+ "ap.payment_date, "
 				+ "ap.last_payment_date "
 				+ "from "+schema+".balance b, "+schema+".account_sold_paytable ap "
 				+ "where b.to_date = :toDate "
@@ -352,7 +358,7 @@ public class AccountLoanHelper {
 				+ "and b.subaccount = ap.subaccount "
 				+ "and ap.due_date <= :accountingDate "
 				+ "and b.account_id in ("+queryAccount+")"
-				+ ") x group by account_id, subaccount, due_date, days_overdue, last_payment_date ";
+				+ ") x group by account_id, subaccount, due_date, days_overdue, payment_date, last_payment_date ";
 				
 		if (projectedAccountingDate.after(accountingDate))
 		{
@@ -366,7 +372,8 @@ public class AccountLoanHelper {
 				+ "COALESCE(ap.interest,0) interest, "
 				+ "COALESCE(ap.capital,0) + COALESCE(ap.interest,0) as total, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
-				+ "null last_payment_date, "
+				+ "ap.payment_date, "
+				+ "ap.last_payment_date, "
 				+ ":projectedAccountingDate "
 				+ "from "+schema+".account_sold_paytable ap "
 				+ "where ap.due_date > :accountingDate "
@@ -394,7 +401,8 @@ public class AccountLoanHelper {
 				+ "0 "
 				+ "end) total, "
 				+ "0 days_overdue, "
-				+ "null last_payment_date, "
+				+ "ap.payment_date, "
+				+ "ap.last_payment_date, "
 				+ ":projectedAccountingDate "
 				+ "from "+schema+".account_sold_paytable ap "
 				+ "where ap.due_date > :projectedAccountingDate "
@@ -669,14 +677,10 @@ public class AccountLoanHelper {
 			AccountLoan accountLoan, Account debitAccount, 
 			BigDecimal transactionValue) throws Exception
 	{
-		String queryAccount = "'"+accountLoan.getAccountId()+"'";
-		
-		AccountLoanHelper.generateOverdueBalances(
-				queryAccount,
+				
+		List<AccountOverdueBalance> overdueBalances =  AccountLoanHelper.getOverdueBalances(accountLoan.getAccount(),
 				transaction.getValueDate()==null?transaction.getAccountingDate():transaction.getValueDate(),
 				false);
-		
-		List<AccountOverdueBalance> overdueBalances =  AccountLoanHelper.getOverdueBalances(accountLoan.getAccount());
 				
 		List<PrelationOrder> prelationOrders = XPersistence.getManager()
 				.createQuery("SELECT o FROM PrelationOrder o "
@@ -715,6 +719,9 @@ public class AccountLoanHelper {
 		outerloop:
 		for (AccountOverdueBalance quota: overdueBalances)
 		{
+			if (quota.getPaymentDate()!=null)
+				throw new OperativeException("quota_is_already_paid", quota.getSubaccount(), UtilApp.dateToString(quota.getPaymentDate()));
+			
 			for (PrelationOrder prelation : prelationOrders)
 			{
 				if (transactionValue.compareTo(BigDecimal.ZERO)==0)
@@ -764,7 +771,7 @@ public class AccountLoanHelper {
 			
 			for (AccountPaytable accountPaytable: accountPaytables)
 			{
-				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuotaAndCategory(accountPaytable.getAccountId(), accountPaytable.getSubaccount(), CategoryHelper.CAPITAL_CATEGORY);			
+				BigDecimal capitalBalance = AccountLoanHelper.getBalanceByQuota(accountPaytable.getAccountId(), accountPaytable.getSubaccount());			
 				
 				if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
 				{

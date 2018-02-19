@@ -118,36 +118,24 @@ public class BatchProcess implements Serializable {
 		this.batchProcessDetails = batchProcessDetails;
 	}
 	
-	public Integer getCountErrorDetails() throws Exception
+	public Long getCountErrorDetails() throws Exception
 	{
-		Integer count = 0;
-		for (BatchProcessDetail detail : getBatchProcessDetails())
-			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_PROCESS_ERROR))
-				count++;
-		return count;
+		return BatchProcessHelper.getCountErrorDetails(this);
 	}
 	
-	public Integer getCountSatisfactoryDetails() throws Exception
+	public Long getCountSatisfactoryDetails() throws Exception
 	{
-		Integer count = 0;
-		for (BatchProcessDetail detail : getBatchProcessDetails())
-			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_PROCESS_OK))
-				count++;
-		return count;
+		return BatchProcessHelper.getCountSatisfactoryDetails(this);
 	}
 	
-	public Integer getCountRequestDetails() throws Exception
+	public Long getCountRequestDetails() throws Exception
 	{
-		Integer count = 0;
-		for (BatchProcessDetail detail : getBatchProcessDetails())
-			if (detail.getBatchProcessStatus().getBatchProcessStatusId().equals(BatchProcessHelper.BATCH_DETAIL_CREATE_STATUS))
-				count++;
-		return count;
+		return BatchProcessHelper.getCountRequestDetails(this);
 	}
 	
-	public Integer getCountTotalDetails() throws Exception
+	public Long getCountTotalDetails() throws Exception
 	{
-		return getBatchProcessDetails().size();
+		return BatchProcessHelper.getCountTotalDetails(this);
 	}
 	
 	@PreCreate

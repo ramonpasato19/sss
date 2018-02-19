@@ -9,6 +9,7 @@ import com.powerfin.model.AccountItemTax;
 
 public class AccountItemChangeValues extends OnChangePropertyBaseAction {
 
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public void execute() throws Exception {
 		List<AccountItemTax> taxes=(List<AccountItemTax>) getView().getRoot().getValue("accountItemTax");
 		BigDecimal total_percentage=BigDecimal.ZERO;

@@ -16,19 +16,21 @@ import java.util.Date;
  * 
  */
 @Entity
-@View(members="accountId;subaccount;"
+@View(members="#accountId;"
+		+ "subaccount;"
 		+ "dueDate;"
 		+ "overdueDays;"
 		+ "realOverdueDays;"
-		+ "capital;"
+		+ "capital,"
 		+ "interest;"
+		+ "insurance,"
 		+ "insuranceMortgage;"
-		+ "insurance;"
-		+ "defaultInterest;"
+		+ "defaultInterest,"
 		+ "collectionFee;"
-		+ "legalFee;"
+		+ "legalFee,"
 		+ "receivableFee;"
 		+ "total;"
+		+ "paymentDate;"
 		+ "lastPaymentDate;"
 		+ "lastPaymentDateCollection;"
 		+ "lastPaymentDateDefaultInterest;"
@@ -45,7 +47,7 @@ public class AccountOverdueBalance implements Serializable {
 	@GenericGenerator(name = "system-uuid", strategy = "uuid")
 	private String accountOverdueBalanceId;
 
-	@Column(name = "account_id", unique = true, nullable = false)
+	@Column(name = "account_id", unique = true, nullable = false, length=20)
 	private String accountId;
 
 	@Temporal(TemporalType.DATE)
@@ -68,6 +70,10 @@ public class AccountOverdueBalance implements Serializable {
 	@Column(name = "due_date")
 	private Date dueDate;
 
+	@Temporal(TemporalType.DATE)
+	@Column(name = "payment_date")
+	private Date paymentDate;
+	
 	@Column(precision = 11, scale = 2)
 	private BigDecimal insurance;
 
@@ -337,4 +343,13 @@ public class AccountOverdueBalance implements Serializable {
 			dividend = dividend.add(interest);
 		return dividend;
 	}
+
+	public Date getPaymentDate() {
+		return paymentDate;
+	}
+
+	public void setPaymentDate(Date paymentDate) {
+		this.paymentDate = paymentDate;
+	}
+	
 }

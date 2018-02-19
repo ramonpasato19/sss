@@ -118,6 +118,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processPurchaseInvoice(transactionBatch, detail);
 					else if (transactionModuleId.equals("INVOICE_SALE"))
 						processSaleInvoice(transactionBatch, detail);
+					else if (transactionModuleId.equals("TRANSFERRECEIVEDCOLLECTION"))
+						processTransferReceivedCollectiond(transactionBatch, detail);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
@@ -157,6 +159,73 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		return "";
 	}
 
+	private void processTransferReceivedCollectiond(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+			throws Exception {
+		
+		String[] dataLine;
+		String delimiter = "\t";
+		
+		dataLine = detail.getDetail().split(delimiter);
+		
+		validateDataLine(dataLine);
+		String accountBankId = (String)dataLine[0];
+		String accountLoanId = (String)dataLine[1];
+		BigDecimal value = null;
+		String remark = null;
+		
+		Account accountBank = XPersistence.getManager().find(Account.class, accountBankId);
+		if (accountBank == null)
+			throw new OperativeException("account_bank_not_found", accountBankId);
+		
+		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountLoanId);
+		if (accountLoan == null)
+			throw new OperativeException("account_loan_not_found", accountLoanId);
+		
+		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(accountBank.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		
+		if (accountLoan.getDisbursementAccount() == null)
+			throw new OperativeException("account_disbursement_not_found", accountLoanId);
+		
+		try
+		{
+			value = new BigDecimal(dataLine[2]);
+		}
+		catch (Exception e)
+		{
+			throw new OperativeException("wrong_value", e.getMessage());
+		}
+
+		try
+		{
+			remark = (String)dataLine[3];
+		}
+		catch (Exception e)
+		{
+			throw new OperativeException("wrong_remark", e.getMessage());
+		}
+		
+		if (remark == null || remark.trim().isEmpty())
+			throw new OperativeException("remark_is_required");
+		
+		Transaction transaction = TransactionHelper.getNewInitTransaction();
+		transaction.setTransactionModule(transactionBatch.getTransactionModule());
+		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+		transaction.setValue(value);
+		transaction.setRemark(remark);
+		transaction.setCreditAccount(accountLoan.getDisbursementAccount());
+		transaction.setDebitAccount(accountBank);
+		transaction.setCurrency(accountBank.getCurrency());
+
+		XPersistence.getManager().persist(transaction);
+
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getDisbursementAccount(), value, transaction));
+		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(accountBank, value, transaction));
+		
+		TransactionHelper.processTransaction(transaction, transactionAccounts);
+	}
+	
 	private void processPurchasePortfolioPayment(TransactionBatch transactionBatch, TransactionBatchDetail detail)
 			throws Exception {
 		
@@ -500,7 +569,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void processPurchaseInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)
 			throws Exception {
 		
@@ -663,7 +732,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)//, TransactionBatchDetail oldDetail)
 			throws Exception {
 		

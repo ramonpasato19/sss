@@ -2092,7 +2092,7 @@
 				icon="content-save" 
 				by-default="if-possible"
 				keystroke="F3">
-				<set property="resetAfter" value="false" />
+				<set property="resetAfter" value="true" />
 			</action>
 			<action name="refresh" mode="detail"			
 			class="org.openxava.actions.SearchAction"

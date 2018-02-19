@@ -21,7 +21,7 @@ import com.powerfin.model.types.Types.*;
 @Views({
 	@View(members="companyId;name;oxorganizationId;accountingDate;person;officialCurrency"),
 	@View(name="AccountingClosingDay", members="companyId; name; accountingDate; nextAccountingDate; batchProcesses"),
-	@View(name="Backup", members="companyId; name; oxorganizationId; accountingDate; output"),
+	@View(name="Backup", members="companyId; name; oxorganizationId; currentAccountingDate; output"),
 	@View(name="Log", members="companyId; accountingDate; name; oxorganizationId; lines; output")
 })
 @Tabs({
@@ -125,6 +125,10 @@ public class Company implements Serializable {
 	}
 
 	public Date getAccountingDate() {
+		return accountingDate;
+	}
+	
+	public Date getCurrentAccountingDate() {
 		return accountingDate;
 	}
 
