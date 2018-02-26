@@ -92,13 +92,15 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			XPersistence.getManager().merge(transactionBatch);
 			
 			String transactionModuleId = transactionBatch.getTransactionModule().getTransactionModuleId();
-
+			
+			List<String> batchDetailstatusToProcess = Arrays.asList(TransactionBatchHelper.TRANSACTION_BATCH_DETAIL_CREATE_STATUS, TransactionBatchHelper.TRANSACTION_BATCH_DETAIL_PROCESS_ERROR);
+			
 			List<TransactionBatchDetail> details = XPersistence.getManager().createQuery("SELECT tbd FROM TransactionBatchDetail tbd "
 					+ "WHERE transactionBatch.transactionBatchId = :transactionBatchId "
-					+ "AND transactionBatchStatus.transactionBatchStatusId = :transactionBatchStatusId "
+					+ "AND transactionBatchStatus.transactionBatchStatusId IN :transactionBatchStatusId "
 					+ "ORDER by line")
 			.setParameter("transactionBatchId", transactionBatch.getTransactionBatchId())
-			.setParameter("transactionBatchStatusId", TransactionBatchHelper.TRANSACTION_BATCH_DETAIL_CREATE_STATUS)
+			.setParameter("transactionBatchStatusId", batchDetailstatusToProcess)
 			.getResultList();
 			
 			for (TransactionBatchDetail detailIte : details) {

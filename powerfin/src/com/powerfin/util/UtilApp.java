@@ -99,4 +99,11 @@ public class UtilApp {
 	    return new Long(ChronoUnit.DAYS.between(localDateBefore, localDateAfter)).intValue();
 	}
 	
+	public static boolean isGreaterThanZero(BigDecimal value) throws Exception
+	{
+		if (value == null)
+			return false;
+		return value.compareTo(BigDecimal.ZERO)>0;
+	}
+	
 }

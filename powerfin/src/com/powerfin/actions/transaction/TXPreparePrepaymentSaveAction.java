@@ -18,7 +18,7 @@ public class TXPreparePrepaymentSaveAction extends TXSaveAction {
 		BigDecimal transactionValue = getValue();
 			
 		List<TransactionAccount> transactionAccounts = AccountLoanHelper
-				.getTransactionAccountsForAccountLoanPayment(transaction, accountLoan, debitAccount, transactionValue);
+				.getTAForPrepareAccountLoanPrePayment(transaction, accountLoan, debitAccount, transactionValue);
 				
 		return transactionAccounts;
 

@@ -35,6 +35,7 @@ public class CategoryHelper {
 	public final static String LEGAL_FEE_IN_CATEGORY = "LEGALFEEIN";
 	public final static String LEGAL_FEE_RE_CATEGORY = "LEGALFEERE";
 	
+	public final static String DEFAULT_INTEREST_RE_CATEGORY = "DEFINTERRE";
 	public final static String DEFAULT_INTEREST_IN_CATEGORY = "DEFINTERIN";
 	public final static String DEFAULT_INTEREST_EX_CATEGORY = "DEFINTEREX";
 	

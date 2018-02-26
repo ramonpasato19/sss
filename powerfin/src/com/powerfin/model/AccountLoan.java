@@ -23,7 +23,7 @@ import com.powerfin.model.types.*;
 @Table(name="account_loan")
 @Views({
 	@View( 
-		members="accountId, companyAccountingDate; accountStatus;"
+		members="accountId, companyAccountingDate; accountStatus, operatingConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{"
@@ -36,6 +36,7 @@ import com.powerfin.model.types.*;
 				+ "daysGrace, daysGraceCollectionFee;"
 				+ "applyAutomaticDebit;"
 				+ "applyDefaultInterestAccrued;"
+				+ "cancellationDate"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
@@ -71,7 +72,7 @@ import com.powerfin.model.types.*;
 				+ "quotas{accountPaytables}"
 				),
 	@View(name="ConsultAccountLoan",
-		members="#accountId, accountStatus;"
+		members="#accountId, accountStatus, operatingConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -83,18 +84,29 @@ import com.powerfin.model.types.*;
 				+ "period;"
 				+ "insuranceMortgageAmount, insuranceAmount;"
 				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
+				+ "cancellationDate"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
 				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
-				+ "portfolio{#"
+				+ "portfolio{"
+				+ "accountPortfolioStatusName;"
+				+ "purchase[#"
 				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
+				+ "purchaseAmount, purchaseSpread, purchaseRate;"
+				+ "purchaseStatusName"
+				+ "];"
+				+ "sale[#"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "saleAmount, saleSpread, saleRate;"
+				+ "saleStatusName"
+				+ "]"
+				+ "}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
 	@View(name="ConsultPurchasePortfolio",
-		members="#accountId, accountStatus;"
+		members="#accountId, accountStatus, operatingConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -106,18 +118,29 @@ import com.powerfin.model.types.*;
 				+ "period;"
 				+ "insuranceMortgageAmount, insuranceAmount;"
 				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
+				+ "cancellationDate"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
 				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
-				+ "portfolio{#"
+				+ "portfolio{"
+				+ "accountPortfolioStatusName;"
+				+ "purchase[#"
 				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
+				+ "purchaseAmount, purchaseSpread, purchaseRate;"
+				+ "purchaseStatusName"
+				+ "];"
+				+ "sale[#"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "saleAmount, saleSpread, saleRate;"
+				+ "saleStatusName"
+				+ "]"
+				+ "}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
 	@View(name="ConsultOriginationPortfolio",
-		members="#accountId, accountStatus;"
+		members="#accountId, accountStatus, operatingConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -129,18 +152,29 @@ import com.powerfin.model.types.*;
 				+ "period;"
 				+ "insuranceMortgageAmount, insuranceAmount;"
 				+ "applyAutomaticDebit, applyDefaultInterestAccrued;"
+				+ "cancellationDate"
 				+ "}"
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
 				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
-				+ "portfolio{#"
+				+ "portfolio{"
+				+ "accountPortfolioStatusName;"
+				+ "purchase[#"
 				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
+				+ "purchaseAmount, purchaseSpread, purchaseRate;"
+				+ "purchaseStatusName"
+				+ "];"
+				+ "sale[#"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "saleAmount, saleSpread, saleRate;"
+				+ "saleStatusName"
+				+ "]"
+				+ "}"
 				+ "paytable{accountPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
 	@View(name="ConsultSalePortfolio",
-		members="#accountId, accountStatus;"
+		members="#accountId, accountStatus, operatingConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -155,9 +189,19 @@ import com.powerfin.model.types.*;
 				+ "disbursementAccount{disbursementAccount}"
 				+ "vehicleInsurer{vehicleInsurer, insuranceAccount;}"
 				+ "mortgageInsurer{mortgageInsurer, mortgageAccount}"
-				+ "portfolio{#"
+				+ "portfolio{"
+				+ "accountPortfolioStatusName;"
+				+ "purchase[#"
 				+ "purchaseBrokerName, purchasePortfolioSequence, purchasePortfolioDate;"
-				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;}"
+				+ "purchaseAmount, purchaseSpread, purchaseRate;"
+				+ "purchaseStatusName"
+				+ "];"
+				+ "sale[#"
+				+ "saleBrokerName, salePortfolioSequence, salePortfolioDate;"
+				+ "saleAmount, saleSpread, saleRate;"
+				+ "saleStatusName"
+				+ "]"
+				+ "}"
 				+ "paytable{accountSoldPaytables}"
 				+ "overdueBalances{projectedAccountingDate;accountOverdueBalances}"
 				),
@@ -1556,4 +1600,50 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		this.legalPerson = legalPerson;
 	}
 	
+	public Date getCancellationDate()
+	{
+		return account.getCancellationDate();
+	}
+	
+	public String getOperatingConditionName()
+	{
+		return account.getOperatingCondition().getName();
+	}
+	
+	public String getAccountPortfolioStatusName()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getAccountPortfolioStatus().getName();
+	}
+	public String getPurchaseStatusName()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseStatus().getName();
+	}
+	public String getSaleStatusName()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleStatus().getName();
+	}
+	public BigDecimal getPurchaseAmount()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseAmount();
+	}
+	public BigDecimal getSaleAmount()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleAmount();
+	}
+	public BigDecimal getPurchaseSpread()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseSpread();
+	}
+	public BigDecimal getSaleSpread()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleSpread();
+	}
+	public BigDecimal getPurchaseRate()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseRate();
+	}
+	public BigDecimal getSaleRate()
+	{
+		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleRate();
+	}
 }

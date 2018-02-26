@@ -39,7 +39,7 @@ public class ReceivableSalePortfolioSaveAction implements IBatchSaveAction  {
 				+ "AND pt.account.accountId IN "
 				+ "(SELECT o.account.accountId FROM AccountPortfolio o "
 				+ "WHERE o.accountPortfolioStatus.accountPortfolioStatusId = :accountPortfolioStatusId "
-				+ "AND o.saleStatus.accountStatusId = :accountStatusId) "
+				+ "AND o.purchaseStatus.accountStatusId = :accountStatusId) "
 				+ "AND a.product.productType.productClass.productClassId = :productClassId "
 				)
 				.setParameter("dueDate", batchProcess.getAccountingDate())

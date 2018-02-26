@@ -109,7 +109,8 @@ public class AccountLoanHelper {
 		generateOverdueBalances(account);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
-						+ "WHERE o.account.accountId = :accountId")
+						+ "WHERE o.account.accountId = :accountId "
+						+ "ORDER BY o.subaccount")
 				.setParameter("accountId", account.getAccountId())
 				.getResultList();
 	}
@@ -119,7 +120,8 @@ public class AccountLoanHelper {
 		generateOverdueBalances(account, projectedAccountingDate, forPrepayment);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
-						+ "WHERE o.account.accountId = :accountId")
+						+ "WHERE o.account.accountId = :accountId "
+						+ "ORDER BY o.subaccount")
 				.setParameter("accountId", account.getAccountId())
 				.getResultList();
 	}
@@ -208,8 +210,8 @@ public class AccountLoanHelper {
 				+ "COALESCE(ap.interest,0) interest, "
 				+ "COALESCE(ap.insurance,0) insurance, "
 				+ "COALESCE(ap.insurance_mortgage,0) insurance_mortgage, "
-				+ "0 receivable_fee, "
-				+ "0 legal_fee, "
+				+ "COALESCE((SELECT b.balance from "+schema+".balance b WHERE b.account_id = ap.account_id and b.subaccount=ap.subaccount and b.category_id = 'RECEIFEERE'),0) receivable_fee, "
+				+ "COALESCE((SELECT b.balance from "+schema+".balance b WHERE b.account_id = ap.account_id and b.subaccount=ap.subaccount and b.category_id = 'LEGALFEERE'),0) legal_fee, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) days_overdue, "
 				+ "COALESCE(:projectedAccountingDate - ap.due_date, 0) real_days_overdue, "
 				+ "ap.payment_date,  "
@@ -242,10 +244,18 @@ public class AccountLoanHelper {
 				+ "else "
 				+ "0 "
 				+ "end) interest, "
-				+ "COALESCE(ap.insurance,0), "
-				+ "COALESCE(ap.insurance_mortgage,0), "				
-				+ "0 receivable_fee, "
-				+ "0 legal_fee, "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "COALESCE(ap.insurance,0) "
+				+ "else "
+				+ "0 "
+				+ "end) insurance, "
+				+ "(case when (ap.due_date-ap.provision_days) <= :projectedAccountingDate then "
+				+ "COALESCE(ap.insurance_mortgage,0) "
+				+ "else "
+				+ "0 "
+				+ "end) insurance_mortgage, "
+				+ "COALESCE((SELECT b.balance from "+schema+".balance b WHERE b.account_id = ap.account_id and b.subaccount=ap.subaccount and b.category_id = 'RECEIFEERE'),0) receivable_fee, "
+				+ "COALESCE((SELECT b.balance from "+schema+".balance b WHERE b.account_id = ap.account_id and b.subaccount=ap.subaccount and b.category_id = 'LEGALFEERE'),0) legal_fee, "
 				+ "0 days_overdue, "
 				+ "0 real_days_overdue, "
 				+ "ap.payment_date,  "
@@ -292,7 +302,8 @@ public class AccountLoanHelper {
 		generateOverdueBalancesSalePortfolio(account);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
-						+ "WHERE o.account.accountId = :accountId")
+						+ "WHERE o.account.accountId = :accountId "
+						+ "ORDER BY o.subaccount")
 				.setParameter("accountId", account.getAccountId())
 				.getResultList();
 	}
@@ -302,7 +313,8 @@ public class AccountLoanHelper {
 		generateOverdueBalancesSalePortfolio(account, projectedAccountingDate, forPrepayment);
 		return (List<AccountOverdueBalance>)XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountOverdueBalance o "
-						+ "WHERE o.account.accountId = :accountId")
+						+ "WHERE o.account.accountId = :accountId "
+						+ "ORDER BY o.subaccount")
 				.setParameter("accountId", account.getAccountId())
 				.getResultList();
 	}
@@ -670,6 +682,101 @@ public class AccountLoanHelper {
 		else
 			return BigDecimal.ZERO;
 		
+	}
+	
+	public static List<TransactionAccount> getTAForPrepareAccountLoanPrePayment(Transaction transaction, 
+			AccountLoan accountLoan, Account debitAccount, 
+			BigDecimal transactionValue) throws Exception
+	{
+		Date currentAccountingDate = CompanyHelper.getCurrentAccountingDate();
+				
+		List<AccountOverdueBalance> overdueBalances =  AccountLoanHelper.getOverdueBalances(accountLoan.getAccount(),
+				transaction.getValueDate()==null?transaction.getAccountingDate():transaction.getValueDate(),
+				true);
+						
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		TransactionAccount ta = null;
+		
+		if (overdueBalances==null || overdueBalances.isEmpty())
+    		throw new OperativeException("prepare_prepayment_not_processed_with_out_balances");
+		
+		for (AccountOverdueBalance quota: overdueBalances)
+		{
+
+			if (quota.getPaymentDate()!=null)
+				throw new OperativeException("quota_is_already_paid", quota.getSubaccount(), UtilApp.dateToString(quota.getPaymentDate()));
+			
+			if (quota.getDueDate().after(currentAccountingDate))
+			{
+				
+				if (UtilApp.isGreaterThanZero(quota.getCollectionFee()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getCollectionFee(), transaction, CategoryHelper.getCategoryById(CategoryHelper.COLLECTION_FEE_IN_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("collection_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getCollectionFee(), transaction, CategoryHelper.getCategoryById(CategoryHelper.COLLECTION_FEE_RE_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("collection_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+
+				if (UtilApp.isGreaterThanZero(quota.getDefaultInterest()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getDefaultInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.DEFAULT_INTEREST_IN_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+	
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getDefaultInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.DEFAULT_INTEREST_RE_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("default_interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+				
+				if (UtilApp.isGreaterThanZero(quota.getInsurance()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("insurance_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+	
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getInsuranceAccount(), quota.getInsurance(), transaction);
+					ta.setRemark(XavaResources.getString("insurance_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+				
+				if (UtilApp.isGreaterThanZero(quota.getInsuranceMortgage()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("insurance_mortgage_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+	
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getMortgageAccount(), quota.getInsuranceMortgage(), transaction);
+					ta.setRemark(XavaResources.getString("insurance_mortgage_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+				
+				if (UtilApp.isGreaterThanZero(quota.getInterest()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTEREST_PR_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+	
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), 0, quota.getInterest(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INTDIF_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("interest_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+				
+				if (UtilApp.isGreaterThanZero(quota.getCapital()))
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPITAL_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+	
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getAccount(), 0, quota.getCapital(), transaction, CategoryHelper.getCategoryById(CategoryHelper.CAPDIF_CATEGORY), quota.getDueDate());
+					ta.setRemark(XavaResources.getString("capital_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+					transactionAccounts.add(ta);
+				}
+			}
+		}
+		return transactionAccounts;
 	}
 	
 	@SuppressWarnings("unchecked")
