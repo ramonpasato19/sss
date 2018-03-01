@@ -117,6 +117,7 @@ public class NegotiationSaleLoan {
         				
 	            		capitalBalance = BigDecimal.ZERO;
 	            		spreadPurchaseBalance = BigDecimal.ZERO;
+	            		utilitySalePortfolio = BigDecimal.ZERO;
 	            		
 	            		if (balances==null || balances.isEmpty())
 	                		throw new OperativeException("sale_not_processed_with_out_balances");
@@ -175,6 +176,10 @@ public class NegotiationSaleLoan {
 	        						
 	        						utilitySalePortfolio = accountPortfolio.getSaleSpread().subtract(spreadPurchaseBalance);
 	        					}
+	        					else
+	        					{
+	        						utilitySalePortfolio = accountPortfolio.getSaleSpread();
+	        					}
 	        					
 	        					//utility log
 	        					if (utilitySalePortfolio.compareTo(BigDecimal.ZERO)>0)
@@ -201,7 +206,6 @@ public class NegotiationSaleLoan {
 	        						}
 	        					}
 
-		        				
 		        				transaction.setTransactionStatus(transactionStatus);
 		        				TransactionHelper.processTransaction(transaction, transactionAccounts);
 		        				
@@ -211,8 +215,7 @@ public class NegotiationSaleLoan {
 	        					e.printStackTrace();
 	        					throw e;
 	        				}
-	        			}
-		        		
+	        			}		        		
 	                }
 	        		NegotiationHelper.createNegotiationOutput(negotiationFile, lineNumber, validationMessages, null);
 	        	}
