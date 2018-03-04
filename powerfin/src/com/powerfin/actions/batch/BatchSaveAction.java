@@ -90,12 +90,18 @@ public class BatchSaveAction extends ViewBaseAction  {
 							BatchProcessHelper.getBatchProcessStatus(BatchProcessHelper.BATCH_DETAIL_PROCESS_OK));
 					
 				} catch (Exception e) {
+					
+					e.printStackTrace();
+					
+					XPersistence.rollback();
+					
 					batchProcessDetail.setBatchProcessStatus(
 							BatchProcessHelper.getBatchProcessStatus(BatchProcessHelper.BATCH_DETAIL_PROCESS_ERROR));
 					batchProcessDetail.setErrorMessage(e.getMessage());
 					if (transaction.getTransactionId()!=null)
 					{
 						transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_ANNULLED_STATUS_ID));
+						batchProcessDetail.setErrorMessage(transaction.getVoucher()+": "+e.getMessage());
 						XPersistence.getManager().merge(transaction);
 					}
 				}

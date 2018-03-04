@@ -2,11 +2,21 @@ package com.powerfin.actions.transaction;
 
 import java.util.*;
 
+import com.powerfin.exception.OperativeException;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
+import com.powerfin.util.UtilApp;
 
 public class TXCheckPaymentPayableSaveAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {
+		super.extraValidations();
+		if (UtilApp.fieldIsEmpty(getDocumentNumber()))
+			throw new OperativeException("check_number_is_required");
+		if(!UtilApp.isValidIntegerNumber(getDocumentNumber()))
+			throw new OperativeException("check_number_is_invalid", getDocumentNumber());
+	}
+	
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
 		Account debitAccount = getDebitAccount();

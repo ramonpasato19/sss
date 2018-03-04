@@ -89,6 +89,8 @@ public class TXSalePortfolioPaymentSaveAction extends TXSaveAction {
 	
 	public void extraValidations() throws Exception
 	{
+		super.extraValidations();
+		
 		BigDecimal totalOverdue = (BigDecimal)getView().getRoot().getSubview("debitAccount").getValue("totalOverdueBalance");
 		BigDecimal transactionValue = getValue();
 		

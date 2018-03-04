@@ -10,6 +10,8 @@ import com.powerfin.model.types.*;
 
 public class TXTransferItemSaveAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {}
+	
 	@SuppressWarnings("unchecked")
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{

@@ -7,6 +7,8 @@ import com.powerfin.model.*;
 
 public class TXInvoiceSaleSaveAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {}
+	
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
 		return AccountInvoiceHelper.getTransactionAccountsForInvoiceSale(transaction);

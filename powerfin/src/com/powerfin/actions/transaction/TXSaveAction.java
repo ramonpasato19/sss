@@ -29,7 +29,11 @@ public class TXSaveAction extends SaveAction{
 	
 	public void postSaveAction(Transaction transaction) throws Exception {}
 	
-	public void extraValidations() throws Exception {}
+	public void extraValidations() throws Exception {
+		getCreditAccount();
+		getDebitAccount();
+		getValue();
+	}
 	
 	@SuppressWarnings("unchecked")
 	public String getTransactionStatusId() {
@@ -51,6 +55,11 @@ public class TXSaveAction extends SaveAction{
 
 	}
 	
+	public String getDocumentNumber() throws Exception
+	{
+		return (String) getView().getValue("documentNumber");
+	}
+	
 	public boolean isNewTransaction()
 	{
 		return getView().isKeyEditable();
@@ -59,8 +68,10 @@ public class TXSaveAction extends SaveAction{
 	public BigDecimal getValue()
 	{
 		BigDecimal value = (BigDecimal) getView().getRoot().getValue("value");
-		if (value == null || value.compareTo(BigDecimal.ZERO)==0)
+		if (value == null)
 			throw new OperativeException("value_is_required");
+		if (value.compareTo(BigDecimal.ZERO)<=0)
+			throw new OperativeException("value_must_be_greater_than_zero",value);
 		return value;
 	}
 	
@@ -92,7 +103,7 @@ public class TXSaveAction extends SaveAction{
 			return account;
 		}catch (javax.ejb.ObjectNotFoundException ex)
 		{
-			throw new OperativeException("account_is_required");
+			throw new OperativeException("credit_account_is_required");
 		}
 	}
 	
@@ -108,7 +119,7 @@ public class TXSaveAction extends SaveAction{
 			return account;
 		}catch (javax.ejb.ObjectNotFoundException ex)
 		{
-			throw new OperativeException("account_is_required");
+			throw new OperativeException("debit_account_is_required");
 		}
 	}
 
@@ -156,9 +167,10 @@ public class TXSaveAction extends SaveAction{
 			}
 			catch (Exception e)
 			{
-				transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues);
-				transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_REQUEST_STATUS_ID));
-				XPersistence.getManager().merge(transaction);
+				XPersistence.rollback();
+				//transaction = (Transaction) MapFacade.findEntity(getView().getModelName(), keyValues);
+				//transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_REQUEST_STATUS_ID));
+				//XPersistence.getManager().merge(transaction);
 				throw e;
 			}
 		}

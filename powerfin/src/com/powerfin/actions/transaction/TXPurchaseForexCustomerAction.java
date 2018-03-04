@@ -8,6 +8,10 @@ import com.powerfin.model.*;
 
 public class TXPurchaseForexCustomerAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {
+		super.extraValidations();
+	}
+	
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
 		//foreign account payable

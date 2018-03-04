@@ -11,6 +11,10 @@ import com.powerfin.model.*;
 
 public class TXRetentionPurchaseSaveAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {
+		getCreditAccount();
+	}
+	
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{
 		Account account = getCreditAccount();

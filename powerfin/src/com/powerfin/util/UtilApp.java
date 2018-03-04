@@ -68,8 +68,8 @@ public class UtilApp {
 
 	public static boolean isValidDecimalNumber(String number) {
 		try {
-			formatDecimal.parse(number);
-		} catch (ParseException e) {
+			new BigDecimal(number);
+		} catch (Exception e) {
 			return false;
 		}
 		return true;

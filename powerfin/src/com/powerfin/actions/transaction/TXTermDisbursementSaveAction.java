@@ -12,6 +12,8 @@ import com.powerfin.model.*;
 
 public class TXTermDisbursementSaveAction extends TXSaveAction {
 
+	public void extraValidations() throws Exception {}
+	
 	@SuppressWarnings("unchecked")
 	public List<TransactionAccount> getTransactionAccounts(Transaction transaction) throws Exception
 	{

@@ -26,6 +26,8 @@ public class TXLoanPaymentSaveAction extends TXSaveAction {
 	
 	public void extraValidations() throws Exception
 	{
+		super.extraValidations();
+		
 		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(getCreditAccount());
 		BigDecimal totalOverdue = BigDecimal.ZERO;
 		BigDecimal minToPayment = BigDecimal.ZERO;

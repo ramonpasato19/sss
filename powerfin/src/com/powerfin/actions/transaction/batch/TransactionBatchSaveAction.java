@@ -1,17 +1,48 @@
 package com.powerfin.actions.transaction.batch;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
-import org.openxava.actions.*;
-import org.openxava.jpa.*;
+import org.openxava.actions.ViewBaseAction;
+import org.openxava.jpa.XPersistence;
+import org.openxava.util.XavaResources;
 
-import com.powerfin.exception.*;
-import com.powerfin.helper.*;
-import com.powerfin.model.*;
+import com.powerfin.exception.OperativeException;
+import com.powerfin.helper.AccountHelper;
+import com.powerfin.helper.AccountInvoiceHelper;
+import com.powerfin.helper.AccountLoanHelper;
+import com.powerfin.helper.ParameterHelper;
+import com.powerfin.helper.PersonHelper;
+import com.powerfin.helper.TransactionAccountHelper;
+import com.powerfin.helper.TransactionBatchHelper;
+import com.powerfin.helper.TransactionHelper;
+import com.powerfin.model.Account;
+import com.powerfin.model.AccountInvoice;
+import com.powerfin.model.AccountInvoiceDetail;
+import com.powerfin.model.AccountLoan;
+import com.powerfin.model.Category;
 import com.powerfin.model.File;
-import com.powerfin.util.*;
+import com.powerfin.model.Gender;
+import com.powerfin.model.IdentificationType;
+import com.powerfin.model.InvoiceVoucherType;
+import com.powerfin.model.MaritalStatus;
+import com.powerfin.model.NaturalPerson;
+import com.powerfin.model.Parameter;
+import com.powerfin.model.Person;
+import com.powerfin.model.PersonType;
+import com.powerfin.model.Tax;
+import com.powerfin.model.Transaction;
+import com.powerfin.model.TransactionAccount;
+import com.powerfin.model.TransactionBatch;
+import com.powerfin.model.TransactionBatchDetail;
+import com.powerfin.model.TransactionModule;
+import com.powerfin.model.Unity;
+import com.powerfin.util.UtilApp;
 
 public class TransactionBatchSaveAction extends ViewBaseAction {
 
@@ -105,37 +136,48 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			
 			for (TransactionBatchDetail detailIte : details) {
 				TransactionBatchDetail detail = XPersistence.getManager().find(TransactionBatchDetail.class, detailIte.getTransactionBatchDetailId());
-				
+				Transaction transaction = TransactionHelper.getNewInitTransaction();
 				try {
 					
 					if (transactionModuleId.equals("PURCHASEPORTFOLIOPAYMENT"))
-						processPurchasePortfolioPayment(transactionBatch, detail);
+						processPurchasePortfolioCollection(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("SALEPORTFOLIOPAYMENT"))
-						processSalePortfolioPayment(transactionBatch, detail);
+						processSalePortfolioPayment(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("GENERALTRANSACTION"))
-						processGeneralTransaction(transactionBatch, detail);
+						processGeneralTransaction(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICESALEFUELSTATION"))
-						processSaleInvoiceFuelStation(transactionBatch, detail);
+						processSaleInvoiceFuelStation(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICE_PURCHASE"))
-						processPurchaseInvoice(transactionBatch, detail);
+						processPurchaseInvoice(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICE_SALE"))
-						processSaleInvoice(transactionBatch, detail);
+						processSaleInvoice(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("TRANSFERRECEIVEDCOLLECTION"))
-						processTransferReceivedCollectiond(transactionBatch, detail);
+						processTransferReceivedCollection(transactionBatch, detail, transaction);
+					else if (transactionModuleId.equals("TRANSFERFORLOANCOLLECTION"))
+						processTransferForLoanCollection(transactionBatch, detail, transaction);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
 					detail.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthDetailProcessStatus());
-					XPersistence.getManager().merge(detail);
-
+										
 				} catch (Exception e) {
+					
 					e.printStackTrace();
-					detail.setTransactionBatchStatus(
-							TransactionBatchHelper.getTransactionBacthDetailProcessErrorStatus());
+					
+					XPersistence.rollback();
+					
+					detail.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthDetailProcessErrorStatus());
 					detail.setErrorMessage(e.getMessage());
-					XPersistence.getManager().merge(detail);
+					if (transaction!=null && transaction.getTransactionId()!=null)
+					{
+						transaction.setTransactionStatus(TransactionHelper.getTransactionStatusByStatusId(TransactionHelper.TRANSACTION_ANNULLED_STATUS_ID));
+						detail.setErrorMessage(transaction.getVoucher()+": "+detail.getErrorMessage());
+						XPersistence.getManager().merge(transaction);
+						
+					}
 				}
 				
+				XPersistence.getManager().merge(detail);
 				XPersistence.commit();
 			}
 			
@@ -161,7 +203,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		return "";
 	}
 
-	private void processTransferReceivedCollectiond(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processTransferReceivedCollection(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -189,14 +231,10 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		if (accountLoan.getDisbursementAccount() == null)
 			throw new OperativeException("account_disbursement_not_found", accountLoanId);
 		
-		try
-		{
+		if (UtilApp.isValidDecimalNumber(dataLine[2]))
 			value = new BigDecimal(dataLine[2]);
-		}
-		catch (Exception e)
-		{
-			throw new OperativeException("wrong_value", e.getMessage());
-		}
+		else
+			throw new OperativeException("wrong_value", dataLine[3]);
 
 		try
 		{
@@ -207,10 +245,9 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 			throw new OperativeException("wrong_remark", e.getMessage());
 		}
 		
-		if (remark == null || remark.trim().isEmpty())
+		if (UtilApp.fieldIsEmpty(remark))
 			throw new OperativeException("remark_is_required");
 		
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(value);
@@ -228,7 +265,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
 	}
 	
-	private void processPurchasePortfolioPayment(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processTransferForLoanCollection(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -237,35 +274,96 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		dataLine = detail.getDetail().split(delimiter);
 		
 		validateDataLine(dataLine);
-		BigDecimal transactionValue = new BigDecimal(dataLine[3]);
+		@SuppressWarnings("unused")
+		String identification = (String)dataLine[0];
+		String accountBrokerId = (String)dataLine[1];
+		String accountLoanId = (String)dataLine[2];
+		BigDecimal value = null;
+		
+		Account accountBroker = XPersistence.getManager().find(Account.class, accountBrokerId);
+		if (accountBroker == null)
+			throw new OperativeException("account_bank_not_found", accountBrokerId);
+		
+		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountLoanId);
+		if (accountLoan == null)
+			throw new OperativeException("account_loan_not_found", accountLoanId);
+		
+		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(accountBroker.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		
+		if (accountLoan.getDisbursementAccount() == null)
+			throw new OperativeException("account_disbursement_not_found", accountLoanId);
+		
+		if (UtilApp.isValidDecimalNumber(dataLine[3]))
+			value = new BigDecimal(dataLine[3]);
+		else
+			throw new OperativeException("wrong_value", dataLine[3]);
+		
+		String remark = XavaResources.getString("transfer_to_loan_collection", accountLoanId, accountLoan.getDisbursementAccount().getAccountId()); 
+
+		transaction.setTransactionModule(transactionBatch.getTransactionModule());
+		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
+		transaction.setValue(value);
+		transaction.setRemark(remark);
+		transaction.setCreditAccount(accountLoan.getDisbursementAccount());
+		transaction.setDebitAccount(accountBroker);
+		transaction.setCurrency(accountBroker.getCurrency());
+
+		XPersistence.getManager().persist(transaction);
+
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getDisbursementAccount(), value, transaction));
+		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(accountBroker, value, transaction));
+		
+		TransactionHelper.processTransaction(transaction, transactionAccounts);
+	}
+	
+	private void processPurchasePortfolioCollection(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
+			throws Exception {
+		
+		String[] dataLine;
+		String delimiter = "\t";
+		
+		dataLine = detail.getDetail().split(delimiter);
+		
+		validateDataLine(dataLine);
+		BigDecimal transactionValue = null;
 
 		Account account = XPersistence.getManager().find(Account.class, dataLine[2]);
 		if (account==null)
 			throw new OperativeException("account_not_found",dataLine[2]);
 		
 		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, account.getAccountId());
-		Account brokerAccount = XPersistence.getManager().find(Account.class, dataLine[1]);
-
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
+		if (accountLoan.getDisbursementAccount() == null)
+			throw new OperativeException("account_disbursement_not_found", account.getAccountId());
+		
+		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(account.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		
+		if (UtilApp.isValidDecimalNumber(dataLine[3]))
+			transactionValue = new BigDecimal(dataLine[3]);
+		else
+			throw new OperativeException("wrong_value", dataLine[3]);
+		
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
 		transaction.setRemark(dataLine[2]);
 		transaction.setCreditAccount(account);
-		transaction.setDebitAccount(brokerAccount);
+		transaction.setDebitAccount(accountLoan.getDisbursementAccount());
 		transaction.setCurrency(account.getCurrency());
 
 		XPersistence.getManager().persist(transaction);
 
 		List<TransactionAccount> transactionAccounts = AccountLoanHelper
-				.getTransactionAccountsForAccountLoanPayment(transaction, accountLoan, brokerAccount,
+				.getTransactionAccountsForAccountLoanPayment(transaction, accountLoan, null,
 						transactionValue);
 
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
 		AccountLoanHelper.postAccountLoanPaymentSaveAction(transaction);
 	}
 	
-	private void processSalePortfolioPayment(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processSalePortfolioPayment(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -274,6 +372,16 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		dataLine = detail.getDetail().split(delimiter);
 		
 		validateDataLine(dataLine);
+		
+		if (!UtilApp.isValidDecimalNumber(dataLine[4]))
+			throw new OperativeException("wrong_capital_value", dataLine[4]);
+		
+		if (!UtilApp.isValidDecimalNumber(dataLine[5]))
+			throw new OperativeException("wrong_interest_value", dataLine[5]);
+		
+		if (!UtilApp.isValidDecimalNumber(dataLine[6]))
+			throw new OperativeException("wrong_default_interest_value", dataLine[6]);
+		
 		BigDecimal transactionValue = BigDecimal.ZERO;
 		Integer subAccount = new Integer(dataLine[3]);
 		BigDecimal capital = new BigDecimal(dataLine[4]);
@@ -287,8 +395,12 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		
 		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, account.getAccountId());
 		Account brokerAccount = XPersistence.getManager().find(Account.class, dataLine[1]);
-
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
+		if (brokerAccount==null)
+			throw new OperativeException("broker_account_not_found",dataLine[1]);
+		
+		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(brokerAccount.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
@@ -307,7 +419,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		AccountLoanHelper.postSalePortfolioPaymentSaveAction(transaction);
 	}
 	
-	private void processGeneralTransaction(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processGeneralTransaction(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -326,7 +438,12 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		String value = dataLine[7];
 		String remark = dataLine[8];
 		
-		BigDecimal transactionValue = new BigDecimal(value);
+		BigDecimal transactionValue = null;
+		
+		if (UtilApp.isValidDecimalNumber(value))
+			transactionValue = new BigDecimal(value);
+		else
+			throw new OperativeException("wrong_value", value);
 
 		TransactionModule transactionModule = XPersistence.getManager().find(TransactionModule.class, transactionModuleId);
 		Account debitAccount = XPersistence.getManager().find(Account.class, debitAccountId);
@@ -350,7 +467,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		if (transactionValue.compareTo(BigDecimal.ZERO)<0)
 			throw new OperativeException("value_must_be_greater_than_zero", value);
 		
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
 		transaction.setTransactionModule(transactionModule);
 		transaction.setTransactionStatus(transactionModule.getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
@@ -370,7 +486,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void processSaleInvoiceFuelStation(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processSaleInvoiceFuelStation(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -522,7 +638,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		accountInvoice.setDetails(details);
 		
 		//InvoiceTransaction
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
@@ -572,7 +687,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 	}
 	
 	@SuppressWarnings({ "unchecked", "unused" })
-	private void processPurchaseInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)
+	private void processPurchaseInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -689,7 +804,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		accountInvoice.setDetails(details);
 		
 		//InvoiceTransaction
-		Transaction transaction = TransactionHelper.getNewInitTransaction();
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
@@ -734,8 +848,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "unused" })
-	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail)//, TransactionBatchDetail oldDetail)
+	@SuppressWarnings("unchecked")
+	private void processSaleInvoice(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
 		String[] dataLine;
@@ -772,6 +886,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		BigDecimal amount = new BigDecimal(dataLine[15]);
 		BigDecimal taxAmount = new BigDecimal(dataLine[16]);
 		BigDecimal total = new BigDecimal(dataLine[17]);
+		@SuppressWarnings("unused")
 		String paymentType = new String(dataLine[18]);
 		String productId = new String(dataLine[19]);
 		String boxAccountId = new String(dataLine[20]);
@@ -897,7 +1012,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		//InvoiceTransaction
 		if (lastDetail == 1)
 		{
-			Transaction transaction = TransactionHelper.getNewInitTransaction();
 			transaction.setTransactionModule(transactionBatch.getTransactionModule());
 			if (authorizeInvoice == 1)
 				transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());

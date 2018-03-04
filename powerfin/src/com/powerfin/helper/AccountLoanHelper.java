@@ -810,18 +810,21 @@ public class AccountLoanHelper {
 		if (accountLoan.getDisbursementAccount()==null)
 			throw new OperativeException("disbursement_account_not_found");
 		
-		if (!accountLoan.getDisbursementAccount().getAccountId().equals(debitAccount.getAccountId()))
+		if (debitAccount!=null)
 		{
-			ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, transactionValue, transaction);
-			ta.setRemark(XavaResources.getString("transfer_to_customer_for_payment_loan", accountLoan.getAccountId()));
-			transactionAccounts.add(ta);
-			
-			ta = TransactionAccountHelper.createCustomCreditTransactionAccount(disbursementAccount, transactionValue, transaction);
-			ta.setRemark(XavaResources.getString("transfer_from_broker_for_payment_loan", accountLoan.getAccountId()));
-			transactionAccounts.add(ta);
+			if (!accountLoan.getDisbursementAccount().getAccountId().equals(debitAccount.getAccountId()))
+			{
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, transactionValue, transaction);
+				ta.setRemark(XavaResources.getString("transfer_to_customer_for_payment_loan", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(disbursementAccount, transactionValue, transaction);
+				ta.setRemark(XavaResources.getString("transfer_from_broker_for_payment_loan", accountLoan.getAccountId()));
+				transactionAccounts.add(ta);
+			}
+			else
+				disbursementAccount = debitAccount;
 		}
-		else
-			disbursementAccount = debitAccount;
 		
 		outerloop:
 		for (AccountOverdueBalance quota: overdueBalances)
