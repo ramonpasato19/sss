@@ -151,15 +151,14 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processPurchaseInvoice(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICE_SALE"))
 						processSaleInvoice(transactionBatch, detail, transaction);
-					else if (transactionModuleId.equals("TRANSFERRECEIVEDCOLLECTION"))
-						processTransferReceivedCollection(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("TRANSFERFORLOANCOLLECTION"))
 						processTransferForLoanCollection(transactionBatch, detail, transaction);
 					else
 						throw new OperativeException("transaction_module_not_found_for_batch_process");
 
 					detail.setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthDetailProcessStatus());
-										
+					detail.setErrorMessage(null);
+					
 				} catch (Exception e) {
 					
 					e.printStackTrace();
@@ -203,68 +202,6 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		return "";
 	}
 
-	private void processTransferReceivedCollection(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
-			throws Exception {
-		
-		String[] dataLine;
-		String delimiter = "\t";
-		
-		dataLine = detail.getDetail().split(delimiter);
-		
-		validateDataLine(dataLine);
-		String accountBankId = (String)dataLine[0];
-		String accountLoanId = (String)dataLine[1];
-		BigDecimal value = null;
-		String remark = null;
-		
-		Account accountBank = XPersistence.getManager().find(Account.class, accountBankId);
-		if (accountBank == null)
-			throw new OperativeException("account_bank_not_found", accountBankId);
-		
-		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountLoanId);
-		if (accountLoan == null)
-			throw new OperativeException("account_loan_not_found", accountLoanId);
-		
-		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(accountBank.getCurrency().getCurrencyId()))
-			throw new OperativeException("accounts_have_different_currency");
-		
-		if (accountLoan.getDisbursementAccount() == null)
-			throw new OperativeException("account_disbursement_not_found", accountLoanId);
-		
-		if (UtilApp.isValidDecimalNumber(dataLine[2]))
-			value = new BigDecimal(dataLine[2]);
-		else
-			throw new OperativeException("wrong_value", dataLine[3]);
-
-		try
-		{
-			remark = (String)dataLine[3];
-		}
-		catch (Exception e)
-		{
-			throw new OperativeException("wrong_remark", e.getMessage());
-		}
-		
-		if (UtilApp.fieldIsEmpty(remark))
-			throw new OperativeException("remark_is_required");
-		
-		transaction.setTransactionModule(transactionBatch.getTransactionModule());
-		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
-		transaction.setValue(value);
-		transaction.setRemark(remark);
-		transaction.setCreditAccount(accountLoan.getDisbursementAccount());
-		transaction.setDebitAccount(accountBank);
-		transaction.setCurrency(accountBank.getCurrency());
-
-		XPersistence.getManager().persist(transaction);
-
-		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
-		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getDisbursementAccount(), value, transaction));
-		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(accountBank, value, transaction));
-		
-		TransactionHelper.processTransaction(transaction, transactionAccounts);
-	}
-	
 	private void processTransferForLoanCollection(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
 			throws Exception {
 		
@@ -274,46 +211,54 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		dataLine = detail.getDetail().split(delimiter);
 		
 		validateDataLine(dataLine);
-		@SuppressWarnings("unused")
-		String identification = (String)dataLine[0];
-		String accountBrokerId = (String)dataLine[1];
-		String accountLoanId = (String)dataLine[2];
+		String debitAccountId = (String)dataLine[0];
+		String accountLoanId = (String)dataLine[1];
 		BigDecimal value = null;
+		String remark = null;
 		
-		Account accountBroker = XPersistence.getManager().find(Account.class, accountBrokerId);
-		if (accountBroker == null)
-			throw new OperativeException("account_bank_not_found", accountBrokerId);
+		Account debitAccount = XPersistence.getManager().find(Account.class, debitAccountId);
+		if (debitAccount == null)
+			throw new OperativeException("account_bank_not_found", debitAccountId);
 		
 		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountLoanId);
 		if (accountLoan == null)
 			throw new OperativeException("account_loan_not_found", accountLoanId);
 		
-		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(accountBroker.getCurrency().getCurrencyId()))
+		if (!accountLoan.getDisbursementAccount().getCurrency().getCurrencyId().equals(debitAccount.getCurrency().getCurrencyId()))
 			throw new OperativeException("accounts_have_different_currency");
 		
 		if (accountLoan.getDisbursementAccount() == null)
 			throw new OperativeException("account_disbursement_not_found", accountLoanId);
 		
-		if (UtilApp.isValidDecimalNumber(dataLine[3]))
-			value = new BigDecimal(dataLine[3]);
+		if (UtilApp.isValidDecimalNumber(dataLine[2]))
+			value = new BigDecimal(dataLine[2]);
 		else
-			throw new OperativeException("wrong_value", dataLine[3]);
-		
-		String remark = XavaResources.getString("transfer_to_loan_collection", accountLoanId, accountLoan.getDisbursementAccount().getAccountId()); 
+			throw new OperativeException("wrong_value", dataLine[2]);
 
+		remark = XavaResources.getString("transfer_to_loan_collection", accountLoanId, accountLoan.getDisbursementAccount().getAccountId(), debitAccountId);
+		
+		try
+		{
+			if (dataLine[3]!=null && ((String)dataLine[3]).length()>0)
+				remark = remark + ", " + (String)dataLine[3];
+		}catch(ArrayIndexOutOfBoundsException ex) {}
+		
+		if (UtilApp.fieldIsEmpty(remark))
+			throw new OperativeException("remark_is_required");
+		
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(value);
 		transaction.setRemark(remark);
 		transaction.setCreditAccount(accountLoan.getDisbursementAccount());
-		transaction.setDebitAccount(accountBroker);
-		transaction.setCurrency(accountBroker.getCurrency());
+		transaction.setDebitAccount(debitAccount);
+		transaction.setCurrency(debitAccount.getCurrency());
 
 		XPersistence.getManager().persist(transaction);
 
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getDisbursementAccount(), value, transaction));
-		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(accountBroker, value, transaction));
+		transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, value, transaction));
 		
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
 	}
@@ -328,6 +273,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		
 		validateDataLine(dataLine);
 		BigDecimal transactionValue = null;
+		Date valueDate = null;
 
 		Account account = XPersistence.getManager().find(Account.class, dataLine[2]);
 		if (account==null)
@@ -345,6 +291,12 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		else
 			throw new OperativeException("wrong_value", dataLine[3]);
 		
+		try
+		{
+			if (dataLine[4]!=null)
+				valueDate = UtilApp.stringToDate(dataLine[4]);
+		}catch(ArrayIndexOutOfBoundsException ex) {}
+		
 		transaction.setTransactionModule(transactionBatch.getTransactionModule());
 		transaction.setTransactionStatus(transactionBatch.getTransactionModule().getFinancialTransactionStatus());
 		transaction.setValue(transactionValue);
@@ -352,6 +304,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		transaction.setCreditAccount(account);
 		transaction.setDebitAccount(accountLoan.getDisbursementAccount());
 		transaction.setCurrency(account.getCurrency());
+		transaction.setValueDate(valueDate!=null?valueDate:null);
 
 		XPersistence.getManager().persist(transaction);
 

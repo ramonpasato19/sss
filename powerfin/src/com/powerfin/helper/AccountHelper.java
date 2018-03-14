@@ -37,7 +37,7 @@ public class AccountHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static void validateUniqueAccount(Integer personId, String productId) throws Exception
+	public static void validateSingleAccountByPerson(Integer personId, String productId) throws Exception
 	{
 		Product product = XPersistence.getManager().find(Product.class, productId);
 
@@ -55,6 +55,22 @@ public class AccountHelper {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static void validateUniqueAccount(Integer personId, String productId, String code) throws Exception
+	{
+		List<Account> accounts = XPersistence.getManager().createQuery("SELECT o FROM Account o "
+				+ "WHERE o.person.personId=:personId "
+				+ "AND o.product.productId=:productId "
+				+ "AND o.code=:code")
+		.setParameter("personId", personId)
+		.setParameter("productId", productId)
+		.setParameter("code", code)
+		.getResultList();
+		
+		if (accounts!=null && !accounts.isEmpty())
+			throw new OperativeException("account_already_exists",personId, productId, code);
+	}
+
 	public static Account createAccount(Account account)  throws Exception 
 	{
 		return createAccount(account.getAccountId(), account.getProduct(), account.getPerson(), account.getAccountStatus(),
@@ -114,6 +130,7 @@ public class AccountHelper {
 	public static Account createAccount(String accountId, Product product, Person person, AccountStatus accountStatus,
 			String name, String code, String alternateCode, String transactionalName, Branch branch)  throws Exception 
 	{
+		validateUniqueAccount(person.getPersonId(), product.getProductId(), code);
 		Account a = new Account();
 		a.setAccountId(accountId);
 		a.setProduct(product);

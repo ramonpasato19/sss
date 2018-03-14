@@ -88,7 +88,7 @@ public class BatchSaveAction extends ViewBaseAction  {
 		  			
 		  			batchProcessDetail.setBatchProcessStatus(
 							BatchProcessHelper.getBatchProcessStatus(BatchProcessHelper.BATCH_DETAIL_PROCESS_OK));
-					
+		  			batchProcessDetail.setErrorMessage(null);
 				} catch (Exception e) {
 					
 					e.printStackTrace();

@@ -244,7 +244,7 @@ public class Account extends AuditEntity implements Serializable {
 		if (getAccountStatus()==null)
 			throw new OperativeException("the_account_status_is_required");
 		
-		AccountHelper.validateUniqueAccount(person.getPersonId(), product.getProductId());
+		AccountHelper.validateSingleAccountByPerson(person.getPersonId(), product.getProductId());
 		
 		if (getAccountId()==null || getAccountId().equals(AccountHelper.AUTO_ACCOUNT_ID))
 		{

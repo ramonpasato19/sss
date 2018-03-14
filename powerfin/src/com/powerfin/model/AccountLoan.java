@@ -1612,38 +1612,65 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	
 	public String getAccountPortfolioStatusName()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getAccountPortfolioStatus().getName();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getAccountPortfolioStatus().getName();
+		return null;
 	}
 	public String getPurchaseStatusName()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseStatus().getName();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getPurchaseStatus().getName();
+		return null;
 	}
 	public String getSaleStatusName()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleStatus().getName();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getSaleStatus().getName();
+		return null;
 	}
 	public BigDecimal getPurchaseAmount()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseAmount();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getPurchaseAmount();
+		return null;
 	}
 	public BigDecimal getSaleAmount()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleAmount();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getSaleAmount();
+		return null;
 	}
 	public BigDecimal getPurchaseSpread()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseSpread();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getPurchaseSpread();
+		return null;
 	}
 	public BigDecimal getSaleSpread()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleSpread();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getSaleSpread();
+		return null;
 	}
 	public BigDecimal getPurchaseRate()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getPurchaseRate();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getPurchaseRate();
+		return null;
 	}
 	public BigDecimal getSaleRate()
 	{
-		return ((AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId())).getSaleRate();
+		AccountPortfolio ap = (AccountPortfolio)XPersistence.getManager().find(AccountPortfolio.class, account.getAccountId());
+		if (ap!=null)
+			return ap.getSaleRate();
+		return null;
 	}
 }

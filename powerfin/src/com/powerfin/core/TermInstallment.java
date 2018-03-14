@@ -9,6 +9,7 @@ import org.openxava.jpa.*;
 
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
+import com.powerfin.util.UtilApp;
 
 public class TermInstallment {
 
@@ -141,7 +142,7 @@ public class TermInstallment {
 	{
 		Calendar disbursementDateCal = GregorianCalendar.getInstance();
 		Calendar dueDateCal = GregorianCalendar.getInstance();
-		Calendar auxCal = GregorianCalendar.getInstance();
+		//Calendar auxCal = GregorianCalendar.getInstance();
 		Calendar previousDueDateCal = GregorianCalendar.getInstance();
 		BigDecimal lastQuota = BigDecimal.ZERO;
 		int quotaNumber;
@@ -177,8 +178,9 @@ public class TermInstallment {
 				aq.setSubaccount(quotaNumber);
 				quotaNumber++;
 				aq.setDueDate(dueDateCal.getTime());
-				auxCal.setTimeInMillis(dueDateCal.getTime().getTime() - previousDueDateCal.getTime().getTime());
-				aq.setProvisionDays(auxCal.get(Calendar.DAY_OF_YEAR));
+				//auxCal.setTimeInMillis(dueDateCal.getTime().getTime() - previousDueDateCal.getTime().getTime());
+				//aq.setProvisionDays(auxCal.get(Calendar.DAY_OF_YEAR));
+				aq.setProvisionDays(UtilApp.getDaysCountBetweenDates(previousDueDateCal.getTime(), dueDateCal.getTime()));
 				aq.setCapitalReduced(capitalReduced);
 				interest = capitalReduced.multiply(dayRate);
 				interest = interest.multiply(new BigDecimal(aq.getProvisionDays())).setScale(scale, RoundingMode.HALF_UP);
