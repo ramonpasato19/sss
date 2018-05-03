@@ -34,6 +34,20 @@ import com.powerfin.model.superclass.*;
 		+ "debitCreditAccount; "
 		+ "];"
 		+ "negotiationFiles"),
+@View(name="ProcessOriginationNegotiation", members="generalInformation[#"
+		+ "negotiationId, accountingDate;"
+		+ "negotiationType, negotiationStatus;"
+		+ "brokerSequence;"
+		+ "brokerPerson; "
+		+ "debitCreditAccount; "
+		+ "]"
+		+ "results{#"
+		+ "persons{negotiationOutputsPersons}"
+		+ "loans{negotiationOutputsLoans}"
+		+ "paytable{negotiationOutputsPaytable}"
+		+ "disbursement{negotiationOutputsDisbursement}"
+		+ "}"
+		),
 @View(name="ProcessPurchaseNegotiation", members="generalInformation[#"
 		+ "negotiationId, accountingDate;"
 		+ "negotiationType, negotiationStatus;"
@@ -46,7 +60,6 @@ import com.powerfin.model.superclass.*;
 		+ "loans{negotiationOutputsLoans}"
 		+ "paytable{negotiationOutputsPaytable}"
 		+ "disbursement{negotiationOutputsDisbursement}"
-		//+ "assets{negotiationOutputsAssets}"
 		+ "}"
 		),
 @View(name="ProcessSaleNegotiation", members="generalInformation[#"
@@ -60,6 +73,21 @@ import com.powerfin.model.superclass.*;
 		+ "loans{negotiationOutputsSalePurchasePortfolio}"
 		+ "sale{negotiationOutputsSale}"
 		+ "}"
+		),
+@View(name="ConsultOriginationNegotiation", members="generalInformation[#"
+		+ "negotiationId, accountingDate;"
+		+ "negotiationType, negotiationStatus;"
+		+ "brokerSequence;"
+		+ "brokerPerson; "
+		+ "debitCreditAccount; "
+		+ "]"
+		+ "purchaseInformation{#"
+		+ "totalPurchaseCapital;"
+		+ "totalPurchaseSpread;"
+		+ "numberOfPurchaseLoans"
+		+ "}"
+		+ "negotiationFiles{negotiationFiles}"
+		+ "loans{purchaseLoans}"
 		),
 @View(name="ConsultPurchaseNegotiation", members="generalInformation[#"
 		+ "negotiationId, accountingDate;"
@@ -95,9 +123,11 @@ import com.powerfin.model.superclass.*;
 @Tabs({ 
 	@Tab(properties="negotiationId, accountingDate, brokerPerson.name, negotiationType.name, negotiationStatus.name " ),
 	@Tab(name="NewNegotiation", properties="negotiationId, accountingDate, brokerPerson.name, negotiationType.name, negotiationStatus.name"),
+	@Tab(name="ProcessOriginationNegotiation", properties="negotiationId, accountingDate, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '003' and ${negotiationStatus.negotiationStatusId} = '001'"),
 	@Tab(name="ProcessPurchaseNegotiation", properties="negotiationId, accountingDate, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '001' and ${negotiationStatus.negotiationStatusId} = '001'"),
 	@Tab(name="ProcessSaleNegotiation", properties="negotiationId, accountingDate, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '002' and ${negotiationStatus.negotiationStatusId} = '001'"),
-	@Tab(name="ConsultPurchaseNegotiation", properties="negotiationId, accountingDate, brokerPerson.name, brokerSequence, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '001'"),
+	@Tab(name="ConsultOriginationNegotiation", properties="negotiationId, accountingDate, brokerPerson.name, brokerSequence, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '003' "),
+	@Tab(name="ConsultPurchaseNegotiation", properties="negotiationId, accountingDate, brokerPerson.name, brokerSequence, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '001' "),
 	@Tab(name="ConsultSaleNegotiation", properties="negotiationId, accountingDate, brokerPerson.name, brokerSequence, negotiationType.name, negotiationStatus.name", baseCondition = "${negotiationType.negotiationTypeId} = '002'")
 })
 public class Negotiation extends AuditEntity implements Serializable {

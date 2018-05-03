@@ -42,6 +42,7 @@ import com.powerfin.util.*;
 					+ "person;"),
 	@View(name="simple", members="accountId, branchName; transactionalNameForView;"),
 	@View(name="simpleBalance", members="accountId; transactionalNameForView; branchName; balance"),
+	@View(name="simpleBlockedBalance", members="accountId; transactionalNameForView; branchName; blockedBalance"),
 	@View(name="normal", members="accountId, code; name;"),
 	@View(name="report", members="accountId, alternateCode; name;"),
 	@View(name="Shareholder", 
@@ -94,7 +95,7 @@ public class Account extends AuditEntity implements Serializable {
 	
 	@Id
 	@Column(name="account_id", unique=true, nullable=false, length=20)
-	@ReadOnly(notForViews="simple, normal, report, reference, simpleBalance, Bank, PurchasePortfolioPayment, SalePortfolioPayment")
+	@ReadOnly(notForViews="simple, normal, report, reference, simpleBalance, simpleBlockedBalance, Bank, PurchasePortfolioPayment, SalePortfolioPayment")
 	@DefaultValueCalculator(DefaultAccountIdCalculator.class)
 	private String accountId;
 
@@ -242,7 +243,7 @@ public class Account extends AuditEntity implements Serializable {
 			throw new OperativeException("the_person_is_required");
 		
 		if (getAccountStatus()==null)
-			throw new OperativeException("the_account_status_is_required");
+			throw new OperativeException("account_status_is_required");
 		
 		AccountHelper.validateSingleAccountByPerson(person.getPersonId(), product.getProductId());
 		
@@ -409,9 +410,15 @@ public class Account extends AuditEntity implements Serializable {
 		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountId);
 		return accountLoan.getInterestRate();
 	}
+	
 	@Transient
 	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(accountId);
+	}
+	
+	@Transient
+	public BigDecimal getBlockedBalance() throws Exception {
+		return BalanceHelper.getBalance(accountId, 0, CategoryHelper.BLOCKED_CATEGORY);
 	}
 	
 	@Transient

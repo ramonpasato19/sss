@@ -11,6 +11,7 @@ import com.powerfin.model.types.*;
 public class CategoryHelper {
 
 	public final static String BALANCE_CATEGORY = "BALANCE";
+	public final static String BLOCKED_CATEGORY = "BLOCKED";
 	public final static String ADVANCE_CATEGORY = "ADVANCE";
 	public final static String ADVANCE_SALE_PORTFOLIO_CATEGORY = "ADVSALPORT";
 	public final static String CHECK_CATEGORY = "CHECK";

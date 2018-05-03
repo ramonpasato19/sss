@@ -13,7 +13,7 @@ public class PrintPrepayments extends ReportBaseAction {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		String productId = (String)getView().getSubview("product").getValue("productId");
+		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");	
 		
@@ -23,12 +23,9 @@ public class PrintPrepayments extends ReportBaseAction {
 		if (toDate==null)
 			throw new OperativeException("to_date_is_required");
 		
-		if (productId==null)
-			throw new OperativeException("product_is_required");
-		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);
-		parameters.put("PRODUCT_ID", productId);
+		parameters.put("BROKER_PERSON_ID", personId);
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		

@@ -1,28 +1,27 @@
-package com.powerfin.actions.accountLoan.originationPortfolio;
+package com.powerfin.actions.person;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-import com.powerfin.helper.AccountLoanHelper;
-import com.powerfin.helper.ActionReportHelper;
-import com.powerfin.helper.CompanyHelper;
-import com.powerfin.util.report.ReportBaseAction;
+import com.powerfin.exception.*;
+import com.powerfin.helper.*;
+import com.powerfin.util.report.*;
 
-import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.*;
 
-public class PrintOverdueBalancesConsolidate extends ReportBaseAction {
-	
+public class PrintSaleInvoice extends ReportBaseAction {
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
+		Integer personId = (Integer)getView().getValue("personId");
+		if (personId==null)
+			throw new OperativeException("person_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("PERSON_ID", personId);
 		addDefaultParameters(parameters);
 		
-		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");
+		Date projectedAccountingDate = (Date)getView().getValue("projectedAccountingDate");
 		if (projectedAccountingDate==null)
 		{
 			projectedAccountingDate = CompanyHelper.getCurrentAccountingDate();
@@ -31,8 +30,6 @@ Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
 		
 		parameters.remove("CURRENT_ACCOUNTING_DATE");
 		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
-		
-		AccountLoanHelper.generateAllOverdueBalancesOriginationPortfolioByBroker(personId, projectedAccountingDate);
 		
 		return parameters;
 	}

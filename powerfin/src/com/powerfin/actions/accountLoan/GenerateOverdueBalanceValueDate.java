@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan.originationPortfolio;
+package com.powerfin.actions.accountLoan;
 
 import java.math.*;
 import java.util.*;
@@ -10,7 +10,7 @@ import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 
-public class GenerateOverdueBalance extends ViewBaseAction {
+public class GenerateOverdueBalanceValueDate extends ViewBaseAction {
 
 	@SuppressWarnings("rawtypes")
 	@Override
@@ -18,6 +18,7 @@ public class GenerateOverdueBalance extends ViewBaseAction {
 		Map keyValues = null;
 		Account account = null;
 		keyValues = getView().getRoot().getSubview("creditAccount").getKeyValuesWithValue();
+		Date accountingDate = null;
 		try
 		{
 			account = (Account)
@@ -29,8 +30,15 @@ public class GenerateOverdueBalance extends ViewBaseAction {
 		
 		BigDecimal totalOverdueBalance = BigDecimal.ZERO;
 		
-		//Obtain list overdue balances
-		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(account);
+		accountingDate = (Date)getView().getRoot().getValue("valueDate");
+		if (accountingDate==null)
+		{
+			accountingDate = CompanyHelper.getCurrentAccountingDate();
+			getView().getRoot().setValue("valueDate",accountingDate);
+		}
+		
+		//Obtain list overdue balances		
+		List<AccountOverdueBalance> overdueBalances = AccountLoanHelper.getOverdueBalances(account, accountingDate, false);
 		
 		for (AccountOverdueBalance overdueBalance:overdueBalances)
 			totalOverdueBalance=totalOverdueBalance.add(overdueBalance.getTotal());

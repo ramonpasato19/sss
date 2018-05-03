@@ -1,24 +1,24 @@
 package com.powerfin.actions.accountLoan.originationPortfolio;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.powerfin.exception.*;
-import com.powerfin.helper.*;
-import com.powerfin.util.report.*;
+import com.powerfin.helper.ActionReportHelper;
+import com.powerfin.helper.CompanyHelper;
+import com.powerfin.util.report.ReportBaseAction;
 
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRDataSource;
 
 public class PrintOvercomeBalances extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		String productId = (String)getView().getSubview("product").getValue("productId");
-		if (productId==null)
-			throw new OperativeException("product_is_required");
+Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
 		
 		Map parameters = new HashMap();
-		parameters.put("PRODUCT_ID", productId);
+		parameters.put("BROKER_PERSON_ID", personId);
 		addDefaultParameters(parameters);
 		
 		Date projectedAccountingDate = (Date)getView().getRoot().getValue("projectedAccountingDate");

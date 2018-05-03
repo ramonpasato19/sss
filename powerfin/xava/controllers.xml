@@ -72,23 +72,27 @@
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalancePP" 
-			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalance"
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalance"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalancePPValueDate" 
-			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalanceValueDate"
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceValueDate"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalancePPForConsult" 
-			class="com.powerfin.actions.accountLoan.purchasePortfolio.GenerateOverdueBalanceForConsult"
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalanceOP" 
-			class="com.powerfin.actions.accountLoan.originationPortfolio.GenerateOverdueBalance"
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalance"
+			hidden="true">
+		</action>
+		<action name="GetOverdueBalanceOPValueDate" 
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceValueDate"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalanceOPForConsult" 
-			class="com.powerfin.actions.accountLoan.originationPortfolio.GenerateOverdueBalanceForConsult"
+			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalanceSP" 
@@ -236,6 +240,12 @@
 			hidden="true"
 			icon="magnify">
 			<set value="${personId} IN (SELECT DISTINCT c.brokerPerson.personId FROM Negotiation c WHERE c.brokerPerson.personId IS NOT NULL AND c.negotiationType.negotiationTypeId = '002')" property="condition"/>
+		</action>
+		<action name="SearchBrokerOriginationPortfolio"
+			class="com.powerfin.actions.search.SearchPerson"
+			hidden="true"
+			icon="magnify">
+			<set value="${personId} IN (SELECT DISTINCT c.brokerPerson.personId FROM Negotiation c WHERE c.brokerPerson.personId IS NOT NULL AND c.negotiationType.negotiationTypeId = '003')" property="condition"/>
 		</action>
 		<action name="SearchInvoices"
 			class="com.powerfin.actions.search.SearchPerson"
@@ -519,6 +529,13 @@
 		<action name="printDailyVariableEvolution" mode="detail"
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
 			<set property="reportName" value="DAILYVARIABLEEVOLUTION"/>
+		</action>
+	</controller>
+	
+	<controller name="AccountingReportControllerByBookAccount">
+		<action name="printOperativeDetail" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportByBookAccountAction" icon="file-excel" image="save.gif" >
+			<set property="reportName" value="OPERATIVEDETAIL"/>
 		</action>
 	</controller>
 	
@@ -1026,6 +1043,11 @@
 		</action>
 		<action name="printAccountInvoiceByDate" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceActiveByDateAction" icon="file-pdf">
+			<set property="reportName" value="ACTIVEINVOICE"/>
+		</action>
+		<action name="printAccountInvoiceByDateConsolidated" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceActiveByDateAction" icon="file-pdf">
+			<set property="reportName" value="ACTIVEINVOICECONSOLIDATED"/>
 		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
@@ -1141,6 +1163,12 @@
 	</controller>
 	<controller name="PersonListController">		
 		<extends controller="RefreshTXController"/>
+		<action name="printActivePurchaseInvoice" mode="detail"
+			class="com.powerfin.actions.person.PrintPurchaseInvoice" icon="file-pdf">
+		</action>
+		<action name="printActiveSaleInvoice" mode="detail"
+			class="com.powerfin.actions.person.PrintSaleInvoice" icon="file-pdf">
+		</action>
 		<action name="printActiveLoans" mode="detail"
 			class="com.powerfin.actions.person.PrintActiveLoans" icon="file-pdf">
 		</action>
@@ -1221,7 +1249,7 @@
 		<extends controller="RefreshTXController"/>
 		<action name="save" 
 			mode="detail" 
-			class="com.powerfin.actions.transaction.TXInvoiceSaleSaveAction"
+			class="com.powerfin.actions.transaction.TXCreditNoteInvoicePurchaseSaveAction"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3" >
@@ -1233,7 +1261,7 @@
 		<extends controller="NewTXController"/>
 		<action name="save" 
 			mode="detail" 
-			class="com.powerfin.actions.accountInvoice.AccountInvoiceSaleSaveAction"
+			class="com.powerfin.actions.accountInvoice.CreditNoteInvoicePurchaseSaveAction"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3">
@@ -1302,7 +1330,7 @@
 		<extends controller="RefreshTXController"/>
 		<action name="save" 
 			mode="detail" 
-			class="com.powerfin.actions.transaction.TXInvoicePurchaseSaveAction"
+			class="com.powerfin.actions.transaction.TXCreditNoteInvoiceSaleSaveAction"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3" >
@@ -1314,7 +1342,7 @@
 		<extends controller="NewTXController"/>
 		<action name="save" 
 			mode="detail" 
-			class="com.powerfin.actions.accountInvoice.AccountInvoicePurchaseSaveAction"
+			class="com.powerfin.actions.accountInvoice.CreditNoteInvoiceSaleSaveAction"
 			icon="content-save" 
 			by-default="if-possible"
 			keystroke="F3">
@@ -2070,15 +2098,36 @@
 		</action>
 	</controller>
 	
+	<controller name="ConsultOriginationNegotiationController">
+		<action name="printOriginationNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintOriginationNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="ORIGINATION_NEGOTIATION" />
+		</action>
+		<action name="printValidateNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintValidateOriginationNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="VALIDATE_ORIGINATION_NEGOTIATION" />
+		</action>
+	</controller>
+	
 	<controller name="ConsultPurchaseNegotiationController">
 		<action name="printPurchaseNegotiation" mode="detail"
 			class="com.powerfin.actions.negotiation.PrintPurchaseNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="PURCHASE_NEGOTIATION" />
+		</action>
+		<action name="printValidateNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintValidatePurchaseNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="VALIDATE_PURCHASE_NEGOTIATION" />
 		</action>
 	</controller>
 	
 	<controller name="ConsultSaleNegotiationController">
 		<action name="printSaleNegotiation" mode="detail"
 			class="com.powerfin.actions.negotiation.PrintSaleNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="SALE_NEGOTIATION" />
+		</action>
+		<action name="printValidateNegotiation" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintValidateSaleNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="VALIDATE_SALE_NEGOTIATION" />
 		</action>
 	</controller>
 	
@@ -2238,7 +2287,13 @@
 			class="org.openxava.actions.SaveAction"
 			image="save.gif"
 			icon="content-save"
-			keystroke="Control S"/>	
+			keystroke="Control S"/>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="csv"/>	
+		</action>		
 	</controller>
 	<controller name="ProcessTransactionBatchController">
 		<action name="collectInformation" 
@@ -2523,4 +2578,48 @@
 		</action>
 	</controller>
 	
+	<!-- BEGIN TXBlocking ######################################## -->
+	<controller name="AuthorizeTXBlockingController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXBlockingSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXBlockingController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXBlockingSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<!-- END TXBlocking ######################################## -->
+
+	<!-- BEGIN TXUnlocking ######################################## -->
+	<controller name="AuthorizeTXUnlockingController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXUnlockingSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXUnlockingController">
+		<extends controller="AuthorizeTXUnlockingController"/>
+		<extends controller="NewTXController"/>
+	</controller>
+	<!-- END TXUnlocking ######################################## -->
+
 </controllers>

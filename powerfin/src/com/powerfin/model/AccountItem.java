@@ -97,6 +97,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@JoinColumn(name="unit_measure", nullable=false)
 	@NoCreate
 	@NoModify
+	@Required
 	private UnitMeasure unitMeasureBean;
 
 

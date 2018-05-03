@@ -1,12 +1,24 @@
 package com.powerfin.model;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.OneToMany;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
-import org.openxava.annotations.*;
-
-import com.powerfin.helper.*;
+import org.openxava.annotations.CollectionView;
+import org.openxava.annotations.Condition;
+import org.openxava.annotations.Editor;
+import org.openxava.annotations.Hidden;
+import org.openxava.annotations.ListAction;
+import org.openxava.annotations.ListActions;
+import org.openxava.annotations.ListProperties;
+import org.openxava.annotations.ReadOnly;
+import org.openxava.annotations.View;
+import org.openxava.annotations.Views;
 
 @Views({ @View(name = "ConsultInvoiceActive", members = "fromDate;" + "toDate;" + "typeInvoice;"
 		+ "Invoices{purchaseInvoices};" + "typeInvoiceSelected; ") })
@@ -25,7 +37,7 @@ public class ViewConsultAccountInvoiceActive {
 	private TypeInvoice typeInvoice;
 
 	public enum TypeInvoice {
-		Purchase, Sale
+		Purchase, Sale, ElectronicSale, Dispatch, ControlIncome, ControlExpense
 	}
 
 	@Transient
@@ -35,45 +47,14 @@ public class ViewConsultAccountInvoiceActive {
 
 	@OneToMany
 	@ReadOnly
-	@ListProperties(value = "account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
+	@ListProperties(value = "account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
 	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
 			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
-	@Condition(value = "${account.product.productType.productTypeId} =  ${this.typeInvoiceSelected} "
+	@Condition(value = "${account.product.productId} =  ${this.typeInvoiceSelected} "
 			+ "and ${account.accountStatus.accountStatusId} in('002','005') "
 			+ "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("ConsultInvoiceActive")
 	private List<AccountInvoice> purchaseInvoices;
-
-	@OneToMany
-	@ReadOnly
-	@ListProperties(value = "account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, accountInvoice.account.code, issueDate")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
-	@Condition(value = "${account.product.productType.productTypeId} ='"
-			+ AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID + "' "
-			+ "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
-	private List<AccountRetention> purchaseRetentions;
-
-	@OneToMany
-	@ReadOnly
-	@ListProperties(value = "account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
-	@Condition(value = "${account.product.productType.productTypeId} ='"
-			+ AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID + "'"
-			+ "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
-	@CollectionView("InvoiceSale")
-	private List<AccountInvoice> saleInvoices;
-
-	@OneToMany
-	@ReadOnly
-	@ListProperties(value = "account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, accountInvoice.account.code, issueDate")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
-	@Condition(value = "${account.product.productType.productTypeId} ='"
-			+ AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID + "' "
-			+ "and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
-	private List<AccountRetention> saleRetentions;
 
 	public ViewConsultAccountInvoiceActive() {
 
@@ -101,30 +82,6 @@ public class ViewConsultAccountInvoiceActive {
 
 	public void setPurchaseInvoices(List<AccountInvoice> purchaseInvoices) {
 		this.purchaseInvoices = purchaseInvoices;
-	}
-
-	public List<AccountInvoice> getSaleInvoices() {
-		return saleInvoices;
-	}
-
-	public void setSaleInvoices(List<AccountInvoice> saleInvoices) {
-		this.saleInvoices = saleInvoices;
-	}
-
-	public List<AccountRetention> getPurchaseRetentions() {
-		return purchaseRetentions;
-	}
-
-	public void setPurchaseRetentions(List<AccountRetention> purchaseRetentions) {
-		this.purchaseRetentions = purchaseRetentions;
-	}
-
-	public List<AccountRetention> getSaleRetentions() {
-		return saleRetentions;
-	}
-
-	public void setSaleRetentions(List<AccountRetention> saleRetentions) {
-		this.saleRetentions = saleRetentions;
 	}
 
 	public TypeInvoice getTypeInvoice() {

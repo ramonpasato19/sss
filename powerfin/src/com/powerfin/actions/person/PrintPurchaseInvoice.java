@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan.salePortfolio;
+package com.powerfin.actions.person;
 
 import java.util.*;
 
@@ -8,18 +8,29 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintBalancingPortfolioDividends extends ReportBaseAction {
+public class PrintPurchaseInvoice extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
+		Integer personId = (Integer)getView().getValue("personId");
 		if (personId==null)
-			throw new OperativeException("broker_is_required");
+			throw new OperativeException("person_is_required");
 		
 		Map parameters = new HashMap();
-		parameters.put("BROKER_PERSON_ID", personId);
+		parameters.put("PERSON_ID", personId);
 		addDefaultParameters(parameters);
+		
+		Date projectedAccountingDate = (Date)getView().getValue("projectedAccountingDate");
+		if (projectedAccountingDate==null)
+		{
+			projectedAccountingDate = CompanyHelper.getCurrentAccountingDate();
+			getView().getRoot().setValue("projectedAccountingDate",projectedAccountingDate);
+		}
+		
+		parameters.remove("CURRENT_ACCOUNTING_DATE");
+		parameters.put("CURRENT_ACCOUNTING_DATE", projectedAccountingDate);
+		
 		return parameters;
 	}
 

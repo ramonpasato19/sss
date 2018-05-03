@@ -1,15 +1,20 @@
 package com.powerfin.actions.accountInvoice;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.sf.jasperreports.engine.*;
+import com.powerfin.exception.OperativeException;
+import com.powerfin.helper.AccountInvoiceHelper;
+import com.powerfin.helper.CompanyHelper;
+import com.powerfin.util.report.ReportBaseAction;
 
-import com.powerfin.helper.*;
-import com.powerfin.util.report.*;
+import net.sf.jasperreports.engine.JRDataSource;
 
 public class PrintAccountInvoiceActiveByDateAction extends ReportBaseAction {
 
 	private String type;
+	private String reportName;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
@@ -29,6 +34,8 @@ public class PrintAccountInvoiceActiveByDateAction extends ReportBaseAction {
 		String type = null;
 		if (getView().getValue("typeInvoice") != null)
 			type = getView().getValue("typeInvoice").toString();
+		else
+			throw new OperativeException("select_the_type_product_invoice");
 
 		Map parameters = new HashMap();
 
@@ -64,9 +71,12 @@ public class PrintAccountInvoiceActiveByDateAction extends ReportBaseAction {
 		this.type = type;
 	}
 
-	@Override
-	protected String getReportName() throws Exception {
-		return ActionReportHelper.getReportByAction(this.getClass().getName());
+	public String getReportName() {
+		return reportName;
+	}
+
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
 	}
 
 }

@@ -7,6 +7,8 @@ import javax.persistence.*;
 
 import org.openxava.annotations.*;
 
+import com.powerfin.model.types.Types;
+
 
 /**
  * The persistent class for the balance_accounting database table.
@@ -110,14 +112,14 @@ public class BalanceAccounting implements Serializable {
 	}
 	
 	public BigDecimal getOfficialBalanceDebit() {
-		if (bookAccount.getGroupAccount().getDebtorOrCreditor().equals("D"))
+		if (bookAccount.getGroupAccount().getDebtorOrCreditor().equals(Types.DebitOrCredit.DEBIT))
 			return this.officialBalance;
 		else 
 			return null;
 	}
 
 	public BigDecimal getOfficialBalanceCredit() {
-		if (bookAccount.getGroupAccount().getDebtorOrCreditor().equals("C"))
+		if (bookAccount.getGroupAccount().getDebtorOrCreditor().equals(Types.DebitOrCredit.CREDIT))
 			return this.officialBalance;
 		else 
 			return null;

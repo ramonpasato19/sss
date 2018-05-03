@@ -130,7 +130,11 @@ public class AccountHelper {
 	public static Account createAccount(String accountId, Product product, Person person, AccountStatus accountStatus,
 			String name, String code, String alternateCode, String transactionalName, Branch branch)  throws Exception 
 	{
-		validateUniqueAccount(person.getPersonId(), product.getProductId(), code);
+		if (person!=null)
+			validateUniqueAccount(person.getPersonId(), product.getProductId(), code);
+		else
+			validateUniqueAccount(CompanyHelper.getDefaultPerson().getPersonId(), product.getProductId(), code);
+		
 		Account a = new Account();
 		a.setAccountId(accountId);
 		a.setProduct(product);

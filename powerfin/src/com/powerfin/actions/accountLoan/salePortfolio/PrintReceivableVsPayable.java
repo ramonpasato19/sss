@@ -1,12 +1,12 @@
 package com.powerfin.actions.accountLoan.salePortfolio;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.powerfin.exception.*;
-import com.powerfin.helper.*;
-import com.powerfin.util.report.*;
+import com.powerfin.helper.ActionReportHelper;
+import com.powerfin.util.report.ReportBaseAction;
 
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRDataSource;
 
 public class PrintReceivableVsPayable extends ReportBaseAction {
 
@@ -14,8 +14,6 @@ public class PrintReceivableVsPayable extends ReportBaseAction {
 	public Map getParameters() throws Exception {
 
 		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
 		
 		Map parameters = new HashMap();
 		parameters.put("BROKER_PERSON_ID", personId);

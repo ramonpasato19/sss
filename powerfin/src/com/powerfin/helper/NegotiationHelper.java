@@ -16,6 +16,10 @@ public class NegotiationHelper {
 	public final static String FILE_TYPE_ID_DISBURSEMENT = "004";
 	public final static String FILE_TYPE_ID_PROCESS_SALE_PORTFOLIO = "101";
 	public final static String FILE_TYPE_ID_SALE = "102";
+	
+	public final static String PURCHASE_NEGOTIATION = "001";
+	public final static String SALE_NEGOTIATION = "002";
+	public final static String ORIGINATION_NEGOTIATION = "003";
 		
 	public final static Integer PERSON_FILE_NUM_COLUMNS = 18;
 	public final static Integer LOAN_FILE_NUM_COLUMNS = 19;

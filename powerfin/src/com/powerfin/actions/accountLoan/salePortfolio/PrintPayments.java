@@ -1,12 +1,14 @@
 package com.powerfin.actions.accountLoan.salePortfolio;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.powerfin.exception.*;
-import com.powerfin.helper.*;
-import com.powerfin.util.report.*;
+import com.powerfin.exception.OperativeException;
+import com.powerfin.helper.ActionReportHelper;
+import com.powerfin.util.report.ReportBaseAction;
 
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRDataSource;
 
 public class PrintPayments extends ReportBaseAction {
 
@@ -22,9 +24,6 @@ public class PrintPayments extends ReportBaseAction {
 		
 		if (toDate==null)
 			throw new OperativeException("to_date_is_required");
-		
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
 		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);

@@ -14,6 +14,11 @@
 		<controller name="AccountingReportController" />
 		<mode-controller name="DetailOnly" />
 	</module>
+	<module name="AccountingReportByBookAccount">
+		<model name="ViewAccountingReportByBookAccount" />
+		<controller name="AccountingReportControllerByBookAccount" />
+		<mode-controller name="DetailOnly" />
+	</module>
 	<module name="BalanceAccountingGenerate">
 		<model name="BalanceAccountingGenerate" />
 		<controller name="BalanceAccountingGenerateController" />
@@ -705,6 +710,14 @@
 		<view name="ProcessPurchaseNegotiation" />
 		<mode-controller name="DetailList" />
 	</module>
+	<module name="ProcessOriginationNegotiation">
+		<model name="Negotiation" />
+		<controller name="ProcessPurchaseNegotiationButtonBarController" />
+		<controller name="ProcessPurchaseNegotiationTopBarController" />
+		<tab name="ProcessOriginationNegotiation" />
+		<view name="ProcessOriginationNegotiation" />
+		<mode-controller name="DetailList" />
+	</module>
 	<module name="ConsultAccountLoan">
 		<model name="AccountLoan" />
 		<controller name="ConsultAccountLoanController" />
@@ -738,6 +751,13 @@
 		<controller name="ConsultSalePortfolioController" />
 		<tab name="ConsultSalePortfolio" />
 		<view name="ConsultSalePortfolio" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="ConsultOriginationNegotiation">
+		<model name="Negotiation" />
+		<controller name="ConsultOriginationNegotiationController" />
+		<tab name="ConsultOriginationNegotiation" />
+		<view name="ConsultOriginationNegotiation" />
 		<mode-controller name="DetailList" />
 	</module>
 	<module name="ConsultPurchaseNegotiation">
@@ -1018,4 +1038,39 @@
 	</module>
 
 <!-- END GESTION DE COBRANZAS -->
+
+<!-- BEGIN TXBlocking ######################################## -->
+	<module name="RequestTXBlocking">
+		<model name="Transaction" />
+		<controller name="RequestTXBlockingController" />
+		<view name="RequestTXBlocking" />
+		<tab name="TXBlocking" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXBlocking">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXBlockingController" />
+		<view name="AuthorizeTXBlocking" />
+		<tab name="TXBlocking" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXBlocking ######################################## -->
+
+<!-- BEGIN TXUnlocking ######################################## -->
+	<module name="RequestTXUnlocking">
+		<model name="Transaction" />
+		<controller name="RequestTXUnlockingController" />
+		<view name="RequestTXUnlocking" />
+		<tab name="TXUnlocking" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXUnlocking">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXUnlockingController" />
+		<view name="AuthorizeTXUnlocking" />
+		<tab name="TXUnlocking" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXUnlocking ######################################## -->
+
 </application>

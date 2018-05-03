@@ -60,7 +60,11 @@ public class AccountLoanHelper {
 				+ "WHERE a.account_id = p.account_id "
 				+ "AND a.account_status_id  = '002' "
 				+ "AND p.purchase_negotiation_id = n.negotiation_id "
-				+ "AND n.broker_person_id = "+brokerPersonId;
+				+ "AND n.negotiation_type_id = '001' ";
+				
+		
+		if (brokerPersonId != null)
+			queryAccount = queryAccount + "AND n.broker_person_id = "+brokerPersonId;
 		
 		generateOverdueBalances(queryAccount, accountingDate, false);
 	}
@@ -94,7 +98,29 @@ public class AccountLoanHelper {
 				+ "WHERE a.account_id = p.account_id "
 				+ "AND p.sale_status_id  = '002' "
 				+ "AND p.sale_negotiation_id = n.negotiation_id "
-				+ "AND n.broker_person_id = "+brokerPersonId;
+				+ "AND n.negotiation_type_id = '002' ";
+		
+		if (brokerPersonId != null)
+			queryAccount = queryAccount + "AND n.broker_person_id = "+brokerPersonId;
+		
+		generateOverdueBalancesSalePortfolio(queryAccount, accountingDate, false);
+	}
+	
+	public static void generateAllOverdueBalancesOriginationPortfolioByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
+		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
+		if (projectedAccountingDate!=null)
+			accountingDate = projectedAccountingDate;
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
+		
+		String queryAccount = "SELECT a.account_id "
+				+ "FROM "+schema+".account a, "+schema+".account_portfolio p, "+schema+".negotiation n "
+				+ "WHERE a.account_id = p.account_id "
+				+ "AND a.account_status_id  = '002' "
+				+ "AND p.purchase_negotiation_id = n.negotiation_id "
+				+ "AND n.negotiation_type_id = '003' ";
+		
+		if (brokerPersonId != null)
+			queryAccount = queryAccount + "AND n.broker_person_id = "+brokerPersonId;
 		
 		generateOverdueBalancesSalePortfolio(queryAccount, accountingDate, false);
 	}

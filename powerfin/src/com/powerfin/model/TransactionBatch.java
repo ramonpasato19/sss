@@ -89,6 +89,7 @@ public class TransactionBatch extends AuditEntity implements Serializable {
 
 	//bi-directional many-to-one association to BatchProcessDetail
 	@OneToMany(mappedBy="transactionBatch")
+	@ListAction("NewTransactionBatchController.generateExcel")
 	@ListProperties("line, detail,transactionBatchStatus.name, errorMessage")
 	@ReadOnly
 	private List<TransactionBatchDetail> transactionBatchDetails;
