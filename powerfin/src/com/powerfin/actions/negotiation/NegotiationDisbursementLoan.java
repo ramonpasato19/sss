@@ -122,6 +122,7 @@ public class NegotiationDisbursementLoan {
 		        					}
 		        					
 		        					//insurance
+		        					/*
 		        					if (quota.getInsurance()!=null && quota.getInsurance().compareTo(BigDecimal.ZERO)>0)
 		        					{
 			        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsurance(), transaction, CategoryHelper.getCategoryById(CategoryHelper.INSURANCE_RECEIVABLE_CATEGORY), quota.getDueDate());
@@ -132,8 +133,9 @@ public class NegotiationDisbursementLoan {
 			        					ta.setRemark(XavaResources.getString("insurance_quota_number", quota.getSubaccount()));
 			        					transactionAccounts.add(ta);
 		        					}
-		        					
+		        					*/
 		        					//insurance_mortgage
+		        					/*
 		        					if (quota.getInsuranceMortgage()!=null && quota.getInsuranceMortgage().compareTo(BigDecimal.ZERO)>0)
 		        					{
 			        					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, quota.getSubaccount(), quota.getInsuranceMortgage(), transaction, CategoryHelper.getCategoryById(CategoryHelper.MORTGAGE_RECEIVABLE_CATEGORY), quota.getDueDate());
@@ -144,7 +146,7 @@ public class NegotiationDisbursementLoan {
 			        					ta.setRemark(XavaResources.getString("insurance_mortgage_quota_number", quota.getSubaccount()));
 			        					transactionAccounts.add(ta);
 		        					}
-		        					
+		        					*/
 		        				}
 		        				
 		        				//spread_purchase

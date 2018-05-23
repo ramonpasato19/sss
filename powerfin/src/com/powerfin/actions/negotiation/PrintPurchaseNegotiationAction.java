@@ -1,16 +1,18 @@
 package com.powerfin.actions.negotiation;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.powerfin.exception.*;
-import com.powerfin.helper.*;
-import com.powerfin.util.report.*;
+import com.powerfin.exception.OperativeException;
+import com.powerfin.util.report.ReportBaseAction;
 
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRDataSource;
 
 
 public class PrintPurchaseNegotiationAction extends ReportBaseAction {
 
+	private String reportName;
+	
 	@SuppressWarnings({ "rawtypes", "unchecked"})
 	public Map getParameters() throws Exception {
 
@@ -35,8 +37,12 @@ public class PrintPurchaseNegotiationAction extends ReportBaseAction {
 		return null;
 	}
 
-	@Override
-	protected String getReportName() throws Exception {
-		return ActionReportHelper.getReportByAction(this.getClass().getName());
+	public String getReportName() {
+		return reportName;
 	}
+
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
+	}
+
 }

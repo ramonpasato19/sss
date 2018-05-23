@@ -11,6 +11,8 @@ import net.sf.jasperreports.engine.*;
 
 public class PrintSaleNegotiationAction extends ReportBaseAction {
 
+	private String reportName;
+	
 	@SuppressWarnings({ "rawtypes", "unchecked"})
 	public Map getParameters() throws Exception {
 
@@ -35,8 +37,11 @@ public class PrintSaleNegotiationAction extends ReportBaseAction {
 		return null;
 	}
 
-	@Override
-	protected String getReportName() throws Exception {
-		return ActionReportHelper.getReportByAction(this.getClass().getName());
+	public String getReportName() {
+		return reportName;
+	}
+
+	public void setReportName(String reportName) {
+		this.reportName = reportName;
 	}
 }

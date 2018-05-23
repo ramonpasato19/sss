@@ -9,6 +9,7 @@ import org.openxava.util.*;
 import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
+import com.powerfin.model.types.Types;
 
 public class TXSalePortfolioPaymentSaveAction extends TXSaveAction {
 
@@ -120,7 +121,7 @@ public class TXSalePortfolioPaymentSaveAction extends TXSaveAction {
 							+ "ORDER BY ap.subaccount")
 					.setParameter("accountId", transaction.getDebitAccount().getAccountId())
 					.setParameter("transactionId", transaction.getTransactionId())
-					.setParameter("debitOrCredit", "D")
+					.setParameter("debitOrCredit", Types.DebitOrCredit.DEBIT)
 					.getResultList();
 			
 			for (AccountSoldPaytable accountPaytable: accountPaytables)

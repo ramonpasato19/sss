@@ -48,7 +48,7 @@ public class AccountLoanHelper {
 		
 	}
 	
-	public static void generateAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate) {
+	public static void generateAllOverdueBalancesByBroker(Integer brokerPersonId, Date projectedAccountingDate, boolean forPrepayment) {
 		
 		Date accountingDate = CompanyHelper.getCurrentAccountingDate();
 		if (projectedAccountingDate!=null)
@@ -66,7 +66,7 @@ public class AccountLoanHelper {
 		if (brokerPersonId != null)
 			queryAccount = queryAccount + "AND n.broker_person_id = "+brokerPersonId;
 		
-		generateOverdueBalances(queryAccount, accountingDate, false);
+		generateOverdueBalances(queryAccount, accountingDate, forPrepayment);
 	}
 	
 	public static void generateAllOverdueBalancesByPerson(Integer personId, Date projectedAccountingDate) {
