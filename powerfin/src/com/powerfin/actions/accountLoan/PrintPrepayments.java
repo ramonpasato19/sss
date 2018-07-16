@@ -23,9 +23,6 @@ public class PrintPrepayments extends ReportBaseAction {
 		if (toDate==null)
 			throw new OperativeException("to_date_is_required");
 		
-		if (productId==null)
-			throw new OperativeException("product_is_required");
-		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);
 		parameters.put("PRODUCT_ID", productId);

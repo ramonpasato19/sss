@@ -6,6 +6,8 @@ import javax.persistence.*;
 
 import org.openxava.annotations.*;
 
+import com.powerfin.model.types.Types;
+
 
 /**
  * The persistent class for the transaction_module database table.
@@ -18,7 +20,9 @@ import org.openxava.annotations.*;
 			+ "name;"
 			+ "prefix, lpad, sequenceDBName, rpad, sufix;"
 			+ "financialTransactionStatus;"
-			+ "defaultTransactionStatus"),
+			+ "defaultTransactionStatus;"
+			+ "allowsBatchProcess;"
+			+ "allowsReverseTransaction"),
 	@View(name="simple",
 	members="transactionModuleId;"
 			+ "name"),
@@ -51,6 +55,14 @@ public class TransactionModule implements Serializable {
 	@Column(name="sequence_db_name", length=50)
 	private String sequenceDBName;
 
+	@Column(name="allows_batch_process")
+	@Required
+	private Types.YesNoIntegerType allowsBatchProcess;
+	
+	@Column(name="allows_reverse_transaction")
+	@Required
+	private Types.YesNoIntegerType allowsReverseTransaction;
+	
 	//bi-directional many-to-one association to TransactionStatus
 	@ManyToOne
 	@JoinColumn(name="financial_transaction_status_id", nullable=false)
@@ -143,4 +155,21 @@ public class TransactionModule implements Serializable {
 			TransactionStatus defaultTransactionStatus) {
 		this.defaultTransactionStatus = defaultTransactionStatus;
 	}
+
+	public Types.YesNoIntegerType getAllowsBatchProcess() {
+		return allowsBatchProcess;
+	}
+
+	public void setAllowsBatchProcess(Types.YesNoIntegerType allowsBatchProcess) {
+		this.allowsBatchProcess = allowsBatchProcess;
+	}
+
+	public Types.YesNoIntegerType getAllowsReverseTransaction() {
+		return allowsReverseTransaction;
+	}
+
+	public void setAllowsReverseTransaction(Types.YesNoIntegerType allowsReverseTransaction) {
+		this.allowsReverseTransaction = allowsReverseTransaction;
+	}
+	
 }

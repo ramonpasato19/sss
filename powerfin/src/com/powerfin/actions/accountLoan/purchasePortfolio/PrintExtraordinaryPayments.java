@@ -23,9 +23,6 @@ public class PrintExtraordinaryPayments extends ReportBaseAction {
 		if (toDate==null)
 			throw new OperativeException("to_date_is_required");
 		
-		if (personId==null)
-			throw new OperativeException("broker_is_required");
-		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);
 		parameters.put("BROKER_PERSON_ID", personId);

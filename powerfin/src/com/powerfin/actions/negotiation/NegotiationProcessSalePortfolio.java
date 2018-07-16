@@ -70,7 +70,7 @@ public class NegotiationProcessSalePortfolio {
 		        		if(accountPortfolio == null)
 		            		validationMessages=XavaResources.getString("account_portfolio_not_found", loanDTO.getOriginalAccount());
 		        		
-		        		if(accountPortfolio.getSaleStatus().getAccountStatusId() == AccountLoanHelper.PURCHASE_SALE_STATUS_ACTIVE)
+		        		if(accountPortfolio.getAccountPortfolioStatus().getAccountPortfolioStatusId().equals(AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID))
 		            		validationMessages=XavaResources.getString("account_already_sale", loanDTO.getOriginalAccount());
 		        		
 		        		if(accountLoan == null)

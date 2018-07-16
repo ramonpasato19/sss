@@ -19,7 +19,7 @@ import com.powerfin.model.types.Types.*;
 @Entity
 @Table(name="company")
 @Views({
-	@View(members="companyId;name;oxorganizationId;accountingDate;person;officialCurrency"),
+	@View(members="companyId;name;oxorganizationId;accountingDate;person;officialCurrency; documents{electronicSignatureFile}"),
 	@View(name="AccountingClosingDay", members="companyId; name; accountingDate; nextAccountingDate; batchProcesses"),
 	@View(name="Backup", members="companyId; name; oxorganizationId; currentAccountingDate; output"),
 	@View(name="Log", members="companyId; accountingDate; name; oxorganizationId; lines; output")
@@ -42,6 +42,10 @@ public class Company implements Serializable {
 	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private String name;
 
+	@Stereotype("FILE")
+	@Column(nullable=true, length=32, name="electronic_signature_file")
+	private String electronicSignatureFile;
+	
 	@Column(name="oxorganization_id", length=50)
 	@ReadOnly(forViews="AccountingClosingDay, Backup, Log")
 	private String oxorganizationId;
@@ -190,6 +194,14 @@ public class Company implements Serializable {
 
 	public void setLines(Integer lines) {
 		this.lines = lines;
+	}
+
+	public String getElectronicSignatureFile() {
+		return electronicSignatureFile;
+	}
+
+	public void setElectronicSignatureFile(String electronicSignatureFile) {
+		this.electronicSignatureFile = electronicSignatureFile;
 	}
 
 }

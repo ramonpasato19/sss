@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountInvoice;
+package com.powerfin.actions.accountRetention;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.Map;
 import com.powerfin.helper.ActionReportHelper;
 import com.powerfin.util.report.ReportBaseAction;
 
-public class PrinterInvoice extends ReportBaseAction{
+public class PrintRetention extends ReportBaseAction{
 	
 	@SuppressWarnings({ "rawtypes", "unchecked"})
 	public Map getParameters() throws Exception {

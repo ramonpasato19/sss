@@ -20,9 +20,9 @@ import org.openxava.annotations.ReadOnly;
 import org.openxava.annotations.View;
 import org.openxava.annotations.Views;
 
-@Views({ @View(name = "ConsultInvoiceActive", members = "fromDate;" + "toDate;" + "typeInvoice;"
+@Views({ @View(name = "InvoiceActiveReport", members = "fromDate;" + "toDate;" + "typeInvoice;"
 		+ "Invoices{purchaseInvoices};" + "typeInvoiceSelected; ") })
-public class ViewConsultAccountInvoiceActive {
+public class ViewAccountInvoiceReportActive {
 
 	@Column
 	@Temporal(TemporalType.DATE)
@@ -48,15 +48,15 @@ public class ViewConsultAccountInvoiceActive {
 	@OneToMany
 	@ReadOnly
 	@ListProperties(value = "account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
+	@ListActions({ @ListAction("PurchaseInvoiceReportController.generatePdf"),
+			@ListAction("PurchaseInvoiceReportController.generateExcel") })
 	@Condition(value = "${account.product.productId} =  ${this.typeInvoiceSelected} "
 			+ "and ${account.accountStatus.accountStatusId} in('002','005') "
 			+ "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
-	@CollectionView("ConsultInvoiceActive")
+	@CollectionView("InvoiceActiveReport")
 	private List<AccountInvoice> purchaseInvoices;
 
-	public ViewConsultAccountInvoiceActive() {
+	public ViewAccountInvoiceReportActive() {
 
 	}
 

@@ -1,4 +1,4 @@
-package com.powerfin.actions.negotiation;
+package com.powerfin.actions.accountLoan;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,22 +8,22 @@ import com.powerfin.util.report.ReportBaseAction;
 
 import net.sf.jasperreports.engine.JRDataSource;
 
-
-public class PrintSaleNegotiationAction extends ReportBaseAction {
+public class PrintAccountLoanDocuments extends ReportBaseAction {
 
 	private String reportName;
 	
-	@SuppressWarnings({ "rawtypes", "unchecked"})
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		Integer negotiationId = (Integer)getView().getValue("negotiationId");
-		if (negotiationId==null)
-			throw new OperativeException("negotiation_id_is_required");
-
-		Map parameters = new HashMap();
 		
+		String accountId = (String)getView().getValue("accountId");
+		if (accountId==null)
+			throw new OperativeException("account_is_required");
+				
+		Map parameters = new HashMap();
+		parameters.put("ACCOUNT_ID", accountId);
 		addDefaultParameters(parameters);
-		parameters.put("NEGOTIATION_ID", negotiationId);
+		
 		return parameters;
 	}
 
@@ -44,4 +44,5 @@ public class PrintSaleNegotiationAction extends ReportBaseAction {
 	public void setReportName(String reportName) {
 		this.reportName = reportName;
 	}
+	
 }

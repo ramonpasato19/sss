@@ -1,4 +1,4 @@
-package com.powerfin.actions.account;
+package com.powerfin.actions.balanceAccounting;
 
 import java.util.*;
 
@@ -8,18 +8,16 @@ import com.powerfin.exception.*;
 import com.powerfin.helper.*;
 import com.powerfin.util.report.*;
 
-public class PrintAccountMovementAction extends ReportBaseAction {
+public class PrintAccountingDailyBookAction extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked"})
 	public Map getParameters() throws Exception {
 
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");
-		String accountId = getView().getSubview("account").getValueString("accountId");
-		Map<String, String> mapCategories = (Map<String, String>) getView().getValue("category");
-		String categoryId = (String)mapCategories.get("categoryId");
-		
+		String bookAccountId = getView().getSubview("bookAccount").getValueString("bookAccountId");
 		Calendar initialBalanceDate = Calendar.getInstance();
+		
 		
 		if (fromDate==null)
 			fromDate = CompanyHelper.getCurrentAccountingDate();
@@ -33,13 +31,12 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		initialBalanceDate.setTime(fromDate);
 		initialBalanceDate.add(Calendar.DAY_OF_MONTH, -1);
 		
-		if (accountId==null)
-			throw new OperativeException("account_is_required");
+		if (bookAccountId==null)
+			throw new OperativeException("book_account_is_required");
 		Map parameters = new HashMap();
 		
 		addDefaultParameters(parameters);
-		parameters.put("ACCOUNT", accountId);
-		parameters.put("CATEGORY", categoryId);
+		parameters.put("BOOK_ACCOUNT", bookAccountId);
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		parameters.put("INITIAL_BALANCE_DATE", initialBalanceDate.getTime());

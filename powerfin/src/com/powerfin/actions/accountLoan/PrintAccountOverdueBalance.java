@@ -55,4 +55,6 @@ public class PrintAccountOverdueBalance extends ReportBaseAction {
 	protected String getReportName() throws Exception {
 		return ActionReportHelper.getReportByAction(this.getClass().getName());
 	}
+	
+	
 }

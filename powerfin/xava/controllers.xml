@@ -3,6 +3,36 @@
 <!DOCTYPE controllers SYSTEM "dtds/controllers.dtd">
 
 <controllers>
+	
+	<controller name="AppDefaultModule">
+		<extends controller="TypicalRealExcel"/>
+		<action name="save" mode="detail"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			by-default="if-possible"
+			keystroke="F3">			
+			<set property="resetAfter" value="false"/>
+		</action>				
+	</controller>
+	
+	<controller name="AppPrint">
+		<action name="generatePdf" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			image="pdf.gif"
+			icon="file-pdf"
+			keystroke="Control Alt P">
+			<set property="type" value="pdf"/>
+		</action>
+		<action name="generateExcel" mode="list"
+			class="org.openxava.actions.GenerateReportAction"
+			image="excel.gif"
+			icon="file-excel"
+			keystroke="Control Alt X">
+			<set property="type" value="xls"/>	
+		</action>
+	</controller>
+	
 	<controller name="DefaultListActionsForCollections">
 	</controller>
 	
@@ -81,6 +111,14 @@
 		</action>
 		<action name="GetOverdueBalancePPForConsult" 
 			class="com.powerfin.actions.accountLoan.GenerateOverdueBalanceForConsult"
+			hidden="true">
+		</action>
+		<action name="GetPrepaymentBalancePP" 
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.GeneratePrepaymentBalance"
+			hidden="true">
+		</action>
+		<action name="GetPrepaymentBalancePPValueDate" 
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.GeneratePrepaymentBalanceValueDate"
 			hidden="true">
 		</action>
 		<action name="GetOverdueBalanceOP" 
@@ -323,7 +361,7 @@
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
 			icon="magnify">
-			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} = '002' " property="condition"/>
+			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} in ('001','002') " property="condition"/>
 		</action>
 		<action name="SearchInvoicePurchaseActiveCancel" 
 			class="com.powerfin.actions.search.SearchAccountInvoice"
@@ -354,6 +392,12 @@
 			hidden="true"
 			icon="magnify">
 			<set value="CREDITPAYABLE" property="transactionModuleId"/>
+		</action>
+		<action name="SearchAccountToAdjustmenOtherLoanBalances" 
+			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
+			hidden="true"
+			icon="magnify">
+			<set value="ADJUSTMENTOTHERLOANBALANCES" property="transactionModuleId"/>
 		</action>
 		<action name="SearchAccountToDebitPayable" 
 			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
@@ -476,7 +520,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
@@ -491,6 +535,9 @@
 		<action name="printAccountingLedger" mode="detail"
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" icon="file-pdf">
 		</action>
+		<action name="printAccountingDailyBook" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingDailyBookAction" icon="file-pdf">
+		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-pdf"
@@ -501,7 +548,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
@@ -715,6 +762,9 @@
 		<action name="printReceipts" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceipts" icon="file-pdf" image="save.gif" >
 		</action>
+		<action name="printReceiptsGroupOverdueDays" mode="detail"
+			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintReceiptsGroupOverdueDays" icon="file-pdf" image="save.gif" >
+		</action>
 		<action name="printExtraordinaryPayments" mode="detail"
 			class="com.powerfin.actions.accountLoan.purchasePortfolio.PrintExtraordinaryPayments" icon="file-pdf">
 		</action>
@@ -789,6 +839,11 @@
 		</action>
 		<action name="printAccountMovement" mode="detail"
 			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-pdf">
+			<set property="format" value="pdf"/>
+		</action>
+		<action name="printAccountMovementEXCEL" mode="detail"
+			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-excel">
+			<set property="format" value="excel"/>
 		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
@@ -800,7 +855,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
@@ -814,6 +869,11 @@
 		</action>
 		<action name="printAccountMovement" mode="detail"
 			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-pdf">
+			<set property="format" value="pdf"/>
+		</action>
+		<action name="printAccountMovementEXCEL" mode="detail"
+			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-excel">
+			<set property="format" value="excel"/>
 		</action>
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
@@ -825,7 +885,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
@@ -957,15 +1017,21 @@
 <!-- END TXTransferReceived ######################################## -->
 
 <!-- BEGIN Invoice ######################################## -->
-	<controller name="InvoicePurchaseListController">		
+	<controller name="ConsultInvoicePurchaseController">		
 		<extends controller="RefreshTXController"/>
+		<action name="printerInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" >
+		</action>
 	</controller>
 	
-	<controller name="InvoiceSaleListController">
+	<controller name="ConsultInvoiceSaleController">
 		<extends controller="RefreshTXController"/>
+		<action name="printerInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" >
+		</action>
 	</controller>
 	
-	<controller name="ConsultPurchaseInvoiceController">
+	<controller name="PurchaseInvoiceReportController">
 		<action name="consult" 
 			mode="detail" 
 			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByDate"
@@ -995,11 +1061,11 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
-	<controller name="ConsultSaleInvoiceController">
+	<controller name="SaleInvoiceReportController">
 		<action name="consult" 
 			mode="detail" 
 			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByDate"
@@ -1029,11 +1095,11 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
-	<controller name="ConsultInvoiceActiveController">
+	<controller name="InvoiceActiveReportController">
 		<action name="consult" 
 			mode="detail" 
 			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByState"
@@ -1059,7 +1125,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 <!-- END Invoice ######################################## -->
@@ -1229,6 +1295,20 @@
 			<set property="resetAfter" value="false" />
 		</action>
 	</controller>
+	
+	<controller name="IssueElectronicRetentionPurchaseController">
+		<extends controller="RefreshTXController"/>
+		<action name="issue" 
+			mode="detail" 
+			class="com.powerfin.actions.accountRetention.IssueElectronicRetentionPurchaseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="RETENTION_PURCHASE" />
+		</action>
+	</controller>
+	
 	<controller name="RequestTXRetentionPurchaseController">
 		<extends controller="RefreshTXController"/>
 		<extends controller="NewTXController"/>
@@ -1281,6 +1361,21 @@
 			by-default="if-possible"
 			keystroke="F3" >
 			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="IssueElectronicInvoiceSaleController">
+		<extends controller="RefreshTXController"/>
+		<action name="issue" 
+			mode="detail" 
+			class="com.powerfin.actions.accountInvoice.IssueElectronicInvoiceSaleSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+			<set property="transactionModuleId" value="INVOICE_SALE" />
+		</action>
+		<action name="printerInvoice" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrinterInvoice" icon="file-pdf" >
 		</action>
 	</controller>
 	<controller name="RequestTXInvoiceSaleController">
@@ -1793,6 +1888,21 @@
 			<set property="resetAfter" value="false" />
 		</action>
 	</controller>
+	<controller name="PrintDocumentsAccountLoanController">
+		<extends controller="RefreshTXController"/>
+		<action name="printContract" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountLoanDocuments"  icon="file-pdf">
+			<set property="reportName" value="LOAN_CONTRACT" />
+		</action>
+		<action name="printPay" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountLoanDocuments"  icon="file-pdf">
+			<set property="reportName" value="LOAN_PAY" />
+		</action>
+		<action name="printPaytable" mode="detail"
+			class="com.powerfin.actions.accountLoan.PrintAccountLoanDocuments"  icon="file-pdf">
+			<set property="reportName" value="LOAN_PAYTABLE" />
+		</action>
+	</controller>
 	<controller name="AuthorizeTXAccountLoanController">
 		<extends controller="RefreshTXController"/>
 		<action name="save" 
@@ -2126,8 +2236,12 @@
 			<set property="reportName" value="SALE_NEGOTIATION" />
 		</action>
 		<action name="printValidateNegotiation" mode="detail"
-			class="com.powerfin.actions.negotiation.PrintValidateSaleNegotiationAction"  icon="file-pdf">
+			class="com.powerfin.actions.negotiation.PrintSaleNegotiationAction"  icon="file-pdf">
 			<set property="reportName" value="VALIDATE_SALE_NEGOTIATION" />
+		</action>
+		<action name="printEndorsements" mode="detail"
+			class="com.powerfin.actions.negotiation.PrintSaleNegotiationAction"  icon="file-pdf">
+			<set property="reportName" value="ENDORSEMENTS" />
 		</action>
 	</controller>
 	
@@ -2198,6 +2312,28 @@
 			<set property="resetAfter" value="false" />
 		</action>
 	</controller>
+	
+	<controller name="AuthorizeTXPurchasePortfolioPrepaymentController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPrepaymentSaveAction"
+			icon="content-save"
+			by-default="if-possible">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXPurchasePortfolioPrepaymentController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPrepaymentSaveAction"
+			icon="content-save" 
+			by-default="if-possible">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
 <!-- END TXPurchasePortfolioPayment ######################################## -->
 
 <!-- BEGIN TXPurchasePortfolioPaymentValueDate ######################################## -->
@@ -2224,6 +2360,31 @@
 			<set property="resetAfter" value="false" />
 		</action>
 	</controller>
+	
+	<controller name="AuthorizeTXPurchasePortfolioPrepaymentValueDateController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPrepaymentValueDateSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXPurchasePortfolioPrepaymentValueDateController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXPurchasePortfolioPrepaymentValueDateSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
 <!-- END TXPurchasePortfolioPaymentValueDate ######################################## -->
 
 <!-- BEGIN TXSalePortfolioPayment ######################################## -->
@@ -2292,7 +2453,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>		
 	</controller>
 	<controller name="ProcessTransactionBatchController">
@@ -2374,7 +2535,7 @@
 			keystroke="Control S"/>
 	</controller>
 	
-	<controller name="ConsultInvoiceLotsController">
+	<controller name="AccountItemLotsReportController">
 		<action name="consult" 
 			mode="detail" 
 			class="com.powerfin.actions.inventory.FindAccountLots"
@@ -2392,11 +2553,11 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
-	<controller name="ConsultInvoicePersonController">
+	<controller name="InvoicePersonReportController">
 		<action name="consult" 
 			mode="detail" 
 			class="com.powerfin.actions.accountInvoice.FindAccountInvoiceByPerson"
@@ -2414,7 +2575,7 @@
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-excel"
 			keystroke="Control Alt X">
-			<set property="type" value="csv"/>	
+			<set property="type" value="xls"/>	
 		</action>
 	</controller>
 	
@@ -2617,9 +2778,142 @@
 		</action>
 	</controller>
 	<controller name="RequestTXUnlockingController">
-		<extends controller="AuthorizeTXUnlockingController"/>
+		<extends controller="RefreshTXController"/>
 		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXUnlockingSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
 	</controller>
 	<!-- END TXUnlocking ######################################## -->
+	
+	
+	<controller name="ConsultAccountPaytableController">
+		<extends controller="AppPrint"/>
+	</controller>
+	
+	<controller name="UpdateAccountDataController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="UpdateAccountPaytableController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" mode="detail"
+			by-default="if-possible"
+			class="org.openxava.actions.SaveAction"
+			image="save.gif"
+			icon="content-save"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="AuthorizeTXTransactionController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXReverseSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXTransactionController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail"
+			class="com.powerfin.actions.transaction.TXReverseSaveAction"
+			icon="content-save"
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
 
+	<controller name="ConsultRetentionPurchaseController">		
+		<extends controller="RefreshTXController"/>
+		<action name="printRetention" mode="detail"
+			class="com.powerfin.actions.accountRetention.PrintRetention" icon="file-pdf" >
+		</action>
+	</controller>
+	
+	<controller name="ConsultRetentionSaleController">		
+		<extends controller="RefreshTXController"/>
+		<action name="printRetention" mode="detail"
+			class="com.powerfin.actions.accountRetention.PrintRetention" icon="file-pdf" >
+		</action>
+	</controller>
+	
+	<controller name="AuthorizeTXAdjustmentInsuranceBalancesController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdjustmentInsuranceBalancesSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXAdjustmentInsuranceBalancesController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdjustmentInsuranceBalancesSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="AuthorizeTXAdjustmentOtherBalancesController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdjustmentOtherBalancesSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXAdjustmentOtherBalancesController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXAdjustmentOtherBalancesSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	
+	<controller name="ConsultTransactionController">		
+		<extends controller="RefreshTXController"/>
+		<action name="printAccountingEntry" mode="detail"
+			class="com.powerfin.actions.transaction.PrintAccountingEntryAction" icon="file-pdf">
+		</action>
+		<action name="printOperativeEntry" mode="detail"
+			class="com.powerfin.actions.transaction.PrintOperativeEntryAction" icon="file-pdf">
+		</action>
+	</controller>
+	
 </controllers>

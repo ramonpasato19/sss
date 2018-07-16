@@ -6,7 +6,7 @@ import javax.persistence.*;
 import org.openxava.annotations.*;
 
 @View(members="person; fromDate, toDate;Invoices{invoices};Retentions{retentions};")
-public class ViewConsultAccountInvoicePerson {
+public class ViewAccountInvoiceReportPerson {
 	
 	@Transient
 	@ManyToOne
@@ -25,8 +25,8 @@ public class ViewConsultAccountInvoicePerson {
 	@OneToMany
 	@ReadOnly
 	@ListProperties(value = "account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
+	@ListActions({ @ListAction("PurchaseInvoiceReportController.generatePdf"),
+			@ListAction("PurchaseInvoiceReportController.generateExcel") })
 	@Condition(value = 
 			  "${account.person.personId} = ${this.person.personId} and " +
 			   "${account.accountStatus.accountStatusId} in('002','003','005') " +
@@ -38,8 +38,8 @@ public class ViewConsultAccountInvoicePerson {
 	@ReadOnly
 	@ListProperties(value="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, accountInvoice.account.code, issueDate")
 	@ListActions({
-		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
+		@ListAction("PurchaseInvoiceReportController.generatePdf"),
+		@ListAction("PurchaseInvoiceReportController.generateExcel")
 	})
 	@Condition(value=
 			"${account.person.personId} = ${this.person.personId} "+

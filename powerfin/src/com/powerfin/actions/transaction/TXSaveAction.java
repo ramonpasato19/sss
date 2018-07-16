@@ -75,6 +75,16 @@ public class TXSaveAction extends SaveAction{
 		return value;
 	}
 	
+	public Integer getSubaccount()
+	{
+		Integer value = (Integer) getView().getRoot().getValue("subaccount");
+		if (value == null)
+			throw new OperativeException("subaccount_is_required");
+		if (value<=0)
+			throw new OperativeException("subaccount_must_be_greater_than_zero",value);
+		return value;
+	}
+	
 	public BigDecimal getExchangeRate()
 	{
 		BigDecimal value = (BigDecimal) getView().getRoot().getValue("exchangeRate");

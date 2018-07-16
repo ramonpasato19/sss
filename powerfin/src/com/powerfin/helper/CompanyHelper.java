@@ -34,6 +34,12 @@ public class CompanyHelper {
 		return company.getName();
 	}
 	
+	public static File getElectronicSignature()
+	{
+		Company company = (Company)XPersistence.getManager().find(Company.class, CompanyHelper.COMPANY_ID); 
+		return XPersistence.getManager().find(File.class, company.getElectronicSignatureFile());
+	}
+	
 	public static Unity getDefaultUnity() throws Exception
 	{
 		return XPersistence.getManager().find(Unity.class, ParameterHelper.getValue("DEFAULT_UNITY_ID"));

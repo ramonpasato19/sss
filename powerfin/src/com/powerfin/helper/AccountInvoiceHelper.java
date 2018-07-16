@@ -37,6 +37,8 @@ public class AccountInvoiceHelper {
 	public final static String INVOICE_PURCHASE_PRODUCT_TYPE_ID = "201";
 	public final static String INVOICE_SALE_PRODUCT_TYPE_ID = "102";
 	
+	public final static String OPERATING_CONDITION_ISSUE_ELECTRONICALLY = "ELE";
+	
 	public final static String RETENTION_PURCHASE_PRODUCT_TYPE_ID = "105";
 	public final static String RETENTION_SALE_PRODUCT_TYPE_ID = "205";
 	
@@ -471,5 +473,46 @@ public class AccountInvoiceHelper {
 		AccountItem accountItem=(AccountItem) XPersistence.getManager().find(AccountItem.class, item.getAccountId());
 		UpdateStock update=new UpdateStock();
 		update.removeItemStock(accountItem, invoice, quantity, amount, registrerDate);
+	}
+	
+	public static BigDecimal getCalculateTaxes(AccountInvoice accountInvoice) throws Exception
+	{
+		BigDecimal value = BigDecimal.ZERO;
+
+		List<AccountInvoiceTax> taxes = AccountInvoiceHelper.getCalculatedAccountInvoiceTaxes(accountInvoice);
+
+		for (AccountInvoiceTax tax : taxes)
+			value = value.add(tax.getTaxAmount());
+		
+		return value;
+	}
+	
+	public static BigDecimal getTaxes(AccountInvoice accountInvoice) throws Exception
+	{
+		BigDecimal value = BigDecimal.ZERO;
+		if(accountInvoice.getAccountInvoiceTaxes()!=null && !accountInvoice.getAccountInvoiceTaxes().isEmpty())
+		{
+			for (AccountInvoiceTax tax: accountInvoice.getAccountInvoiceTaxes()) {
+				if (tax.getTaxAmount()!=null)
+					value = value.add(tax.getTaxAmount());
+			}
+		}
+		return value;
+	}
+	
+	public static BigDecimal getSubtotal(AccountInvoice accountInvoice) throws Exception {
+		BigDecimal value = BigDecimal.ZERO;
+		for (AccountInvoiceDetail detail: accountInvoice.getDetails()) {
+			value = value.add(detail.getAmount());
+		}
+		return value;
+	}
+
+	public static BigDecimal getDiscount(AccountInvoice accountInvoice) throws Exception {
+		BigDecimal value = BigDecimal.ZERO;
+		for (AccountInvoiceDetail detail: accountInvoice.getDetails()) {
+			value = value.add(detail.getDiscount());
+		}
+		return value;
 	}
 }

@@ -34,7 +34,20 @@ import com.powerfin.util.*;
 					+ "branch; "
 					+ "product;"
 					+ "person;"
+					+ "remark;"
 					+ "categoryAccounts"),
+	@View(name="UpdateAccountData",
+			members="accountId;"
+					+ "code, alternateCode, externalCode; "
+					+ "name;"
+					+ "transactionalName;"
+					+ "accountStatus, operatingCondition; "
+					+ "openingDate; "
+					+ "cancellationDate;"
+					+ "branch; "
+					+ "product;"
+					+ "person;"
+					+ "remark;"),
 	@View(name="reference", 
 			members="accountId, code; "
 					+ "name;"
@@ -70,13 +83,13 @@ import com.powerfin.util.*;
 			members="accountId;"
 					+ "name,"
 					+ "interestRate,"
-					+ "totalOverdueBalance;"
+					+ "totalOverdueBalance, loanDisbursementAccount;"
 					+ "accountOverdueBalances"),
 	@View(name="PurchasePortfolioPaymentValueDate",
 			members="accountId;"
 					+ "name;"
 					+ "interestRate,"
-					+ "totalOverdueBalance;"
+					+ "totalOverdueBalance, loanDisbursementAccount;"
 					+ "accountOverdueBalances"),
 	@View(name="SalePortfolioPayment",
 			members="accountId;"
@@ -128,6 +141,18 @@ public class Account extends AuditEntity implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="cancellation_date", nullable=true)
 	private Date cancellationDate;
+	
+	@Stereotype("FILE")
+	@Column(name="electronic_document_file", length = 32)
+	private String electronicDocument;
+	
+	@Stereotype("FILE")
+	@Column(name="physical_document_file", length = 32)
+	private String physicalDocument;
+	
+	@Column(length = 4000)
+	@Stereotype("SIMPLE_HTML_TEXT")
+	private String remark;
 	
 	@ManyToOne
 	@JoinColumn(name="account_status_id", nullable=false)
@@ -405,6 +430,13 @@ public class Account extends AuditEntity implements Serializable {
 	}
 	
 	@Transient
+	public String getLoanDisbursementAccount()
+	{
+		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountId);
+		return accountLoan.getDisbursementAccount().getAccountId();
+	}
+	
+	@Transient
 	public BigDecimal getInterestRate()
 	{
 		AccountLoan accountLoan = XPersistence.getManager().find(AccountLoan.class, accountId);
@@ -449,6 +481,30 @@ public class Account extends AuditEntity implements Serializable {
 	
 	public String getBranchName() {
 		return branch.getName();
+	}
+
+	public String getPhysicalDocument() {
+		return physicalDocument;
+	}
+
+	public void setPhysicalDocument(String physicalDocument) {
+		this.physicalDocument = physicalDocument;
+	}
+
+	public String getElectronicDocument() {
+		return electronicDocument;
+	}
+
+	public void setElectronicDocument(String electronicDocument) {
+		this.electronicDocument = electronicDocument;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 }

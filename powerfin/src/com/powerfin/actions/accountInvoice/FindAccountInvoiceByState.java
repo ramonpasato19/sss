@@ -1,10 +1,12 @@
 package com.powerfin.actions.accountInvoice;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
-import org.openxava.actions.*;
+import org.openxava.actions.ViewBaseAction;
 
-import com.powerfin.helper.*;
+import com.powerfin.exception.OperativeException;
+import com.powerfin.helper.CompanyHelper;
 public class FindAccountInvoiceByState extends ViewBaseAction {
 
 	@Override
@@ -26,10 +28,21 @@ public class FindAccountInvoiceByState extends ViewBaseAction {
 
 		getView().setValue("fromDate", fromDate);
 		getView().setValue("toDate", toDate);
-		if (type != null && type == "Sale")
-			getView().setValue("typeInvoiceSelected", AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID);
-		else
-			getView().setValue("typeInvoiceSelected", AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID);
+		//Purchase, Sale, ElectronicSale, Dispatch, ControlIncome, ControlExpense
+		if (type != null && type.equals("Sale"))
+			getView().setValue("typeInvoiceSelected", "102");
+		else if (type != null && type.equals("Purchase"))
+			getView().setValue("typeInvoiceSelected", "202");
+		else if (type != null && type.equals("ElectronicSale"))
+			getView().setValue("typeInvoiceSelected", "1021");
+		else if (type != null && type.equals("Dispatch"))
+			getView().setValue("typeInvoiceSelected", "1022");
+		else if (type != null && type.equals("ControlIncome"))
+			getView().setValue("typeInvoiceSelected", "1023");
+		else if (type != null && type.equals("ControlExpense"))
+			getView().setValue("typeInvoiceSelected", "2023");
+		else 
+			throw new OperativeException("type_invoice_is_required");
 		getView().refreshCollections();
 	}
 }

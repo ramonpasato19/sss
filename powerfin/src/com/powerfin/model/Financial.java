@@ -21,12 +21,29 @@ import java.util.List;
  */
 @Entity
 @Table(name="financial")
-@View(members="accountingDate;"
-		+ "remark;"
-		+ "voucher;"
-		+ "financialStatus;"
-		+ "origenUnityId;"
-		+ "movements")
+@Views({
+	@View(members="accountingDate;"
+			+ "remark;"
+			+ "voucher;"
+			+ "financialStatus;"
+			+ "origenUnityId;"
+			+ "movements"),
+	@View(name = "ConsultTransaction", 
+			members = "voucher;" 
+			+ "currency; "
+			+ "transactionModule;" 
+			+ "remark;" 
+			+ "requestDate, userRequesting;"
+			+ "authorizationDate, userAuthorizing;" 
+			+ "accountingDate, documentNumber;"
+			+ "financialStatus;"
+			+ "transactionId;"
+			+ "movements"),
+})
+@Tabs({
+	@Tab(properties="voucher, accountingDate, financialStatus.financialStatusId, transaction.transactionModule, remark"),
+	@Tab(name="ConsultTransaction", properties="voucher, transaction.currency.name, transaction.transactionModule.name, accountingDate, financialStatus.financialStatusId, remark"),
+})
 public class Financial extends AuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -39,16 +56,20 @@ public class Financial extends AuditEntity implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@Column(name="accounting_date", nullable=false)
 	@Required
+	@ReadOnly(forViews = "ConsultTransaction")
 	private Date accountingDate;
 
 	@Column(length=4000)
 	@Required
+	@ReadOnly(forViews = "ConsultTransaction")
 	private String remark;
 
 	@Column(name="reversed_financial_id", length=32)
+	@ReadOnly(forViews = "ConsultTransaction")
 	private String reversedFinancialId;
 
 	@Column(length=50)
+	@ReadOnly(forViews = "ConsultTransaction")
 	private String voucher;
 
 	//bi-directional many-to-one association to FinancialStatus
@@ -56,19 +77,24 @@ public class Financial extends AuditEntity implements Serializable {
 	@JoinColumn(name="financial_status_id", nullable=false)
 	@Required
 	@DescriptionsList
+	@ReadOnly(forViews = "ConsultTransaction")
 	private FinancialStatus financialStatus;
 
 	//bi-directional many-to-one association to Movement
 	@OneToMany(mappedBy="financial")
+	@ListProperties("branch.branchId, account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value, quantity, bookAccount.bookAccountId, remark")
+	@ReadOnly(forViews = "ConsultTransaction")
 	private List<Movement> movements;
 
 	// bi-directional one-to-one association to Transaction
 	@OneToOne
 	@JoinColumn(name = "transaction_id")
+	@ReadOnly(forViews = "ConsultTransaction")
 	private Transaction transaction;
 	
 	@ManyToOne
 	@JoinColumn(name="origen_unity_id")
+	@ReadOnly(forViews = "ConsultTransaction")
 	private Unity origenUnityId;
 
 	public Financial() {
@@ -159,5 +185,60 @@ public class Financial extends AuditEntity implements Serializable {
 	public void setOrigenUnityId(Unity origenUnityId) {
 		this.origenUnityId = origenUnityId;
 	}
-
+	
+	public String getDocumentNumber()
+	{
+		if (transaction!=null)
+			return transaction.getDocumentNumber();
+		return null;
+	}
+	
+	public String getUserAuthorizing()
+	{
+		if (transaction!=null)
+			return transaction.getUserAuthorizing();
+		return null;
+	}
+	
+	public String getUserRequesting()
+	{
+		if (transaction!=null)
+			return transaction.getUserRequesting();
+		return null;
+	}
+	
+	public Date getAuthorizationDate()
+	{
+		if (transaction!=null)
+			return transaction.getAuthorizationDate();
+		return null;
+	}
+	
+	public Date getRequestDate()
+	{
+		if (transaction!=null)
+			return transaction.getRequestDate();
+		return null;
+	}
+	
+	public String getTransactionModule()
+	{
+		if (transaction!=null)
+			return transaction.getTransactionModule().getName();
+		return null;
+	}
+	
+	public String getCurrency()
+	{
+		if (transaction!=null)
+			return transaction.getCurrency().getCurrencyId();
+		return null;
+	}
+	
+	public String getTransactionId()
+	{
+		if (transaction!=null)
+			return transaction.getTransactionId();
+		return null;
+	}
 }

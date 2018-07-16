@@ -13,8 +13,8 @@ import org.openxava.annotations.ListProperties;
 import org.openxava.annotations.ReadOnly;
 import org.openxava.annotations.View;
 
-@View(name="consultAccountLots", members="fromDate,toDate;AccountItem{accountItems};")
-public class ViewAccountLots {
+@View(name="AccountItemLotsReport", members="fromDate,toDate;AccountItem{accountItems};")
+public class ViewAccountItemLots {
 	
 	@Column
 	private Date fromDate;
@@ -25,8 +25,8 @@ public class ViewAccountLots {
 	@OneToMany
 	@ReadOnly
 	@ListProperties(value = "account.accountId, account.currency.currencyId, account.name, numberLot , code, expireDate, quantity, currentQuantity, manualQuantity")
-	@ListActions({ @ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-			@ListAction("ConsultPurchaseInvoiceController.generateExcel") })
+	@ListActions({ @ListAction("PurchaseInvoiceReportController.generatePdf"),
+			@ListAction("PurchaseInvoiceReportController.generateExcel") })
 	@Condition(value = "${expireDate} between ${this.fromDate} and ${this.toDate} and (${currentQuantity} > 0 or ${manualQuantity} > 0) and ${active}=true ")
 	@OrderBy(clause="${expireDate} asc")
 	private List<AccountItemLots> accountItems;

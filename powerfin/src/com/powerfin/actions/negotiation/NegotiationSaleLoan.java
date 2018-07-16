@@ -128,8 +128,8 @@ public class NegotiationSaleLoan {
 	            		if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
 	                		throw new OperativeException("sale_not_processed_with_balance_zero");
 	            		
-	            		if (capitalBalance.compareTo(accountPortfolio.getSaleAmount())!=0)
-	                		throw new OperativeException("sale_not_processed_balance_not_equal_sale_amount",capitalBalance,accountPortfolio.getSaleAmount());
+	            		if (capitalBalance.compareTo(accountPortfolio.getSaleAmount())<0)
+	                		throw new OperativeException("sale_not_processed_balance_is_less_than_sale_amount",capitalBalance,accountPortfolio.getSaleAmount());
 	            		
 	            		if (spreadBalances!=null && !spreadBalances.isEmpty())
 	            			for (Balance spreadBalance : spreadBalances)

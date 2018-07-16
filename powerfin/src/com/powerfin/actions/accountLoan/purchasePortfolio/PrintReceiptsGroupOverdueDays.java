@@ -1,4 +1,4 @@
-package com.powerfin.actions.accountLoan;
+package com.powerfin.actions.accountLoan.purchasePortfolio;
 
 import java.util.*;
 
@@ -8,12 +8,12 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintExtraordinaryPayments extends ReportBaseAction {
+public class PrintReceiptsGroupOverdueDays extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
 
-		String productId = (String)getView().getSubview("product").getValue("productId");
+		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");	
 		
@@ -25,7 +25,7 @@ public class PrintExtraordinaryPayments extends ReportBaseAction {
 		
 		Map parameters = new HashMap();
 		addDefaultParameters(parameters);
-		parameters.put("PRODUCT_ID", productId);
+		parameters.put("BROKER_PERSON_ID", personId);
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		

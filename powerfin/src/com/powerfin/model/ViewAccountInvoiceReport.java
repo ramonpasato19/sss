@@ -9,16 +9,16 @@ import org.openxava.annotations.*;
 import com.powerfin.helper.*;
 
 @Views({
-@View(name="ConsultPurchaseInvoice", members="fromDate;"
+@View(name="PurchaseInvoiceReport", members="fromDate;"
 		+ "toDate;"
 		+ "purchaseInvoices{purchaseInvoices}; "
 		+ "purchaseRetentions{purchaseRetentions};"),
-@View(name="ConsultSaleInvoice", members="fromDate;"
+@View(name="SaleInvoiceReport", members="fromDate;"
 		+ "toDate;"
 		+ "saleInvoices{saleInvoices}; "
 		+ "saleRetentions{saleRetentions};"),
 })
-public class ViewConsultAccountInvoice {
+public class ViewAccountInvoiceReport {
 
 	@Column
 	private Date fromDate;
@@ -30,21 +30,21 @@ public class ViewConsultAccountInvoice {
 	@ReadOnly
 	@ListProperties(value="account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
 	@ListActions({
-		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
+		@ListAction("PurchaseInvoiceReportController.generatePdf"),
+		@ListAction("PurchaseInvoiceReportController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"' "+
 			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
-	@CollectionView("ConsultPurchaseInvoice")
+	@CollectionView("PurchaseInvoiceReport")
 	private List<AccountInvoice> purchaseInvoices;
 
 	@OneToMany
 	@ReadOnly
 	@ListProperties(value="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, accountInvoice.account.code, issueDate")
 	@ListActions({
-		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
+		@ListAction("PurchaseInvoiceReportController.generatePdf"),
+		@ListAction("PurchaseInvoiceReportController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"' "+
@@ -55,8 +55,8 @@ public class ViewConsultAccountInvoice {
 	@ReadOnly
 	@ListProperties(value="account.product.name, account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, issueDate, balance")
 	@ListActions({
-		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
+		@ListAction("PurchaseInvoiceReportController.generatePdf"),
+		@ListAction("PurchaseInvoiceReportController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"+
@@ -68,15 +68,15 @@ public class ViewConsultAccountInvoice {
 	@ReadOnly
 	@ListProperties(value="account.accountId, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, accountInvoice.account.code, issueDate")
 	@ListActions({
-		@ListAction("ConsultPurchaseInvoiceController.generatePdf"),
-		@ListAction("ConsultPurchaseInvoiceController.generateExcel")
+		@ListAction("PurchaseInvoiceReportController.generatePdf"),
+		@ListAction("PurchaseInvoiceReportController.generateExcel")
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"' "+
 			"and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> saleRetentions;
 	
-	public ViewConsultAccountInvoice() {
+	public ViewAccountInvoiceReport() {
 		
 	}
 

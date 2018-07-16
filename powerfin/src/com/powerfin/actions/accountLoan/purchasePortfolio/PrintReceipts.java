@@ -15,7 +15,7 @@ public class PrintReceipts extends ReportBaseAction {
 
 		Integer personId = (Integer)getView().getSubview("broker").getValue("personId");
 		Date fromDate = (Date)getView().getValue("fromDate");
-		Date toDate = (Date)getView().getValue("toDate");	
+		Date toDate = (Date)getView().getValue("toDate");
 		
 		if (fromDate==null)
 			throw new OperativeException("from_date_is_required");

@@ -25,6 +25,10 @@ public class TaxType implements Serializable {
 	@DisplaySize(50)
 	private String name;
 
+	@Column(name="external_code", nullable = true, length = 50)
+	@DisplaySize(30)
+	private String externalCode;
+	
 	public TaxType() {
 	}
 
@@ -43,4 +47,13 @@ public class TaxType implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+	public String getExternalCode() {
+		return externalCode;
+	}
+
+	public void setExternalCode(String externalCode) {
+		this.externalCode = externalCode;
+	}
+	
 }

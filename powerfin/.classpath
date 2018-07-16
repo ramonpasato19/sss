@@ -8,5 +8,7 @@
 	<classpathentry kind="src" path="xava"/>
 	<classpathentry kind="src" path="i18n"/>
 	<classpathentry kind="lib" path="/OpenXava/web/WEB-INF/lib/commons-io.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ElectronicInvoice"/>
+	<classpathentry kind="lib" path="/OpenXava/web/WEB-INF/lib/mailapi.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>

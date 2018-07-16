@@ -45,8 +45,9 @@ import com.powerfin.model.types.*;
 				+ "paymentMethods{accountInvoicePayments;}"
 				+ "detail{details;}"
 				+ "balances{balance;}"
+				+ "documents{electronicDocument;}"
 				),
-	@View(name="ConsultPurchaseInvoice", 
+	@View(name="PurchaseInvoiceReport", 
 		members="#accountId, companyAccountingDate; accountStatus; "
 				+ "branch, unity;"
 				+ "issueDate, dueDate;"
@@ -58,6 +59,7 @@ import com.powerfin.model.types.*;
 				+ "paymentMethods{accountInvoicePayments;}"
 				+ "detail{details;}"
 				+ "remark{remark;}"
+				+ "documents{physicalDocument; electronicDocument;}"
 				),
 	@View(name="InvoiceSale", 
 		members="#accountId, companyAccountingDate; accountStatus; "
@@ -69,6 +71,7 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				+ "detail{details;}"
 				+ "balances{balance;}"
+				+ "documents{electronicDocument;}"
 				),		
 	@View(name="RequestTXInvoicePurchase", 
 		members="#accountId, companyAccountingDate; accountStatus;"
@@ -105,6 +108,16 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				+ "detail{details;}"
 				+ "Invoices{invoices}"
+				),
+	@View(name="IssueElectronicInvoiceSale", 
+		members="info{accountId, companyAccountingDate; accountStatus; branch; "
+				+ "issueDate, dueDate;}"
+				+ "person{person;}"
+				+ "product{product;}"
+				+ "voucher{invoiceVoucherType;establishmentCode; emissionPointCode; sequentialCode; authorizationCode;}"
+				+ "remark{remark;}"
+				+ "detail{details;}"
+				+ "documents{physicalDocument; electronicDocument;}"
 				),
 	@View(name="AuthorizeTXInvoiceSale", 
 		members="info{accountId, companyAccountingDate; accountStatus; branch; "
@@ -163,7 +176,7 @@ import com.powerfin.model.types.*;
 				+ "remark{remark;}"
 				+ "detail{details;}"
 			),
-	@View(name="ConsultInvoiceActive", 
+	@View(name="InvoiceActiveReport", 
 		members="#accountId, companyAccountingDate; accountStatus;"
 				+ "branch, unity;"
 				+ "issueDate, dueDate;"
@@ -175,6 +188,7 @@ import com.powerfin.model.types.*;
 				+ "paymentMethods{accountInvoicePayments;}"
 				+ "detail{details;}"
 				+ "remark{remark;}"
+				+ "documents{physicalDocument; electronicDocument;}"
 				),
 	@View(name="RequestTXOrderItems", 
 		members="#accountId, companyAccountingDate; accountStatus;"
@@ -228,6 +242,9 @@ import com.powerfin.model.types.*;
 	@Tab(name="TXInvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.externalCode, issueDate",
 		baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="IssueElectronicInvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.externalCode, issueDate",
+	baseCondition = "${account.accountStatus.accountStatusId} = '001' AND ${account.operatingCondition.operatingConditionId} != 'ELE' "
+		+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="InvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, account.accountStatus.name, account.product.name, issueDate",
 		baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="PrinterInvoiceSale", properties="account.accountId, account.branch.name, account.currency.currencyId, account.person.name, account.code, issueDate",
@@ -268,48 +285,47 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="due_date")
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Date dueDate;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="issue_date", nullable=false)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@Required
 	private Date issueDate;
 
 	@Column(length=400)
 	@Required
 	@Stereotype("TEXT_AREA")
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private String remark;
 
 	@Column(name="establishment_code", nullable=true, length=5)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private String establishmentCode;
 	
 	@Column(name="emission_point_code", nullable=true, length=5)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private String emissionPointCode;
 
 	@Column(name="sequential_code", nullable=true, length=50)
-	@Required
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private String sequentialCode;
     
 	@Column(name="authorization_code", nullable=true, length=50)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private String authorizationCode;
 	
 	@Column(name="part_related", nullable=true)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Types.YesNoIntegerType partRelated;
 	
 	@Column(name="double_taxation_convention_payment", nullable=true)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Types.YesNoIntegerType doubleTaxationConventionPayment;
 	
 	@Column(name="under_the_statute_payment", nullable=true)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Types.YesNoIntegerType underTheStatutePayment;
 		
 	@ManyToOne
@@ -317,7 +333,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@NoCreate
 	@NoModify
 	@ReferenceView("forCreditNote")
-	@ReadOnly(forViews="AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@SearchActions({
 		@SearchAction(forViews="RequestTXCreditNotePurchase", value="SearchAccount.SearchInvoicePurchaseToApplyCreditNote"),
 		@SearchAction(forViews="RequestTXCreditNoteSale", value="SearchAccount.SearchInvoiceSaleToApplyCreditNote"),
@@ -330,7 +346,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 			+ "amount[accountInvoice.subtotal, "
 			+ "accountInvoice.calculateTaxes, accountInvoice.calculateTotal]"
 			)
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, AuthorizeTXOrderItems, TXOrderToInvoice")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, AuthorizeTXOrderItems, TXOrderToInvoice, IssueElectronicInvoiceSale")
 	@CollectionViews({
 		@CollectionView(forViews="RequestTXInvoicePurchase, AuthorizeTXInvoicePurchase, RequestTXOrderItems", value = "InvoicePurchase"),
 		@CollectionView(forViews="RequestTXInvoiceSale, AuthorizeTXInvoiceSale", value = "InvoiceSale"),
@@ -348,12 +364,12 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@OneToMany(mappedBy="accountInvoice", cascade = CascadeType.ALL)
 	@AsEmbedded
 	@ListProperties("invoicePaymentMethod.name")
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private List<AccountInvoicePayment> accountInvoicePayments;
 
 	@OneToMany(mappedBy="accountInvoice", cascade = CascadeType.ALL)
 	private List<AccountInvoiceTax> accountInvoiceTaxes;
-	
+
 	//bi-directional one-to-one association to Account
 	@OneToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
@@ -363,21 +379,21 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@JoinColumn(name = "invoice_tax_support_id", nullable = true)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private InvoiceTaxSupport invoiceTaxSupport;
 	
 	@ManyToOne
 	@JoinColumn(name = "invoice_voucher_type_id", nullable = true)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private InvoiceVoucherType invoiceVoucherType;
 	
 	@ManyToOne
 	@JoinColumn(name = "invoice_provider_type_id", nullable = true)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@DescriptionsList(descriptionProperties="name")
 	private InvoiceProviderType invoiceProviderType;
 	
@@ -385,7 +401,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@JoinColumn(name = "invoice_payment_type_id", nullable = true)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@DescriptionsList(descriptionProperties="name")
 	private InvoicePaymentType invoicePaymentType;
 	
@@ -393,7 +409,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@JoinColumn(name = "country_payment_id", nullable = true)
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Country countryPayment;
 	
 	@ManyToOne
@@ -404,13 +420,24 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	private Unity unity;
 	
 	//////////////////////////////////////////////////////////
+	
+	@Transient
+	@Stereotype("FILE")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
+	private String electronicDocument;
+	
+	@Transient
+	@Stereotype("FILE")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
+	private String physicalDocument;
+	
 	@Transient
 	@ManyToOne
 	@Required
 	@NoCreate
 	@NoModify
 	@ReferenceView("Reference")
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Person person;
 	
 	@Transient
@@ -418,7 +445,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="RequestTXInvoicePurchase, RequestTXInvoiceSale, RequestTXCreditNotePurchase, RequestTXCreditNoteSale, RequestTXOrderItems")
+	@ReadOnly(forViews="RequestTXInvoicePurchase, RequestTXInvoiceSale, RequestTXCreditNotePurchase, RequestTXCreditNoteSale, RequestTXOrderItems, IssueElectronicInvoiceSale")
 	private AccountStatus accountStatus;
 	
 	@Transient
@@ -426,6 +453,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@DescriptionsList(descriptionProperties="branchId, name")
 	@NoCreate
 	@NoModify
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Branch branch;
 	
 	@Transient
@@ -433,7 +461,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@Required
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@ReferenceView("Reference")
 	@SearchActions({
 		@SearchAction(forViews="RequestTXInvoicePurchase", value="SearchProduct.SearchInvoicePurchase"),
@@ -454,7 +482,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ManyToOne
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale")
+	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@ReferenceView("forRetention")
 	@Actions({
 		@Action(forViews="RequestTXInvoiceSale", value = "ConvertInvoicePurchaseToSale.import", alwaysEnabled=true ),
@@ -685,6 +713,14 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 		this.accountModified = accountModified;
 	}
 
+	public List<AccountInvoiceTax> getAccountInvoiceTaxes() {
+		return accountInvoiceTaxes;
+	}
+
+	public void setAccountInvoiceTaxes(List<AccountInvoiceTax> accountInvoiceTaxes) {
+		this.accountInvoiceTaxes = accountInvoiceTaxes;
+	}
+	
 	public Unity getUnity() {
 		return unity;
 	}
@@ -694,36 +730,22 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	}
 
 	public BigDecimal getSubtotal() throws Exception {
-		BigDecimal value = BigDecimal.ZERO;
-		for (AccountInvoiceDetail detail: details) {
-			value = value.add(detail.getAmount());
-		}
-		return value;
+		return AccountInvoiceHelper.getSubtotal(this);
 	}
 	
 	public BigDecimal getCalculateTaxes() throws Exception
 	{
-		BigDecimal value = BigDecimal.ZERO;
-
-		List<AccountInvoiceTax> taxes = AccountInvoiceHelper.getCalculatedAccountInvoiceTaxes(this);
-
-		for (AccountInvoiceTax tax : taxes)
-			value = value.add(tax.getTaxAmount());
-		
-		return value;
+		return AccountInvoiceHelper.getCalculateTaxes(this);
+	}
+	
+	public BigDecimal getDiscount() throws Exception
+	{
+		return AccountInvoiceHelper.getDiscount(this);
 	}
 	
 	public BigDecimal getTaxes() throws Exception
 	{
-		BigDecimal value = BigDecimal.ZERO;
-		if(accountInvoiceTaxes!=null)
-		{
-			for (AccountInvoiceTax tax: accountInvoiceTaxes) {
-				if (tax.getTaxAmount()!=null)
-					value = value.add(tax.getTaxAmount());
-			}
-		}
-		return value;
+		return AccountInvoiceHelper.getTaxes(this);
 	}
 	
 	public BigDecimal getTotal() throws Exception {
@@ -749,4 +771,28 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	public int getQuantityAccountsItems() {
 		return details.size();				
 	}
+
+	public String getElectronicDocument() {
+		if (account!=null)
+			return account.getElectronicDocument();
+		else
+			return null;
+	}
+
+	public void setElectronicDocument(String electronicDocument) {
+		this.electronicDocument = electronicDocument;
+	}
+
+	public String getPhysicalDocument() {
+		if (account!=null)
+			return account.getPhysicalDocument();
+		else
+			return null;
+	}
+
+	public void setPhysicalDocument(String physicalDocument) {
+		this.physicalDocument = physicalDocument;
+	}
+	
+	
 }

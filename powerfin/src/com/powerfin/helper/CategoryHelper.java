@@ -49,6 +49,7 @@ public class CategoryHelper {
 	public final static String PURCHASE_SPREAD_PR_CATEGORY_LIABILITY = "PURSPRPR2";
 	public final static String PURCHASE_SPREAD_EX_CATEGORY = "PURSPREX";
 	public final static String PURCHASE_SPREAD_IN_CATEGORY = "PURSPRIN";
+	public final static String PURCHASE_SPREAD_PREPAYMENT = "PURSPRPP";
 	
 	public final static String UTILITY_SALE_PORTFOLIO_PR_CATEGORY = "UTLSPRPR";
 	public final static String UTILITY_SALE_PORTFOLIO_IN_CATEGORY = "UTLSPRIN";

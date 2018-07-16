@@ -351,6 +351,26 @@ import com.powerfin.model.types.*;
 				+ "debitAccount[debitAccount];" 
 				+ "value;" + "exchangeRate;" + "remark;" + "transactionStatus"),
 		
+		//PurchasePortfolio Prepayment
+		@View(name = "RequestTXPurchasePortfolioPrepayment", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "spreadValue;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+		@View(name = "AuthorizeTXPurchasePortfolioPrepayment", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "spreadValue;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+				
+		//PurchasePortfolio Prepayment Value Date
+		@View(name = "RequestTXPurchasePortfolioPrepaymentValueDate", members = "#currency; transactionModule, voucher; valueDate; accountingDate, companyAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "spreadValue;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+		@View(name = "AuthorizeTXPurchasePortfolioPrepaymentValueDate", members = "#currency; transactionModule, voucher; valueDate; accountingDate, companyAccountingDate;"
+				+ "loanAccount[creditAccount];"
+				+ "debitAccount[debitAccount];" 
+				+ "spreadValue;" + "exchangeRate;" + "remark;" + "transactionStatus"),
+		
 		//SalePortfolio Payment
 		@View(name = "RequestTXSalePortfolioPayment", members = "#currency; transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "loanAccount[debitAccount];"
@@ -387,7 +407,42 @@ import com.powerfin.model.types.*;
 		@View(name="AuthorizeTXTransferItem", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
 				+ "remark;" + "transactionStatus; "
 				+ "originationBranch, destinationBranch; "
-				+ "transactionAccounts;")
+				+ "transactionAccounts;"),
+		
+		//AdjustmentOtherBalances
+		@View(name = "RequestTXAdjustmentOtherBalances", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[debitAccount];"
+				+ "balanceType[secondaryCategory]; "
+				+ "subaccount; "
+				+ "value;" + "remark;" + "transactionStatus"),
+		@View(name = "AuthorizeTXAdjustmentOtherBalances", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[debitAccount];"
+				+ "balanceType[secondaryCategory]; "
+				+ "subaccount; "
+				+ "value;" + "remark;" + "transactionStatus"),
+		
+		//AdjustmentInsuranceBalances
+		@View(name = "RequestTXAdjustmentInsuranceBalances", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[debitAccount]; "
+				+ "insuranceType[secondaryCategory]; "
+				+ "subaccount; "
+				+ "value;" + "remark;" + "transactionStatus"),
+		@View(name = "AuthorizeTXAdjustmentInsuranceBalances", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "loanAccount[debitAccount]; "
+				+ "insuranceType[secondaryCategory]; "
+				+ "subaccount; "
+				+ "value;" + "remark;" + "transactionStatus"),
+		
+		//ReverseTransaction
+		@View(name = "RequestTXReverseTransaction", members = "#currency, exchangeRate; transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "documentNumber;"
+				+ "remark;" 
+				+ "transactionStatus"),
+		@View(name = "AuthorizeTXReverseTransaction", members = "#currency, exchangeRate;transactionModule, voucher; accountingDate, companyAccountingDate;"
+				+ "documentNumber;"
+				+ "remark;" 
+				+ "transactionStatus;"
+				+ "transactionAccounts;"),
 		
 })
 @Tabs({
@@ -433,6 +488,11 @@ import com.powerfin.model.types.*;
 		@Tab(name = "TXLoanPayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'LOANPAYMENT'"),
 		@Tab(name = "TXTransferItem", properties = "voucher, currency.currencyId, remark, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'TRANSFERITEM'"),
 		@Tab(name = "TXPrepareLoanPrepayment", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'INITPREPAYMENTPORTFOLIO'"),
+		@Tab(name = "TXPurchasePortfolioPrepayment", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPREPAYMENT'"),
+		@Tab(name = "TXPurchasePortfolioPrepaymentValueDate", properties = "creditAccount.person.name, voucher, creditAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'PURCHASEPORTFOLIOPREPAYMENTVD'"),
+		@Tab(name = "TXAdjustmentInsuranceBalances", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'ADJUSTMENTINSURANCEBALANCES'"),
+		@Tab(name = "TXAdjustmentOtherBalances", properties = "debitAccount.person.name, voucher, debitAccount.code, currency.currencyId, value, transactionStatus.name, accountingDate", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'ADJUSTMENTOTHERLOANBALANCES'"),
+		@Tab(name = "TXReverseTransaction", properties = "voucher, currency.currencyId, transactionStatus.name, accountingDate, documentNumber", baseCondition = "${transactionStatus.transactionStatusId} = '001' and ${transactionModule.transactionModuleId} = 'REVERSETRANSACTION'"),
 })
 public class Transaction implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -490,6 +550,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
@@ -498,6 +560,9 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPrepareLoanPrepayment,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
+			+ "AuthorizeTXReverseTransaction,"
 			)
 	private String remark;
 
@@ -509,47 +574,18 @@ public class Transaction implements Serializable {
 	@Column(name="document_number", length = 50)
 	@DisplaySize(20)
 	@ReadOnly(forViews = ""
-			+ "AuthorizeTXGeneral,"
-			+ "AuthorizeTXOpening, "
-			+ "AuthorizeTXTransferSent, "
-			+ "AuthorizeTXTransferReceived,"
-			+ "AuthorizeTXDebitBank,"
-			+ "AuthorizeTXCreditBank,"
-			+ "AuthorizeTXCreditPayable,"
-			+ "AuthorizeTXDebitPayable,"
-			+ "AuthorizeTXTransferPayable,"
-			+ "AuthorizeTXTransferBank,"
-			+ "AuthorizeTXAdvance,"
-			+ "AuthorizeTXAdvancePayment,"
-			+ "AuthorizeTXThirdAdvancePayment,"
-			+ "AuthorizeTXManualAccountingEntry,"
-			+ "AuthorizeTXInvoiceSalePayment,"
-			+ "AuthorizeTXInvoicePurchasePayment,"
 			+ "AuthorizeTXInvoicePurchaseCheckPayment,"
 			+ "AuthorizeTXCheckPaymentPayable,"
-			+ "AuthorizeTXInvoicePurchase,"
-			+ "AuthorizeTXInvoiceSale,"
-			+ "AuthorizeTXRetentionPurchase,"
-			+ "AuthorizeTXRetentionSale,"
-			+ "AuthorizeTXAccountLoan,"
-			+ "AuthorizeTXAccountTerm,"
-			+ "AuthorizeTXTransferDue,"
-			+ "AuthorizeTXPurchaseForexCustomer,"
-			+ "AuthorizeTXSaleForexCustomer,"
-			+ "AuthorizeTXPurchaseForexBank,"
-			+ "AuthorizeTXSaleForexBank,"
-			+ "AuthorizeTXPurchasePortfolioPayment,"
-			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
-			+ "AuthorizeTXSalePortfolioPayment,"
-			+ "AuthorizeTXLoanPayment,"
-			+ "AuthorizeTXCreditNotePurchase,"
-			+ "AuthorizeTXCreditNoteSale,"
-			+ "AuthorizeTXTransferItem,"
-			+ "AuthorizeTXPrepareLoanPrepayment,"
-			+ "AuthorizeTXBlocking,"
-			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXReverseTransaction,"
 			)
 	private String documentNumber;
+	
+	@Column(name="subaccount")
+	@ReadOnly(forViews = ""
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
+			)
+	private Integer subaccount;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "request_date")
@@ -596,6 +632,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
@@ -604,6 +642,9 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPrepareLoanPrepayment,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
+			+ "AuthorizeTXReverseTransaction,"
 			)
 	private BigDecimal value;
 
@@ -621,7 +662,6 @@ public class Transaction implements Serializable {
 						descriptionProperties="currencyId, name",
 						condition="${currencyId} not in (select c.officialCurrency from Company c where c.companyId=1)")
 	})
-	
 	@OnChange(OnModifyTransactionCurrency.class)
 	@ReadOnly(forViews = ""
 			+ "AuthorizeTXGeneral,"
@@ -655,6 +695,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
@@ -663,21 +705,59 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPrepareLoanPrepayment,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
+			+ "AuthorizeTXReverseTransaction,"
 			)
 	private Currency currency;
 	
 	// bi-directional many-to-one association to TransactionModule
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.LAZY, optional=false)
 	@JoinColumn(name = "transaction_module_id", nullable = false)
 	@NoCreate
 	@NoModify
-	@NoSearch
-	@Required
+	@Required	
+	@DescriptionsLists({ 
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXOpening", condition = "${transactionModuleId} = 'OPENING'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferSent", condition = "${transactionModuleId} = 'TRANSFERSENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferReceived", condition = "${transactionModuleId} = 'TRANSFERRECEIVED'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXDebitBank", condition = "${transactionModuleId} = 'DEBITBANK'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCreditBank", condition = "${transactionModuleId} = 'CREDITBANK'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCreditPayable", condition = "${transactionModuleId} = 'CREDITPAYABLE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXDebitPayable", condition = "${transactionModuleId} = 'DEBITPAYABLE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferPayable", condition = "${transactionModuleId} = 'TRANSFERPAYABLE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferBank", condition = "${transactionModuleId} = 'TRANSFERBANK'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdvance", condition = "${transactionModuleId} = 'ADVANCE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdvancePayment", condition = "${transactionModuleId} = 'ADVANCEPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXThirdAdvancePayment", condition = "${transactionModuleId} = 'THIRDADVANCEPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXManualAccountingEntry", condition = "${transactionModuleId} = 'MANUALACCOUNTINGENTRY'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXGeneral", condition = ""),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoiceSalePayment", condition = "${transactionModuleId} = 'INVOICESALEPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoicePurchasePayment", condition = "${transactionModuleId} = 'INVOICEPURCHASEPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoicePurchaseCheckPayment", condition = "${transactionModuleId} = 'INVOICEPURCHASECHECKPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCheckPaymentPayable", condition = "${transactionModuleId} = 'CHECKPAYMENTPAYABLE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferDue", condition = "${transactionModuleId} = 'TRANSFERDUE'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchaseForexCustomer", condition = "${transactionModuleId} = 'PURCHASEFOREXCUSTOMER'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSaleForexCustomer", condition = "${transactionModuleId} = 'SALEFOREXCUSTOMER'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchaseForexBank", condition = "${transactionModuleId} = 'PURCHASEFOREXBANK'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSaleForexBank", condition = "${transactionModuleId} = 'SALEFOREXBANK'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPayment", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPaymentValueDate", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPrepayment", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPREPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPrepaymentValueDate", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPREPAYMENTVD'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSalePortfolioPayment", condition = "${transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferItem", condition = "${transactionModuleId} = 'TRANSFERITEM'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPrepareLoanPrepayment", condition = "${transactionModuleId} = 'INITPREPAYMENTPORTFOLIO'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXBlocking", condition = "${transactionModuleId} = 'BLOCKING'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdjustmentInsuranceBalances", condition = "${transactionModuleId} = 'ADJUSTMENTINSURANCEBALANCES'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdjustmentOtherBalances", condition = "${transactionModuleId} = 'ADJUSTMENTOTHERLOANBALANCES'"),
+		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXReverseTransaction", condition = "${transactionModuleId} = 'REVERSETRANSACTION'"),
+	})
 	@NoFrame
 	@ReferenceViews({
 		@ReferenceView(value = "simple", 
 				forViews = "TransactionList"),
-	@ReferenceView(value = "forTransaction", 
+		@ReferenceView(value = "forTransaction", 
 			forViews = ""
 					+ "AuthorizeTXGeneral,"
 					+ "AuthorizeTXOpening, "
@@ -710,6 +790,8 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXSaleForexBank,"
 					+ "AuthorizeTXPurchasePortfolioPayment,"
 					+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+					+ "AuthorizeTXPurchasePortfolioPrepayment,"
+					+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 					+ "AuthorizeTXSalePortfolioPayment,"
 					+ "AuthorizeTXLoanPayment,"
 					+ "AuthorizeTXCreditNotePurchase,"
@@ -718,6 +800,9 @@ public class Transaction implements Serializable {
 					+ "AuthorizeTXPrepareLoanPrepayment,"
 					+ "AuthorizeTXBlocking,"
 					+ "AuthorizeTXUnlocking,"
+					+ "AuthorizeTXAdjustmentOtherBalances,"
+					+ "AuthorizeTXAdjustmentInsuranceBalances,"
+					+ "AuthorizeTXReverseTransaction,"
 					)
 	})
 	@ReadOnly(forViews = ""
@@ -752,6 +837,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXLoanPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
@@ -760,41 +847,10 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPrepareLoanPrepayment,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
+			+ "AuthorizeTXReverseTransaction,"
 			)
-	
-	@DescriptionsLists({ 
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXOpening", condition = "${transactionModuleId} = 'OPENING'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferSent", condition = "${transactionModuleId} = 'TRANSFERSENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferReceived", condition = "${transactionModuleId} = 'TRANSFERRECEIVED'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXDebitBank", condition = "${transactionModuleId} = 'DEBITBANK'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCreditBank", condition = "${transactionModuleId} = 'CREDITBANK'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCreditPayable", condition = "${transactionModuleId} = 'CREDITPAYABLE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXDebitPayable", condition = "${transactionModuleId} = 'DEBITPAYABLE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferPayable", condition = "${transactionModuleId} = 'TRANSFERPAYABLE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferBank", condition = "${transactionModuleId} = 'TRANSFERBANK'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdvance", condition = "${transactionModuleId} = 'ADVANCE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXAdvancePayment", condition = "${transactionModuleId} = 'ADVANCEPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXThirdAdvancePayment", condition = "${transactionModuleId} = 'THIRDADVANCEPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXManualAccountingEntry", condition = "${transactionModuleId} = 'MANUALACCOUNTINGENTRY'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXGeneral", condition = ""),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoiceSalePayment", condition = "${transactionModuleId} = 'INVOICESALEPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoicePurchasePayment", condition = "${transactionModuleId} = 'INVOICEPURCHASEPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXInvoicePurchaseCheckPayment", condition = "${transactionModuleId} = 'INVOICEPURCHASECHECKPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXCheckPaymentPayable", condition = "${transactionModuleId} = 'CHECKPAYMENTPAYABLE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferDue", condition = "${transactionModuleId} = 'TRANSFERDUE'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchaseForexCustomer", condition = "${transactionModuleId} = 'PURCHASEFOREXCUSTOMER'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSaleForexCustomer", condition = "${transactionModuleId} = 'SALEFOREXCUSTOMER'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchaseForexBank", condition = "${transactionModuleId} = 'PURCHASEFOREXBANK'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSaleForexBank", condition = "${transactionModuleId} = 'SALEFOREXBANK'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPayment", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPurchasePortfolioPaymentValueDate", condition = "${transactionModuleId} = 'PURCHASEPORTFOLIOPAYMENTVD'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXSalePortfolioPayment", condition = "${transactionModuleId} = 'SALEPORTFOLIOPAYMENT'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXTransferItem", condition = "${transactionModuleId} = 'TRANSFERITEM'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXPrepareLoanPrepayment", condition = "${transactionModuleId} = 'INITPREPAYMENTPORTFOLIO'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXBlocking", condition = "${transactionModuleId} = 'BLOCKING'"),
-		@DescriptionsList(descriptionProperties = "name", forViews = "RequestTXUnlocking", condition = "${transactionModuleId} = 'UNLOCKING'"),
-		
-	})
 	private TransactionModule transactionModule;
 
 	// bi-directional many-to-one association to TransactionStatus
@@ -811,8 +867,11 @@ public class Transaction implements Serializable {
 						+ "RequestTXManualAccountingEntry, "
 						+ "RequestTXPurchasePortfolioPayment,"
 						+ "RequestTXPurchasePortfolioPaymentValueDate,"
+						+ "RequestTXPurchasePortfolioPrepayment,"
+						+ "RequestTXPurchasePortfolioPrepaymentValueDate,"
 						+ "RequestTXSalePortfolioPayment,"
-						+ "RequestTXTransferItem "
+						+ "RequestTXTransferItem, "
+						+ "RequestTXReverseTransaction,"
 						),
 			@DescriptionsList(order="transactionStatusId", descriptionProperties = "name", condition = "${transactionStatusId} IN ('001','002')",
 					forViews = "RequestTXOpening, "
@@ -837,7 +896,9 @@ public class Transaction implements Serializable {
 							+ "RequestTXPurchaseForexBank,"
 							+ "RequestTXSaleForexBank,"
 							+ "RequestTXBlocking,"
-							+ "RequestTXUnlocking "
+							+ "RequestTXUnlocking, "
+							+ "RequestTXAdjustmentOtherBalances,"
+							+ "RequestTXAdjustmentInsuranceBalances,"
 							),
 			@DescriptionsList(order="transactionStatusId", descriptionProperties = "name", condition = "${transactionStatusId} IN ('001','002','003')", 
 					forViews = "AuthorizeTXGeneral, "
@@ -871,6 +932,8 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXSaleForexBank,"
 							+ "AuthorizeTXPurchasePortfolioPayment,"
 							+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+							+ "AuthorizeTXPurchasePortfolioPrepayment,"
+							+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 							+ "AuthorizeTXSalePortfolioPayment,"
 							+ "AuthorizeTXLoanPayment,"
 							+ "AuthorizeTXCreditNotePurchase,"
@@ -879,6 +942,9 @@ public class Transaction implements Serializable {
 							+ "AuthorizeTXPrepareLoanPrepayment,"
 							+ "AuthorizeTXBlocking,"
 							+ "AuthorizeTXUnlocking,"
+							+ "AuthorizeTXAdjustmentOtherBalances,"
+							+ "AuthorizeTXAdjustmentInsuranceBalances,"
+							+ "AuthorizeTXReverseTransaction,"
 							) 
 			})
 	@ReferenceView(forViews = "DEFAULT, TransactionList", value = "simple")
@@ -889,16 +955,16 @@ public class Transaction implements Serializable {
 	@OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
 	@AsEmbedded
 	@ListsProperties({
-		@ListProperties("account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
-		@ListProperties(forViews="TransactionList", value="account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
+		@ListProperties("account.accountId, account.code, account.name, subaccount, quantity, category.categoryId, debitOrCredit, value, branch.name"),
+		@ListProperties(forViews="TransactionList", value="account.accountId, account.code, account.name, subaccount, quantity, category.categoryId, debitOrCredit, value, branch.name"),
 		@ListProperties(forViews="AuthorizeTXManualAccountingEntry,RequestTXManualAccountingEntry",
-					value="account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
+					value="account.code, account.name, subaccount, quantity, category.categoryId, debitOrCredit, value, branch.name"),
 		@ListProperties(forViews="AuthorizeTXGeneral,RequestTXGeneral",
-					value="account.accountId, account.code, account.name, subaccount, category.categoryId, debitOrCredit, value"),
+					value="account.accountId, account.code, account.name, subaccount, quantity, category.categoryId, debitOrCredit, value, branch.name"),
 		@ListProperties(forViews="AuthorizeTXTransferItem,RequestTXTransferItem",
-					value="debitOrCredit, branch.name, account.accountId, account.code, account.alternateCode, account.name, quantity, value"),
+					value="debitOrCredit, branch.name, account.accountId, account.code, account.alternateCode, account.name, quantity, value, branch.name"),
 	})
-	@ReadOnly(forViews = "AuthorizeTXGeneral, AuthorizeTXManualAccountingEntry, AuthorizeTXTransferItem")
+	@ReadOnly(forViews = "AuthorizeTXGeneral, AuthorizeTXManualAccountingEntry, AuthorizeTXTransferItem, AuthorizeTXReverseTransaction")
 	@CollectionViews({
 		@CollectionView(forViews="TransactionList",value="ForList"),
 		@CollectionView(forViews="AuthorizeTXManualAccountingEntry,RequestTXManualAccountingEntry",value="ForManualEntry"),
@@ -930,12 +996,16 @@ public class Transaction implements Serializable {
 				+ "RequestTXInvoicePurchaseCheckPayment, "
 				+ "RequestTXPurchasePortfolioPayment, "
 				+ "RequestTXPurchasePortfolioPaymentValueDate, "
+				+ "RequestTXPurchasePortfolioPrepayment, "
+				+ "RequestTXPurchasePortfolioPrepaymentValueDate, "
 				+ "AuthorizeTXTransferDue, "
 				+ "AuthorizeTXInvoiceSalePayment, "
 				+ "AuthorizeTXInvoicePurchaseCheckPayment, "
 				+ "AuthorizeTXInvoicePurchasePayment, "
 				+ "AuthorizeTXPurchasePortfolioPayment, "
 				+ "AuthorizeTXPurchasePortfolioPaymentValueDate, "
+				+ "AuthorizeTXPurchasePortfolioPrepayment, "
+				+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate, "
 				+ "AuthorizeTXPrepareLoanPrepayment, "
 				+ "RequestTXBlocking, "
 				+ "AuthorizeTXBlocking ",
@@ -967,10 +1037,13 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchBankAccount"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPayableAndCashAccount"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPayableAndCashAccount"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPrepayment", value="SearchAccount.SearchPayableAndCashAccount"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPrepaymentValueDate", value="SearchAccount.SearchPayableAndCashAccount"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchSalePortfolioForPayment"),
 		@SearchAction(forViews="RequestTXBlocking", value="SearchAccount.SearchPayableAccount"),
 		@SearchAction(forViews="RequestTXUnlocking", value="SearchAccount.SearchPayableAccount"),
-		
+		@SearchAction(forViews="RequestTXAdjustmentOtherBalances", value="SearchAccount.SearchPurchasePortfolioForPayment"),
+		@SearchAction(forViews="RequestTXAdjustmentInsuranceBalances", value="SearchAccount.SearchPurchasePortfolioForPayment"),
 	})
 	@ReadOnly(forViews = "AuthorizeTXOpening, "
 			+ "AuthorizeTXTransferSent, "
@@ -1001,6 +1074,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
@@ -1008,6 +1083,8 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXPrepareLoanPrepayment,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
 			)
 	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
 	private Account debitAccount;
@@ -1022,7 +1099,10 @@ public class Transaction implements Serializable {
 		@ReferenceView(forViews="RequestTXUnlocking, AuthorizeTXUnlocking",value="simpleBlockedBalance"),
 		@ReferenceView(forViews="RequestTXInvoiceSalePayment, AuthorizeTXInvoiceSalePayment",value="simpleBalance"),
 		@ReferenceView(forViews="RequestTXPurchasePortfolioPayment, RequestTXPurchasePortfolioPaymentValueDate, "
-				+ "AuthorizeTXPurchasePortfolioPayment, AuthorizeTXPurchasePortfolioPaymentValueDate", value="PurchasePortfolioPayment")
+				+ "RequestTXPurchasePortfolioPrepayment, RequestTXPurchasePortfolioPrepaymentValueDate, "
+				+ "AuthorizeTXPurchasePortfolioPayment, AuthorizeTXPurchasePortfolioPaymentValueDate, "
+				+ "AuthorizeTXPurchasePortfolioPrepayment, AuthorizeTXPurchasePortfolioPrepaymentValueDate",
+				value="PurchasePortfolioPayment")
 	})
 	@NoFrame
 	@ReadOnly(forViews = "AuthorizeTXOpening, "
@@ -1054,12 +1134,16 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXSaleForexBank,"
 			+ "AuthorizeTXPurchasePortfolioPayment,"
 			+ "AuthorizeTXPurchasePortfolioPaymentValueDate,"
+			+ "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate,"
 			+ "AuthorizeTXSalePortfolioPayment,"
 			+ "AuthorizeTXCreditNotePurchase,"
 			+ "AuthorizeTXCreditNoteSale,"
 			+ "AuthorizeTXTransferItem,"
 			+ "AuthorizeTXBlocking,"
 			+ "AuthorizeTXUnlocking,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,"
 			)
 	@SearchActions({ 
 		@SearchAction(forViews="RequestTXOpening", value = "SearchAccount.SearchShareholderAccount"),
@@ -1085,6 +1169,8 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXSaleForexBank", value="SearchAccount.SearchOfficialBankAccount"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPayment", value="SearchAccount.SearchPurchasePortfolioForPayment"),
 		@SearchAction(forViews="RequestTXPurchasePortfolioPaymentValueDate", value="SearchAccount.SearchPurchasePortfolioForPayment"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPrepayment", value="SearchAccount.SearchPurchasePortfolioForPayment"),
+		@SearchAction(forViews="RequestTXPurchasePortfolioPrepaymentValueDate", value="SearchAccount.SearchPurchasePortfolioForPayment"),
 		@SearchAction(forViews="RequestTXSalePortfolioPayment", value="SearchAccount.SearchAccountSaleNegotiation"),
 		@SearchAction(forViews="RequestTXBlocking", value="SearchAccount.SearchPayableAccount"),
 		@SearchAction(forViews="RequestTXUnlocking", value="SearchAccount.SearchPayableAccount"),
@@ -1092,6 +1178,8 @@ public class Transaction implements Serializable {
 	@Actions({
 		@Action(forViews="RequestTXPurchasePortfolioPayment", value = "AccountLoan.GetOverdueBalancePP", alwaysEnabled=true ),
 		@Action(forViews="RequestTXPurchasePortfolioPaymentValueDate", value = "AccountLoan.GetOverdueBalancePPValueDate", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPrepayment", value = "AccountLoan.GetPrepaymentBalancePP", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPrepaymentValueDate", value = "AccountLoan.GetPrepaymentBalancePPValueDate", alwaysEnabled=true ),
 	})
 	private Account creditAccount;
 
@@ -1107,6 +1195,7 @@ public class Transaction implements Serializable {
 	@Temporal(TemporalType.DATE)
 	@ReadOnly(notForViews= "DEFAULT, " 
 		+"RequestTXPurchasePortfolioPaymentValueDate,"
+		+"RequestTXPurchasePortfolioPrepaymentValueDate,"
 	)
 	private Date valueDate;
 
@@ -1117,9 +1206,17 @@ public class Transaction implements Serializable {
 		@DescriptionsList(forViews="RequestTXAdvance, AuthorizeTXAdvance, "
 				+ "RequestTXAdvancePayment, AuthorizeTXAdvancePayment, "
 				+ "RequestTXThirdAdvancePayment, AuthorizeTXThirdAdvancePayment", 
-				condition="${categoryType.categoryTypeId} = '002'")
+				condition="${categoryType.categoryTypeId} = '002'"),
+		@DescriptionsList(forViews="AuthorizeTXAdjustmentInsuranceBalances, "
+				+ "RequestTXAdjustmentInsuranceBalances", 
+				condition="${categoryId} IN ('INSURANRE','MORTGAGERE')"),
+		@DescriptionsList(forViews="AuthorizeTXAdjustmentOtherBalances, "
+				+ "RequestTXAdjustmentOtherBalances", 
+				condition="${categoryId} IN ('LEGALFEERE','RECEIFEERE','INTERESTPR')"),
 	})
-	@ReadOnly(forViews = "AuthorizeTXAdvance, AuthorizeTXAdvancePayment, AuthorizeTXThirdAdvancePayment")
+	@ReadOnly(forViews = "AuthorizeTXAdvance, AuthorizeTXAdvancePayment, AuthorizeTXThirdAdvancePayment,"
+			+ "AuthorizeTXAdjustmentOtherBalances,"
+			+ "AuthorizeTXAdjustmentInsuranceBalances,")
 	@NoCreate
 	@NoModify
 	private Category secondaryCategory;
@@ -1209,6 +1306,12 @@ public class Transaction implements Serializable {
 	@NoFrame
 	@ReadOnly
 	private AccountTerm accountTerm;
+	
+	@Transient
+	@Column(nullable = false, precision = 19, scale = 2)
+	@ReadOnly(forViews = "AuthorizeTXPurchasePortfolioPrepayment,"
+			+ "AuthorizeTXPurchasePortfolioPrepaymentValueDate")
+	private BigDecimal spreadValue;
 	
 	public Transaction() {
 	}
@@ -1513,6 +1616,22 @@ public class Transaction implements Serializable {
 
 	public void setDestinationBranch(Branch destinationBranch) {
 		this.destinationBranch = destinationBranch;
+	}
+
+	public BigDecimal getSpreadValue() {
+		return value;
+	}
+
+	public void setSpreadValue(BigDecimal spreadValue) {
+		this.value = spreadValue;
+	}
+
+	public Integer getSubaccount() {
+		return subaccount;
+	}
+
+	public void setSubaccount(Integer subaccount) {
+		this.subaccount = subaccount;
 	}
 
 }

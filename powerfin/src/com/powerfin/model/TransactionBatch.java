@@ -74,7 +74,7 @@ public class TransactionBatch extends AuditEntity implements Serializable {
 
 	@ManyToOne
 	@JoinColumn(name = "transaction_module_id", nullable = false)
-	@DescriptionsList(descriptionProperties = "name", order = "name")
+	@DescriptionsList(descriptionProperties = "name", order = "name", condition="${allowsBatchProcess} = 1")
 	@NoCreate
 	@NoModify
 	@Required

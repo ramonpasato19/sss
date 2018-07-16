@@ -27,6 +27,12 @@ import com.powerfin.model.superclass.*;
 		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
 		+ "product{product};"
 		+ "detail{details}"),
+@View(name="IssueElectronicRetentionPurchase", members = "accountId, companyAccountingDate;accountStatus;issueDate;"
+		+ "accountInvoice;"
+		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
+		+ "product{product};"
+		+ "detail{details}"
+		+ "documents{electronicDocument;}"),
 @View(name="AuthorizeTXRetentionPurchase", members = "issueDate;"
 		+ "accountInvoice{accountInvoice};"
 		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
@@ -41,16 +47,35 @@ import com.powerfin.model.superclass.*;
 		+ "accountInvoice{accountInvoice};"
 		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
 		+ "product{product};"
-		+ "detail{details}")
+		+ "detail{details}"),
+@View(name="ConsultRetentionPurchase", members = "accountId, companyAccountingDate;accountStatus;issueDate;"
+		+ "accountInvoice;"
+		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
+		+ "product{product};"
+		+ "detail{details}"
+		+ "documents{electronicDocument;}"),
+@View(name="ConsultRetentionSale", members = "accountId, companyAccountingDate;accountStatus;issueDate;"
+		+ "accountInvoice;"
+		+ "voucher{establishmentCode; emissionPointCode; sequentialCode; authorizationCode};"
+		+ "product{product};"
+		+ "detail{details}"
+		+ "documents{electronicDocument;}")
 })
 @Tabs({
 	@Tab(properties="account.accountId, account.person.name, issueDate, total, account.accountStatus.name"),
-	@Tab(name="TXRetentionPurchase", properties="account.accountId, account.person.name, issueDate, total",
+	@Tab(name="TXRetentionPurchase", properties="account.accountId, account.person.name, issueDate",
 			baseCondition = "${account.accountStatus.accountStatusId} = '001' "
 					+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="IssueElectronicRetentionPurchase", properties="account.accountId, account.code, accountInvoice.account.accountId, accountInvoice.account.code, account.person.name, issueDate",
+	baseCondition = "${account.accountStatus.accountStatusId} = '001' AND ${account.operatingCondition.operatingConditionId} != 'ELE' "
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"'"),
 	@Tab(name="TXRetentionSale", properties="account.accountId, account.person.name, issueDate, total",
 			baseCondition = "${account.accountStatus.accountStatusId} = '001' "
-			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"'")
+			+ "and ${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="ConsultRetentionPurchase", properties="account.accountId, account.code, accountInvoice.account.accountId, accountInvoice.account.code, account.person.name, issueDate",
+	baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"'"),
+	@Tab(name="ConsultRetentionSale", properties="account.accountId, account.code, accountInvoice.account.accountId, accountInvoice.account.code, account.person.name, issueDate",
+	baseCondition = "${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"'")
 })
 public class AccountRetention extends AuditEntity {
 
@@ -67,7 +92,7 @@ public class AccountRetention extends AuditEntity {
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="issue_date", nullable=false)
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	@Required
 	private Date issueDate;
 	
@@ -77,7 +102,7 @@ public class AccountRetention extends AuditEntity {
 	@NoCreate
 	@NoModify
 	@ReferenceView("forRetention")
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	@SearchActions({
 		@SearchAction(forViews="RequestTXRetentionPurchase", value="SearchAccount.SearchActiveInvoicePurchase"),
 		@SearchAction(forViews="RequestTXRetentionSale", value="SearchAccount.SearchActiveInvoiceSale"),
@@ -86,37 +111,41 @@ public class AccountRetention extends AuditEntity {
 
 	@Column(name="establishment_code", nullable=false, length=3)
 	@Required
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	private String establishmentCode;
 	
 	@Column(name="emission_point_code", nullable=false, length=3)
 	@Required
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	private String emissionPointCode;
 
 	@Column(name="sequential_code", nullable=false, length=9)
-	@Required
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	private String sequentialCode;
     
-	@Column(name="authorization_code", nullable=false, length=37)
+	@Column(name="authorization_code", nullable=false, length=50)
 	@Required
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	private String authorizationCode;
     
 	@OneToMany(mappedBy="accountRetention", cascade = CascadeType.ALL)
 	@AsEmbedded
 	@ListProperties("retentionConcept.retentionConceptId, amount, taxPercentage, finalAmount")
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	@NewAction("AccountRetentionActions.createNewRetentionDetailToRetention")
 	private List<AccountRetentionDetail> details;
+	
+	@Transient
+	@Stereotype("FILE")
+	@ReadOnly
+	private String electronicDocument;
 	
 	@Transient
 	@ManyToOne
 	@DescriptionsList
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="RequestTXRetentionPurchase, RequestTXRetentionSale")
+	@ReadOnly(forViews="RequestTXRetentionPurchase, RequestTXRetentionSale, IssueElectronicRetentionPurchase")
 	private AccountStatus accountStatus;
 	
 	@Transient
@@ -124,7 +153,7 @@ public class AccountRetention extends AuditEntity {
 	@Required
 	@NoCreate
 	@NoModify
-	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale")
+	@ReadOnly(forViews="AuthorizeTXRetentionPurchase, AuthorizeTXRetentionSale, IssueElectronicRetentionPurchase")
 	@ReferenceView("Reference")
 	@SearchActions({
 		@SearchAction(forViews="RequestTXRetentionPurchase", value="SearchProduct.SearchRetentionPurchase"),
@@ -256,4 +285,15 @@ public class AccountRetention extends AuditEntity {
 	public BigDecimal getBalance() throws Exception {
 		return BalanceHelper.getBalance(getAccount().getAccountId());
 	}
+
+	public String getElectronicDocument() {
+		if (account!=null)
+			return account.getElectronicDocument();
+		return electronicDocument;
+	}
+
+	public void setElectronicDocument(String electronicDocument) {
+		this.electronicDocument = electronicDocument;
+	}
+	
 }

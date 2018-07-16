@@ -1,15 +1,28 @@
 package com.powerfin.model;
 
 import java.io.Serializable;
-import javax.persistence.*;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-
-import org.hibernate.annotations.*;
-import org.openxava.annotations.*;
-
 import java.math.BigDecimal;
 import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.openxava.annotations.DisplaySize;
+import org.openxava.annotations.Hidden;
+import org.openxava.annotations.ReadOnly;
+import org.openxava.annotations.ReferenceView;
+import org.openxava.annotations.Tab;
+import org.openxava.annotations.Tabs;
+import org.openxava.annotations.View;
+import org.openxava.annotations.Views;
 
 
 /**
@@ -18,7 +31,78 @@ import java.util.Date;
  */
 @Entity
 @Table(name="account_paytable")
-@Tab(properties="accountId, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection")
+@Views({
+		@View(members="#accountId; "
+				+ "subaccount; "
+				+ "dueDate;"
+				+ "provisionDays;"
+				+ "capitalReduced;"
+				+ "capital, interest;"
+				+ "insurance, insuranceMortgage;"
+				+ "commission;"
+				+ "purchaseSpread, utilitySalePortfolio;"
+				+ "paymentDate, lastPaymentDate;"
+				+ "lastPaymentDateDefaultInterest, lastPaymentDateCollection;"
+				+ "account;"),
+		@View(name="ConsultPaytable", 
+				members="#accountId; "
+				+ "subaccount; "
+				+ "dueDate;"
+				+ "provisionDays;"
+				+ "capitalReduced;"
+				+ "capital, interest;"
+				+ "insurance, insuranceMortgage;"
+				+ "commission;"
+				+ "purchaseSpread, utilitySalePortfolio;"
+				+ "paymentDate, lastPaymentDate;"
+				+ "lastPaymentDateDefaultInterest, lastPaymentDateCollection;"
+				+ "account;"),
+		@View(name="UpdateAccountPaytableDates", 
+				members="#accountId; "
+				+ "subaccount; "
+				+ "dueDate;"
+				+ "provisionDays;"
+				+ "capitalReduced;"
+				+ "capital, interest;"
+				+ "insurance, insuranceMortgage;"
+				+ "commission;"
+				+ "purchaseSpread, utilitySalePortfolio;"
+				+ "paymentDate, lastPaymentDate;"
+				+ "lastPaymentDateDefaultInterest, lastPaymentDateCollection;"
+				+ "account;"),
+		@View(name="UpdateAccountPaytableInsurances", 
+				members="#accountId; "
+				+ "subaccount; "
+				+ "dueDate;"
+				+ "provisionDays;"
+				+ "capitalReduced;"
+				+ "capital, interest;"
+				+ "insurance, insuranceMortgage;"
+				+ "commission;"
+				+ "purchaseSpread, utilitySalePortfolio;"
+				+ "paymentDate, lastPaymentDate;"
+				+ "lastPaymentDateDefaultInterest, lastPaymentDateCollection;"
+				+ "account;"),
+		@View(name="UpdateAccountPaytable", 
+				members="#accountId; "
+				+ "subaccount; "
+				+ "dueDate;"
+				+ "provisionDays;"
+				+ "capitalReduced;"
+				+ "capital, interest;"
+				+ "insurance, insuranceMortgage;"
+				+ "commission;"
+				+ "purchaseSpread, utilitySalePortfolio;"
+				+ "paymentDate, lastPaymentDate;"
+				+ "lastPaymentDateDefaultInterest, lastPaymentDateCollection;"
+				+ "account;"),
+})
+@Tabs({
+	@Tab(properties="accountId, account.accountStatus.accountStatusId, account.accountStatus.name, account.product.productId, account.product.name, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection"),
+	@Tab(name="UpdateAccountPaytableDates", properties="accountId, account.accountStatus.accountStatusId, account.accountStatus.name, account.product.productId, account.product.name, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection"),
+	@Tab(name="UpdateAccountPaytableInsurances", properties="accountId, account.accountStatus.accountStatusId, account.accountStatus.name, account.product.productId, account.product.name, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection"),
+	@Tab(name="UpdateAccountPaytable", properties="accountId, account.accountStatus.accountStatusId, account.accountStatus.name, account.product.productId, account.product.name, subaccount, dueDate, provisionDays, capitalReduced, capital, interest, insurance, insuranceMortgage, commission, purchaseSpread, utilitySalePortfolio, paymentDate, lastPaymentDate, lastPaymentDateDefaultInterest, lastPaymentDateCollection")
+})
 public class AccountPaytable implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -30,61 +114,80 @@ public class AccountPaytable implements Serializable {
 	private String accountPaytableId;
 
 	@Column(name="account_id", unique=true, nullable=false)
+	@ReadOnly(notForViews="DEFAULT, UpdateAccountPaytable")
+	@DisplaySize(25)
 	private String accountId;
 	
 	@Column(unique=true, nullable=false)
+	@ReadOnly(notForViews="DEFAULT, UpdateAccountPaytable")
 	private Integer subaccount;
 	
 	@Column(precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal capital;
 
 	@Column(name="capital_reduced", precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal capitalReduced;
 
 	@Column(precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal commission;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="due_date")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private Date dueDate;
 
 	@Column(precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates")
 	private BigDecimal insurance;
 
 	@Column(name="insurance_mortgage", precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates")
 	private BigDecimal insuranceMortgage;
 
 	@Column(precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal interest;
 
 	@Column(name="purchase_spread", precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal purchaseSpread;
 	
 	@Column(name="utility_sale_portfolio", precision=11, scale=2)
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private BigDecimal utilitySalePortfolio;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="payment_date")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableInsurances")
 	private Date paymentDate;
 
 	@Temporal(TemporalType.DATE)
 	@Column(name="last_payment_date")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableInsurances")
 	private Date lastPaymentDate;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="last_payment_date_collection")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableInsurances")
 	private Date lastPaymentDateCollection;
 	
 	@Temporal(TemporalType.DATE)
 	@Column(name="last_payment_date_default_int")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableInsurances")
 	private Date lastPaymentDateDefaultInterest;
 	
 	@Column(name="provision_days")
+	@ReadOnly(forViews="ConsultPaytable, UpdateAccountPaytableDates, UpdateAccountPaytableInsurances")
 	private Integer provisionDays;
 
 	//bi-directional many-to-one association to Account
 	@ManyToOne
 	@JoinColumn(name="account_id", nullable=false, insertable=false, updatable=false)
+	@ReferenceView("reference")
+	@ReadOnly(notForViews="DEFAULT, UpdateAccountPaytable")
 	private Account account;
 		
 	public AccountPaytable() {

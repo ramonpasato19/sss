@@ -1,7 +1,9 @@
 package com.powerfin.util.report;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 
 import javax.servlet.*;
 
@@ -37,6 +39,7 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 			reportName = reportName+"_"+getFormat().toUpperCase();
 		
 		Report report = ReportHelper.findReportByName(reportName);
+		setFileName(report.getName()+" "+new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date()));
 		setFormat(report.getFormat().toLowerCase());
 		JasperReport jReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
 		Map parameters = getParameters();

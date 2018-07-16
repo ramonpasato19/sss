@@ -41,6 +41,13 @@ public class UtilApp {
 		return formatDate.format(date);
 	}
 
+	public static String dateToString(Date date, String format) {
+		if (date == null)
+			return "null_date_to_covert";
+		SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.getDefault());
+		return formatDate.format(date);
+	}
+	
 	public static Date stringToDate(String dateString) throws ParseException {
 		if (dateString == null)
 			throw new InternalException("string_to_convert_is_null");
