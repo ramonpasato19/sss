@@ -6,6 +6,7 @@ public class NegotiationSalePortfolioDTO {
 	private String amount;
 	private String saleSpreadAmount;
 	private String saleSpreadRate;
+	private String saleFromSubaccount;
 	
 	public NegotiationSalePortfolioDTO(String[] dataLine)
 	{
@@ -13,7 +14,7 @@ public class NegotiationSalePortfolioDTO {
 		amount = dataLine[1];
 		saleSpreadAmount = dataLine[2];
 		saleSpreadRate = dataLine[3];
-		
+		saleFromSubaccount = dataLine[4];
 	}
 
 	public String getOriginalAccount() {
@@ -46,6 +47,14 @@ public class NegotiationSalePortfolioDTO {
 
 	public void setSaleSpreadRate(String saleSpreadRate) {
 		this.saleSpreadRate = saleSpreadRate;
+	}
+
+	public String getSaleFromSubaccount() {
+		return saleFromSubaccount;
+	}
+
+	public void setSaleFromSubaccount(String saleFromSubaccount) {
+		this.saleFromSubaccount = saleFromSubaccount;
 	}
 	
 }

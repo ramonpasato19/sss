@@ -195,8 +195,8 @@ public class AccountLoanHelper {
 				+ "capital+interest+default_interest+insurance+insurance_mortgage+collection_fee+receivable_fee+legal_fee as total "
 				+ "from ( "
 				+ "select x.*, "
-				+ schema+".get_default_interest(x.real_overdue_days, x.overdue_days, capital+insurance+insurance_mortgage, x.account_id, x.last_payment_date_default_int) default_interest, "
-				+ schema+".get_collection_fee(x.overdue_days, capital+interest+insurance+insurance_mortgage, x.account_id, x.last_payment_date_collection) collection_fee "
+				+ "coalesce("+schema+".get_default_interest(x.real_overdue_days, x.overdue_days, capital+insurance+insurance_mortgage, x.account_id, x.last_payment_date_default_int),0) default_interest, "
+				+ "coalesce("+schema+".get_collection_fee(x.overdue_days, capital+interest+insurance+insurance_mortgage, x.account_id, x.last_payment_date_collection),0) collection_fee "
 				+ "from ( "
 				+ "select 'odue-'||b.account_id||'-'||b.subaccount id, "
 				+ "b.account_id, b.subaccount, ap.due_date,  "
@@ -220,6 +220,7 @@ public class AccountLoanHelper {
 				+ "and b.subaccount = ap.subaccount  "
 				+ "and ap.due_date <= :accountingDate "
 				+ "and ap.payment_date is null "
+				+ "and b.balance != 0 "
 				+ "and b.account_id in ("+queryAccount+") "
 				+ "group by b.account_id, b.subaccount, ap.due_date, ap.payment_date, ap.last_payment_date_default_int, ap.last_payment_date, ap.last_payment_date_collection "
 				+ ") as x  ";
@@ -246,12 +247,12 @@ public class AccountLoanHelper {
 				+ "ap.last_payment_date_collection, "
 				+ "ap.last_payment_date_default_int, "
 				+ "cast(:projectedAccountingDate as date) accounting_date, "
-				+ schema+".get_default_interest(COALESCE(:projectedAccountingDate - ap.due_date, 0), COALESCE(:projectedAccountingDate - ap.due_date, 0), "
+				+ "coalesce("+schema+".get_default_interest(COALESCE(:projectedAccountingDate - ap.due_date, 0), COALESCE(:projectedAccountingDate - ap.due_date, 0), "
 				+ "COALESCE(ap.capital,0) + COALESCE(ap.insurance,0) + COALESCE(ap.insurance_mortgage,0), " 
-				+ "ap.account_id, ap.last_payment_date_default_int) default_interest, "
-				+ schema+".get_collection_fee(COALESCE(:projectedAccountingDate - ap.due_date, 0), "
+				+ "ap.account_id, ap.last_payment_date_default_int),0) default_interest, "
+				+ "coalesce("+schema+".get_collection_fee(COALESCE(:projectedAccountingDate - ap.due_date, 0), "
 				+ "COALESCE(ap.capital,0) + COALESCE(ap.interest,0) + COALESCE(ap.insurance,0) + COALESCE(ap.insurance_mortgage,0), " 
-				+ "ap.account_id, ap.last_payment_date_collection) collection_fee "
+				+ "ap.account_id, ap.last_payment_date_collection),0) collection_fee "
 				+ "from "+schema+".account_paytable ap "
 				+ "where ap.due_date > :accountingDate "
 				+ "and ap.due_date <= :projectedAccountingDate "
@@ -887,6 +888,16 @@ public class AccountLoanHelper {
 		
 		for (AccountOverdueBalance quota: loanBalances)
 		{
+			if (UtilApp.isGreaterThanZero(quota.getReceivableFee()))
+			{
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), quota.getSubaccount(), quota.getReceivableFee(), transaction, CategoryHelper.getCategoryById(CategoryHelper.RECEIVABLE_FEE_RE_CATEGORY), quota.getDueDate());
+				ta.setRemark(XavaResources.getString("receivable_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(disbursementAccount, quota.getReceivableFee(), transaction);
+				ta.setRemark(XavaResources.getString("receivable_fee_payment_quota_number", accountLoan.getAccountId(), quota.getSubaccount()));
+				transactionAccounts.add(ta);
+			}
 			
 			if (UtilApp.isGreaterThanZero(quota.getLegalFee()))
 			{
@@ -974,7 +985,7 @@ public class AccountLoanHelper {
 			}
 			else
 			{
-				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), 0, spreadValue, transaction, CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_EX_CATEGORY), null);
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(accountLoan.getAccount(), 0, spreadValue, transaction, CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_PR_CATEGORY), null);
 			}
 			ta.setRemark(XavaResources.getString("purchase_spread_payment", accountLoan.getAccountId()));
 			transactionAccounts.add(ta);

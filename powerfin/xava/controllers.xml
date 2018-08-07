@@ -525,6 +525,7 @@
 	</controller>
 	
 	<controller name="AccountingLedgerController">
+	<!-- 
 		<action name="generate" 
 			mode="detail" 
 			class="com.powerfin.actions.balanceAccounting.AccountingLedgerGenerateAction"
@@ -532,8 +533,10 @@
 			image="save.gif"
 			by-default="if-possible">
 		</action>
+		 -->
 		<action name="printAccountingLedger" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" icon="file-pdf">
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" image="pdf.gif" icon="file-pdf"
+			by-default="if-possible">
 		</action>
 		<action name="printAccountingDailyBook" mode="detail"
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingDailyBookAction" icon="file-pdf">
@@ -860,6 +863,7 @@
 	</controller>
 	
 	<controller name="AccountMovementController">
+	<!-- 
 		<action name="generate" 
 			mode="detail" 
 			class="com.powerfin.actions.account.AccountMovementGenerateAction"
@@ -867,8 +871,10 @@
 			image="save.gif"
 			by-default="if-possible">
 		</action>
+	 -->
 		<action name="printAccountMovement" mode="detail"
-			class="com.powerfin.actions.account.PrintAccountMovementAction" icon="file-pdf">
+			class="com.powerfin.actions.account.PrintAccountMovementAction" image="pdf.gif" icon="file-pdf"
+			by-default="if-possible">
 			<set property="format" value="pdf"/>
 		</action>
 		<action name="printAccountMovementEXCEL" mode="detail"

@@ -9,8 +9,7 @@ import org.openxava.annotations.*;
 
 @View(members="bookAccount;"
 		+ "fromDate;"
-		+ "toDate;"
-		+ "movements;")
+		+ "toDate;")
 public class AccountingLedger {
 
 	@Column

@@ -24,7 +24,7 @@ public class NegotiationHelper {
 	public final static Integer PERSON_FILE_NUM_COLUMNS = 18;
 	public final static Integer LOAN_FILE_NUM_COLUMNS = 19;
 	public final static Integer PAYTABLE_FILE_NUM_COLUMNS = 9;
-	public final static Integer SALE_PORTFOLIO_FILE_NUM_COLUMNS = 4;
+	public final static Integer SALE_PORTFOLIO_FILE_NUM_COLUMNS = 5;
 		
 	public final static String NATURAL_PERSON = "NAT";
 	public final static String LEGAL_PERSON = "LEG";
@@ -249,6 +249,11 @@ public class NegotiationHelper {
 					return XavaResources.getString("spread_rate_loan_is_required");
 				else if(!UtilApp.isValidDecimalNumber(loanDTO.getSaleSpreadRate()))
 					return XavaResources.getString("number_decimal_format_is_required","spread_rate");
+				
+				if(UtilApp.isNullOrEmpty(loanDTO.getSaleFromSubaccount()))
+					return XavaResources.getString("from_subaccount_is_required");
+				else if(!UtilApp.isValidIntegerNumber(loanDTO.getSaleFromSubaccount()))
+					return XavaResources.getString("integer_format_is_required","sale_from_amount");
 				
 	        }else{
 	        	return XavaResources.getString("not_number_columns_required");

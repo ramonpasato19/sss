@@ -1,23 +1,38 @@
 package com.powerfin.model;
 
-import java.math.*;
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 
-import org.openxava.annotations.*;
+import org.openxava.annotations.CollectionView;
+import org.openxava.annotations.DescriptionsList;
+import org.openxava.annotations.DescriptionsLists;
+import org.openxava.annotations.ListAction;
+import org.openxava.annotations.ListActions;
+import org.openxava.annotations.ListProperties;
+import org.openxava.annotations.NoCreate;
+import org.openxava.annotations.NoModify;
+import org.openxava.annotations.ReadOnly;
+import org.openxava.annotations.ReferenceView;
+import org.openxava.annotations.SearchAction;
+import org.openxava.annotations.View;
+import org.openxava.annotations.Views;
+import org.openxava.jpa.XPersistence;
 
 @Views({
 	@View(name="ViewAccountMovement", members="account;"
 		+ "category;"
 		+ "fromDate;"
-		+ "toDate;"
-		+ "movements;"),
+		+ "toDate;"),
 	@View(name="ViewAccountPayableMovement", members="account;"
 			+ "category;"
 			+ "fromDate;"
-			+ "toDate;"
-			+ "movements;"),
+			+ "toDate;"),
 })
 public class ViewAccountMovement {
 
@@ -63,9 +78,11 @@ public class ViewAccountMovement {
 		@ListAction("AccountPayableMovementController.generateExcel")
 	})
 	@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
+	/*
 	@Condition(value="${account.accountId} = ${this.account.accountId} "
 			+ "and ${financial.accountingDate} between ${this.fromDate} and ${this.toDate} "
 			+ "and ${category.categoryId} = ${this.category.categoryId} ")
+	*/
 	@CollectionView("AccountPayableMovement")
 	private List<Movement> movements;
 
@@ -113,8 +130,34 @@ public class ViewAccountMovement {
 		this.finalBalance = finalBalance;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Movement> getMovements() {
-		return movements;
+		
+		if (account==null)
+			return null;
+		if (fromDate.compareTo(toDate) == 0)
+		{
+			return XPersistence.getManager().createQuery("SELECT m FROM Movement m "
+					+ "WHERE account.accountId = :accountId "
+					+ "and financial.accountingDate = :accountingDate "
+					+ "and category.categoryId = :categoryId ")
+					.setParameter("accountId", account.getAccountId())
+					.setParameter("accountingDate", fromDate)
+					.setParameter("categoryId", category.getCategoryId())
+					.getResultList();
+		}
+		else
+		{
+			return XPersistence.getManager().createQuery("SELECT m FROM Movement m "
+					+ "WHERE account.accountId = :accountId "
+					+ "and financial.accountingDate between :fromDate and :toDate"
+					+ "and category.categoryId = :categoryId ")
+					.setParameter("accountId", account.getAccountId())
+					.setParameter("fromDate", fromDate)
+					.setParameter("toDate", toDate)
+					.setParameter("categoryId", category.getCategoryId())
+					.getResultList();
+		}
 	}
 
 	public void setMovements(List<Movement> movements) {

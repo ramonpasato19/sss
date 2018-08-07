@@ -35,6 +35,9 @@ public class AccountSoldPaytable implements Serializable {
 	@Column(unique=true, nullable=false)
 	private Integer subaccount;
 	
+	@Column(name = "sale_subaccount", unique=true, nullable=false)
+	private Integer saleSubaccount;
+	
 	@Column(precision=11, scale=2)
 	private BigDecimal capital;
 
@@ -233,6 +236,14 @@ public class AccountSoldPaytable implements Serializable {
 
 	public void setLastPaymentDateDefaultInterest(Date lastPaymentDateDefaultInterest) {
 		this.lastPaymentDateDefaultInterest = lastPaymentDateDefaultInterest;
+	}
+
+	public Integer getSaleSubaccount() {
+		return saleSubaccount;
+	}
+
+	public void setSaleSubaccount(Integer saleSubaccount) {
+		this.saleSubaccount = saleSubaccount;
 	}
 
 	public BigDecimal getTotalQuota() {

@@ -99,10 +99,12 @@ public class NegotiationSaleLoan {
 	            						+ "WHERE o.account.accountId = :accountId "
 	            						+ "AND o.category.categoryId = :categoryId "
 	            						+ "AND o.toDate = :toDate "
+	            						+ "AND o.subaccount >= :fromSubaccount "
 	            						+ "ORDER BY o.subaccount DESC")
 	            				.setParameter("accountId", account.getAccountId())
 	            				.setParameter("categoryId", capitalCategory.getCategoryId())
 	            				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+	            				.setParameter("fromSubaccount", Integer.parseInt(loanDTO.getSaleFromSubaccount()))
 	            				.getResultList();
 	            		
 	            		List<Balance> spreadBalances = XPersistence.getManager()
@@ -130,6 +132,9 @@ public class NegotiationSaleLoan {
 	            		
 	            		if (capitalBalance.compareTo(accountPortfolio.getSaleAmount())<0)
 	                		throw new OperativeException("sale_not_processed_balance_is_less_than_sale_amount",capitalBalance,accountPortfolio.getSaleAmount());
+	            		
+	            		if (capitalBalance.compareTo(accountPortfolio.getSaleAmount())>0)
+	                		throw new OperativeException("sale_not_processed_sale_amout_less_than_balance",capitalBalance,accountPortfolio.getSaleAmount());
 	            		
 	            		if (spreadBalances!=null && !spreadBalances.isEmpty())
 	            			for (Balance spreadBalance : spreadBalances)
@@ -160,9 +165,8 @@ public class NegotiationSaleLoan {
 	        						ta = TransactionAccountHelper.createCustomDebitTransactionAccount(accountLoan.getDisbursementAccount(), balance.getBalance(), transaction);
 	        						ta.setRemark(XavaResources.getString("quota_number", balance.getSubaccount()));
 	        						transactionAccounts.add(ta);
-
 	        					}
-		        				
+	        					
 	        					//cancel spread purchase
 	        					if (spreadPurchaseBalance.compareTo(BigDecimal.ZERO)>0)
 	        					{

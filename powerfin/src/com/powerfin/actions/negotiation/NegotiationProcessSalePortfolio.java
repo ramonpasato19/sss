@@ -7,6 +7,7 @@ import java.util.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 
+import com.powerfin.exception.OperativeException;
 import com.powerfin.helper.*;
 import com.powerfin.model.*;
 import com.powerfin.model.dto.*;
@@ -21,7 +22,7 @@ public class NegotiationProcessSalePortfolio {
 	List<AccountPaytable> payTables;
 	private AccountStatus portfolioStatus = null; 
 	private AccountPortfolioStatus accountPortfolioStatus = null;
-	
+	private Date currentAccountingDate = null;
 	String[] dataLine;
 	String validationMessages;
 	
@@ -37,6 +38,9 @@ public class NegotiationProcessSalePortfolio {
         String delimiter = "\t";
         int lineNumber = 1;
         int row=0;
+        BigDecimal capitalBalance;
+        currentAccountingDate = CompanyHelper.getCurrentAccountingDate();
+        
         accountPortfolioStatus = XPersistence.getManager().find(AccountPortfolioStatus.class, AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID);
     	try {
     		
@@ -59,11 +63,44 @@ public class NegotiationProcessSalePortfolio {
 		        			validationMessages=XavaResources.getString("transaction_module_not_found", AccountLoanHelper.SALE_PORTFOLIO_TRANSACTION_MODULE);
 		            	
 		        		payTables = XPersistence.getManager()
-		         				.createQuery("select a from AccountPaytable a where a.accountId = :accountId "
-		         						+ "order by a.subaccount")  
+		         				.createQuery("SELECT a FROM AccountPaytable a WHERE a.accountId = :accountId "
+		         						+ "AND a.subaccount >= :fromSubaccount "
+		         						+ "ORDER BY a.subaccount")  
 		         				.setParameter("accountId", loanDTO.getOriginalAccount())
+		         				.setParameter("fromSubaccount", Integer.parseInt(loanDTO.getSaleFromSubaccount()))
 		         				.getResultList();
-		        			        		
+		        		
+		        		List<Balance> balances = XPersistence.getManager()
+	            				.createQuery("SELECT o FROM Balance o "
+	            						+ "WHERE o.account.accountId = :accountId "
+	            						+ "AND o.category.categoryId = :categoryId "
+	            						+ "AND o.toDate = :toDate "
+	            						+ "AND o.subaccount >= :fromSubaccount "
+	            						+ "ORDER BY o.subaccount DESC")
+	            				.setParameter("accountId", loanDTO.getOriginalAccount())
+	            				.setParameter("categoryId", CategoryHelper.CAPITAL_CATEGORY)
+	            				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+	            				.setParameter("fromSubaccount", Integer.parseInt(loanDTO.getSaleFromSubaccount()))
+	            				.getResultList();
+		        		
+		        		capitalBalance = BigDecimal.ZERO;
+		        		
+		        		if (balances==null || balances.isEmpty())
+	                		throw new OperativeException("sale_not_processed_with_out_balances");
+	            		else
+	            			for (Balance balance : balances)
+	            				capitalBalance = capitalBalance.add(balance.getBalance());
+		        		
+		        		if (capitalBalance.compareTo(BigDecimal.ZERO)<=0)
+	                		throw new OperativeException("sale_not_processed_with_balance_zero");
+	            		
+	            		if (capitalBalance.compareTo(new BigDecimal(loanDTO.getAmount()))<0)
+	                		throw new OperativeException("sale_not_processed_balance_is_less_than_sale_amount",capitalBalance,new BigDecimal(loanDTO.getAmount()));
+	            		
+	            		if (capitalBalance.compareTo(new BigDecimal(loanDTO.getAmount()))>0)
+	                		throw new OperativeException("sale_not_processed_sale_amout_less_than_balance",capitalBalance,new BigDecimal(loanDTO.getAmount()));
+	            		
+	            		
 		        		accountLoan = XPersistence.getManager().find(AccountLoan.class, loanDTO.getOriginalAccount());
 		        		accountPortfolio = XPersistence.getManager().find(AccountPortfolio.class, loanDTO.getOriginalAccount());
 		        		
@@ -110,13 +147,29 @@ public class NegotiationProcessSalePortfolio {
 	{
 		int daysPreviousPeriod = 0;
 		int daysCurrentPeriod = 0;
+		int saleFromSubaccount = Integer.parseInt(loanDTO.getSaleFromSubaccount());
+		int fullPeriod = 0;
+		Date lastDueDate = null;
+		
 		BigDecimal saleSpread = accountPortfolio.getSaleSpread();
 		
 		try{
 			for (AccountPaytable accountPaytable : payTables)
 			{
+				lastDueDate = accountPaytable.getDueDate();
+			}
+			
+			fullPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, lastDueDate);
+			
+			for (AccountPaytable accountPaytable : payTables)
+			{
 				daysCurrentPeriod = 0;
-				daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
+				if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
+				{
+					daysCurrentPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate());
+				}
+				else
+					daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
 				
 				AccountSoldPaytable soldPaytable = new AccountSoldPaytable();
 				AccountPaytableOld soldPaytableOld = new AccountPaytableOld();
@@ -145,13 +198,21 @@ public class NegotiationProcessSalePortfolio {
 				soldPaytable.setInterest(accountPaytable.getInterest());
 				soldPaytableOld.setInterest(accountPaytable.getInterest());
 				
-				soldPaytable.setProvisionDays(accountPaytable.getProvisionDays());
-				soldPaytableOld.setProvisionDays(accountPaytable.getProvisionDays());
+				if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
+				{
+					soldPaytable.setProvisionDays(UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate()));
+					soldPaytableOld.setProvisionDays(UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate()));
+				}
+				else
+				{
+					soldPaytable.setProvisionDays(accountPaytable.getProvisionDays());
+					soldPaytableOld.setProvisionDays(accountPaytable.getProvisionDays());
+				}
 
 				soldPaytable.setSubaccount(accountPaytable.getSubaccount());
 				soldPaytableOld.setSubaccount(accountPaytable.getSubaccount());
 	
-				soldPaytable.setPurchaseSpread(getAccumulatedProvision(accountLoan.getPeriod(), saleSpread, daysPreviousPeriod, daysCurrentPeriod));
+				soldPaytable.setPurchaseSpread(getAccumulatedProvision(fullPeriod, saleSpread, daysPreviousPeriod, daysCurrentPeriod));
 				soldPaytableOld.setPurchaseSpread(soldPaytable.getPurchaseSpread());
 				
 				soldPaytable.setUtilitySalePortfolio(BigDecimal.ZERO);
@@ -161,10 +222,12 @@ public class NegotiationProcessSalePortfolio {
 				soldPaytableOld.setFromDate(CompanyHelper.getCurrentAccountingDate());
 				soldPaytableOld.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
 				
+				soldPaytable.setSaleSubaccount(accountPaytable.getSubaccount()-saleFromSubaccount+1);
+				
 				XPersistence.getManager().persist(soldPaytable);
 				XPersistence.getManager().persist(soldPaytableOld);
 				
-				daysPreviousPeriod = daysCurrentPeriod; 
+				daysPreviousPeriod = daysCurrentPeriod;
 				
 			}
 			
@@ -195,6 +258,8 @@ public class NegotiationProcessSalePortfolio {
 	{
 		int daysPreviousPeriod = 0;
 		int daysCurrentPeriod = 0;
+		int fullPeriod = 0;
+		Date lastDueDate = null;
 		BigDecimal utility = accountPortfolio.getSaleSpread().subtract(accountPortfolio.getPurchaseSpread());
 		
 		try{
@@ -206,11 +271,23 @@ public class NegotiationProcessSalePortfolio {
 			
 			for (AccountPaytable accountPaytable : payTables)
 			{
+				lastDueDate = accountPaytable.getDueDate();
+			}
+			
+			fullPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, lastDueDate);
+					
+			for (AccountPaytable accountPaytable : payTables)
+			{
 				daysCurrentPeriod = 0;
 	
-				daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
-	
-				accountPaytable.setUtilitySalePortfolio(getAccumulatedProvision(accountLoan.getPeriod(), utility, daysPreviousPeriod, daysCurrentPeriod));
+				if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
+				{
+					daysCurrentPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate());
+				}
+				else
+					daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
+				
+				accountPaytable.setUtilitySalePortfolio(getAccumulatedProvision(fullPeriod, utility, daysPreviousPeriod, daysCurrentPeriod));
 				
 				XPersistence.getManager().merge(accountPaytable);
 				

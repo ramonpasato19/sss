@@ -33,8 +33,12 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		initialBalanceDate.setTime(fromDate);
 		initialBalanceDate.add(Calendar.DAY_OF_MONTH, -1);
 		
-		if (accountId==null)
+		if (accountId==null || accountId.isEmpty())
 			throw new OperativeException("account_is_required");
+		
+		if (categoryId==null || categoryId.isEmpty())
+			throw new OperativeException("category_is_required");
+		
 		Map parameters = new HashMap();
 		
 		addDefaultParameters(parameters);

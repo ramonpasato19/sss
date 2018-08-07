@@ -52,7 +52,21 @@ public class ReportHelper {
 	public static Report findReportByName(String reportName) throws Exception {
 		Report report = XPersistence.getManager().find(Report.class, reportName.toUpperCase());
 		if (report==null)
+		{
 			throw new InternalException("report_not_found", reportName);
+			/*
+			String currentSchema = XPersistence.getDefaultSchema();
+			System.out.println(XPersistence.getDefaultSchema());
+			XPersistence.setDefaultSchema("public");
+			System.out.println(XPersistence.getDefaultSchema());
+			report = XPersistence.getManager().find(Report.class, reportName.toUpperCase());
+			XPersistence.setDefaultSchema(currentSchema);
+			if (report==null)
+			{
+				throw new InternalException("report_not_found", reportName);
+			}
+			*/
+		}
 		log.info("######## REPORT: " + report.getReportId());
 		log.info("######## REPORT FORMAT: " + report.getFormat());
 		return report;

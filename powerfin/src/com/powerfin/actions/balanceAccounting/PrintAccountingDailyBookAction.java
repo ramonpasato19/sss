@@ -31,7 +31,7 @@ public class PrintAccountingDailyBookAction extends ReportBaseAction {
 		initialBalanceDate.setTime(fromDate);
 		initialBalanceDate.add(Calendar.DAY_OF_MONTH, -1);
 		
-		if (bookAccountId==null)
+		if (bookAccountId==null || bookAccountId.isEmpty())
 			throw new OperativeException("book_account_is_required");
 		Map parameters = new HashMap();
 		
