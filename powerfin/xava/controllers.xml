@@ -656,14 +656,11 @@
 	</controller>
 	
 	<controller name="TermReportController">
-		<action name="printActiveAccountTerm" mode="detail"
-			class="com.powerfin.actions.accountTerm.PrintActiveAccounts" icon="file-pdf" image="save.gif" >
+		<action name="printBalances" mode="detail"
+			class="com.powerfin.actions.accountTerm.PrintBalances" icon="file-pdf" image="save.gif" >
 		</action>
-		<action name="printCanceledAccountTerm" mode="detail"
-			class="com.powerfin.actions.accountTerm.PrintCanceledAccounts" icon="file-pdf">
-		</action>
-		<action name="printRenewedAccountTerm" mode="detail"
-			class="com.powerfin.actions.accountTerm.PrintRenewedAccounts" icon="file-pdf">
+		<action name="printList" mode="detail"
+			class="com.powerfin.actions.accountTerm.PrintList" icon="file-pdf">
 		</action>
 	</controller>
 	

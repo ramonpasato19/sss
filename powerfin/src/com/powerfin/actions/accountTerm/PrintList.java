@@ -8,7 +8,7 @@ import com.powerfin.util.report.*;
 
 import net.sf.jasperreports.engine.*;
 
-public class PrintRenewedAccounts extends ReportBaseAction {
+public class PrintList extends ReportBaseAction {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map getParameters() throws Exception {
