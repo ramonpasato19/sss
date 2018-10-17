@@ -56,7 +56,7 @@ public class FinancialHelper {
 				continue;
 			
 			String bookAccountParametrized = BookAccountHelper.getBookAccountParametrized(
-					ta.getAccount(), ta.getCategory());
+					ta.getAccount(), ta.getCategory(), ta.getSubaccount());
 			
 			BookAccount bookAccount = BookAccountHelper.getBookAccount(bookAccountParametrized);
 			
