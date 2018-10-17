@@ -30,7 +30,7 @@ import com.powerfin.util.*;
 					+ "transactionalName;"
 					+ "openingDate, accountStatus; "
 					+ "cancellationDate;"
-					+ "operatingCondition; "
+					+ "operatingCondition; legalCondition;"
 					+ "branch; "
 					+ "product;"
 					+ "person;"
@@ -41,9 +41,9 @@ import com.powerfin.util.*;
 					+ "code, alternateCode, externalCode; "
 					+ "name;"
 					+ "transactionalName;"
-					+ "accountStatus, operatingCondition; "
-					+ "openingDate; "
-					+ "cancellationDate;"
+					+ "accountStatus; "
+					+ "operatingCondition, legalCondition; "
+					+ "openingDate, cancellationDate;"
 					+ "branch; "
 					+ "product;"
 					+ "person;"
@@ -165,6 +165,13 @@ public class Account extends AuditEntity implements Serializable {
 	@JoinColumn(name="currency_id", nullable=false)
 	private Currency currency;
 
+	@ManyToOne
+	@JoinColumn(name="legal_condition_id", nullable=true)
+	@NoCreate
+	@NoModify
+	@DescriptionsList
+	private LegalCondition legalCondition;
+	
 	@ManyToOne
 	@JoinColumn(name="operating_condition_id", nullable=false)
 	@NoCreate
@@ -505,6 +512,14 @@ public class Account extends AuditEntity implements Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public LegalCondition getLegalCondition() {
+		return legalCondition;
+	}
+
+	public void setLegalCondition(LegalCondition legalCondition) {
+		this.legalCondition = legalCondition;
 	}
 
 }

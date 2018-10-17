@@ -10,16 +10,18 @@ import com.powerfin.util.UtilApp;
 public class BookAccountHelper {
 
 	@SuppressWarnings("rawtypes")
-	public static String getBookAccountParametrized(Account account, Category category) {
+	public static String getBookAccountParametrized(Account account, Category category, int subaccount) {
 		String bookAccount = null;
 		
 		List results = XPersistence.getManager().createQuery("select o.bookAccount.bookAccountId from Balance o "
 				+ "where o.category = :category "
 				+ "and o.account = :account "
-				+ "and o.toDate = :accountingDate")
+				+ "and o.subaccount = :subaccount "
+				+ "and o.toDate = :toDate")
 				.setParameter("category", category)
 				.setParameter("account", account)
-				.setParameter("accountingDate", UtilApp.DEFAULT_EXPIRY_DATE)
+				.setParameter("subaccount", subaccount)
+				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
 				.getResultList();
 		
 		if(!results.isEmpty())

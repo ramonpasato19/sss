@@ -147,8 +147,8 @@ public class NegotiationProcessSalePortfolio {
 	{
 		int daysPreviousPeriod = 0;
 		int daysCurrentPeriod = 0;
-		int saleFromSubaccount = Integer.parseInt(loanDTO.getSaleFromSubaccount());
 		int fullPeriod = 0;
+		int subaccount = 0;
 		Date lastDueDate = null;
 		
 		BigDecimal saleSpread = accountPortfolio.getSaleSpread();
@@ -163,6 +163,7 @@ public class NegotiationProcessSalePortfolio {
 			
 			for (AccountPaytable accountPaytable : payTables)
 			{
+				subaccount ++;
 				daysCurrentPeriod = 0;
 				if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
 				{
@@ -209,8 +210,8 @@ public class NegotiationProcessSalePortfolio {
 					soldPaytableOld.setProvisionDays(accountPaytable.getProvisionDays());
 				}
 
-				soldPaytable.setSubaccount(accountPaytable.getSubaccount());
-				soldPaytableOld.setSubaccount(accountPaytable.getSubaccount());
+				soldPaytable.setSubaccount(subaccount);
+				soldPaytableOld.setSubaccount(subaccount);
 	
 				soldPaytable.setPurchaseSpread(getAccumulatedProvision(fullPeriod, saleSpread, daysPreviousPeriod, daysCurrentPeriod));
 				soldPaytableOld.setPurchaseSpread(soldPaytable.getPurchaseSpread());
@@ -222,7 +223,7 @@ public class NegotiationProcessSalePortfolio {
 				soldPaytableOld.setFromDate(CompanyHelper.getCurrentAccountingDate());
 				soldPaytableOld.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
 				
-				soldPaytable.setSaleSubaccount(accountPaytable.getSubaccount()-saleFromSubaccount+1);
+				soldPaytable.setSaleSubaccount(accountPaytable.getSubaccount());
 				
 				XPersistence.getManager().persist(soldPaytable);
 				XPersistence.getManager().persist(soldPaytableOld);

@@ -23,7 +23,7 @@ import com.powerfin.model.types.*;
 @Table(name="account_loan")
 @Views({
 	@View( 
-		members="accountId, companyAccountingDate; accountStatus, operatingConditionName;"
+		members="accountId, companyAccountingDate; accountStatus, operatingConditionName, legalConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{"
@@ -91,7 +91,7 @@ import com.powerfin.model.types.*;
 				+ "quotas{accountPaytables}"
 				),
 	@View(name="ConsultAccountLoan",
-		members="#accountId, accountStatus, operatingConditionName;"
+		members="#accountId, accountStatus, operatingConditionName, legalConditionName;"
 				+ "person{person;}"
 				+ "codebtor{codebtor;}"
 				+ "product{product;}"
@@ -128,7 +128,7 @@ import com.powerfin.model.types.*;
 				+ "remark{remark}"
 				),
 	@View(name="ConsultPurchasePortfolio",
-		members="#accountId, accountStatus, operatingConditionName;"
+		members="#accountId, accountStatus, operatingConditionName, legalConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -164,7 +164,7 @@ import com.powerfin.model.types.*;
 				+ "remark{remark}"
 				),
 	@View(name="ConsultOriginationPortfolio",
-		members="#accountId, accountStatus, operatingConditionName;"
+		members="#accountId, accountStatus, operatingConditionName, legalConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -200,7 +200,7 @@ import com.powerfin.model.types.*;
 				+ "remark{remark}"
 				),
 	@View(name="ConsultSalePortfolio",
-		members="#accountId, accountStatus, operatingConditionName;"
+		members="#accountId, accountStatus, operatingConditionName, legalConditionName;"
 				+ "person{person;}"
 				+ "product{product;}"
 				+ "loanData{#"
@@ -737,6 +737,18 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Column(length=20)
 	private String relationshipReference3;
 	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	@DisplaySize(20)
+	private String operatingConditionName;
+	
+	@Transient
+	@ReadOnly
+	@Column(length=20)
+	@DisplaySize(20)
+	private String legaConditionName;
+	
 	public AccountLoan() {
 	}
 
@@ -1089,7 +1101,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		if (ap!=null && ap.getPurchaseNegotiation()!=null)
 		{
 			Negotiation n = XPersistence.getManager().find(Negotiation.class, ap.getPurchaseNegotiation().getNegotiationId());
-			if (n!=null)
+			if (n!=null && n.getBrokerPerson()!=null)
 				brokerName = n.getBrokerPerson().getName();
 		}
 		return brokerName;
@@ -1101,7 +1113,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		if (ap!=null && ap.getSaleNegotiation()!=null)
 		{
 			Negotiation n = XPersistence.getManager().find(Negotiation.class, ap.getSaleNegotiation().getNegotiationId());
-			if (n!=null)
+			if (n!=null && n.getBrokerPerson()!=null)
 				brokerName = n.getBrokerPerson().getName();
 		}
 		return brokerName;
@@ -1648,9 +1660,18 @@ public class AccountLoan extends AuditEntity implements Serializable {
 		return account.getCancellationDate();
 	}
 	
+	public String getLegalConditionName()
+	{
+		if (account.getLegalCondition() != null)
+			return account.getLegalCondition().getName();
+		return null;
+	}
+	
 	public String getOperatingConditionName()
 	{
-		return account.getOperatingCondition().getName();
+		if (account.getOperatingCondition() != null)
+			return account.getOperatingCondition().getName();
+		return null;
 	}
 	
 	public String getAccountPortfolioStatusName()

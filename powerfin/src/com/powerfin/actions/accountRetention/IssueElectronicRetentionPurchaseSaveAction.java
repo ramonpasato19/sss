@@ -30,7 +30,7 @@ import com.powerfin.model.AccountRetention;
 import com.powerfin.model.Company;
 import com.powerfin.model.File;
 import com.powerfin.model.OperatingCondition;
-import com.powerfin.model.Report;
+import com.powerfin.model.dto.ReportDTO;
 import com.powerfin.service.EmailSenderService;
 import com.powerfin.service.EmailSenderService.Attachment;
 
@@ -91,9 +91,9 @@ public class IssueElectronicRetentionPurchaseSaveAction extends SaveAction{
 		if (evr.getResult() == 0)
 		{
 			System.out.println("document_authorized");
-			Report report = ReportHelper.findReportByName(ParameterHelper.getValue("ELECTRONIC_RETENTION_PURCHASE_PDF"));
+			ReportDTO report = ReportHelper.findReportByName(ParameterHelper.getValue("ELECTRONIC_RETENTION_PURCHASE_PDF"));
 			
-			JasperReport jReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
+			JasperReport jReport = JasperCompileManager.compileReport(report.getJrxml());
 			Map parameters = new HashMap();			
 			parameters.put("ACCOUNT", account.getAccountId());
 			parameters.put("SCHEMA", company.getOxorganizationId().toLowerCase());

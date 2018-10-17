@@ -1,21 +1,30 @@
 package com.powerfin.util.report;
 
-import java.sql.*;
+import java.sql.Connection;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.Map;
 
-import javax.servlet.*;
+import javax.servlet.ServletContext;
 
-import org.apache.commons.logging.*;
-import org.openxava.actions.*;
-import org.openxava.jpa.*;
-import org.openxava.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.openxava.actions.JasperReportBaseAction;
+import org.openxava.jpa.XPersistence;
+import org.openxava.util.DataSourceConnectionProvider;
+import org.openxava.util.Is;
+import org.openxava.util.Users;
 
-import com.powerfin.helper.*;
-import com.powerfin.model.*;
+import com.powerfin.helper.CompanyHelper;
+import com.powerfin.helper.ReportHelper;
+import com.powerfin.model.dto.ReportDTO;
 
-import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
 
 public abstract class ReportBaseAction extends JasperReportBaseAction {
 
@@ -38,10 +47,10 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 		if (!getFormat().equals(JasperReportBaseAction.PDF))
 			reportName = reportName+"_"+getFormat().toUpperCase();
 		
-		Report report = ReportHelper.findReportByName(reportName);
-		setFileName(report.getName()+" "+new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date()));
-		setFormat(report.getFormat().toLowerCase());
-		JasperReport jReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
+		ReportDTO dto = ReportHelper.findReportByName(reportName);
+		setFileName(dto.getName()+" "+new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date()));
+		setFormat(dto.getFormat().toLowerCase());
+		JasperReport jReport = JasperCompileManager.compileReport(dto.getJrxml());
 		Map parameters = getParameters();
 		addSubReports(jReport, parameters);
 		
@@ -144,8 +153,8 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 		JRParameter[] parameter=jReport.getParameters();
 		for(int j=0;j<parameter.length;j++){
 			if(parameter[j].getDescription()!=null && parameter[j].getDescription().toUpperCase().equals("SUBREPORT")){				
-				Report report = ReportHelper.findReportByName(parameter[j].getName().toUpperCase());
-				JasperReport jsubReport = JasperCompileManager.compileReport(ReportHelper.getJRXML(report));
+				ReportDTO dto = ReportHelper.findReportByName(parameter[j].getName().toUpperCase());
+				JasperReport jsubReport = JasperCompileManager.compileReport(dto.getJrxml());
 				addSubReports(jsubReport, parameters);
 				parameters.put(parameter[j].getName().toUpperCase(), jsubReport);
 			}
