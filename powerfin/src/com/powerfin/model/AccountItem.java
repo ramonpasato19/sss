@@ -28,7 +28,6 @@ import com.powerfin.model.types.*;
 					+ "name;"
 					+ "description;"
 					+ "keywords;"
-					+ "retailPrice;"
 					+ "product{product};"
 					+ "detail {"
 					+ "unitMeasureBean;"
@@ -39,8 +38,8 @@ import com.powerfin.model.types.*;
 					+ "}"
 
 					+ "prices{"
-					+ "cost; price;taxPrice;"
-					+ "averageValue;"
+					+ "cost; price; vatTax; taxPrice;"
+					+ "averageValue;retailPrice;"
 					+ "};"
 					+ "taxes{accountItemTax};"
 					+ "categories{accountItemAccountItemType}"
@@ -71,7 +70,6 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@Column(nullable=false, precision=13, scale=4)
 	private BigDecimal cost;
 
-	@Required
 	@Column(length=150)
 	private String description;
 
@@ -100,11 +98,14 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@Required
 	private UnitMeasure unitMeasureBean;
 
+	@Required
+	@Column(name="vat_tax", nullable=false)
+	private Types.YesNoIntegerType vatTax;
 
+	@ReadOnly
 	@Column(name="tax_price", precision=19, scale=2)
 	private BigDecimal taxPrice;
 
-	@Required
 	@Column(name="retail_price", precision=19, scale=2)
 	private BigDecimal retailPrice;
 
@@ -148,7 +149,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private List<AccountItemAccountItemType> accountItemAccountItemType;
 
 	@ManyToOne
-	@JoinColumn(name="brand_id")
+	@JoinColumn(name="brand_id", nullable=true)
 	@NoCreate
 	@NoModify
 	@ReferenceView("Product")
@@ -406,6 +407,14 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	public void setAlternateCode(String alternateCode) {
 		this.alternateCode = alternateCode;
+	}
+
+	public Types.YesNoIntegerType getVatTax() {
+		return vatTax;
+	}
+
+	public void setVatTax(Types.YesNoIntegerType vatTax) {
+		this.vatTax = vatTax;
 	}
 
 }

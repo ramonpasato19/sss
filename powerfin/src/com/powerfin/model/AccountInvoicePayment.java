@@ -14,7 +14,7 @@ import org.openxava.annotations.*;
 @Entity
 @Table(name = "account_invoice_payment")
 @Views({
-@View(members = "invoicePaymentMethod;")
+@View(members = "invoicePaymentMethod; detail")
 })
 public class AccountInvoicePayment {
 
@@ -33,6 +33,10 @@ public class AccountInvoicePayment {
 	@DescriptionsList(descriptionProperties="name")
 	private InvoicePaymentMethod invoicePaymentMethod;
 
+	@Column(length = 400)
+	@Stereotype("SIMPLE_HTML_TEXT")
+	private String detail;
+	
 	public AccountInvoicePayment() {
 		
 	}
@@ -59,6 +63,14 @@ public class AccountInvoicePayment {
 
 	public void setInvoicePaymentMethod(InvoicePaymentMethod invoicePaymentMethod) {
 		this.invoicePaymentMethod = invoicePaymentMethod;
+	}
+
+	public String getDetail() {
+		return detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
 	}
 	
 }

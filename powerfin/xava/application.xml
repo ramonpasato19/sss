@@ -1227,5 +1227,5 @@
 		<view name="UpdateAccountData" />
 		<mode-controller name="DetailList" />
 	</module>
-	
+
 </application>

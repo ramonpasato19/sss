@@ -419,6 +419,13 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@DescriptionsList(descriptionProperties = "name")
 	private Unity unity;
 	
+	@ManyToOne
+	@JoinColumn(name="pos_id")
+	@NoCreate
+	@NoModify
+	@DescriptionsList(descriptionProperties = "name")
+	private Pos pos;
+	
 	//////////////////////////////////////////////////////////
 	
 	@Transient
@@ -727,6 +734,14 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 
 	public void setUnity(Unity unity) {
 		this.unity = unity;
+	}
+
+	public Pos getPos() {
+		return pos;
+	}
+
+	public void setPos(Pos pos) {
+		this.pos = pos;
 	}
 
 	public BigDecimal getSubtotal() throws Exception {
