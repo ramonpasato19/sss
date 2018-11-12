@@ -1,5 +1,7 @@
 package com.powerfin.model;
 
+import java.math.BigDecimal;
+
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -14,7 +16,7 @@ import org.openxava.annotations.*;
 @Entity
 @Table(name = "account_invoice_payment")
 @Views({
-@View(members = "invoicePaymentMethod; detail")
+@View(members = "invoicePaymentMethod; value; detail")
 })
 public class AccountInvoicePayment {
 
@@ -36,6 +38,10 @@ public class AccountInvoicePayment {
 	@Column(length = 400)
 	@Stereotype("SIMPLE_HTML_TEXT")
 	private String detail;
+	
+	@Column(name = "value", nullable = true, precision=11, scale=2)
+	@Required
+	private BigDecimal value;
 	
 	public AccountInvoicePayment() {
 		
@@ -71,6 +77,14 @@ public class AccountInvoicePayment {
 
 	public void setDetail(String detail) {
 		this.detail = detail;
+	}
+
+	public BigDecimal getValue() {
+		return value;
+	}
+
+	public void setValue(BigDecimal value) {
+		this.value = value;
 	}
 	
 }

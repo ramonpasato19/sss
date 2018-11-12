@@ -44,6 +44,9 @@ public class Pos {
 	@Column(name="authorization_code", nullable=true, length=100)
 	private String authorizationCode;
 	
+	@Column(name="retention_sequential_name", nullable=true, length=100)
+	private String retentionSequentialName;
+	
 	public Pos()
 	{
 		
@@ -103,6 +106,14 @@ public class Pos {
 
 	public void setAuthorizationCode(String authorizationCode) {
 		this.authorizationCode = authorizationCode;
+	}
+
+	public String getRetentionSequentialName() {
+		return retentionSequentialName;
+	}
+
+	public void setRetentionSequentialName(String retentionSequentialName) {
+		this.retentionSequentialName = retentionSequentialName;
 	}
 	
 }
