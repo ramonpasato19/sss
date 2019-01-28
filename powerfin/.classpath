@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="web/WEB-INF/lib" path="lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="properties"/>
 	<classpathentry kind="src" path="/OpenXava"/>
@@ -8,7 +9,26 @@
 	<classpathentry kind="src" path="xava"/>
 	<classpathentry kind="src" path="i18n"/>
 	<classpathentry kind="lib" path="/OpenXava/web/WEB-INF/lib/commons-io.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ElectronicInvoice"/>
 	<classpathentry kind="lib" path="/OpenXava/web/WEB-INF/lib/mailapi.jar"/>
+	<classpathentry kind="lib" path="lib/barbecue-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/bcmail-jdk16-1.45.jar"/>
+	<classpathentry kind="lib" path="lib/bcprov-jdk16-1.45.jar"/>
+	<classpathentry kind="lib" path="lib/bctsp-jdk16-1.45.jar"/>
+	<classpathentry kind="lib" path="lib/cliente-ws-offline.jar"/>
+	<classpathentry kind="lib" path="lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry kind="lib" path="lib/ComprobantesDesktop.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibAPI-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibCert-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibCrypt-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibOCSP-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibPolicy-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibTrust-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibTSA-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/MITyCLibXADES-1.1.7.jar"/>
+	<classpathentry kind="lib" path="lib/xml-apis-1.3.04.jar"/>
+	<classpathentry kind="lib" path="lib/xmlpull-1.1.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/xmlsec-1.4.2-ADSI-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/xmlsec-1.4.2-ADSI-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.1.jar"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>
