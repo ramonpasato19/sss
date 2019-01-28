@@ -15,8 +15,10 @@ import com.powerfin.exception.OperativeException;
 import com.powerfin.model.Account;
 import com.powerfin.model.AccountInvoice;
 import com.powerfin.model.AccountInvoiceDetail;
+import com.powerfin.model.AccountInvoicePayment;
 import com.powerfin.model.AccountInvoiceTax;
 import com.powerfin.model.AccountItem;
+import com.powerfin.model.AccountItemBranch;
 import com.powerfin.model.Category;
 import com.powerfin.model.Tax;
 import com.powerfin.model.Transaction;
@@ -68,7 +70,11 @@ public class AccountInvoiceHelper {
 	{
 		String query = "SELECT  "
 				+ "t, "
-				+ "sum(o.amount) "
+				+ "sum(round("
+					+ "(o.quantity*o.unitPrice) + "
+					+ "(coalesce(o.taxSpecialConsumption,0)*o.quantity) - "
+					+ "(coalesce(o.discount,0)*o.quantity) "
+					+ ",2)) "
 				+ "FROM AccountInvoiceDetail o JOIN o.tax t "
 				+ "WHERE o.taxPercentage>0 "
 				+ "AND o.accountInvoice.accountId = :invoice "
@@ -293,7 +299,11 @@ public class AccountInvoiceHelper {
 			AccountHelper.updateAccount(a);
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStockInvoicePurchase(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getUnitPrice(), invoice.getRegistrationDate());
+				{
+					//updateStockInvoicePurchase(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getCompleteUnitPrice(), invoice.getRegistrationDate());
+					AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId());
+					AccountItemHelper.updateAverageCost(accountItem, a.getBranch());
+				}
 			
 			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 		}
@@ -322,9 +332,10 @@ public class AccountInvoiceHelper {
 		Category costCategory = CategoryHelper.getCostCategory();
 		Category saleCostCategory = CategoryHelper.getSaleCostCategory();
 		Account account = transaction.getDebitAccount();
+		Account debitAccountForPayment = null;
 		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
-		BigDecimal totalAverageCost = BigDecimal.ZERO;
 		BigDecimal detailAmount = null;
+		BigDecimal paymentValue = BigDecimal.ZERO;
 		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
 		Unity unity = null;
 		TransactionAccount ta = null;
@@ -335,6 +346,8 @@ public class AccountInvoiceHelper {
 		
 		for (AccountInvoiceDetail detail: invoice.getDetails())
 		{
+			paymentValue = BigDecimal.ZERO;
+			
 			if (detail.getUnity()!=null)
 				unity = detail.getUnity();
 			else if (transaction.getOrigenUnity()!=null && unity == null)
@@ -360,19 +373,34 @@ public class AccountInvoiceHelper {
 					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getCostCategory(), account.getBranch()));
 				else
 				{
-					transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getBalanceCategory(), account.getBranch()));
+					//TODO Esta quemado el producto despachos para que el balance de la venta se contabilice en la categoria TRABALANCE (balance transitorio), cambiar el proceso
+					
+					if (account.getProduct().getProductId().equals("1022"))
+						transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getTransitoryBalanceCategory(), account.getBranch()));
+					else
+						transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), detailAmount, detail.getQuantity(), unity, transaction, CategoryHelper.getBalanceCategory(), account.getBranch()));
 					
 					//Accounting Cost Of Sale
 					if (accountingCostOfSale == 1)
 					{
-						if (accountItem.getAverageValue() == null)
+						BigDecimal branchAverageCost = null;
+						for (AccountItemBranch accountItemBranch : accountItem.getAccountItemBranch())
+						{
+							if (accountItemBranch.getBranch().getBranchId() == account.getBranch().getBranchId())
+							{
+								branchAverageCost = accountItemBranch.getAverageCost();
+								break;
+							}
+						}
+						
+						if (branchAverageCost == null)
 							throw new OperativeException("average_cost_is_null", detail.getAccountDetail().getAccountId());
-						if (accountItem.getAverageValue().compareTo(BigDecimal.ZERO)<0)
+						if (branchAverageCost.compareTo(BigDecimal.ZERO)<0)
 							throw new OperativeException("average_cost_is_negative", detail.getAccountDetail().getAccountId());
 						
-						totalAverageCost = accountItem.getAverageValue().multiply(detail.getQuantity()).setScale(2, RoundingMode.HALF_UP);
-						transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, costCategory, account.getBranch()));
-						transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), totalAverageCost, detail.getQuantity(), unity, transaction, saleCostCategory, account.getBranch()));
+						branchAverageCost = branchAverageCost.multiply(detail.getQuantity()).setScale(2, RoundingMode.HALF_UP);
+						transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(detail.getAccountDetail(), branchAverageCost, detail.getQuantity(), unity, transaction, costCategory, account.getBranch()));
+						transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(detail.getAccountDetail(), branchAverageCost, detail.getQuantity(), unity, transaction, saleCostCategory, account.getBranch()));
 					}
 				}
 			}
@@ -393,6 +421,47 @@ public class AccountInvoiceHelper {
 			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(account, tax.getTaxAmount(), transaction, tax.getTax().getCategory()));
 		}
 
+		//Payments
+		for (AccountInvoicePayment payment: invoice.getAccountInvoicePayments())
+		{
+			paymentValue = payment.getValue();
+			
+			//TODO Esta quemado los metodos de pago. hay que ver una forma que sea parametrizado
+			if (payment.getAccountInvoicePaymentId().equals("001"))//cash
+			{
+				if (payment.getChange()!=null && payment.getChange().compareTo(BigDecimal.ZERO)>0)
+					paymentValue = paymentValue.subtract(payment.getChange());
+				
+				debitAccountForPayment = invoice.getPos().getCashAccount();
+			}
+			else if (payment.getAccountInvoicePaymentId().equals("002")) //direct credit
+			{
+				//nothing to do
+			}
+			else if (payment.getAccountInvoicePaymentId().equals("003")) //credit card
+			{
+				debitAccountForPayment = invoice.getPos().getCreditCardAccount();
+			}
+			else if (payment.getAccountInvoicePaymentId().equals("004")) //check
+			{
+				debitAccountForPayment = invoice.getPos().getCheckAccount();
+			}
+			else if (payment.getAccountInvoicePaymentId().equals("005")) //discount voucher
+			{
+				debitAccountForPayment = PersonHelper.getDiscountVoucherAccount(account.getPerson());
+			}
+			
+			if (debitAccountForPayment!=null)
+			{
+				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, paymentValue, transaction);
+				ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+				transactionAccounts.add(ta);
+				
+				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccountForPayment, paymentValue, transaction);
+				ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+				transactionAccounts.add(ta);
+			}
+		}
 		return transactionAccounts;
 	}
 	
@@ -404,10 +473,12 @@ public class AccountInvoiceHelper {
 			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
 			AccountHelper.updateAccount(a);
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
+			
+			/* Se remueve la actualizacion del stock ya que solo se debe hacer en ingreso de mercaderia
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStockInvoiceSale(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getUnitPrice(), invoice.getRegistrationDate());
-			
+					updateStockInvoiceSale(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getCompleteUnitPrice(), invoice.getRegistrationDate());
+			*/
 			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 		}
 	}
@@ -418,16 +489,21 @@ public class AccountInvoiceHelper {
 		{
 			Account a = transaction.getDebitAccount();
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
+			Account accountToModify = invoice.getAccountModified().getAccount();
 			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
 			AccountHelper.updateAccount(a);
 			
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStockInvoicePurchase(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getUnitPrice(), invoice.getRegistrationDate());
+				{
+					//updateStockInvoicePurchase(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getCompleteUnitPrice(), invoice.getRegistrationDate());
+					AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId());
+					AccountItemHelper.updateAverageCost(accountItem, accountToModify.getBranch());
+				}
 			
 			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 			
-			Account accountToModify = invoice.getAccountModified().getAccount();
+			
 			BigDecimal balance = BalanceHelper.getBalance(accountToModify);
 			if (balance.compareTo(BigDecimal.ZERO) == 0)
 			{
@@ -445,9 +521,12 @@ public class AccountInvoiceHelper {
 			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
 			AccountHelper.updateAccount(a);
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
+			
+			/* Se remueve la actualizacion del stock ya que solo se debe hacer en ingreso de mercaderia
 			for (AccountInvoiceDetail detail: invoice.getDetails())
 				if (detail.getAccountDetail().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
-					updateStockInvoiceSale(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getUnitPrice(), invoice.getRegistrationDate());
+					updateStockInvoiceSale(detail.getAccountDetail(), invoice, detail.getQuantity(), detail.getCompleteUnitPrice(), invoice.getRegistrationDate());
+			*/
 			
 			AccountInvoiceHelper.persistAccountInvoiceTaxes(invoice);
 			

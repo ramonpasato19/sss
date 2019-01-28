@@ -10,6 +10,7 @@ import javax.persistence.Table;
 import org.openxava.annotations.DescriptionsList;
 import org.openxava.annotations.NoCreate;
 import org.openxava.annotations.NoModify;
+import org.openxava.annotations.ReferenceView;
 import org.openxava.annotations.Required;
 
 @Entity
@@ -46,6 +47,34 @@ public class Pos {
 	
 	@Column(name="retention_sequential_name", nullable=true, length=100)
 	private String retentionSequentialName;
+	
+	@ManyToOne
+	@JoinColumn(name="cash_account_id", nullable=true)
+	@ReferenceView("simple")
+	@NoCreate
+	@NoModify
+	private Account cashAccount;
+	
+	@ManyToOne
+	@JoinColumn(name="credit_card_account_id", nullable=true)
+	@ReferenceView("simple")
+	@NoCreate
+	@NoModify
+	private Account creditCardAccount;
+	
+	@ManyToOne
+	@JoinColumn(name="check_account_id", nullable=true)
+	@ReferenceView("simple")
+	@NoCreate
+	@NoModify
+	private Account checkAccount;
+	
+	@ManyToOne
+	@JoinColumn(name="price_list_id", nullable=true)
+	@DescriptionsList
+	@NoCreate
+	@NoModify
+	private PriceList priceList;
 	
 	public Pos()
 	{
@@ -114,6 +143,38 @@ public class Pos {
 
 	public void setRetentionSequentialName(String retentionSequentialName) {
 		this.retentionSequentialName = retentionSequentialName;
+	}
+
+	public Account getCashAccount() {
+		return cashAccount;
+	}
+
+	public void setCashAccount(Account cashAccount) {
+		this.cashAccount = cashAccount;
+	}
+
+	public Account getCreditCardAccount() {
+		return creditCardAccount;
+	}
+
+	public void setCreditCardAccount(Account creditCardAccount) {
+		this.creditCardAccount = creditCardAccount;
+	}
+
+	public Account getCheckAccount() {
+		return checkAccount;
+	}
+
+	public void setCheckAccount(Account checkAccount) {
+		this.checkAccount = checkAccount;
+	}
+
+	public PriceList getPriceList() {
+		return priceList;
+	}
+
+	public void setPriceList(PriceList priceList) {
+		this.priceList = priceList;
 	}
 	
 }

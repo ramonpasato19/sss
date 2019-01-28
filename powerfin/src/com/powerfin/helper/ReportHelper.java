@@ -93,7 +93,7 @@ public class ReportHelper {
 			}
 			catch (javax.persistence.NoResultException e)
 			{
-				throw new InternalException("public_report_not_found", reportName);
+				throw new InternalException("report_not_found", reportName);
 			}
 			
 		}

@@ -54,6 +54,7 @@ public class ConvertOrderInvoiceToInvoicePurchase extends SaveAction{
 			accountInvoiceDetail.setAmount(accountDetail.getAmount());
 			accountInvoiceDetail.setTaxAmount(accountDetail.getTaxAmount());
 			accountInvoiceDetail.setFinalAmount(accountDetail.getFinalAmount());
+			accountInvoiceDetail.setDueDate(accountDetail.getDueDate());
 			XPersistence.getManager().persist(accountInvoiceDetail);
 		}
 	}

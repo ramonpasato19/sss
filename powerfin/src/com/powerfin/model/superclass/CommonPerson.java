@@ -1,5 +1,6 @@
 package com.powerfin.model.superclass;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import javax.persistence.*;
@@ -44,6 +45,10 @@ public class CommonPerson extends AuditEntity {
 	@DisplaySize(20)
 	@Required
 	private String identification;
+	
+	@Transient
+	@Column(name="credit_limit", nullable=true, precision=11, scale=2)
+	private BigDecimal creditLimit;
 	
 	@Transient
 	@DisplaySize(50)
@@ -322,6 +327,16 @@ public class CommonPerson extends AuditEntity {
 
 	public void setHomeSideStreet(String homeSideStreet) {
 		this.homeSideStreet = homeSideStreet;
+	}
+
+	public BigDecimal getCreditLimit() {
+		if(person!=null)
+			return person.getCreditLimit();
+		return creditLimit;
+	}
+
+	public void setCreditLimit(BigDecimal creditLimit) {
+		this.creditLimit = creditLimit;
 	}
 	
 }

@@ -43,14 +43,19 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 			application.getRealPath("/WEB-INF/classes/")
 		);
 		
+		validate();
+		
 		String reportName = getReportName();
-		if (!getFormat().equals(JasperReportBaseAction.PDF))
+		
+		if (!getFormat().toUpperCase()
+				.equals((String)(JasperReportBaseAction.PDF).toUpperCase()))
 			reportName = reportName+"_"+getFormat().toUpperCase();
 		
 		ReportDTO dto = ReportHelper.findReportByName(reportName);
 		setFileName(dto.getName()+" "+new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date()));
 		setFormat(dto.getFormat().toLowerCase());
 		JasperReport jReport = JasperCompileManager.compileReport(dto.getJrxml());
+		
 		Map parameters = getParameters();
 		addSubReports(jReport, parameters);
 		
@@ -147,6 +152,11 @@ public abstract class ReportBaseAction extends JasperReportBaseAction {
 	}
 
 	abstract protected String getReportName() throws Exception;
+	
+	public void validate()
+	{
+		
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void addSubReports(JasperReport jReport, Map parameters) throws Exception{

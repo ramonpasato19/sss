@@ -383,7 +383,7 @@ public class ElectronicVoucherHelper {
 			detailElement
 					.appendChild(addElement(xmlDocument, "cantidad", parseValue(accountInvoiceDetail.getQuantity())));
 			detailElement.appendChild(
-					addElement(xmlDocument, "precioUnitario", parseValue(accountInvoiceDetail.getUnitPrice())));
+					addElement(xmlDocument, "precioUnitario", parseValue(accountInvoiceDetail.getCompleteUnitPrice())));
 			detailElement
 					.appendChild(addElement(xmlDocument, "descuento", parseValue(accountInvoiceDetail.getDiscount())));
 			detailElement.appendChild(

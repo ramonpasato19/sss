@@ -16,7 +16,7 @@ import org.openxava.annotations.*;
 @Entity
 @Table(name = "account_invoice_payment")
 @Views({
-@View(members = "invoicePaymentMethod; value; detail")
+@View(members = "invoicePaymentMethod; information[value; change; detail;]")
 })
 public class AccountInvoicePayment {
 
@@ -33,6 +33,8 @@ public class AccountInvoicePayment {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "invoice_payment_method_id", nullable = false)
 	@DescriptionsList(descriptionProperties="name")
+	@NoCreate
+	@NoModify
 	private InvoicePaymentMethod invoicePaymentMethod;
 
 	@Column(length = 400)
@@ -40,8 +42,10 @@ public class AccountInvoicePayment {
 	private String detail;
 	
 	@Column(name = "value", nullable = true, precision=11, scale=2)
-	@Required
 	private BigDecimal value;
+	
+	@Column(name = "change", nullable = true, precision=11, scale=2)
+	private BigDecimal change;
 	
 	public AccountInvoicePayment() {
 		
@@ -85,6 +89,14 @@ public class AccountInvoicePayment {
 
 	public void setValue(BigDecimal value) {
 		this.value = value;
+	}
+
+	public BigDecimal getChange() {
+		return change;
+	}
+
+	public void setChange(BigDecimal change) {
+		this.change = change;
 	}
 	
 }

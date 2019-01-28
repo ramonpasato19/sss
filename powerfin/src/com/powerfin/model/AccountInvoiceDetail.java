@@ -1,14 +1,35 @@
 package com.powerfin.model;
 
-import java.math.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Date;
 
-import javax.persistence.*;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.validation.constraints.*;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.DecimalMin;
 
-import org.hibernate.annotations.*;
-import org.openxava.annotations.*;
+import org.hibernate.annotations.GenericGenerator;
+import org.openxava.annotations.NoCreate;
+import org.openxava.annotations.NoModify;
+import org.openxava.annotations.PreCreate;
+import org.openxava.annotations.ReferenceView;
+import org.openxava.annotations.Required;
+import org.openxava.annotations.SearchAction;
+import org.openxava.annotations.SearchActions;
+import org.openxava.annotations.View;
+import org.openxava.annotations.Views;
+
+import com.powerfin.exception.OperativeException;
+import com.powerfin.util.UtilApp;
 
 /**
  * The persistent class for the account_invoice_detail database table.
@@ -22,12 +43,16 @@ import org.openxava.annotations.*;
 		+ "unitPrice;"
 		+ "quantity;"
 		+ "discount;"
+		+ "dueDate"
 		),
 @View(name="InvoicePurchase", members = "accountDetail;"
 		+ "tax;"
 		+ "unitPrice;"
 		+ "quantity;"
 		+ "discount;"
+		+ "taxSpecialConsumption;"
+		+ "taxRedeemable;"
+		+ "dueDate;"
 		),
 @View(name="InvoiceSale", members = "accountDetail;"
 		+ "tax;"
@@ -44,6 +69,7 @@ import org.openxava.annotations.*;
 		+ "tax;"
 		+ "unitPrice;"
 		+ "quantity;"
+		+ "dueDate"
 		),
 })
 public class AccountInvoiceDetail {
@@ -78,6 +104,10 @@ public class AccountInvoiceDetail {
 	@DecimalMin(value="0.00")
 	private BigDecimal discount;
 	
+	@Temporal(TemporalType.DATE)
+	@Column(name="due_date")
+	private Date dueDate;
+	
 	@Column(name = "quantity", nullable = false, precision=15, scale=6)
 	@Required
 	@DecimalMin(value="0.01")
@@ -88,6 +118,12 @@ public class AccountInvoiceDetail {
 	
 	@Column(name = "original_price", nullable = true, precision=15, scale=6)
 	private BigDecimal originalPrice;
+	
+	@Column(name = "tax_special_consumption", nullable = true, precision=15, scale=6)
+	private BigDecimal taxSpecialConsumption;
+	
+	@Column(name = "tax_redeemable", nullable = true, precision=15, scale=6)
+	private BigDecimal taxRedeemable;
 	
 	@Column(name = "remark", nullable = true)
 	private String remark;
@@ -113,10 +149,10 @@ public class AccountInvoiceDetail {
 	@Column(name = "tax_percentage", nullable = false, precision=11, scale=2)
 	private BigDecimal taxPercentage;
 	
-	@Column(name = "amount", nullable = false, precision=11, scale=2)
+	@Column(name = "amount", nullable = false, precision=15, scale=6)
 	private BigDecimal amount;
 	
-	@Column(name = "tax_amount", nullable = false, precision=11, scale=2)
+	@Column(name = "tax_amount", nullable = false, precision=15, scale=6)
 	private BigDecimal taxAmount;
 	
 	@Column(name = "final_amount", nullable = false, precision=11, scale=2)
@@ -261,6 +297,12 @@ public class AccountInvoiceDetail {
 			setDiscount(BigDecimal.ZERO);
 		if (getTaxAdjust()==null)
 			setTaxAdjust(BigDecimal.ZERO);
+		if (getTaxRedeemable()==null)
+			setTaxRedeemable(BigDecimal.ZERO);
+		if (getTaxSpecialConsumption()==null)
+			setTaxSpecialConsumption(BigDecimal.ZERO);
+		if (getDueDate()==null)
+			setDueDate(UtilApp.DEFAULT_EXPIRY_DATE);
 		updateAmounts();
 	}
 	
@@ -271,6 +313,12 @@ public class AccountInvoiceDetail {
 			setDiscount(BigDecimal.ZERO);
 		if (getTaxAdjust()==null)
 			setTaxAdjust(BigDecimal.ZERO);
+		if (getTaxRedeemable()==null)
+			setTaxRedeemable(BigDecimal.ZERO);
+		if (getTaxSpecialConsumption()==null)
+			setTaxSpecialConsumption(BigDecimal.ZERO);
+		if (getDueDate()==null)
+			setDueDate(UtilApp.DEFAULT_EXPIRY_DATE);
 		updateAmounts();
 	}
 	
@@ -285,13 +333,59 @@ public class AccountInvoiceDetail {
 	
 	public BigDecimal calculateAmount() {
 		BigDecimal amount = BigDecimal.ZERO;
-		if (getQuantity()!=null)
-			amount = getQuantity().multiply(getUnitPrice());
+		
+		if (getQuantity()!=null && getQuantity().compareTo(BigDecimal.ZERO)>0)
+		{
+			amount = getQuantity().multiply(getCompleteUnitPrice());
+		}
+		else
+			throw new OperativeException("detail_have_incorrect_quantity");
+		
+		return amount.setScale(6, RoundingMode.HALF_UP);
+	}
+	
+	public BigDecimal getCompleteUnitPrice() {
+		BigDecimal amount = BigDecimal.ZERO;
+		if (getUnitPrice()!=null && getUnitPrice().compareTo(BigDecimal.ZERO)>0)
+		{
+			amount = amount.add(getUnitPrice());
+		}
+		else
+			throw new OperativeException("detail_have_incorrect_unit_price");
+		
+		if (getTaxSpecialConsumption()!=null && getTaxSpecialConsumption().compareTo(BigDecimal.ZERO)>0)
+		{
+			amount = amount.add(getTaxSpecialConsumption());
+		}
+		if (getTaxRedeemable()!=null && getTaxRedeemable().compareTo(BigDecimal.ZERO)>0)
+		{
+			amount = amount.add(getTaxRedeemable());
+		}
 		if (hasDiscount())
+		{
 			amount = amount.subtract(getDiscount());
+		}
 		return amount.setScale(6, RoundingMode.HALF_UP);
 	}
 		
+	public BigDecimal calculateAmountForTax() {
+		BigDecimal amount = BigDecimal.ZERO;
+		
+		if (getQuantity()!=null && getQuantity().compareTo(BigDecimal.ZERO)>0)
+		{
+			amount = getCompleteUnitPrice();
+			if (getTaxRedeemable()!=null && getTaxRedeemable().compareTo(BigDecimal.ZERO)>0)
+			{
+				amount = amount.subtract(getTaxRedeemable());
+			}
+			amount = getQuantity().multiply(amount);
+		}
+		else
+			throw new OperativeException("detail_have_incorrect_quantity");
+		
+		return amount.setScale(6, RoundingMode.HALF_UP);
+	}
+	
 	public boolean hasDiscount()
 	{
 		if (getDiscount()!=null && getDiscount().compareTo(BigDecimal.ZERO)>0)
@@ -308,18 +402,42 @@ public class AccountInvoiceDetail {
 	
 	public BigDecimal calculateFinalAmount() {
 		BigDecimal finalAmountCalc = calculateAmount().setScale(2, RoundingMode.HALF_UP);
-		BigDecimal aux = calculateAmount().setScale(2, RoundingMode.HALF_UP);
+		BigDecimal aux = calculateAmountForTax().setScale(2, RoundingMode.HALF_UP);
 		if(getTax()!=null)
 		{
 			if(getTax().getPercentage()!=null)
 			{
-				finalAmountCalc = finalAmountCalc.add(aux.multiply(tax.getPercentage()).divide(new BigDecimal(100)));//
+				finalAmountCalc = finalAmountCalc.add(aux.multiply(tax.getPercentage()).divide(new BigDecimal(100)));
 				finalAmountCalc = finalAmountCalc.setScale(2, RoundingMode.HALF_UP);
 			}
 		}
 		finalAmountCalc = finalAmountCalc.subtract(taxAdjust);
 		finalAmountCalc = finalAmountCalc.setScale(2, RoundingMode.HALF_UP);
 		return finalAmountCalc;
+	}
+
+	public BigDecimal getTaxSpecialConsumption() {
+		return taxSpecialConsumption;
+	}
+
+	public void setTaxSpecialConsumption(BigDecimal taxSpecialConsumption) {
+		this.taxSpecialConsumption = taxSpecialConsumption;
+	}
+
+	public BigDecimal getTaxRedeemable() {
+		return taxRedeemable;
+	}
+
+	public void setTaxRedeemable(BigDecimal taxRedeemable) {
+		this.taxRedeemable = taxRedeemable;
+	}
+
+	public Date getDueDate() {
+		return dueDate;
+	}
+
+	public void setDueDate(Date dueDate) {
+		this.dueDate = dueDate;
 	}
 	
 }

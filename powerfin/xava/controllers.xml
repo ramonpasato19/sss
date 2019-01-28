@@ -538,6 +538,11 @@
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" image="pdf.gif" icon="file-pdf"
 			by-default="if-possible">
 		</action>
+		<action name="printAccountingLedgerExcel" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingLedgerAction" icon="file-excel"
+			by-default="if-possible">
+			<set property="format" value="excel"/>
+		</action>
 		<action name="printAccountingDailyBook" mode="detail"
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingDailyBookAction" icon="file-pdf">
 		</action>
@@ -556,29 +561,53 @@
 	</controller>
 	
 	<controller name="AccountingReportController">
-		<action name="printMonthlyEvolution" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif" >
-			<set property="reportName" value="MONTHLYEVOLUTION"/>
+		<subcontroller controller="AccountingEvolution"/>
+		<subcontroller controller="EvolutionVariables"/>
+		<subcontroller controller="AccountingAnalysis"/>
+	</controller>
+	
+	<controller name="AccountingEvolution">
+		<action name="printMonthlyEvolutionBalance" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="MONTHLY_EVOLUTION_BALANCE"/>
 		</action>
-		<action name="printDailyEvolution" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
-			<set property="reportName" value="DAILYEVOLUTION"/>
+		<action name="printMonthlyEvolutionBalanceAccumulated" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="MONTHLY_EVOLUTION_BALANCE_ACCUMULATED"/>
 		</action>
-		<action name="printHorizontalEvolution" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
-			<set property="reportName" value="HORIZONTALEVOLUTION"/>
+	</controller>
+	
+	<controller name="AccountingAnalysis">
+		<action name="printVerticalAnalysisBalance" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="VERTICAL_ANALYSIS_GB"/>
+		</action>
+		<action name="printVerticalAnalysisProfitLoss" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="VERTICAL_ANALYSIS_PL"/>
+		</action>
+		<action name="printHorizontalAnalysisBalance" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="HORIZONTAL_ANALYSIS_GB"/>
+		</action>
+		<action name="printHorizontalAnalysisProfitLoss" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="HORIZONTAL_ANALYSIS_PL"/>
 		</action>
 		<action name="printSourcesAndUses" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
-			<set property="reportName" value="SOURCESANDUSES"/>
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="SOURCES_AND_USES"/>
 		</action>
-		<action name="printMonthlyVariableEvolution" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif" >
-			<set property="reportName" value="MONTHLYVARIABLEEVOLUTION"/>
+	</controller>
+	
+	<controller name="EvolutionVariables">
+		<action name="printDailyEvolutionVariable" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="DAILY_EVOLUTION_VARIABLE"/>
 		</action>
-		<action name="printDailyVariableEvolution" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-pdf" image="save.gif">
-			<set property="reportName" value="DAILYVARIABLEEVOLUTION"/>
+		<action name="printMonthlyEvolutionVariable" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="MONTHLY_EVOLUTION_VARIABLE"/>
 		</action>
 	</controller>
 	

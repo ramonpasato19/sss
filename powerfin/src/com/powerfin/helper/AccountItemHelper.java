@@ -1,18 +1,62 @@
 package com.powerfin.helper;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import org.openxava.jpa.XPersistence;
+
+import com.powerfin.exception.InternalException;
 import com.powerfin.model.Account;
 import com.powerfin.model.AccountItem;
+import com.powerfin.model.AccountItemBranch;
+import com.powerfin.model.Branch;
 import com.powerfin.model.UnitMeasure;
-import com.powerfin.model.types.*;
+import com.powerfin.model.types.Types;
 
 public class AccountItemHelper {
 
-
-
 	public static final String ACCOUNT_ITEM_PRODUCT_TYPE = "104";
 
+	public static void updateAverageCost(AccountItem accountItem, Branch branch) throws Exception
+	{
+		BigDecimal balance = BalanceHelper.getBalance(accountItem.getAccount().getAccountId(), 0, CategoryHelper.COST_CATEGORY, branch.getBranchId(), null);
+		BigDecimal quantity = BalanceHelper.getStock(accountItem.getAccount().getAccountId(), 0, CategoryHelper.COST_CATEGORY, branch.getBranchId(), null);
+		
+		AccountItemBranch accountItemBranch = AccountItemHelper.findOrCreateAccountItemBranch(accountItem, branch);
+		
+		if (quantity.compareTo(BigDecimal.ZERO)>0)
+			accountItemBranch.setAverageCost(balance.divide(quantity, 6, RoundingMode.HALF_UP));
+		else if (quantity.compareTo(BigDecimal.ZERO) == 0)
+			accountItemBranch.setAverageCost(BigDecimal.ZERO);
+		else
+			throw new InternalException("item_quantity_is_negative", accountItem.getCode());
+		
+		if (balance.compareTo(BigDecimal.ZERO)<0)
+			throw new InternalException("item_balance_is_negative", accountItem.getCode());
+		
+		
+		XPersistence.getManager().persist(accountItemBranch);
+	}
+	
+	public static AccountItemBranch findOrCreateAccountItemBranch(AccountItem accountItem, Branch branch)
+	{
+		for (AccountItemBranch aib : accountItem.getAccountItemBranch())
+		{
+			if (aib.getBranch().getBranchId() == branch.getBranchId())
+				return aib;
+		}
+		
+		AccountItemBranch accountItemBranch = new AccountItemBranch();
+		accountItemBranch.setAccountItem(accountItem);
+		accountItemBranch.setBranch(branch);
+		accountItemBranch.setMinimumStock(BigDecimal.ONE);
+		accountItemBranch.setMaximumStock(BigDecimal.TEN);
+		accountItemBranch.setAverageCost(BigDecimal.ZERO);
+		XPersistence.getManager().persist(accountItemBranch);
+		
+		return accountItemBranch;
+	}
+	
 	public static AccountItem createAccountItem(
 			Account account, String accountId, String alternateCode,BigDecimal cost,
 			String description, Types.YesNoIntegerType inventoried, BigDecimal maximumQuantity,

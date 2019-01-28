@@ -177,6 +177,8 @@ public class AccountLoanHelper {
 		if (projectedAccountingDate.before(accountingDate))
 			accountingDate = projectedAccountingDate;
 		
+		System.out.println("PD: "+projectedAccountingDate.toString());
+		System.out.println("AD: "+accountingDate.toString());
 		XPersistence.getManager()
 		.createNativeQuery("DELETE FROM "+schema+".account_overdue_balance o "
 				+ "WHERE o.account_id in ("+ queryAccount+")")
@@ -1275,7 +1277,7 @@ public class AccountLoanHelper {
 			Transaction transaction, 
 			AccountLoan accountLoan, 
 			Account creditAccount, 
-			Integer subAccount,
+			Integer saleSubaccount,
 			BigDecimal capital,
 			BigDecimal interest,
 			BigDecimal defaultInterest) throws Exception
@@ -1286,9 +1288,9 @@ public class AccountLoanHelper {
 		AccountSoldPaytable quota = (AccountSoldPaytable) XPersistence.getManager()
 				.createQuery("SELECT o FROM AccountSoldPaytable o "
 				+ "WHERE o.account.accountId = :accountId "
-				+ "AND o.subaccount = :subaccount")
+				+ "AND o.saleSubaccount = :saleSubaccount")
 				.setParameter("accountId", accountLoan.getAccount().getAccountId())
-				.setParameter("subaccount", subAccount)
+				.setParameter("saleSubaccount", saleSubaccount)
 				.getSingleResult();
 		
 		//DefaultInterest

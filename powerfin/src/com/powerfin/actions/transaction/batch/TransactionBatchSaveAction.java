@@ -25,6 +25,7 @@ import com.powerfin.model.Account;
 import com.powerfin.model.AccountInvoice;
 import com.powerfin.model.AccountInvoiceDetail;
 import com.powerfin.model.AccountLoan;
+import com.powerfin.model.Branch;
 import com.powerfin.model.Category;
 import com.powerfin.model.File;
 import com.powerfin.model.Gender;
@@ -42,6 +43,7 @@ import com.powerfin.model.TransactionBatch;
 import com.powerfin.model.TransactionBatchDetail;
 import com.powerfin.model.TransactionModule;
 import com.powerfin.model.Unity;
+import com.powerfin.model.types.Types;
 import com.powerfin.util.UtilApp;
 
 public class TransactionBatchSaveAction extends ViewBaseAction {
@@ -145,6 +147,8 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 						processSalePortfolioPayment(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("GENERALTRANSACTION"))
 						processGeneralTransaction(transactionBatch, detail, transaction);
+					else if (transactionModuleId.equals("ADVANCEDGENERALTRANSACTION"))
+						processAdvancedGeneralTransaction(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICESALEFUELSTATION"))
 						processSaleInvoiceFuelStation(transactionBatch, detail, transaction);
 					else if (transactionModuleId.equals("INVOICE_PURCHASE"))
@@ -370,6 +374,138 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 
 		TransactionHelper.processTransaction(transaction, transactionAccounts);
 		AccountLoanHelper.postSalePortfolioPaymentSaveAction(transaction);
+	}
+	
+	private void processAdvancedGeneralTransaction(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)
+			throws Exception {
+		
+		String[] dataLine;
+		String delimiter = "\t";
+		
+		dataLine = detail.getDetail().split(delimiter);
+		
+		validateDataLine(dataLine);
+		String transactionModuleId = dataLine[0];
+		
+		String debitAccountId = dataLine[1];
+		String categoryDebitAccountId = dataLine[2];
+		String debitSubaccount = dataLine[3];
+		String debitBranchId = dataLine[4];
+		String debitQuantityStr = dataLine[5];
+		
+		String creditAccountId = dataLine[6];
+		String categoryCreditAccountId = dataLine[7];
+		String creditSubaccount = dataLine[8];
+		String creditBranchId = dataLine[9];
+		String creditQuantityStr = dataLine[10];
+		
+		String value = dataLine[11];
+		String remark = dataLine[12];
+		
+		BigDecimal transactionValue = null;
+		BigDecimal debitQuantity = null;
+		BigDecimal creditQuantity = null;
+		
+		if (UtilApp.isValidDecimalNumber(value))
+			transactionValue = new BigDecimal(value);
+		else
+			throw new OperativeException("wrong_value", value);
+
+		if (UtilApp.isValidDecimalNumber(debitQuantityStr))
+			debitQuantity = new BigDecimal(debitQuantityStr);
+		else
+			throw new OperativeException("wrong_debit_quantity", debitQuantityStr);
+		
+		if (UtilApp.isValidDecimalNumber(creditQuantityStr))
+			creditQuantity = new BigDecimal(creditQuantityStr);
+		else
+			throw new OperativeException("wrong_credit_quantity", creditQuantityStr);
+		
+		
+		if (!UtilApp.isValidIntegerNumber(debitBranchId))
+			throw new OperativeException("wrong_debit_branch", debitBranchId);
+		
+		if (!UtilApp.isValidIntegerNumber(creditBranchId))
+			throw new OperativeException("wrong_credit_branch", creditBranchId);
+		
+		if (!UtilApp.isValidIntegerNumber(debitSubaccount))
+			throw new OperativeException("wrong_debit_subaccount", debitSubaccount);
+		
+		if (!UtilApp.isValidIntegerNumber(creditSubaccount))
+			throw new OperativeException("wrong_credit_subaccount", creditSubaccount);
+		
+		TransactionModule transactionModule = XPersistence.getManager().find(TransactionModule.class, transactionModuleId);
+		Account debitAccount = XPersistence.getManager().find(Account.class, debitAccountId);
+		Account creditAccount = XPersistence.getManager().find(Account.class, creditAccountId);
+		
+		Category categoryDebitAccount = XPersistence.getManager().find(Category.class, categoryDebitAccountId);
+		Category categoryCreditAccount = XPersistence.getManager().find(Category.class, categoryCreditAccountId);
+		
+		Branch debitBranch = XPersistence.getManager().find(Branch.class, Integer.parseInt(debitBranchId));
+		Branch creditBranch = XPersistence.getManager().find(Branch.class, Integer.parseInt(creditBranchId));
+		
+		if (transactionModule==null)
+			throw new OperativeException("transaction_module_not_found_for_batch_process", transactionModuleId);
+		if (debitAccount==null)
+			throw new OperativeException("account_not_found", debitAccountId);
+		if (creditAccount==null)
+			throw new OperativeException("account_not_found", creditAccountId);
+		if (categoryDebitAccount==null)
+			throw new OperativeException("category_not_found", categoryDebitAccountId);
+		if (categoryCreditAccount==null)
+			throw new OperativeException("category_not_found", categoryCreditAccountId);
+		if (!debitAccount.getCurrency().getCurrencyId().equals(creditAccount.getCurrency().getCurrencyId()))
+			throw new OperativeException("accounts_have_different_currency");
+		if (transactionValue.compareTo(BigDecimal.ZERO)<0)
+			throw new OperativeException("value_must_be_greater_than_zero", value);
+		if (debitBranch==null)
+			throw new OperativeException("debit_branch_not_found", debitBranch);
+		if (creditBranch==null)
+			throw new OperativeException("credit_branch_not_found", creditBranch);
+		
+		transaction.setTransactionModule(transactionModule);
+		transaction.setTransactionStatus(transactionModule.getFinancialTransactionStatus());
+		transaction.setValue(transactionValue);
+		transaction.setRemark(remark);
+		transaction.setCreditAccount(creditAccount);
+		transaction.setDebitAccount(debitAccount);
+		transaction.setCurrency(creditAccount.getCurrency());
+
+		XPersistence.getManager().persist(transaction);
+
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		
+		transactionAccounts.add(TransactionAccountHelper.createTransactionAccount(
+				creditAccount, 
+				Integer.parseInt(creditSubaccount), 
+				categoryCreditAccount, 
+				Types.DebitOrCredit.CREDIT, 
+				transactionValue, 
+				creditQuantity,
+				null,
+				transaction, 
+				null,
+				null,
+				null,
+				creditBranch
+				));
+
+		transactionAccounts.add(TransactionAccountHelper.createTransactionAccount(
+				debitAccount, 
+				Integer.parseInt(debitSubaccount), 
+				categoryDebitAccount, 
+				Types.DebitOrCredit.DEBIT, 
+				transactionValue, 
+				debitQuantity,
+				null,
+				transaction, 
+				null,
+				null,
+				null,
+				debitBranch
+				));
+
+		TransactionHelper.processTransaction(transaction, transactionAccounts);
 	}
 	
 	private void processGeneralTransaction(TransactionBatch transactionBatch, TransactionBatchDetail detail, Transaction transaction)

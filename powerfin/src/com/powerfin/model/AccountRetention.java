@@ -283,7 +283,7 @@ public class AccountRetention extends AuditEntity {
 	}
 	
 	public BigDecimal getBalance() throws Exception {
-		return BalanceHelper.getBalance(getAccount().getAccountId());
+		return BalanceHelper.getBalance(getAccount());
 	}
 
 	public String getElectronicDocument() {

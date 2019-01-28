@@ -11,6 +11,7 @@ import com.powerfin.model.types.*;
 public class CategoryHelper {
 
 	public final static String BALANCE_CATEGORY = "BALANCE";
+	public final static String TRANSITORY_BALANCE_CATEGORY = "TRABALANCE";
 	public final static String BLOCKED_CATEGORY = "BLOCKED";
 	public final static String ADVANCE_CATEGORY = "ADVANCE";
 	public final static String ADVANCE_SALE_PORTFOLIO_CATEGORY = "ADVSALPORT";
@@ -61,6 +62,11 @@ public class CategoryHelper {
 	public static Category getCategoryById(String categoryId)
 	{
 		return XPersistence.getManager().find(Category.class, categoryId);
+	}
+	
+	public static Category getTransitoryBalanceCategory()
+	{
+		return CategoryHelper.getCategoryById(CategoryHelper.TRANSITORY_BALANCE_CATEGORY);
 	}
 	
 	public static Category getBalanceCategory()

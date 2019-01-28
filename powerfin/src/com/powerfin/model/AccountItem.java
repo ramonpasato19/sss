@@ -31,19 +31,16 @@ import com.powerfin.model.types.*;
 					+ "product{product};"
 					+ "detail {"
 					+ "unitMeasureBean;"
-					+ "countryId;"
-					+ "daysTolerance;"
-					+ "inventoried; brandId;"
-					+ "cellar[ minimalQuantity, maximumQuantity];"
+					+ "inventoried; "
+					+ "brandId;"
 					+ "}"
-
 					+ "prices{"
-					+ "cost; price; vatTax; taxPrice;"
-					+ "averageValue;retailPrice;"
+					+ "cost; price; vatTax; retailPrice;"
 					+ "};"
-					+ "taxes{accountItemTax};"
+					+ "priceList{accountItemPrice}"
+					+ "branchOffices{accountItemBranch}"
 					+ "categories{accountItemAccountItemType}"
-					+ "Imagen{picture;}"
+					+ "image{picture;}"
 					),
 	@View(name="basic",members="#accountId;"
 			+ "code;"
@@ -51,7 +48,7 @@ import com.powerfin.model.types.*;
 			+ "description;"
 			)
 })
-@Tab(properties="registrationDate, accountId, account.alternateCode, code, name, description, retailPrice, countryId.name ")
+@Tab(properties="accountId, code, account.alternateCode, name, vatTax, price, retailPrice")
 public class AccountItem extends AuditEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -67,23 +64,20 @@ public class AccountItem extends AuditEntity implements Serializable {
 	private String code;
 
 	@Hidden
-	@Column(nullable=false, precision=13, scale=4)
+	@Column(nullable=true, precision=13, scale=4)
 	private BigDecimal cost;
 
 	@Column(length=150)
 	private String description;
 
-	@Required
-	@Column(nullable=false)
+	@Column(nullable=true)
 	private Types.YesNoIntegerType inventoried;
 
 	@Required
 	@Column(nullable=false, length=100)
 	private String name;
 
-	//@OnChange(AccountItemChangeValues.class)
-	@Required
-	@Column(nullable=false, precision=13, scale=4)
+	@Column(nullable=true, precision=13, scale=4)
 	private BigDecimal price;
 
 	@OneToOne
@@ -92,14 +86,13 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	@DescriptionsList
 	@ManyToOne
-	@JoinColumn(name="unit_measure", nullable=false)
+	@JoinColumn(name="unit_measure", nullable=true)
 	@NoCreate
 	@NoModify
-	@Required
 	private UnitMeasure unitMeasureBean;
 
-	@Required
 	@Column(name="vat_tax", nullable=false)
+	@Required
 	private Types.YesNoIntegerType vatTax;
 
 	@ReadOnly
@@ -114,11 +107,9 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@Column(name="retail_price_aux", insertable=false)
 	private BigDecimal retailPriceAux;
 
-	@Required
 	@Column(name="minimal_quantity", precision=19, scale=2)
 	private BigDecimal minimalQuantity;
 
-	@Required
 	@Column(name="maximum_quantity", precision=19, scale=2)
 	private BigDecimal maximumQuantity;
 
@@ -138,7 +129,6 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@NewAction(value="AccountItemActions.AccountItemPreSaveDetails")
 	private List<AccountItemTax> accountItemTax;
 
-
 	@OneToMany(
 			mappedBy="accountItem",
 			cascade=CascadeType.ALL)
@@ -148,8 +138,22 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@NewAction(value="AccountItemActions.AccountItemPreSaveDetails")
 	private List<AccountItemAccountItemType> accountItemAccountItemType;
 
+	@OneToMany(
+			mappedBy="accountItem",
+			cascade=CascadeType.ALL)
+	@AsEmbedded
+	@ListProperties("branch.branchId, branch.name, minimumStock, averageCost")
+	private List<AccountItemBranch> accountItemBranch;
+	
+	@OneToMany(
+			mappedBy="accountItem",
+			cascade=CascadeType.ALL)
+	@AsEmbedded
+	@ListProperties("priceList.priceListId, priceList.name, price")
+	private List<AccountItemPrice> accountItemPrice;
+	
 	@ManyToOne
-	@JoinColumn(name="brand_id", nullable=true)
+	@JoinColumn(name="brand_id")
 	@NoCreate
 	@NoModify
 	@ReferenceView("Product")
@@ -173,6 +177,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	@Transient
 	@ManyToOne
+	@Required
 	@NoCreate
 	@NoModify
 	@ReferenceView("Reference")
@@ -181,7 +186,7 @@ public class AccountItem extends AuditEntity implements Serializable {
 	})
 	private Product product;
 
-	@Column(name="average_value", precision=13, scale=4)
+	@Column(name="average_value", precision=15, scale=6)
 	private BigDecimal averageValue;
 
 	@Transient
@@ -415,6 +420,22 @@ public class AccountItem extends AuditEntity implements Serializable {
 
 	public void setVatTax(Types.YesNoIntegerType vatTax) {
 		this.vatTax = vatTax;
+	}
+
+	public List<AccountItemBranch> getAccountItemBranch() {
+		return accountItemBranch;
+	}
+
+	public void setAccountItemBranch(List<AccountItemBranch> accountItemBranch) {
+		this.accountItemBranch = accountItemBranch;
+	}
+
+	public List<AccountItemPrice> getAccountItemPrice() {
+		return accountItemPrice;
+	}
+
+	public void setAccountItemPrice(List<AccountItemPrice> accountItemPrice) {
+		this.accountItemPrice = accountItemPrice;
 	}
 
 }

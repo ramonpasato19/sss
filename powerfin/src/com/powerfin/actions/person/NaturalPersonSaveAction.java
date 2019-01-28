@@ -1,15 +1,18 @@
 package com.powerfin.actions.person;
 
-import java.util.*;
+import java.math.BigDecimal;
+import java.util.Map;
 
-import org.openxava.actions.*;
-import org.openxava.jpa.*;
-import org.openxava.model.*;
-import org.openxava.util.*;
-import org.openxava.validators.*;
+import org.openxava.actions.SaveAction;
+import org.openxava.jpa.XPersistence;
+import org.openxava.model.MapFacade;
+import org.openxava.util.Messages;
+import org.openxava.validators.ValidationException;
 
-import com.powerfin.helper.*;
-import com.powerfin.model.*;
+import com.powerfin.helper.PersonHelper;
+import com.powerfin.model.IdentificationType;
+import com.powerfin.model.Person;
+import com.powerfin.model.PersonType;
 
 public class NaturalPersonSaveAction extends SaveAction {
 
@@ -27,6 +30,7 @@ public class NaturalPersonSaveAction extends SaveAction {
 		String identification = getView().getValueString("identification");
 		String email = getView().getValueString("email");
 		String activity = getView().getValueString("activity");
+		BigDecimal creditLimit = (BigDecimal) getView().getValue("creditLimit");
 		IdentificationType identificationType = null;
 		
 		Map<String, String> identificationTypeMap = (Map<String, String>) getView().getRoot().getValue("identificationType");
@@ -50,6 +54,9 @@ public class NaturalPersonSaveAction extends SaveAction {
 			p.setEmail(email.toLowerCase());
 			p.setActivity(activity);
 			p.setName(name);
+			p.setCreditLimit(BigDecimal.ZERO);
+			if (creditLimit!=null)
+				p.setCreditLimit(creditLimit);
 			XPersistence.getManager().persist(p);
 			getView().setValue("personId", p.getPersonId());
 			addMessage("person_created", p.getClass().getName());
@@ -64,6 +71,8 @@ public class NaturalPersonSaveAction extends SaveAction {
 			p.setEmail(email.toLowerCase());
 			p.setActivity(activity);
 			p.setName(name);
+			if (creditLimit!=null)
+				p.setCreditLimit(creditLimit);
 			XPersistence.getManager().merge(p);
 			addMessage("person_modified", p.getClass().getName());			
 		}

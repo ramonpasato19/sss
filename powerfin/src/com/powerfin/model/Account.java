@@ -103,7 +103,7 @@ import com.powerfin.util.*;
 @Tabs({
 	@Tab(properties="accountId, branch.name, code, name, product.productId, product.name, currency.currencyId")
 })
-public class Account extends AuditEntity implements Serializable {
+public class Account extends CompleteAuditEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
@@ -452,22 +452,22 @@ public class Account extends AuditEntity implements Serializable {
 	
 	@Transient
 	public BigDecimal getBalance() throws Exception {
-		return BalanceHelper.getBalance(accountId);
+		return BalanceHelper.getBalance(this);
 	}
 	
 	@Transient
 	public BigDecimal getBlockedBalance() throws Exception {
-		return BalanceHelper.getBalance(accountId, 0, CategoryHelper.BLOCKED_CATEGORY);
+		return BalanceHelper.getBalance(accountId, 0, CategoryHelper.BLOCKED_CATEGORY, branch.getBranchId());
 	}
 	
 	@Transient
 	public BigDecimal getAdvanceBalance() throws Exception {
-		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_CATEGORY);
+		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_CATEGORY, branch.getBranchId());
 	}
 
 	@Transient
 	public BigDecimal getAdvanceSalePortfolioBalance() throws Exception {
-		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_SALE_PORTFOLIO_CATEGORY);
+		return BalanceHelper.getBalance(accountId, 0 , CategoryHelper.ADVANCE_SALE_PORTFOLIO_CATEGORY, branch.getBranchId());
 	}
 	
 	public BigDecimal getTotalOverdueBalance() {

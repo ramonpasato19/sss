@@ -1,5 +1,7 @@
 package com.powerfin.model.types;
 
+import org.openxava.actions.JasperReportBaseAction;
+
 public class Types {
 
 	public enum YesNoIntegerType {
@@ -22,6 +24,26 @@ public class Types {
 	    private final String name;       
 
 	    private CommonStatus(String s) {
+	        name = s;
+	    }
+
+	    public boolean equalsName(String otherName){
+	        return (otherName == null)? false:name.equals(otherName);
+	    }
+
+	    public String toString(){
+	       return name;
+	    }
+
+	};
+	
+	public enum ReportFormat {
+		PDF (JasperReportBaseAction.PDF),
+		EXCEL (JasperReportBaseAction.EXCEL);
+
+	    private final String name;       
+
+	    private ReportFormat(String s) {
 	        name = s;
 	    }
 

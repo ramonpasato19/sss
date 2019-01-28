@@ -1,6 +1,7 @@
 package com.powerfin.model;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import javax.persistence.*;
@@ -77,6 +78,9 @@ public class Person extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="PersonList")
 	private String name;
 
+	@Column(name="credit_limit", nullable=true, precision=11, scale=2)
+	private BigDecimal creditLimit;
+	
 	@Column(name = "other_income_source", length = 100)
 	@ReadOnly(forViews="PersonList")
 	private String otherIncomeSource;
@@ -596,6 +600,14 @@ public class Person extends AuditEntity implements Serializable {
 
 	public void setProjectedAccountingDate(Date projectedAccountingDate) {
 		this.projectedAccountingDate = projectedAccountingDate;
+	}
+
+	public BigDecimal getCreditLimit() {
+		return creditLimit;
+	}
+
+	public void setCreditLimit(BigDecimal creditLimit) {
+		this.creditLimit = creditLimit;
 	}
 
 	

@@ -1,5 +1,6 @@
 package com.powerfin.actions.person;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.openxava.actions.*;
@@ -24,6 +25,7 @@ public class LegalPersonSaveAction extends SaveAction {
 		String identification = getView().getValueString("identification");
 		String email = getView().getValueString("email");
 		String activity = getView().getValueString("activity");
+		BigDecimal creditLimit = (BigDecimal) getView().getValue("creditLimit");
 		IdentificationType identificationType = null;
 		
 		Map<String, String> identificationTypeMap = (Map<String, String>) getView().getRoot().getValue("identificationType");
@@ -41,6 +43,9 @@ public class LegalPersonSaveAction extends SaveAction {
 			p.setEmail(email.toLowerCase());
 			p.setName(businessName);
 			p.setActivity(activity);
+			p.setCreditLimit(BigDecimal.ZERO);
+			if (creditLimit!=null)
+				p.setCreditLimit(creditLimit);
 			XPersistence.getManager().persist(p);
 			
 			getView().setValue("personId", p.getPersonId());
@@ -55,6 +60,8 @@ public class LegalPersonSaveAction extends SaveAction {
 			p.setEmail(email.toLowerCase());
 			p.setName(businessName);
 			p.setActivity(activity);
+			if (creditLimit!=null)
+				p.setCreditLimit(creditLimit);
 			XPersistence.getManager().merge(p);
 			addMessage("person_modified", p.getClass().getName());			
 		}

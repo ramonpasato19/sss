@@ -288,7 +288,8 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	private Date dueDate;
 
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Stereotype("DATETIME")
 	@Column(name="issue_date", nullable=false)
 	@ReadOnly(forViews="AuthorizeTXInvoicePurchase, AuthorizeTXInvoiceSale, AuthorizeTXCreditNotePurchase, AuthorizeTXCreditNoteSale, IssueElectronicInvoiceSale")
 	@Required
@@ -342,7 +343,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	
 	@OneToMany(mappedBy="accountInvoice", cascade = CascadeType.ALL)
 	@AsEmbedded
-	@ListProperties("accountDetail.accountId, accountDetail.name, taxPercentage, unitPrice, quantity,"
+	@ListProperties("accountDetail.accountId, accountDetail.name, taxPercentage, quantity, unitPrice, discount, dueDate, taxSpecialConsumption, taxRedeemable, "
 			+ "amount[accountInvoice.subtotal, "
 			+ "accountInvoice.calculateTaxes, accountInvoice.calculateTotal]"
 			)
@@ -772,7 +773,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	}
 	
 	public BigDecimal getBalance() throws Exception {
-		return BalanceHelper.getBalance(getAccount().getAccountId());
+		return BalanceHelper.getBalance(getAccount());
 	}
 	
 	public AccountInvoice getInvoices() {

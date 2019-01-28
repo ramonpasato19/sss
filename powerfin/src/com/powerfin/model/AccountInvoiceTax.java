@@ -134,7 +134,9 @@ public class AccountInvoiceTax {
 			if(getTax().getPercentage()!=null)
 			{
 				if (getTaxBase()!=null)
+				{
 					value = taxBase.multiply(tax.getPercentage()).divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+				}
 			}
 		}
 		return value;

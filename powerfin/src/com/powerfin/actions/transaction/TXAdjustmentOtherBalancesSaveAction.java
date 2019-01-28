@@ -63,7 +63,12 @@ public class TXAdjustmentOtherBalancesSaveAction extends TXSaveAction{
 		else if (transaction.getSecondaryCategory().getCategoryId().equals("LEGALFEERE"))
 			otherSecondaryCategoryId = "LEGALFEEIN";
 		else if (transaction.getSecondaryCategory().getCategoryId().equals("INTERESTPR"))
-			otherSecondaryCategoryId = "INTERESTIN";
+		{
+			if (debitAccount.getProduct().getProductId().equals("108") || debitAccount.getProduct().getProductId().equals("109"))
+				otherSecondaryCategoryId = "INTDIF";
+			else
+				otherSecondaryCategoryId = "INTERESTIN";
+		}
 		
 		Category otherSecondaryCategory = XPersistence.getManager().find(Category.class, otherSecondaryCategoryId);
 		

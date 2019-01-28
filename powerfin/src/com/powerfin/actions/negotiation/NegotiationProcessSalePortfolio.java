@@ -210,8 +210,8 @@ public class NegotiationProcessSalePortfolio {
 					soldPaytableOld.setProvisionDays(accountPaytable.getProvisionDays());
 				}
 
-				soldPaytable.setSubaccount(subaccount);
-				soldPaytableOld.setSubaccount(subaccount);
+				soldPaytable.setSubaccount(accountPaytable.getSubaccount());
+				soldPaytableOld.setSubaccount(accountPaytable.getSubaccount());
 	
 				soldPaytable.setPurchaseSpread(getAccumulatedProvision(fullPeriod, saleSpread, daysPreviousPeriod, daysCurrentPeriod));
 				soldPaytableOld.setPurchaseSpread(soldPaytable.getPurchaseSpread());
@@ -223,7 +223,7 @@ public class NegotiationProcessSalePortfolio {
 				soldPaytableOld.setFromDate(CompanyHelper.getCurrentAccountingDate());
 				soldPaytableOld.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
 				
-				soldPaytable.setSaleSubaccount(accountPaytable.getSubaccount());
+				soldPaytable.setSaleSubaccount(subaccount);
 				
 				XPersistence.getManager().persist(soldPaytable);
 				XPersistence.getManager().persist(soldPaytableOld);

@@ -121,28 +121,6 @@ public class FinancialHelper {
 		System.out.println("End Save Financial -------------------------");
 	}
 
-	@SuppressWarnings("unused")
-	private static void validateNegativeBalance (
-			FinancialCategoryDTO financialCategory) throws Exception {
-		
-		if (CategoryHelper.getAllowsNegativeBalance(financialCategory.getAccount(), financialCategory.getCategory()))
-			return;
-		
-		BigDecimal balance = BalanceHelper.getBalance(financialCategory.getAccount(), financialCategory.getSubaccount(), financialCategory.getCategory());
-		if (balance==null)
-			throw new InternalException("null_balance_for_validate_balances",
-					financialCategory.getAccount().getAccountId(),
-					financialCategory.getSubaccount(),
-					financialCategory.getCategory().getCategoryId());
-
-		if (balance.compareTo(BigDecimal.ZERO)<0)
-			throw new OperativeException("the_account_balance_can_not_be_negative",
-					financialCategory.getAccount().getAccountId(),
-					financialCategory.getSubaccount(),
-					financialCategory.getCategory().getCategoryId(),
-					balance);
-	}
-
 	private static void updateBalance(FinancialCategoryDTO financialCategory)
 			throws Exception {
 
@@ -357,32 +335,6 @@ public class FinancialHelper {
 				financialCategory.setStock(financialCategory.getStock().add((BigDecimal) acumulatedValues[2]));
 				
 			}
-		}
-	}
-
-	@SuppressWarnings({ "unchecked", "unused" })
-	private static Balance getBalanceOnDate(
-			FinancialCategoryDTO financialCategory, Date fromDate)
-			throws Exception {
-		List<Balance> balances = XPersistence
-				.getManager()
-				.createQuery(
-						"SELECT o FROM Balance o "
-								+ "WHERE o.account = :account "
-								+ "AND o.subaccount = :subaccount "
-								+ "AND o.category = :category "
-								+ "AND o.branch = :branch "
-								+ "AND o.fromDate = :fromDate")
-				.setParameter("fromDate", fromDate)
-				.setParameter("account", financialCategory.getAccount())
-				.setParameter("subaccount", financialCategory.getSubaccount())
-				.setParameter("category", financialCategory.getCategory())
-				.setParameter("branch", financialCategory.getBranch())
-				.getResultList();
-		if (balances != null && !balances.isEmpty() && balances.size() > 0) {
-			return (Balance) balances.get(0);
-		} else {
-			return null;
 		}
 	}
 

@@ -6,6 +6,8 @@ import java.util.List;
 import org.openxava.jpa.XPersistence;
 
 import com.powerfin.exception.OperativeException;
+import com.powerfin.helper.FinancialHelper;
+import com.powerfin.helper.TransactionHelper;
 import com.powerfin.model.Financial;
 import com.powerfin.model.Movement;
 import com.powerfin.model.Transaction;
@@ -23,8 +25,8 @@ public class TXReverseSaveAction extends TXSaveAction {
 		
 		List<Financial> financials = XPersistence.getManager().createQuery("SELECT o FROM Financial o "
 				+ "WHERE o.voucher=:voucher ")
-		.setParameter("voucher", voucher.toUpperCase())
-		.getResultList();
+				.setParameter("voucher", voucher.toUpperCase())
+				.getResultList();
 		
 		if (financials == null || financials.isEmpty())
 			throw new OperativeException("transaction_not_found", voucher);
@@ -32,7 +34,12 @@ public class TXReverseSaveAction extends TXSaveAction {
 		Financial f = financials.get(0);
 		
 		if (f.getTransaction().getTransactionModule().getAllowsReverseTransaction() == Types.YesNoIntegerType.NO)
-			throw new OperativeException("transaction_does_not_allow_reverse", voucher);
+			throw new OperativeException("transaction_does_not_allow_reverse", 
+					voucher, 
+					f.getTransaction().getTransactionModule().getName());
+		
+		if (f.getFinancialStatus().getFinancialStatusId().equals(FinancialHelper.REVERSE_FIANCIAL_STATUS))
+			throw new OperativeException("transaction_already_reversed", voucher);
 		
 	}
 	
@@ -65,5 +72,30 @@ public class TXReverseSaveAction extends TXSaveAction {
 			transactionAccounts.add(ta);
 		}
 		return transactionAccounts;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void postSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			List<Financial> originalFinancialList = XPersistence.getManager().createQuery("SELECT o FROM Financial o "
+					+ "WHERE o.voucher=:voucher ")
+					.setParameter("voucher", transaction.getDocumentNumber().toUpperCase())
+					.getResultList();
+	
+			Financial originalFinancial = originalFinancialList.get(0);
+			
+			List<Financial> newFinancialList = XPersistence.getManager().createQuery("SELECT o FROM Financial o "
+					+ "WHERE o.transaction.transactionId = :transactionId ")
+					.setParameter("transactionId", transaction.getTransactionId())
+					.getResultList();
+			
+			Financial newFinancial = newFinancialList.get(0);
+			
+			originalFinancial.setFinancialStatus(FinancialHelper.getReverseFinancialStatus());
+			originalFinancial.setReversedFinancialId(newFinancial.getFinancialId());
+			XPersistence.getManager().merge(originalFinancial);
+		}
 	}
 }

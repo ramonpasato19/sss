@@ -209,7 +209,7 @@ public class AccountHelper {
 		aux2 = provisionDaily.multiply(new BigDecimal(daysPassed-1)).setScale(2, RoundingMode.HALF_UP);
 		finalProvision = aux1.subtract(aux2).setScale(2, RoundingMode.HALF_UP);
 		*/
-		aux = BalanceHelper.getBalance(quota.getAccount().getAccountId(), quota.getSubaccount(), CategoryHelper.INTEREST_PR_CATEGORY);
+		aux = BalanceHelper.getBalance(quota.getAccount().getAccountId(), quota.getSubaccount(), CategoryHelper.INTEREST_PR_CATEGORY, quota.getAccount().getBranch().getBranchId());
 		if (aux!=null)
 			finalProvision = finalProvision.subtract(aux).setScale(2, RoundingMode.HALF_UP);
 		
