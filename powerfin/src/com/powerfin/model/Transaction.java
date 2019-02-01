@@ -1086,7 +1086,7 @@ public class Transaction implements Serializable {
 			+ "AuthorizeTXAdjustmentOtherBalances,"
 			+ "AuthorizeTXAdjustmentInsuranceBalances,"
 			)
-	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoan.GetOverdueBalanceSP", alwaysEnabled=true )
+	@Action(forViews="RequestTXSalePortfolioPayment", value = "AccountLoanController.GetOverdueBalanceSP", alwaysEnabled=true )
 	private Account debitAccount;
 
 	@ManyToOne
@@ -1176,10 +1176,10 @@ public class Transaction implements Serializable {
 		@SearchAction(forViews="RequestTXUnlocking", value="SearchAccount.SearchPayableAccount"),
 	})
 	@Actions({
-		@Action(forViews="RequestTXPurchasePortfolioPayment", value = "AccountLoan.GetOverdueBalancePP", alwaysEnabled=true ),
-		@Action(forViews="RequestTXPurchasePortfolioPaymentValueDate", value = "AccountLoan.GetOverdueBalancePPValueDate", alwaysEnabled=true ),
-		@Action(forViews="RequestTXPurchasePortfolioPrepayment", value = "AccountLoan.GetPrepaymentBalancePP", alwaysEnabled=true ),
-		@Action(forViews="RequestTXPurchasePortfolioPrepaymentValueDate", value = "AccountLoan.GetPrepaymentBalancePPValueDate", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPayment", value = "AccountLoanController.GetOverdueBalancePP", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPaymentValueDate", value = "AccountLoanController.GetOverdueBalancePPValueDate", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPrepayment", value = "AccountLoanController.GetPrepaymentBalancePP", alwaysEnabled=true ),
+		@Action(forViews="RequestTXPurchasePortfolioPrepaymentValueDate", value = "AccountLoanController.GetPrepaymentBalancePPValueDate", alwaysEnabled=true ),
 	})
 	private Account creditAccount;
 

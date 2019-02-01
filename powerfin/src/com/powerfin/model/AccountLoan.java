@@ -541,10 +541,10 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Transient
 	@Temporal(TemporalType.DATE)
 	@Actions({
-		@Action(forViews="ConsultAccountLoan", value = "AccountLoan.GetOverdueBalanceForConsult", alwaysEnabled=true ),
-		@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoan.GetOverdueBalancePPForConsult", alwaysEnabled=true ),
-		@Action(forViews="ConsultOriginationPortfolio", value = "AccountLoan.GetOverdueBalanceOPForConsult", alwaysEnabled=true ),
-		@Action(forViews="ConsultSalePortfolio", value = "AccountLoan.GetOverdueBalanceSPForConsult", alwaysEnabled=true )
+		@Action(forViews="ConsultAccountLoan", value = "AccountLoanController.GetOverdueBalanceForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultPurchasePortfolio", value = "AccountLoanController.GetOverdueBalancePPForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultOriginationPortfolio", value = "AccountLoanController.GetOverdueBalanceOPForConsult", alwaysEnabled=true ),
+		@Action(forViews="ConsultSalePortfolio", value = "AccountLoanController.GetOverdueBalanceSPForConsult", alwaysEnabled=true )
 	})
 	private Date projectedAccountingDate;
 	

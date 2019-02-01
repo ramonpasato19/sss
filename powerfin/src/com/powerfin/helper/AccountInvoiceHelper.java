@@ -422,44 +422,47 @@ public class AccountInvoiceHelper {
 		}
 
 		//Payments
-		for (AccountInvoicePayment payment: invoice.getAccountInvoicePayments())
+		if (invoice.getAccountInvoicePayments() != null && invoice.getAccountInvoicePayments().size()>0)
 		{
-			paymentValue = payment.getValue();
-			
-			//TODO Esta quemado los metodos de pago. hay que ver una forma que sea parametrizado
-			if (payment.getAccountInvoicePaymentId().equals("001"))//cash
+			for (AccountInvoicePayment payment: invoice.getAccountInvoicePayments())
 			{
-				if (payment.getChange()!=null && payment.getChange().compareTo(BigDecimal.ZERO)>0)
-					paymentValue = paymentValue.subtract(payment.getChange());
+				paymentValue = payment.getValue();
 				
-				debitAccountForPayment = invoice.getPos().getCashAccount();
-			}
-			else if (payment.getAccountInvoicePaymentId().equals("002")) //direct credit
-			{
-				//nothing to do
-			}
-			else if (payment.getAccountInvoicePaymentId().equals("003")) //credit card
-			{
-				debitAccountForPayment = invoice.getPos().getCreditCardAccount();
-			}
-			else if (payment.getAccountInvoicePaymentId().equals("004")) //check
-			{
-				debitAccountForPayment = invoice.getPos().getCheckAccount();
-			}
-			else if (payment.getAccountInvoicePaymentId().equals("005")) //discount voucher
-			{
-				debitAccountForPayment = PersonHelper.getDiscountVoucherAccount(account.getPerson());
-			}
-			
-			if (debitAccountForPayment!=null)
-			{
-				ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, paymentValue, transaction);
-				ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
-				transactionAccounts.add(ta);
+				//TODO Esta quemado los metodos de pago. hay que ver una forma que sea parametrizado
+				if (payment.getAccountInvoicePaymentId().equals("001"))//cash
+				{
+					if (payment.getChange()!=null && payment.getChange().compareTo(BigDecimal.ZERO)>0)
+						paymentValue = paymentValue.subtract(payment.getChange());
+					
+					debitAccountForPayment = invoice.getPos().getCashAccount();
+				}
+				else if (payment.getAccountInvoicePaymentId().equals("002")) //direct credit
+				{
+					//nothing to do
+				}
+				else if (payment.getAccountInvoicePaymentId().equals("003")) //credit card
+				{
+					debitAccountForPayment = invoice.getPos().getCreditCardAccount();
+				}
+				else if (payment.getAccountInvoicePaymentId().equals("004")) //check
+				{
+					debitAccountForPayment = invoice.getPos().getCheckAccount();
+				}
+				else if (payment.getAccountInvoicePaymentId().equals("005")) //discount voucher
+				{
+					debitAccountForPayment = PersonHelper.getDiscountVoucherAccount(account.getPerson());
+				}
 				
-				ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccountForPayment, paymentValue, transaction);
-				ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
-				transactionAccounts.add(ta);
+				if (debitAccountForPayment!=null)
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, paymentValue, transaction);
+					ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+					transactionAccounts.add(ta);
+					
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccountForPayment, paymentValue, transaction);
+					ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+					transactionAccounts.add(ta);
+				}
 			}
 		}
 		return transactionAccounts;

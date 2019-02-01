@@ -92,7 +92,7 @@
 		</action>
 	</controller>
 	
-	<controller name="AccountLoan">
+	<controller name="AccountLoanController">
 		<action name="GetOverdueBalance" 
 			class="com.powerfin.actions.accountLoan.GenerateOverdueBalance"
 			hidden="true">
