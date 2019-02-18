@@ -2,39 +2,33 @@ package org.openxava.formatters;
 
 import javax.servlet.http.*;
 
-import org.openxava.util.*;
+import org.openxava.model.meta.*;
 
 /**
- * 
+ *  
  * @since 4.8
  * @author Javier Paniza
  */
 
-public class BooleanListFormatter implements IFormatter {
+public class BooleanListFormatter implements IMetaPropertyFormatter {
 	
-	public String format(HttpServletRequest request, Object booleanValue) {
-		if (booleanValue == null) {
-			return "";
-		}
-		boolean r = false;
-		if (booleanValue instanceof Boolean) { 		
-			r = ((Boolean) booleanValue).booleanValue();
-			
-		}
-		else if (booleanValue instanceof Number) {
-			r = ((Number) booleanValue).intValue() != 0;
-		}
-		else {
-			return "";
-		}
-		String yes = Labels.get("yes", Locales.getCurrent());		
-		String no = Labels.get("no", Locales.getCurrent()); 
-		return r?"<div style='display: inline-block; width: 100%; text-align: center;'><i class='mdi mdi-check'></i><span style='display: none;'></div>" + yes + "</span>":"<span style='display: none;'>" + no + "</span>";
+	public String format(HttpServletRequest request, MetaProperty p, Object booleanValue) {
+		return toBoolean(booleanValue)?p.getLabel():"";
 	}
 	
-	public Object parse(HttpServletRequest request, String string) {
+	public Object parse(HttpServletRequest request, MetaProperty p, String string) {
 		return null; // Not needed for list
 	}
-
 	
+	static boolean toBoolean(Object booleanValue) {
+		if (booleanValue instanceof Boolean) { 		
+			return ((Boolean) booleanValue).booleanValue();
+			
+		}
+		if (booleanValue instanceof Number) {
+			return ((Number) booleanValue).intValue() != 0;
+		}
+		return false;
+	}
+
 }

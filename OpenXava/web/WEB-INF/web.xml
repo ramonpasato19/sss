@@ -33,7 +33,13 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 		<url-pattern>/modules/*</url-pattern>
 		<dispatcher>REQUEST</dispatcher>
 		<dispatcher>FORWARD</dispatcher>
-	</filter-mapping>	
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>naviox</filter-name>
+		<url-pattern>/phone/index.jsp</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>		
 	<filter-mapping>
 		<filter-name>naviox</filter-name>
 		<servlet-name>naviox</servlet-name>
@@ -89,6 +95,10 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 	<servlet>
 		<servlet-name>files</servlet-name>
 		<servlet-class>org.openxava.web.servlets.FilesServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>attachments</servlet-name>
+		<servlet-class>org.openxava.web.servlets.AttachmentsServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>naviox</servlet-name>
@@ -169,6 +179,10 @@ If you want to add filters add them in filters.xml file in WEB-INF.
 	<servlet-mapping>
 		<servlet-name>files</servlet-name>
 		<url-pattern>/xava/xfile</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>attachments</servlet-name>
+		<url-pattern>/xava/attachment</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>naviox</servlet-name>

@@ -1,6 +1,400 @@
 Change Log for OpenXava project
 ===============================
 
+OpenXava 6.0.2 (2019-1-21)
+--------------------------
+- Workspace in distribution upgraded to Eclipse 2018-12, though it still works with Neon (4.6).
+- New method resetAllModulesExceptCurrent() in ModuleContext to reset all the modules state.
+- New method getSelectedKeys() on CollectionBaseAction.
+- Some new common use labels to be used in applications. 
+- Fix: Action New in @ManyToMany collections fails on save the element.  
+- Fix: Pressing "Change name/remove" from a search reference dialog shows another dialog on top. 
+- Fix: Default i18n translations do not work after creating a new project.
+- Fix: Moving columns in a list with calculated properties produces an error dialog sometimes.
+- Fix: Editor formatter does not work in list mode with enum types.
+- Fix: Style that returns "DetailList" in getDefaultModeController() enters directly in detail mode.
+- Fix: Filtering for @DescriptionsList references in list fails when the id contains a dot.
+- Fix: @ListProperties with references of an @Embeddable fails for cascade REMOVE/ALL collections.
+- Fix: Same reference name with @DescriptionsList inside and outside a dialog shows the same elements.  
+- Fix: CRUD.refresh does not work on combo of @DescriptionsList(showReferenceView=true) references.
+- Fix: Dependent descriptions lists do not work with showReferenceView=true.
+- Fix: @ElementCollection with inheritance with a getter in the base class is rendered as @OneToMany. 
+- Fix: Keystrokes for changing section break the page in a view without section.
+- Fix: Pressing Ctrl-2 in login page breaks the page. 
+- Fix: Card subheader with a lot of content not very legible in Light theme. 
+- Fix: Hover on cards make the content blurred in Terra theme. 
+- Fix: Buttons are ugly on iPad. 
+- Fix: Booleans cannot be unmarked in @ElementCollection.
+- Fix: Loading... fixed when saving totals in collections.
+- Fix: Popup calendar generates bad format for DATETIME for locales IT, US, etc. in Java 9, 10 and 11.
+- Fix: Cut and paste in collection fails in some cases if we check the rows and click the above button.
+- Fix: CollectionBaseAction.getMapsSelectedValues() returns only the key when clicking on row.  
+
+OpenXava 6.0.1 (2018-12-11)
+---------------------------
+- New attribute readOnlyAsLabel in <xava:descriptionsList/> taglib.
+- Getting Started doc improved for Java 9, 10 and 11 and Eclipse 2018-09.
+- Improved migration doc for v6.0.
+- Fix: HtmlUnitUtils.getAnchors() does not find anchors by href.
+- Fix: ModuleTestBase.assertTotalInCollection() fails for @ElementCollection with references.
+- Fix: Using in a @Calculation the sum of a qualified property of an @ElementCollection fails.
+- Fix: Error saving @Calculation totals in collection when deleting entity and no more records.
+- Fix: @Calculation dependent on a summation of an @ElementCollection does not work.
+- Fix: Links inside message boxes have an ugly contrast.
+- Fix: Descriptions lists show id instead of description in read only element collections.
+- Fix: If @Tab(editors=) is modified the last used editor keeps being used even if not available.
+- Fix: Pressing ENTER adding columns to a list without choosing any produces an ugly tech error.
+- Fix: Broken loading image in card list format.
+- Fix: Loading icon for load new modules in menu is missing.
+- Fix: Mouse right button in modules menu does not open the module in another tab. 
+- Fix: Messages not shown from dialogs in Liferay with Chrome and Safari.
+- Fix: Grouping combo in other line when list title is shown.
+- Fix: Broken links in documentation.
+- Fix: Choosing 'is empty' or 'is not empty' in list hides the combo and the value for ever.
+- Fix: Typing a value for filtering in list and then choosing 'is empty' or 'is not empty' fails. 
+- Fix: Calendar icon hides the year in date editor when year has four digits.
+- Fix: MySchool demo project does not start in Tomcat inside Eclipse.
+- Fix: MySchool and InvoiceDemo projects have Welcome and First Steps pages no upgraded to v6.
+- Fix: Fails on the second intent to save when key is in a group and there are several groups.
+
+OpenXava 6.0 (2018-11-21)
+-------------------------
+- Top navigation bar removed.
+- List of modules always present on the left.
+- Modes no longer exist from the user perspective. He just has a List link in detail mode.
+- Split mode no longer exists.
+- Going to a module from the modules menu resets the module, starting in list mode if it applies.
+- On references if the user types an inexistent key the search dialog is shown.
+- Icon for searching references emphasized with bold and special color. 
+- Icon for changing the filter name is now a link with text.
+- Current new entity is validated before shown the dialog to add an element to the collection.
+- Emphasized borders instead of icons for required and error fields.
+- Combos for filters and grouping are stylized like standard combos.
+- Collection filters are hidden by default and they are hidden again when current entity changes.
+- Reseting the filter in the list executes the query.
+- The comparators filters are hidden by default, they are shown when user type values to filter.
+- New action is emphasized with a special color for list mode and collections.
+- Choosing a comparator in a combo of a list columns executes the filtering.
+- Search modules box only available when there are many modules.
+- Application name in top of modules menu, no longer with module title.
+- Place and size of messages adapted to not hide actions.
+- Fixed modules with fixModulesOnTopMenu on naviox.properties now are in top of left menu.
+- Bookmarked modules are not repeated in the menu.
+- Module description for each module no longer included in menu.
+- Modules menu has its own scrolling.
+- Buttons in dialogs are aligned to left.
+- Loading indicator not shown for short interactions.
+- Browser autocompletion deactivated for descriptions list combos.
+- Icon to show/hide the filter in list and collections is always present.
+- Resizing columns for list and collections is disabled by default.
+- Help icon is not available by default, activate it with helpAvailable=true in xava.properties.
+- Style for Liferay 6.1 adapted to new user experience features.  
+- The mode controllers DetailList, ListOnly, SplitOnly no longer exist.
+- Columns in list and collections have an icon to sort, and no longer have link style.
+- Key of references marked as required if reference is required and missed.
+- New Terra theme (styleCSS=terra.css), classic style (styleCSS=light.css) still available.
+- You can define the theme of your application with styleCSS in xava.properties. 
+- Welcome and First Steps pages simplified and adapted to the current theme.
+- Screenshots for Quick Start guide, Getting Started lesson and Navigation updated to latest UI changes.
+- naviox.css has been renamed as light.css and moved from Addons to OpenXava. 
+- Java 11 support.
+- Tomcat 9 included in distribution.
+- Workspace included in distribution upgraded to SimRel 2018-09, though it still works in all Eclipse 4.x.
+- Support for Eclipse versions previous to Neon (4.6) removed. 
+- Java Servlet 3.0 and JSP 2.2 are the minimum versions supported.
+- Tomcat 6 no longer tested.
+- Groovy code removed from OpenXavaTest.
+- New projects have not Groovy nature by default. 
+- Property rememberVisitedModules of naviox.properties no longer has effect.
+- Property showFilterByDefaultInCollections is no longer available in xava.properties.
+- commons-io.jar (already included in OX) is exported from the Eclipse OpenXava project.
+- New method Dates.getDateTimeFormat() to get a DateFormat consistent for all Java versions.
+- New method isJava9orBetter() in XSystem utility class.
+- PortableRemoteObject is no longer used to cast objects.
+- EJBFactory utility class removed.
+- New Browsers utility class.
+- GoSplitAction class removed.
+- New method resetModule() in ModuleContext to reset all the module state, so reinits the module.
+- New method validateIncludingMissingRequired() in MapFacade to validate verifying required members are present.
+- View.reset() does a reset of the collections too.
+- New WithRequiredName class for using as generic transient class for dialogs.
+- New utility class HtmlUnitUtils for easier use of HtmlUnit.
+- New method concat() in Strings utility class.
+- Some new common use labels to be used in applications.
+- Fix: Help link broken, it linked to wikispaces, now links to openxava.org doc.
+- Fix: Descriptions lists in element collections show misplaced icons.
+- Fix: Sort icons in list columns are reversed. 
+- Fix: ViewBaseAction.validateViewValues() does not validate if required fields exists.
+- Fix: Placeholders do not work for textarea fields.
+- Fix: Repeated remembered filters in the list from time to time. 
+- Fix: Bad layout for charts when flowLayout=true in xava.properties.
+- Fix: Pressing ENTER in a dialog for search a reference shows another dialog on top.
+
+OpenXava 5.9.1 (2018-6-19)
+--------------------------
+- All documentation included in the distribution.
+- Some new common use labels to be used in applications.
+- Fix: Tab.setBaseCondition() on an on-each-request action does not work on first module load.
+- Fix: Module names are not shown when you access them without NaviOX.
+- Fix: Adding valid values to a plain property by code (dynamic combo) in a section does not work. 
+- Fix: Changing from a module to another when both are in charts list format fails.
+- Fix: Showing a previous hidden section with View.setHidden() when there are no sections fails. 
+- Fix: Hiding a section with View.setHidden() when it is the only one fails.
+- Fix: Stereotype HTML_TEXT breaks charts when chosen as x column.
+- Fix: Long content for x column property produces ugly labels in charts. 
+- Fix: Format for labels used for x column in charts is not the same of the list. 
+- Fix: Stereotype FILES shows twice the action to add a new file when it is empty.
+- Fix: Group by month or year of a date from a reference fails.
+- Fix: Group by when there is a valid-values in the list fails with XML components. 
+- Fix: Changing list filter/order name configuration fails with XML components.
+- Fix: View.setModel() and ViewBaseAction.validateViewValues() fail with transient objects in XML components. 
+- Fix: View annotations are ignored in overwrote references using inheritance.
+- Fix: Overwriting a member in an entity without @View using inheritance duplicates the member in view.
+- Fix: InvoiceDemo and MySchool projects have not the Welcome page updated to 5.9 format.
+- Fix: Duplicate filter/ordering configurations in list from time to time.
+- Fix: Selecting a filter/ordering configuration does not work if it has only ordering and just one column.
+- Fix: Group by in list fails with XML components.
+- Fix: Charts show valid values properties as numeric values columns with XML components.  
+- Fix: Going to charts and then going to detail mode loses the original view declared for that module. 
+- Fix: Fail if removed a column, go to pie, changed the column and changed from list to charts several times.
+- Fix: ClassNotFoundException in the log when accessTrackerProvidersClasses is not defined in xava.properties. 
+
+OpenXava 5.9 (2018-5-22)
+------------------------
+- Cut and paste in collections.
+- Record count in list when "Group by" is used.
+- On init module remembers the last filter/order in cards and charts.
+- Selecting filter/order configuration and grouping are available in all list format, including cards and charts.
+- Lists no longer remember last filtering and sorting from session to session, still remembered if chosen from combo.
+- Data shown in charts is the data currently filtered in list.
+- Group summation in list is shown correctly when changing to charts.
+- Record count when "Group by" is available in charts.
+- Pie charts sums the results of the same category automatically.
+- Pie charts group the data and summarize even if the list is not grouped.
+- In pie charts the user can only choose a column for y values.
+- Group by for pie charts shows the summation of each group.
+- X column is not shown by default as Y column too in charts.
+- Pie charts show the real value instead of percentage, percentage is shown on hover.
+- Chart fits in the space available in the page.
+- Improved charts layout for Liferay. 
+- Improved placement of buttons for choosing chart type.
+- Columns in charts show their qualified labels if they are from references.
+- The user can subscribe/unsubscribe to a module to follow by email all the changes done in its data by other users.
+- All the changes done to a record are notified via email to the original creator. The original creator can unsubscribe.  	
+- Pluggable access tracking mechanism using new AccessTracker and IAccessTrackerProvider. 
+- LogAccessTrackerProvider to register all database access in a log file, can be enabled in xava.properties.
+- Collection column summation can be used from @Calculation properties using sum(columnName).
+- It is possible to combine total summation and total properties for the same column of a collection.
+- @Calculation properties allowed as total properties for collections.
+- Editable properties allowed in collection totals.
+- @OneToMany collections show totals even if the collection has no lines.
+- The user can get the sum of any numeric column in calculated collections, @ElementCollection and @OrderColumn lists.
+- @ListProperties allows + as suffix for column sum in calculated collections, @ElementCollection and @OrderColumn lists.
+- Improved user experience for DISCUSSION.
+- Collection row count is shown in section label when the collection is the only section element.
+- Welcome and Sign In are separated pages, accessing to root goes to Welcome page.
+- Adding action to browser URL only for "new" actions.
+- Booleans in list and collections show the label of the property for true values instead of a check icon.
+- Summation in @OneToMany collections is available even if the list is empty.
+- New property fixModulesOnTopMenu in naviox.properties to have certain modules always present in top menu. 
+- @Calculation property that depends on other @Calculation property is recalculated if the original is recalculated.
+- New method moveCollectionElementToAnotherCollection() in MapFacade.
+- Log includes module change with user host and user name.
+- Log for action execution include user host and name.
+- IJavaScriptPostAction to execute JavaScript after regular action execution.
+- IAvailableAction so an action can determine if it will be available or hidden programmatically.
+- Calculated collections supported for DefaultListActionsForCollections and DefaultRowActionsForCollections.
+- Some new common use labels to be used in applications.
+- IMetaPropertyFormatter to use the MetaProperty of the value to format or parse. 
+- Improved Strings.naturalLabelToIdentifier() behavior to work with % character.
+- New method recursiveCloneWithCollections() in Maps utility class.
+- <xava:message /> taglib support param1, param2, param3 and param4 to send parameters to the message.
+- New methods treeToPlainIncludingCollections() and getKeyFromValue() in Maps utility class.
+- New method isArray() in XArrays utility class.
+- Is.equal() and Is.empty() work fine with Java native arrays.	
+- New sendInBackground() methods in Emails class to send emails in background.
+- New method setValuesNotTracking() in MapFacade.
+- New method createFileIfNotExist() in Files utility class.
+- New method Strings.toString() for doing a decent toString() of any object, supporting dates, numbers, arrays, etc.
+- Fix: Totals has the font size too small.
+- Fix: Two collections in a line inside Liferay Portal 6.1.2 are displayed one below another.
+- Fix: Messages are not shown from dialog in Chrome.
+- Fix: @Depends does not work for collection total properties.
+- Fix: In detail only modules the view is not editable by default.
+- Fix: Import data fails when the file to import has empty numeric data.
+- Fix: Duplicate modules in menu when modules defined in application.xml.
+- Fix: The methods assertTotalXXX() of ModuleTestBase do not work if the collection has no lines.
+- Fix: When no @View is specified collection total properties are shown in main view and collection totals.
+- Fix: The default filter/order configuration is not available in some cases. 
+- Fix: WebURL editor has an invisible space on right that misplaces next editor.
+- Fix: Incorrect rounding in list and collection summation.
+- Fix: Charts are misplaced with Internet Explorer.
+- Fix: Witn FILE stereotype adding a file, removing it and add it again fails.
+
+OpenXava 5.8.1 (2017-11-20)
+---------------------------
+- New look for sections.
+- Default value calculators with on-create=true (only in XML components) are not executed on clicking new action.
+- Fix: Creating a new project in Eclipse 4.7.1a (Oxygen 1a) does not work.
+- Fix: Filtering by booleans is not accurate when there are nulls in the database column.
+- Fix: On browser refresh the portlet title in Liferay is incorrect.
+- Fix: Element collection inside dialog shows horizontal scrollbar.
+- Fix: Charts are not well aligned.
+- Fix: When there are many sections (tabs) in a small screen the latest tabs are not clickable.
+- Fix: Filtering in a collection inside a reference produces an error.
+- Fix: Adding columns to a collection inside a reference produces an error.
+- Fix: Paging in a collection produces that in the next entity there are no entries until we paging. 
+- Fix: % in a condition of a @DescriptionsList breaks the list if it contains the reference.
+- Fix: Tab.setBaseCondition() does not update the list UI immediately in some cases.
+- Fix: Generating PDF from a dialog puts the dialog content in the main view.
+- Fix: Browser refresh while editing a collection element changes the element by the root entity in the dialog.
+- Fix: Checkbox with tooltip can not be checked/unchecked.
+- Fix: Showing a dialog in list mode resizes the list.
+- Fix: Ugly layout with long text when DISCUSSION used inside a section.
+- Fix: Charts are below the buttons instead of on the right.
+- Fix: Cards are not updated when data is updated in detail mode.
+- Fix: Grouping in a list with calculated properties fails.
+- Fix: Ordering in a list with grouping fails, both by the user or using @Tab(defaultOrder=).
+- Fix: @Calculation does not work in collections.
+
+OpenXava 5.8 (2017-10-17)
+-------------------------
+- The user can group by any property in the list to get summation of numeric properties by group.
+- Import action in list mode to import data from CSV, XLSX (Excel 2007/2010/2013) and XLS (Excel 97/2000/XP/2003) files.
+- The user can rename the columns in list and collections for him.
+- New look for messages.
+- Messages can be closed by the user.
+- Messages placed in a fix part of the screen, even if you scroll the page.
+- New striking tooltip for editors that are activated just with the focus. 
+- Tooltip is omitted if matches with label for actions and editors.
+- New look of buttons bar for module and collection.
+- Delete icon in top bar is red on hover.
+- Font size for list and editors changed.
+- First steps screenshots upgraded.
+- In controllers inheritance you can exclude actions from parent controller with new excluded-actions attribute.
+- New attribute available-on-new for action in controllers.xml to exclude actions when creating a new element.
+- Dynamic combos with the new methods addValidValue(), removeValidValue() and getValidValues() in View.
+- It's possible to change by code the descriptions list condition.
+- If a module has no rows it starts in detail mode executing New action.
+- Lists remember the last filtering and ordering by user between sessions.
+- Generate PDF works even if the browser does not allow popups, this applies to most IForwadAction too.
+- Action for deleting rows in list mode now is on top bar and it has icon.
+- 'Sign in' link not shown when the user is in 'Sign in' page.
+- When Discussion editor has the focus the Add comment button is shown and the Save button for module is hidden.
+- Renamed button of Discussion editor from Post to Add comment, moreover it is hidden on start. 
+- Delete action in detail mode is not present if there is not an entity selected.
+- Search action in detail mode is no longer included by default. 
+- Clicking in detail mode when the list has no rows executes New action.
+- Workspace included in distribution upgraded to Eclipse Oxygen, though it still works in all Eclipse 4.x.
+- Placeholders for fields using [placeholder] suffix in i18n label files. 
+- New resetAfterOnCreate/Modify in SaveAction to define the behavior after saving separately for create and modify.
+- Module description in menu of modules is omitted if matches with module name. 
+- Number of modules shown in the menu in the first load is 20, before it was 15.
+- Reduced the amount of serialization errors on stopping the application server.
+- New property showModulesMenuWhenNotLogged in xava.properties to hide Start button to guest users.
+- ModuleTestBase removes user preferences before executing each test.
+- Attribute label-style in property-view and descriptions-list of XML components.
+- Some new common use labels to be used in applications.
+- Property messagesOnTop removed from xava.properties, now you can use CSS to place the messages.
+- New showDefaultActionInBottom property in xava.properties to show/hide the default action on bottom.
+- New methods showButtons() and hideButtons() in ModuleManager to show/hide the button bars from UI.
+- Material Design Icons upgraded to 1.9.32.
+- Added poi-ooxml.jar library to manage Excel 2007/2010/2013 files.
+- New controllers TypicalWithSearch and SearchForCRUD to use the classic search action.
+- New method getQualifiedActionIfAvailable() in BaseAction.
+- New method put() in Labels to add new labels in runtime.
+- New method unquote() in Strings utility class.
+- New CancelToDefaultControllersAction that closes the dialog and set the default module controllers.
+- New methods selectGroupBy() and assertAllGroupBys() in ModuleTestBase for grouping in list mode.
+- New method assertValuesInList(int row, String ... values) in ModuleTestBase to test all row values in a shot.
+- New method updateModelFromView() in View to update the model set with setModel() from the view data.
+- Value of attribute 'label' in <property/> of XML components has preference over i18n files.
+- Fix: Error in JavaScript console of browser trying to loading an inexistent font file.
+- Fix: ModuleTestBase.waitAJAX() fails when navigating from a non-openxava page.
+- Fix: Changing the browser URL from an application to another the first action does not work.
+- Fix: Buttons bar in collections with flowLayout=true goes outside of the frame.
+- Fix: In some cases labels in collections are not translated.
+- Fix: Useless tooltip on HtmlText and Discussion editors.
+- Fix: Validation error adding entities to a collection rollbacks all the entities added even the good ones. 
+
+OpenXava 5.7.1 (2017-6-13)
+--------------------------
+- Reference actions are shown in the reference frame, instead of next to the key field.
+- New method resetEntityManagerFactory() in XPersistence.
+- Fix: Base condition and default order is shown in query name making it large and cumbersome.
+- Fix: Double click on an upload file action executes the action twice producing error.
+- Fix: Saving with resetAfter=false and refreshAfter=false fails on creating with hidden key when saving a second time.  
+- Fix: Impossible to search a reference if its view has no at least a plain field.
+- Fix: SchemaTool does not work with PostgreSQL when we use @Index in @Table.
+- Fix: When scrolling in a touch screen @OrderColumn rows move inadvertently.
+- Fix: Impossible to select text in @OrderColumn collections.
+- Fix: Mode tabs too close to right when cards list format is used.
+- Fix: Horizontal scrollbar with flow layout.
+- Fix: Horizontal scrollbar with cards list format.
+- Fix: Frames truncated in dialog with flow layout.
+- Fix: Queries names in list have some incorrect ) when ignoreAccentsForStringArgumentsInConditions=false.
+- Fix: Opening the first combo in a dialog with a @OnChange throws the onchange event closing the combo on click. 
+- Fix: Images gallery shows the content of the HTML_TEXT stereotype if the property is called "description".
+- Fix: The reference to parent is shown creating a new element from an entity collection without @CollectionView/@View.
+- Fix: If the list has many columns without column resizing the icons for edit and delete are one below other.
+- Fix: In lists with many columns the detail/list/both links are outside of viewport without column resizing.
+- Fix: Impossible to remove columns in list without column resizing, the x is missing.
+- Fix: Comparator combo and filter value textfield do not fit all the available space without column resizing.
+- Fix: Flow layout does not select correct format (vertical or left to right) on first page load.
+- Fix: Textfields too separated from label in views with few fields.
+
+OpenXava 5.7 (2017-5-16)
+------------------------
+- It's possible to go directly to the detail of an entity with ?detail=entityId in the module URL.
+- It's possible going to a module executing an action adding ?action=Controller.action in the URL.
+- When the user navigates among records or executes actions the browser URL is modified to be a valid permalink.
+- Cards format for list available in all modules by default.
+- New attribute editors in @Tab to define a group of editors to be used for list formats.
+- Editors for list formats defining several <for-tabs/> editors in editors.xml.
+- New attribute editors in tab of tabs-default-values.xml to set the default editors (Charts, List, etc) for lists.
+- Responsive layout with flowLayout=true in xava.properties.
+- @Calculation to declare an arithmetic expression for a property.
+- <calculation/> in <property/> of XML components to declare an arithmetic expression.
+- It's possible to create new elements from a regular @OneToMany collection even if it has no cascade REMOVE.
+- It's possible to modify elements in a regular @OneToMany collection.
+- You can define 'subcontroller' in a collection using @ListSubcontroller.
+- Rounded corners changed by squared corners in all the UI.
+- The last list format (chart or list) is remembered between sessions by user.
+- The user can remove any query from the combo of recent queries in list mode.
+- It's possible to remove Charts from all the modules of the application, using editors of tab in tabs-default-values.xml.
+- Better default values for list and collection properties when @Tab and @ListProperties are omitted.
+- Added font size and format to SIMPLE_HTML_TEXT and removing some rarely used options to keep it simple.
+- Labels for properties of references in list use the reference label if the property is name, description or title.
+- Delete selected action not available for Charts.
+- Formatter for HTML_TEXT in list mode, now uses the plain text until 200 characters.
+- New method executeAction() in BaseAction to execute actions from an action.
+- New attribute selectable-items in editor of editors.xml for list editors that allows selecting items.
+- New attribute process-selected-items in action of controllers.xml to hide the action when selecting item is not available. 
+- @NewAction no longer define the action for adding new elements from existing one, now it's only to create new elements.  
+- New @AddAction annotation allowed for collections, to define the action to add elements from existing ones.
+- New <add-action/> element in <collection-view/> for XML components.
+- Chunk size to get data from database for list mode now is 120 records, it was 50. 
+- Japanese translation of labels and messages.
+- Mail API available for using in your project.
+- New multiline() method in Strings to create platform independent multiline string. 
+- Default size for stereotypes IMAGES_GALLERY, GALERIA_IMAGENES, FILES and ARCHIVOS.
+- New method waitAJAX() in ModuleTestBase to wait until the current AJAX request is done.
+- New method assertValidValueNotExists() in ModuleTestBase.
+- Some new common use labels to be used in applications.
+- New get/assertValueInList() methods without column param in ModuleTestBase to work with values of list elements in columnless formats. 
+- SessionData class to access session data from any part of your application: actions, calculators, validators, even from entities.
+- Logging of time of each AJAX request, in debug level.
+- New methods getDiscussionCommentText(), getDiscussionCommentContentText() and assertDiscussionCommentContentText() in ModuleTestBase.
+- More intuitive messages in English.
+- New method toMap() in Maps utility to create a Map from a varargs of objects.
+- Library jsoup to manage HTML included. 
+- Fix: Clicking New from Charts with calculated collections breaks the module.
+- Fix: SchemaTool fails with entities with @Table(schema=).
+- Fix: "Yes" is shown besides the check symbol in list for boolean values with column resizing disable. 
+- Fix: Error "Action ... not available" on refresh after session lost.
+- Fix: List customization not saved in some cases.
+- Fix: ModuleTestBase.assertDiscussionCommentText() only works for row 0.
+
 OpenXava 5.6.1 (2017-1-27)
 --------------------------
 - Each browser tab has its own independent session state by module.
@@ -22,7 +416,7 @@ OpenXava 5.6.1 (2017-1-27)
 - Fix: Money symbol in MONEY stereotype is not shown in @ElementCollection.
 - Fix: After removing a row in an @ElementCollection searching a reference with a dialog changes the incorrect row.
 - Fix: @DescriptionsList annotated with @ReadOnly in a @ElementCollection can be edited.
-- Fix: Pressing Cancel when adding columns to the list used for search a reference fails.
+- Fix: Pressing Cancel when adding columns to the list used for searching a reference fails.
 - Fix: Remove column icon is not shown when the column is too narrow.
 - Fix: Customization icons for list columns in several lines with Liferay 6.1.
 - Fix: Using setControllers() inside an action to show a dialog with several levels removes the actions on come back.

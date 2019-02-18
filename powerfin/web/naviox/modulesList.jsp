@@ -16,7 +16,7 @@ for (Iterator it= folders.getSubfolders().iterator(); it.hasNext();) {
 		<div class="folder-name">
 			<i class="mdi mdi-<%=folder.getIcon()%>"></i>
 			<%=folder.getLabel()%>
-			<span class="folder-icon">&nbsp;&nbsp;&nbsp;</span>
+			<i class="folder-icon mdi mdi-chevron-right"></i>
 		</div>		
 	</div>	
 	</a>
@@ -24,12 +24,6 @@ for (Iterator it= folders.getSubfolders().iterator(); it.hasNext();) {
 <%	
 }
 %>
-
-<% if (folders.isRoot()) { %>
-	<jsp:include page="selectModules.jsp">
-		<jsp:param name="bookmarkModules" value="true"/>
-	</jsp:include>
-<% } %>
 
 <jsp:include page="selectModules.jsp">
 	<jsp:param name="folderModules" value="true"/>

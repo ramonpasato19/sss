@@ -15,6 +15,9 @@ public class RemoveChartColumnAction extends RemoveSelectedInCollectionAction {
 	@Inject
 	private Chart chart;
 	
+	@Inject
+	private Tab tab; 
+	
 	/**
 	 * @see org.openxava.actions.CollectionElementViewBaseAction#execute()
 	 */
@@ -29,7 +32,7 @@ public class RemoveChartColumnAction extends RemoveSelectedInCollectionAction {
 			if (getView() != null) {
 				getView().refreshCollections();
 			}
-			chart.save(); 
+			chart.save(tab); 
 		}
 	}
 

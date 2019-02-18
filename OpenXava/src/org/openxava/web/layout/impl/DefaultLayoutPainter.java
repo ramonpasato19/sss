@@ -695,7 +695,7 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 	 */
 	private void displayPropertyIcons(ILayoutPropertyBeginElement element) {
 		write("<i class='"); 
-		write(Style.getInstance().getRequiredIcon());
+		write("ox-required-icon");
 		if (element.isRequired()) { // There is no special icon for key, just the required icon if applies
 			write(" mdi mdi-marker-check");  
 		}
@@ -709,7 +709,7 @@ public class DefaultLayoutPainter extends AbstractJspPainter {
 			if (getErrors().memberHas(element.getMetaMember())) {
 				attributes.clear();
 				write("<i class='");
-				write(Style.getInstance().getErrorIcon());
+				write("ox-error-icon");
 				write(" mdi mdi-alert-circle'></i>"); // If modify this we have to change dwr.Module too
 			}
 		write(LayoutJspUtils.INSTANCE.endTag(TAG_SPAN));

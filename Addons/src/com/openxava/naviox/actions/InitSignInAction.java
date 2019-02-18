@@ -25,6 +25,11 @@ public class InitSignInAction extends ViewBaseAction {
 		else if (organization != null && Configuration.getInstance().isGuestCanCreateAccountInOrganizations()) {
 			addActions("GoSignUp.signUp"); 
 		}
+
+		if (Configuration.getInstance().isUseEmailAsUserName()) {
+			getView().setLabelId("user", "email");
+		}
+
 	}
 
 }

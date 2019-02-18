@@ -26,10 +26,6 @@ public class Liferay6Style extends Liferay51Style {
 		return "";
 	}
 	
-	public String getLoadingImage() { 
-		return getLiferayImagesFolder() + "application/loading_indicator.gif";
-	}
-	
 	public String getNoPortalModuleStartDecoration(String title) {   
 		return "<div id='wrapper' class='portlet' style='margin: 4px'><div class='portlet-topper'><span class='portlet-title'>"
 			+ title + "</span></div><div id='content' class='portlet-content'>"; 
@@ -114,5 +110,24 @@ public class Liferay6Style extends Liferay51Style {
 	public double getCollectionAdjustment() { 
 		return -40;		
 	}
-	
+
+	/**
+	 * @since 5.9
+	 */
+	public String getFrameHeaderStartDecoration(int width, boolean collection) {
+		String rightMargin = width == 100?"":"style='margin-right: 7px;'";
+		String frameClass = null; 
+		switch (width) {
+			case 0:
+				frameClass = "ox-frame-sibling";
+				break;
+			case 50:
+				frameClass = "ox-frame-sibling ox-two-collections-in-a-row";
+				break;
+			default: // 100	
+				frameClass = "ox-frame";				
+		}
+		
+		return "<div class='portlet " + frameClass + "' " + rightMargin +"><div class='portlet-topper' style='position: static; padding-right: 8px;'><table width='100%'><tr>"; // position: static needed for ie7 + liferay 4.3
+	}
 }

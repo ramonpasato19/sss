@@ -2,7 +2,6 @@ package org.openxava.web.taglib;
 
 import javax.servlet.http.*;
 import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
 
 import org.apache.commons.logging.*;
 import org.openxava.controller.meta.*;
@@ -14,14 +13,10 @@ import org.openxava.web.style.*;
  * @author Javier Paniza
  */
 
-public class ButtonTag extends TagSupport implements IActionTag{ 
+public class ButtonTag extends ActionTagBase { 
 	
-	private String argv; 
-	 
 	private static Log log = LogFactory.getLog(ButtonTag.class);
-	
-	private String action;
-	
+
 	public int doStartTag() throws JspException {
 		try {				
 			if (Is.emptyString(getAction())) {  
@@ -32,6 +27,9 @@ public class ButtonTag extends TagSupport implements IActionTag{
 			MetaAction metaAction = MetaControllers.getMetaAction(getAction());
 			String application = request.getParameter("application");
 			String module = request.getParameter("module");
+			if (!isActionAvailable(metaAction, application, module, request)) {
+				return SKIP_BODY;
+			}
 			pageContext.getOut().print("<input name='");
 			pageContext.getOut().print(Ids.decorate(application, module, "action." + getAction())); 
 			pageContext.getOut().println("' type='hidden'/>");			
@@ -43,7 +41,7 @@ public class ButtonTag extends TagSupport implements IActionTag{
 			}
 			pageContext.getOut().print(" tabindex='1'"); 
 			pageContext.getOut().print(" title='"); 
-			pageContext.getOut().print(metaAction.getKeystroke() + " - " + metaAction.getDescription(request));
+			pageContext.getOut().print(getTooltip(metaAction)); 
 			pageContext.getOut().print("'");
 			pageContext.getOut().print(" class='");
 			Style style = (Style) request.getAttribute("style");
@@ -70,6 +68,14 @@ public class ButtonTag extends TagSupport implements IActionTag{
 				pageContext.getOut().print(getArgv());
 				pageContext.getOut().print('"');
 			}
+			if (metaAction.inNewWindow()) {
+				if (Is.emptyString(getArgv())) {
+					pageContext.getOut().print(", undefined, undefined, undefined, true");
+				}
+				else {
+					pageContext.getOut().print(", undefined, undefined, true");
+				}
+			}
 			pageContext.getOut().print(")' value='");
 			pageContext.getOut().print(metaAction.getLabel(request));
 			pageContext.getOut().println("'/>");
@@ -81,20 +87,4 @@ public class ButtonTag extends TagSupport implements IActionTag{
 		return SKIP_BODY;
 	}
 	
-	public String getArgv() { 
-		return argv; 
-	} 
-		 
-	public void setArgv(String string) { 
-		argv = string; 
-	} 
-		
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String string) {
-		action = string;
-	}
-
 }

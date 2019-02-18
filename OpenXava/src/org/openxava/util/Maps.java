@@ -49,6 +49,7 @@ public class Maps {
 	 * @param qualifiedName Name in form a.b.c.  
 	 */
 	public static Object getValueFromQualifiedName(Map tree, String qualifiedName) {
+		if (tree == null) return null; 
 		int idx = qualifiedName.indexOf('.'); 
 		if (idx < 0) return tree.get(qualifiedName);
 		Map subtree = (Map) tree.get(qualifiedName.substring(0, idx));
@@ -110,28 +111,52 @@ public class Maps {
 	 * applied to it. 
 	 * 
 	 * @return <tt>instanceof  origen.getClass()</tt>
-	 * @param origin Cannot be null. Must to have a default constructor 
+	 * @param origin Cannot be null.  
 	 */
 	public static Map recursiveClone(Map origin) {
+		return recursiveClone(origin, true);
+	}
+	
+	/**
+	 * Does a recursive clone of map, cloning collections too. <p>
+	 * 
+	 * A recursive clone means that if some value is a map itself this method is
+	 * applied to it. If some value is a collection the collection is duplicated.
+	 * 
+	 * @return <tt>instanceof  origen.getClass() or HashMap() if not possible</tt>
+	 * @param origin Cannot be null.  
+	 * @since 5.9
+	 */
+	public static Map recursiveCloneWithCollections(Map origin) { 
+		return recursiveClone(origin, true);
+	}
+	
+	private static Map recursiveClone(Map origin, boolean withCollection) { 
+		Map result = null;
 		try {
-			Map result = (Map) origin.getClass().newInstance();
-			Iterator it = origin.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry en = (Map.Entry) it.next();
-				Object value = en.getValue();
-				if (value instanceof Map) {
-					result.put(en.getKey(), recursiveClone((Map)value));
-				}
-				else {
-					result.put(en.getKey(), value);
-				}
-			}
-			return result;
+			result = (Map) origin.getClass().newInstance();
 		}
 		catch (Exception ex) {
-			log.error(ex.getMessage(), ex);
-			throw new IllegalArgumentException(XavaResources.getString("clone_map_require_default_constructor"));
+			result = new HashMap(origin);
 		}
+		Iterator it = origin.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry en = (Map.Entry) it.next();
+			Object value = en.getValue();
+			if (value instanceof Map) {
+				result.put(en.getKey(), recursiveCloneWithCollections((Map)value)); 
+			}
+			else if (withCollection && value instanceof List) {
+				result.put(en.getKey(), new ArrayList((List)value)); 
+			}
+			else if (withCollection && value instanceof Set) {
+				result.put(en.getKey(), new HashSet((Set)value)); 
+			}				
+			else {
+				result.put(en.getKey(), value);
+			}
+		}
+		return result;
 	}
 	
 	
@@ -249,16 +274,93 @@ public class Maps {
 		return result;
 	}
 
-	private static void fillPlain(Map result, Map treeMap, String prefix) { 
+
+	/**
+	 * @since 5.9
+	 */
+	public static Map treeToPlainIncludingCollections(Map treeMap) {
+		return treeToPlainIncludingCollections(treeMap, 0);
+	}
+
+	/**
+	 * @since 5.9
+	 */
+	public static Map treeToPlainIncludingCollections(Map treeMap, int baseIndex) {		
+		Map result = new TreeMap(); 
+		fillPlain(result, treeMap, "", true, baseIndex); 
+		return result;
+	}
+	
+	private static void fillPlain(Map result, Map treeMap, String prefix) {
+		fillPlain(result, treeMap, prefix, false, 0);
+	}
+	
+	private static void fillPlain(Map result, Map treeMap, String prefix, boolean includeCollection, int baseIndex) { 
 		for (Iterator it = treeMap.entrySet().iterator(); it.hasNext();) {
 			Map.Entry en = (Map.Entry) it.next();
 			if (en.getValue() instanceof Map) {
 				fillPlain(result, (Map) en.getValue(), prefix + en.getKey() + ".");
 			}
+			else if (includeCollection && en.getValue() instanceof Collection) {
+				fillPlain(result, (Collection) en.getValue(), prefix + en.getKey() + ".", baseIndex);
+			}
 			else {
 				result.put(prefix + en.getKey(), en.getValue());
 			}
 		}
+	}
+	
+	private static void fillPlain(Map result, Collection collection, String prefix, int baseIndex) { 
+		int counter = baseIndex; 
+		for (Object element: collection) { 
+			if (element instanceof Map) {
+				fillPlain(result, (Map) element, prefix + (counter++) + ".");
+			}
+			else if (element instanceof Collection) {
+				fillPlain(result, (Collection) element, prefix + (counter++) + ".", baseIndex);
+			}
+			else {
+				result.put(prefix + (counter++), element);
+			}
+		}
+	}
+	
+	/**
+	 * Converts the objects sent into a map. <p>
+	 * 
+	 * Useful to initialize maps:
+	 * <pre>
+	 * Map<String, Integer> scores = Maps.toMap("Manolo", 7, "Angela", 10);
+	 * </pre>
+	 * 
+	 * @param Vararg with key, value, key, value, etc
+	 * @since 5.7
+	 */
+	
+	public static Map toMap(Object ... values) { 
+		Map map = new HashMap();
+		for (int i=0; i<values.length; i += 2) {
+			map.put(values[i], values[i + 1]);
+		}
+		return map;
+	}
+	
+	/**
+	 * @since 5.9 
+	 */
+	public static Object getKeyFromValue(Map map, Object value, Object defaultValue) { 
+		for (Object o: map.entrySet()) {
+			Map.Entry e = (Map.Entry) o;
+			if (Is.equal(value, e.getValue())) return e.getKey();
+		}
+		return defaultValue;
+	}
+
+	/**
+	 * @since 5.9 
+	 */	
+	public static Object getKeyFromValue(Map map, Object value) { 
+		return getKeyFromValue(map, value, null);
 	}
 		
 }

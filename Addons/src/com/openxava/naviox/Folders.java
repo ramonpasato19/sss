@@ -93,9 +93,16 @@ public class Folders implements java.io.Serializable {
 		List<MetaModule> result = new ArrayList<MetaModule>();
 		for (Module module: folderModules) {
 			if (!module.getApplication().equals(MetaModuleFactory.getApplication())) continue; // Because we can share the database schema by several applications
-			MetaModule metaModule = MetaModuleFactory.create(module.getApplication(), module.getName());
-			if (this.modules.isModuleAuthorized(metaModule)) {
-				result.add(metaModule);
+			try { 
+				MetaModule metaModule = MetaModuleFactory.create(module.getApplication(), module.getName());
+				if (this.modules.getFixedModules().contains(metaModule)) continue; 
+				if (this.modules.getBookmarkModules().contains(metaModule)) continue; 
+				if (this.modules.isModuleAuthorized(metaModule)) {
+					result.add(metaModule);
+				}
+			}
+			catch (org.openxava.util.ElementNotFoundException ex) {
+				// Because we can remove modules from application.xml and they still be in db
 			}
 		}
 		return result;
@@ -104,7 +111,7 @@ public class Folders implements java.io.Serializable {
 	public void setModules(Modules modules) {
 		this.modules = modules;
 	}
-
+	
 	public boolean isApplicationNameAsRootLabel() {
 		return applicationNameAsRootLabel;
 	}

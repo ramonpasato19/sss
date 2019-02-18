@@ -14,9 +14,10 @@ import org.openxava.tab.Tab;
 public abstract class OnChangeChartColumnBaseAction extends OnChangeElementCollectionBaseAction {
 	@Inject
 	private Chart chart;
-
-	private Tab collectionTab;
 	
+	@Inject
+	private Tab tab; 
+
 	private ChartColumn column;
 	/**
 	 * @see org.openxava.actions.IAction#execute()
@@ -24,7 +25,7 @@ public abstract class OnChangeChartColumnBaseAction extends OnChangeElementColle
 	@Override
 	public void execute() throws Exception {
 		executeOnValidValues();
-		chart.save(); 
+		chart.save(tab);
 	}
 	
 	public Chart getChart() {
@@ -46,13 +47,7 @@ public abstract class OnChangeChartColumnBaseAction extends OnChangeElementColle
 		}
 		return column;
 	}
-	
-	public Tab getCollectionTab() {
-		if (collectionTab == null) {
-			collectionTab = getCollectionElementView().getCollectionTab();
-		}
-		return collectionTab;
-	}
-	
+		
 	public abstract void executeOnValidValues() throws Exception;
+	
 }

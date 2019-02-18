@@ -17,10 +17,10 @@ public class NewTreeViewItemAction extends CollectionElementViewBaseAction {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void execute() throws Exception {
 		String fullPath = null;
+		List<Map> keyValues = getCollectionElementView().getCollectionSelectedValues(); 
 		if (getCollectionElementView().isRepresentsAggregate()) {
 			getCollectionElementView().reset();				
 		}
-		List<Map> keyValues = getCollectionElementView().getCollectionSelectedValues();
 		
 		// if we have a selected one let's add one as a child
 		if (keyValues.size() > 0) {	
@@ -38,6 +38,7 @@ public class NewTreeViewItemAction extends CollectionElementViewBaseAction {
 			}
 			
 		}
+		
 		getContext().put(getRequest(), TreeViewParser.XAVA_TREE_VIEW_NODE_FULL_PATH, fullPath);
 		getCollectionElementView().setCollectionDetailVisible(true);
 		getCollectionElementView().setCollectionEditingRow(-1);

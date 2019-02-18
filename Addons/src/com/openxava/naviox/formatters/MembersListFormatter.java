@@ -1,6 +1,9 @@
 package com.openxava.naviox.formatters;
 
 import javax.servlet.http.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openxava.formatters.*;
 import org.openxava.model.meta.*;
 import org.openxava.util.*;
@@ -9,7 +12,9 @@ import org.openxava.util.*;
  * @author Javier Paniza
  */
 public class MembersListFormatter implements IFormatter {
-
+	
+	private static Log log = LogFactory.getLog(MembersListFormatter.class);
+	
 	public String format(HttpServletRequest request, Object object) throws Exception {
 		if (Is.empty(object)) return "";
 		MetaModel model = null;
@@ -20,8 +25,12 @@ public class MembersListFormatter implements IFormatter {
 				continue;
 			}
 			if (sb.length() > 0) sb.append(", ");
-			MetaMember member = model.getMetaMember(memberName);
-			sb.append(member.getLabel());
+			try {
+				MetaMember member = model.getMetaMember(memberName);
+				sb.append(member.getLabel());	
+			} catch (ElementNotFoundException ex) {
+				log.warn(ex.getMessage()); 
+			} 			
 		}
 		return sb.toString();
 	}

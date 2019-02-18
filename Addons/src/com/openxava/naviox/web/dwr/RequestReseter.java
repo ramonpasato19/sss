@@ -15,6 +15,7 @@ public class RequestReseter {
 		Users.setCurrent(request);
 		Locales.setCurrent(request); 
 		Organizations.setPersistenceDefaultSchema(request.getSession()); 
+		SessionData.setCurrent(request); 
 	}
 
 }

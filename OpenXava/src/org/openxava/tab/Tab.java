@@ -9,11 +9,9 @@ import java.util.prefs.*;
 
 import javax.servlet.http.*;
 
-import org.apache.commons.collections.*;
 import org.apache.commons.lang.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.*;
-import org.hibernate.hql.internal.*;
 import org.openxava.application.meta.*;
 import org.openxava.component.*;
 import org.openxava.controller.*;
@@ -35,7 +33,7 @@ import org.openxava.web.*;
  * @author Trifon Trifonov
  */
 
-public class Tab implements java.io.Serializable {
+public class Tab implements java.io.Serializable, Cloneable { 
 	
 	public class Configuration implements java.io.Serializable, Comparable { 
 		
@@ -55,15 +53,17 @@ public class Tab implements java.io.Serializable {
 		private transient List<MetaProperty> metaPropertiesNotCalculated;
 		private long weight; // To sort: Default, with name ordered by last used (new or existing), without name ordered by last used (new or existing) 
 		
-		private String translateCondition(String condition) { 
+		private String translateCondition(String condition) {
+			// IF YOU CHANGE THIS CODE TEST IT WITH ignoreAccentsForStringArgumentsInConditions true and false
 			try { 
-				if (Is.empty(condition)) return Labels.get("all"); 
+				condition = removeBaseConditionAndDefaultOrder(condition); 
+				if (Is.empty(condition) || condition.trim().equals("1=1")) return Labels.get("all"); 
 				String result = condition + " ";
 				if (conditionValues != null) {
 					result = result.replaceAll("\\([\\?,*]+\\)", "(?)"); // Groups: (?,?,?) --> (?)
 					result = result.replaceAll(
 						"year\\((\\$\\{[a-zA-Z0-9\\._]+\\})\\) = \\? and month\\(\\1\\) = \\?", "year/month($1) = ?"); // Year/month: year(${date}) = ? and month(${date}) = ? --> year/month(${date}) = ?
-					result = result.replace("between ? and  ?", "between ? and ¿"); 
+					result = result.replace("between ? and  ?", "between ? and ¿");
 					for (int i = 0; i < conditionValues.length; i++) {
 						String conditionValue = conditionValues[i];
 						if (Is.emptyString(conditionValue)) continue;
@@ -80,7 +80,7 @@ public class Tab implements java.io.Serializable {
 							result = result.replaceAll("\\$\\{" + rootName + "\\.[a-zA-Z0-9_\\.]+\\}", "\\${" + rootName + "}");
 							result = result.replaceFirst("\\?", conditionValue.split(":_:")[1]);
 							result = result.replace("and ${" + rootName +  "} = ?", "");
-						}				
+						}	
 						else {
 							result = result.replaceFirst("\\?", conditionValue);
 						}
@@ -92,14 +92,14 @@ public class Tab implements java.io.Serializable {
 					result = result.replaceFirst("¿", conditionValue);
 				}					
 				
-				result = result.replace("upper(", ""); 
+				result = result.replace("upper(", "");
 				result = result.replace("replace(", "");
 				result = result.replace("translate(", ""); 
-				result = result.replace(",'aeiouAEIOU','\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA'))", ""); 
+				result = result.replace("})", "}"); 
+				result = result.replace(",'aeiouAEIOU','\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA'))", "");
 				result = result.replaceAll(", '.', '.'\\)+", "");
-				result = result.replaceAll("\\$\\{[a-zA-Z0-9\\._]+\\} <> true($| )", XavaResources.getString("not") + " $0");
-				result = result.replace(" = true ", " "); // Boolean
-				result = result.replace(" <> true ", " "); // Boolean
+				result = result.replace(" = true ", " "); // Boolean true
+				result = result.replaceAll("\\((\\$\\{[a-zA-Z0-9\\._]+\\}) is null or \\$\\{[a-zA-Z0-9\\._]+\\} <> true\\)", XavaResources.getString("not") + " $1"); // Boolean false
 				result = result.replaceAll("\\((\\$\\{[a-zA-Z0-9\\._]+\\}) is not null and \\$\\{[a-zA-Z0-9\\._]+\\} <> ''\\)", "$1 " + XavaResources.getString("not_empty_comparator")); // Is not empty 
 				result = result.replaceAll("\\((\\$\\{[a-zA-Z0-9\\._]+\\}) is null or \\$\\{[a-zA-Z0-9\\._]+\\} = ''\\)", "$1 " + XavaResources.getString("empty_comparator")); // Is empty
 				StringBuffer r = new StringBuffer(result);
@@ -139,6 +139,19 @@ public class Tab implements java.io.Serializable {
 			}
 		}
 				
+		private String removeBaseConditionAndDefaultOrder(String condition) { 
+			if (condition == null) return null;
+			if (getBaseCondition() != null) {
+				if (condition.startsWith(getBaseCondition())) condition = condition.substring(getBaseCondition().length());
+				if (condition.startsWith(" and ")) condition = condition.substring(5);
+			}
+			if (!Is.emptyString(getMetaTab().getDefaultOrder())) {
+				int idx = condition.indexOf(" order by " + getMetaTab().getDefaultOrder());
+				if (idx >= 0) condition = condition.substring(0, idx);					
+			}
+			return condition;
+		}
+
 		private List<MetaProperty> getMetaPropertiesNotCalculated() { 
 			if (metaPropertiesNotCalculated == null) {
 				metaPropertiesNotCalculated = new ArrayList<MetaProperty>();
@@ -156,16 +169,14 @@ public class Tab implements java.io.Serializable {
  		
 		public int getId() { 
 			if (id == 0) {
-				if (getCollectionView() == null) { 
-					String sid = "__DEFAULT__:"; 
+				if (getCollectionView() == null) {
+					String sid = "__DEFAULT__:";
 					if (!isDefault() && conditionValues != null && conditionComparators != null) { 
 						StringBuffer s = new StringBuffer();
-						add(s, conditionValues);
-						add(s, conditionValuesTo);
-						add(s, conditionComparators);
+						refineAllValues(); 
+						add(s, conditionValues, conditionValuesTo, conditionComparators); 
 						sid = s.toString();
 					}
-					sid = sid + propertiesNames;  
 					sid = sid + ":" + (orderBy==null?"":orderBy) + ":" + descendingOrder + ":" + (orderBy2==null?"":orderBy2) + ":" + descendingOrder2;
 					id = sid.hashCode();
 				}
@@ -173,16 +184,51 @@ public class Tab implements java.io.Serializable {
 					id = COLLECTION_ID;
 					 
 				}
+				
 			}
+			
 			return id;
 		}
 		
-		private void add(StringBuffer s, String [] values) { 
-			for (String value: values) { 
-				if (value == null) s.append("__NULL__"); 
-				else s.append(value);
+		private void refineAllValues() {  		
+			conditionValues = refineValues(conditionValues); 
+			conditionValuesTo = refineValues(conditionValuesTo); 
+			conditionComparators = refineValues(conditionComparators);
+		}
+		
+		private String [] refineValues(String [] values) {
+			if (values == null || values.length == 0) { 
+				values = new String[getMetaPropertiesNotCalculated().size()];
+				for (int i=0; i<values.length; i++) {
+					values[i] = "";
+				}
+				return values;
+			}
+			return values;
+		}
+		
+		private void add(StringBuffer s, String [] conditionValues, String [] conditionValuesTo, String [] conditionComparators) { 
+			for (int i=0; i<conditionValues.length; i++) {
+				String conditionValue = conditionValues[i];
+				if (conditionValue== null) s.append("__NULL__"); 
+				else {
+					s.append(conditionValue);
+					if (conditionValuesTo.length > i) {
+						if (!Is.emptyString(conditionValuesTo[i])) {
+							s.append("..");
+							s.append(conditionValuesTo[i]);
+						}
+					}
+					if (conditionComparators.length > i) {
+						if (!Is.emptyString(conditionValue) || Tab.NOT_EMPTY_COMPARATOR.equals(conditionComparators[i])) {
+							s.append("(");
+							s.append(conditionComparators[i]);
+							s.append(")");
+						}
+					}
+				}
 				s.append(":");
-			}			
+			}
 		}
 		
 		public void resetId() {  
@@ -228,6 +274,7 @@ public class Tab implements java.io.Serializable {
 		}
 
 		public String [] getConditionComparators() {
+			refineAllValues(); 
 			return conditionComparators;
 		}
 		public void setConditionComparators(String [] conditionComparators) {
@@ -235,6 +282,7 @@ public class Tab implements java.io.Serializable {
 		}
 		
 		public String [] getConditionValues() {
+			refineAllValues(); 
 			return conditionValues;
 		}
 		public void setConditionValues(String [] conditionValues) {
@@ -242,6 +290,7 @@ public class Tab implements java.io.Serializable {
 		}
 		
 		public String [] getConditionValuesTo() {
+			refineAllValues(); 
 			return conditionValuesTo;
 		}
 		public void setConditionValuesTo(String [] conditionValuesTo) {
@@ -313,7 +362,8 @@ public class Tab implements java.io.Serializable {
 	public final static String COLLECTION_PREFIX = "xava_collectionTab_";
 	public final static String TAB_RESETED_PREFIX = "xava.tab.reseted.";
 	public final static String DESCRIPTIONS_LIST_SEPARATOR = ":_:";
-	public final static int MAX_CONFIGURATIONS_COUNT = 20; 
+	public final static int MAX_CONFIGURATIONS_COUNT = 20;
+	public final static String GROUP_COUNT_PROPERTY = "__GROUP_COUNT__"; 
 	
 	public final static String STARTS_COMPARATOR = "starts_comparator";	
 	public final static String CONTAINS_COMPARATOR = "contains_comparator";
@@ -337,20 +387,24 @@ public class Tab implements java.io.Serializable {
 	private final static String ROWS_HIDDEN = "rowsHidden";
 	private final static String FILTER_VISIBLE = "filterVisible";
 	private final static String PAGE_ROW_COUNT = "pageRowCount"; 
-	private final static String COLUMN_WIDTH = "columnWidth."; 
+	private final static String COLUMN_WIDTH = "columnWidth.";
+	private final static String COLUMN_LABEL = "columnLabel.";
 	private final static int MAX_PAGE_ROW_COUNT = 20;
-	private static final String CONFIGURATION_CONDITION = "condition";
-	private static final String CONFIGURATION_CONDITION_COMPARATORS = "conditionComparators";
-	private static final String CONFIGURATION_CONDITION_VALUES = "conditionValues";
-	private static final String CONFIGURATION_CONDITION_VALUES_TO = "conditionValuesTo"; 
-	private static final String CONFIGURATION_ORDER_BY = "orderBy";
-	private static final String CONFIGURATION_ORDER_BY2 = "orderBy2";
-	private static final String CONFIGURATION_DESCENDING_ORDER = "descendingOrder";
-	private static final String CONFIGURATION_DESCENDING_ORDER2 = "descendingOrder2";
-	private static final String CONFIGURATION_PROPERTIES_NAMES = "propertiesNames"; 
-	private static final String CONFIGURATION_REMOVED = "removed";
-	private static final String CONFIGURATION_NAME = "name";
-	private static final String CONFIGURATION_WEIGHT = "weight"; 
+	private final static String EDITOR = "editor"; 
+	private final static String CURRENT_CONFIGURATION_ID = "id"; 
+	private final static String CURRENT_CONFIGURATION_NODE = "current"; 
+	private final static String CONFIGURATION_CONDITION = "condition";
+	private final static String CONFIGURATION_CONDITION_COMPARATORS = "conditionComparators";
+	private final static String CONFIGURATION_CONDITION_VALUES = "conditionValues";
+	private final static String CONFIGURATION_CONDITION_VALUES_TO = "conditionValuesTo"; 
+	private final static String CONFIGURATION_ORDER_BY = "orderBy";
+	private final static String CONFIGURATION_ORDER_BY2 = "orderBy2";
+	private final static String CONFIGURATION_DESCENDING_ORDER = "descendingOrder";
+	private final static String CONFIGURATION_DESCENDING_ORDER2 = "descendingOrder2";
+	private final static String CONFIGURATION_PROPERTIES_NAMES = "propertiesNames"; 
+	private final static String CONFIGURATION_REMOVED = "removed";
+	private final static String CONFIGURATION_NAME = "name";
+	private final static String CONFIGURATION_WEIGHT = "weight"; 
 	
 	private static Object refiner; 
 	
@@ -365,7 +419,8 @@ public class Tab implements java.io.Serializable {
 	private boolean descendingOrder = false;
 	private boolean descendingOrder2 = false; 
 	private String orderBy;	
-	private String orderBy2; 
+	private String orderBy2;
+	private String groupBy; 
 	private String condition;
 	private String[] conditionComparators;
 	private String[] conditionValues;
@@ -386,6 +441,7 @@ public class Tab implements java.io.Serializable {
 	private String titleId = null;	
 	private boolean notResetPageNextTime;
 	private boolean rowsHidden;
+	private boolean persistentRowsHidden; 
 	private IFilter filter; 
 	private Map styles;
 	private View collectionView;
@@ -411,9 +467,9 @@ public class Tab implements java.io.Serializable {
 	private boolean columnsToAddUntilSecondLevel = true; 
 	private boolean cancelSavingPreferences = false;
 	private String editor;   
-	
 	private Messages errors;
-	private String defaultCondition; 
+	private String defaultCondition;
+	private Collection<MetaProperty> metaPropertiesBeforeGrouping; 
 	
 	public static void setRefiner(Object newRefiner) {
 		refiner = newRefiner;
@@ -443,7 +499,7 @@ public class Tab implements java.io.Serializable {
 		if (labels == null) return;
 		for (MetaProperty p: metaProperties) {
 			if (labels.containsKey(p.getQualifiedName())) {
-				p.setLabel(labels.get(p.getQualifiedName()));				
+				p.setQualifiedLabel(labels.get(p.getQualifiedName())); 
 			}
 		}
 	}
@@ -513,6 +569,7 @@ public class Tab implements java.io.Serializable {
 			
 	public void setBaseCondition(String condition) throws XavaException { 		
 		if (Is.equal(this.baseCondition, condition)) return;
+		setNotResetNextTime(false); 
 		this.baseCondition = condition;		
 		this.condition = null;
 	}
@@ -561,7 +618,7 @@ public class Tab implements java.io.Serializable {
 		
 	public MetaTab getMetaTab() throws XavaException  { 
 		if (metaTab == null) {				
-			try {				
+			try {			
 				metaTab = MetaComponent.get(getModelName()).getMetaTab(getTabName());
 			}
 			catch (ElementNotFoundException ex) {
@@ -604,14 +661,14 @@ public class Tab implements java.io.Serializable {
 	
 	public int getColumnWidth(int columnIndex) {
 		MetaProperty p = getMetaProperty(columnIndex);
-		if (columnWidths == null) return defaultColumnWidth(p); 
-		
+		if (columnWidths == null) return defaultColumnWidth(p, columnIndex); 
 		Integer result = columnWidths.get(p.getQualifiedName());		
-		return result==null?defaultColumnWidth(p):result; 
+		return result==null?defaultColumnWidth(p, columnIndex):result;
 	}
 	
-	private int defaultColumnWidth(MetaProperty p) { 
+	private int defaultColumnWidth(MetaProperty p, int columnIndex) { 
 		if (getSumPropertiesSize() < 100) return -1;
+		if (getAdditionalTotalsCount() > 0 && (hasTotal(1, columnIndex) || hasTotal(1, columnIndex + 1))) return -1; 
 		return friendViewGetDefaultColumnWidth(p);
 	} 
 	
@@ -649,6 +706,19 @@ public class Tab implements java.io.Serializable {
 			if (property.getQualifiedName().equals(qualifiedName)) return property;
 		}
 		throw new ElementNotFoundException("property_not_found_in_tab", qualifiedName, getTabName(), getModelName()); 
+	}
+	
+	/**
+	 * @since 5.9
+	 */
+	public boolean containsProperty(String qualifiedName) {
+		try {
+			getMetaProperty(qualifiedName);
+			return true;
+		}
+		catch (ElementNotFoundException ex) {
+			return false;
+		}
 	}
 	
 	public void setMetaRowStyles(Collection styles) throws XavaException {
@@ -749,9 +819,11 @@ public class Tab implements java.io.Serializable {
 			firstCondition = false;			
 		}		
 		
+		setFilteredConditionValues(); 
+		
+		MetaProperty pOrder = null;
+		MetaProperty pOrder2 = null;		
 		if (!(conditionValues == null || conditionValues.length == 0)) {
-			MetaProperty pOrder = null;
-			MetaProperty pOrder2 = null;
 			for (int i = 0; i < this.conditionValues.length; i++) {
 				MetaProperty p = (MetaProperty) getMetaPropertiesNotCalculated().get(i);
 				if (orderBy != null && p.getQualifiedName().equals(orderBy)) {
@@ -760,7 +832,7 @@ public class Tab implements java.io.Serializable {
 				if (orderBy2 != null && p.getQualifiedName().equals(orderBy2)) {
 					pOrder2 = p;
 				}					
-				if (Is.emptyString(this.conditionComparators[i])) {					
+				if (Is.emptyString(this.conditionComparators[i])) {
 					this.conditionValues[i] = "";
 					valuesToWhere.add("");
 					comparatorsToWhere.add(this.conditionComparators[i]);
@@ -778,14 +850,15 @@ public class Tab implements java.io.Serializable {
 					Collections.sort(fields, CMPFieldComparator.getInstance());
 					
 					ModelMapping mapping = getMetaTab().getMetaModel().getMapping();
-					String keyValues = this.conditionValues[i].replaceAll("[\\[\\]]", "");
+					String keyValues = this.conditionValues[i].replace("[.", "").replace(".]", ""); 
 					if (keyValues.contains(DESCRIPTIONS_LIST_SEPARATOR)) { 
 						keyValues = keyValues.substring(0, keyValues.indexOf(DESCRIPTIONS_LIST_SEPARATOR));
 					}
-					StringTokenizer st = new StringTokenizer(keyValues, ".");
+					String [] keyTokens = keyValues.split("\\.", fields.size()); 
+					int tokensIndex = 0; 
 					for (CmpField field : fields) {					
 						String property = field.getCmpPropertyName().substring(field.getCmpPropertyName().indexOf('_', 1) + 1).replace("_", "."); 
-						String value = st.nextToken();
+						String value = keyTokens[tokensIndex++];
 						MetaProperty metaProperty = getMetaTab().getMetaModel().getMetaReference(reference).getMetaModelReferenced().getMetaProperty(property);
 						valuesToWhere.add(metaProperty.parse(value.toString(), getLocale()));
 						comparatorsToWhere.add(this.conditionComparators[i]);
@@ -805,6 +878,18 @@ public class Tab implements java.io.Serializable {
 					}
 					
 				}
+				else if (conditionComparators[i].equals(EMPTY_COMPARATOR)) {
+					if (firstCondition) firstCondition = false;
+					else sb.append(" and ");
+					sb.append(buildEmptyCondition(decorateConditionProperty(p, i), 
+												  p.getType().equals(java.lang.String.class)));
+				} 
+				else if (conditionComparators[i].equals(NOT_EMPTY_COMPARATOR)) {
+					if (firstCondition) firstCondition = false;
+					else sb.append(" and ");
+					sb.append(buildNotEmptyCondition(decorateConditionProperty(p, i), 
+												     p.getType().equals(java.lang.String.class)));
+				}
 				else if (!Is.emptyString(this.conditionValues[i])) {
 					if (p.isNumber() && !Strings.isNumeric(this.conditionValues[i])) {
 						errors.add("filter_parameter_numeric", p.getName());							
@@ -812,6 +897,15 @@ public class Tab implements java.io.Serializable {
 					}
 					if (firstCondition) firstCondition = false;
 					else sb.append(" and ");
+					if (metaPropertiesKey == null) metaPropertiesKey = new ArrayList();
+					String value = convertStringArgument(this.conditionValues[i].toString());
+					if (conditionComparators[i].equals(NE_COMPARATOR) && (boolean.class.equals(p.getType()) || java.lang.Boolean.class.equals(p.getType()))) {
+						sb.append(buildNotTrueCondition(decorateConditionProperty(p, i)));
+						valuesToWhere.add(p.parse(value, getLocale()));
+						comparatorsToWhere.add(this.conditionComparators[i]);
+						metaPropertiesKey.add(p);
+						continue;
+					}
 					ModelMapping mapping = getMetaTab().getMetaModel().getMapping();										 
 					sb.append(decorateConditionProperty(p, i));
 					sb.append(' ');
@@ -819,7 +913,6 @@ public class Tab implements java.io.Serializable {
 					if (!IN_COMPARATOR.equals(this.conditionComparators[i]) && !NOT_IN_COMPARATOR.equals(this.conditionComparators[i])) {
 						sb.append(" ? ");
 					}
-					if (metaPropertiesKey == null) metaPropertiesKey = new ArrayList();
 					if (YEAR_MONTH_COMPARATOR.equals(this.conditionComparators[i]) ||
 						RANGE_COMPARATOR.equals(this.conditionComparators[i]) ||
 						p.isTypeOrStereotypeCompatibleWith(Timestamp.class) && EQ_COMPARATOR.equals(this.conditionComparators[i])) { 
@@ -830,7 +923,6 @@ public class Tab implements java.io.Serializable {
 						metaPropertiesKey.add(p);
 					}
 					
-					String value = convertStringArgument(this.conditionValues[i].toString());
 					try {				
 						if (YEAR_COMPARATOR.equals(this.conditionComparators[i]) ||
 							MONTH_COMPARATOR.equals(this.conditionComparators[i]) ||
@@ -894,47 +986,38 @@ public class Tab implements java.io.Serializable {
 						log.warn(XavaResources.getString("tab_key_value_warning"),ex);
 					}						
 				}
-				else if (conditionComparators[i].equals(EMPTY_COMPARATOR)) {
-					if (firstCondition) firstCondition = false;
-					else sb.append(" and ");
-					sb.append(buildEmptyCondition(decorateConditionProperty(p, i), 
-												  p.getType().equals(java.lang.String.class)));
-				} 
-				else if (conditionComparators[i].equals(NOT_EMPTY_COMPARATOR)) {
-					if (firstCondition) firstCondition = false;
-					else sb.append(" and ");
-					sb.append(buildNotEmptyCondition(decorateConditionProperty(p, i), 
-												     p.getType().equals(java.lang.String.class)));
-				}
 				else{					
 					comparatorsToWhere.add(this.conditionComparators[i]);
 					valuesToWhere.add("");
 				}
 			}	// end for	
-			if (pOrder != null) {				
-				if (sb.length() == 0) sb.append(" 1=1 ");
-				sb.append(" order by ");								
-				sb.append("${");
-				sb.append(pOrder.getQualifiedName()); 
-				sb.append('}');
-				sb.append(descendingOrder?" desc":" asc"); 
-				if (pOrder2 != null) {
-					sb.append(", "); 
-					sb.append("${");  
-					sb.append(pOrder2.getQualifiedName());
-					sb.append('}');
-					sb.append(descendingOrder2?" desc":" asc"); 
-				}
-			}				
-			else if (getMetaTab().hasDefaultOrder()) {
-				if (sb.length() == 0) sb.append(" 1=1 ");
-				sb.append(" order by ");								
-				sb.append(getMetaTab().getDefaultOrder()); 
-			}
 		}
-		else if (getMetaTab().hasDefaultOrder()) {
+		
+		if (!Is.emptyString(groupBy)) {
 			if (sb.length() == 0) sb.append(" 1=1 ");
-			sb.append(" order by ");						
+			sb.append(" group by ${");
+			sb.append(groupBy);
+			sb.append("}");
+		}
+		
+		if (pOrder != null) {				
+			if (sb.length() == 0) sb.append(" 1=1 ");
+			sb.append(" order by ");								
+			sb.append("${");
+			sb.append(pOrder.getQualifiedName()); 
+			sb.append('}');
+			sb.append(descendingOrder?" desc":" asc"); 
+			if (pOrder2 != null) {
+				sb.append(", "); 
+				sb.append("${");  
+				sb.append(pOrder2.getQualifiedName());
+				sb.append('}');
+				sb.append(descendingOrder2?" desc":" asc"); 
+			}
+		}				
+		else if (getMetaTab().hasDefaultOrder() && Is.emptyString(groupBy)) { 
+			if (sb.length() == 0) sb.append(" 1=1 ");
+			sb.append(" order by ");								
 			sb.append(getMetaTab().getDefaultOrder()); 
 		}		
 		
@@ -983,6 +1066,10 @@ public class Tab implements java.io.Serializable {
 			sb.append(" <> '')");
 		}
 		return sb.toString();
+	}
+	
+	private String buildNotTrueCondition(String property) { 
+		return "(" + property + " is null or " + property + " <> ?)";
 	}
 	
 	private void refine() { 
@@ -1111,7 +1198,7 @@ public class Tab implements java.io.Serializable {
 				}
 				else key.add(value);
 			}
-		}		
+		}	
 		return filterKey(key.toArray());
 	}
 	
@@ -1403,6 +1490,7 @@ public class Tab implements java.io.Serializable {
 	 * @param page
 	 */
 	public void goPage(int page) {
+		if (this.page == page) return; 
 		this.page = page;
 		recalculateIndices();
 		notResetPageNextTime = true; 
@@ -1419,7 +1507,7 @@ public class Tab implements java.io.Serializable {
 	
 	public int getTotalSize() {
 		try {
-			return getTableModel().getTotalSize(); 			
+			return getTableModel().getTotalSize(); 		
 		}
 		catch (Throwable ex) {
 			log.warn(XavaResources.getString("tab_size_warning"),ex);
@@ -1430,14 +1518,14 @@ public class Tab implements java.io.Serializable {
 	private void setConditionValuesImpl(String [] values) throws XavaException {
 		if (Arrays.equals(this.conditionValues, values)) return;
 		if (getMetaPropertiesNotCalculated().size() != values.length) return; // to avoid problems on changing module
-		this.conditionValues = values;		
+		this.conditionValues = values;
 		condition = null;
 	}
 	
 	/**
 	 * @since 4.7.1
 	 */
-	public void clearCondition() { 
+	public void clearCondition() {
 		conditionValues= null;
 		conditionValuesTo = null;
 		conditionComparators = null;
@@ -1491,7 +1579,67 @@ public class Tab implements java.io.Serializable {
 		return conditionComparators;
 	}
 	
+	public void groupBy(String property) {
+		groupBy = property;
+		condition = null;
+		if (Is.emptyString(groupBy)) resetGroupByProperties();
+		else setGroupByProperties();
+	}
+
+	private void resetGroupByProperties() {
+		StringBuffer properties = new StringBuffer();
+		for (MetaProperty metaProperty: getMetaPropertiesBeforeGrouping()) {
+			String propertyName = metaProperty.getQualifiedName();
+			if (properties.length() > 0) properties.append(","); 
+			properties.append(propertyName);
+		}
+		setPropertiesNames(properties.toString());
+		metaPropertiesBeforeGrouping = null;
+	}
+
+	private void setGroupByProperties() {
+		StringBuffer properties = new StringBuffer();
+		for (MetaProperty metaProperty: getMetaPropertiesBeforeGrouping()) {
+			String propertyName = metaProperty.getQualifiedName();
+			String groupByProperty = groupBy.replace("[month]", "").replace("[year]", "");
+			if (groupByProperty.equals(propertyName)) {
+				if (properties.length() > 0) properties.append(","); 
+				properties.append(propertyName);
+				continue;
+			}
+			if (isPropertyGroupable(propertyName)) {
+				if (properties.length() > 0) properties.append(","); 
+				properties.append(propertyName);
+			}
+		}
+		properties.append(',');
+		properties.append(GROUP_COUNT_PROPERTY); 
+		if (metaPropertiesBeforeGrouping == null) metaPropertiesBeforeGrouping = getMetaProperties();
+		setPropertiesNames(properties.toString());
+	}
+	
+	private boolean isPropertyGroupable(String propertyName) { 
+		MetaProperty p = getMetaTab().getMetaModel().getMetaProperty(propertyName);
+		if (!p.isNumber() || p.isCalculated() || p.hasValidValues()) return false; 
+		if (propertyName.contains(".")) return false;
+		propertyName = propertyName.toLowerCase();
+		return !propertyName.contains("year")   && !propertyName.contains("number") 
+			&& !propertyName.contains("code")   && !propertyName.contains("percentage") 
+			&& !propertyName.contains("año")    && !propertyName.contains("ano") 
+			&& !propertyName.contains("anyo")   && !propertyName.contains("numero") 
+			&& !propertyName.contains("codigo") && !propertyName.contains("porcentaje");
+	}
+	
+	public String getGroupBy() { 
+		return groupBy==null?"":groupBy;
+	}
+	
+	public Collection<MetaProperty> getMetaPropertiesBeforeGrouping() {
+		return metaPropertiesBeforeGrouping == null?getMetaProperties():metaPropertiesBeforeGrouping;
+	}
+	
 	public void orderBy(String property) {
+		setConditionParameters(); 
 		if (Is.equal(property, orderBy)) {
 			descendingOrder = !descendingOrder;
 		}
@@ -1545,13 +1693,15 @@ public class Tab implements java.io.Serializable {
 
 	private void reinitState() {
 		descendingOrder = false;
-		orderBy = null;	
+		orderBy = null;
+		groupBy = null; 
 		condition = null;		
 		conditionComparators = null;
 		conditionValues = null;
 		conditionValuesTo = null;
 		metaProperties = null;
 		metaPropertiesNotCalculated = null;		
+		metaPropertiesBeforeGrouping = null; 
 		notResetNextTime = false;		 	 			
 		tableModel  = null;
 		metaTab = null;
@@ -1563,6 +1713,7 @@ public class Tab implements java.io.Serializable {
 	 */
 	public void reloadMetaModel() { 
 		reinitState();
+		if (configuration != null) applyConfiguration(); 
 	}
 
 	
@@ -1577,9 +1728,20 @@ public class Tab implements java.io.Serializable {
 		loadUserPreferences();
 	}
 
-	public synchronized void setRequest(HttpServletRequest request) {		
+	public synchronized void setRequest(HttpServletRequest request) {
 		this.request = request;
-		if (!conditionJustCleared) { 
+	}
+
+	/** @since 5.9 */
+	public void filter() { 
+		setConditionParameters();
+		setRowsHidden(false);
+		goPage(1);	
+	}
+	
+	/** @since 5.9 */
+	public void setConditionParameters() { 
+		if (!conditionJustCleared) {
 			String collectionPrefix = getCollectionPrefix();		
 			setConditionComparators(collectionPrefix);
 			setConditionValues(collectionPrefix);
@@ -1587,7 +1749,7 @@ public class Tab implements java.io.Serializable {
 		}
 		conditionJustCleared = false;
 	}
-
+	
 	private String getCollectionPrefix() {
 		String tabObject = request.getParameter("tabObject");
 		if (tabObject == null) tabObject = this.tabObject; 
@@ -1687,6 +1849,7 @@ public class Tab implements java.io.Serializable {
 	}
 	
 	public void saveConfiguration() {  
+		if (!Is.empty(groupBy)) return; 
 		if (configurations.isEmpty()) {			
 			addDefaultConfiguration(); 
 		}
@@ -1708,7 +1871,7 @@ public class Tab implements java.io.Serializable {
 		}
 		newConfiguration.weightUp();
 		configuration = newConfiguration;
-		saveConfigurationPreferences();
+		saveConfigurationPreferences(false);
 	}
 		
 	private void removeConfigurationPreferences(int id) { 
@@ -1723,7 +1886,7 @@ public class Tab implements java.io.Serializable {
 		}		
 	}
 	
-	private void saveConfigurationPreferences() {
+	private void saveConfigurationPreferences(boolean setAsDefault) { 
 		try { 
 			if (cancelSavingPreferences) return; 
 			int oldId = configuration.getId();
@@ -1751,6 +1914,11 @@ public class Tab implements java.io.Serializable {
 			else configurationPreferences.put(CONFIGURATION_PROPERTIES_NAMES, configuration.getPropertiesNames());
 			configurationPreferences.putBoolean(CONFIGURATION_REMOVED, false);
 			configurationPreferences.flush();
+			if (setAsDefault) { 
+				Preferences currentConfigurationPreferences = configurationsPreferences.node(CURRENT_CONFIGURATION_NODE);
+				currentConfigurationPreferences.putInt(CURRENT_CONFIGURATION_ID, configuration.getId());
+				currentConfigurationPreferences.flush();
+			}
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("warning_save_preferences_tab"),ex); 
@@ -1763,18 +1931,28 @@ public class Tab implements java.io.Serializable {
 		return result;
 	}
 
-	public void setConfigurationId(int configurationId) {   
+	public void setConfigurationId(int configurationId) {
 		configuration = configurations.get(configurationId);
 		applyConfiguration();
 		configuration.weightUp();  
-		saveConfigurationPreferences();  
+		saveConfigurationPreferences(true);  
 	}
 	
 	public void setConfigurationName(String newName) { 
 		if (configuration == null) return;
 		configuration.setName(newName);
-		saveConfigurationPreferences();
+		saveConfigurationPreferences(true);
 	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public void removeConfiguration() throws Exception {  
+		getConfigurationsPreferences().node(Integer.toString(configuration.getId())).removeNode();		
+		loadConfigurationsPreferences();
+		applyConfiguration();
+	}
+
 
 	private void applyConfiguration() {
 		if (configuration.getPropertiesNames() != null) {
@@ -1786,27 +1964,16 @@ public class Tab implements java.io.Serializable {
 			resetProperties();  
 		}	
 		refine(); 
-		setConditionValuesImpl(refineConfigurationValues(configuration.getConditionValues()));
-		setConditionValuesToImpl(refineConfigurationValues(configuration.getConditionValuesTo())); 
-		setConditionComparatorsImpl(refineConfigurationValues(configuration.getConditionComparators()));
+		setConditionValuesImpl(configuration.getConditionValues());
+		setConditionValuesToImpl(configuration.getConditionValuesTo()); 
+		setConditionComparatorsImpl(configuration.getConditionComparators());
 		orderBy = configuration.getOrderBy();
 		orderBy2 = configuration.getOrderBy2();
 		descendingOrder = configuration.isDescendingOrder();
 		descendingOrder2 = configuration.isDescendingOrder2();
-		conditionJustCleared = true;
+		condition = null; 
 	}
 	
-	private String [] refineConfigurationValues(String [] values) { 
-		if (values == null) {
-			values = new String[getMetaPropertiesNotCalculated().size()];
-			for (int i=0; i<values.length; i++) {
-				values[i] = "";
-			}
-			return values;
-		}
-		return values;
-	}
-
 	public String getTitle() throws XavaException {
 		if (title != null) 	return title; 		
 		if (getCollectionView() != null) return getCollectionTitle(); 
@@ -1919,7 +2086,7 @@ public class Tab implements java.io.Serializable {
 		configuration.setConditionComparators(insertEmptyString(configuration.getConditionComparators(), index));
 		configuration.setPropertiesNames(getPropertiesNamesAsString());
 		applyConfiguration(); 
-		saveConfigurationPreferences();
+		saveConfigurationPreferences(false);
 	}
 	
 	private String [] growWithEmptyStrings(String [] original, int size) { 
@@ -1956,8 +2123,8 @@ public class Tab implements java.io.Serializable {
 		configuration.setConditionValuesTo(growWithEmptyStrings(configuration.getConditionValuesTo(), size));
 		configuration.setConditionComparators(growWithEmptyStrings(configuration.getConditionComparators(), size));
 		configuration.setPropertiesNames(getPropertiesNamesAsString());
-		applyConfiguration(); 
-		saveConfigurationPreferences();
+		applyConfiguration();
+		saveConfigurationPreferences(false);
 	}
 	
 		
@@ -1970,6 +2137,7 @@ public class Tab implements java.io.Serializable {
 	public void setLabel(String propertyName, String label) { 
 		if (labels == null) labels = new HashMap<String, String>();
 		labels.put(propertyName, label); 
+		saveUserPreferences(); 
 		resetAfterChangeProperties(); 
 	}
 	
@@ -1990,7 +2158,7 @@ public class Tab implements java.io.Serializable {
 			configuration.setConditionComparators(remove(configuration.getConditionComparators(), idx));
 		}
 		configuration.setPropertiesNames(getPropertiesNamesAsString());
-		saveConfigurationPreferences();
+		saveConfigurationPreferences(false);
 	}
 	
 	private String [] remove(String [] array, int idx) {  
@@ -2011,24 +2179,26 @@ public class Tab implements java.io.Serializable {
 	 *  
 	 * @since 5.2
 	 */
-	public void moveProperty(int from, int to) { 
+	public void moveProperty(int from, int to) {
+		int fromForNotCalculatedProperties = toIndexForNotCalculatedProperties(from);
+		int toForNotCalculatedProperties = toIndexForNotCalculatedProperties(to);
 		cloneMetaTab();		
 		getMetaTab().moveProperty(from, to);		
 		resetAfterChangeProperties();
 		if (configuration == null) saveConfiguration(); 
-		move(configuration.getConditionValues(), from, to); 
-		move(configuration.getConditionValuesTo(), from, to);; 
-		move(configuration.getConditionComparators(), from, to);
+		move(configuration.getConditionValues(), fromForNotCalculatedProperties, toForNotCalculatedProperties); 
+		move(configuration.getConditionValuesTo(), fromForNotCalculatedProperties, toForNotCalculatedProperties); 
+		move(configuration.getConditionComparators(), fromForNotCalculatedProperties, toForNotCalculatedProperties);
 		configuration.setPropertiesNames(getPropertiesNamesAsString());
-		saveConfigurationPreferences();
+		saveConfigurationPreferences(false);
 	}
 	
 	private void move(Object [] array, int from, int to) { 
 		if (array == null) return; 
-		XArrays.move(array, toIndexForNotCalculatedProperties(from), toIndexForNotCalculatedProperties(to)); 
+		XArrays.move(array, from, to); 
 	}
 	
-	private int toIndexForNotCalculatedProperties(int indexForAllProperties) { 
+	private int toIndexForNotCalculatedProperties(int indexForAllProperties) {
 		return indexOf(getMetaPropertiesNotCalculated(), getMetaProperties().get(indexForAllProperties).getQualifiedName());
 	}
 
@@ -2043,7 +2213,7 @@ public class Tab implements java.io.Serializable {
 			configuration.setConditionComparators(restoreValues(oldProperties, newProperties, configuration.getConditionComparators()));
 			configuration.setPropertiesNames(getPropertiesNamesAsString());			
 			applyConfiguration();
-			saveConfigurationPreferences();
+			saveConfigurationPreferences(false);
 		} 
 		removeUserPreferences(); 
 	}
@@ -2120,31 +2290,44 @@ public class Tab implements java.io.Serializable {
 		try { 
 			Preferences preferences = getPreferences();			
 			sumPropertiesNames = Strings.toSetNullByPass(preferences.get(SUM_PROPERTIES_NAMES, null));
-			rowsHidden = preferences.getBoolean(ROWS_HIDDEN, rowsHidden);			
-			filterVisible = preferences.getBoolean(FILTER_VISIBLE, filterVisible);
-			pageRowCount = Math.min(preferences.getInt(PAGE_ROW_COUNT, pageRowCount), 20); 			
-			if (columnWidths != null) columnWidths.clear();
-			for (MetaProperty property: getMetaProperties()) {
-				int value = preferences.getInt(COLUMN_WIDTH + property.getQualifiedName(), -1);
-				if (value >= 0) {
-					if (columnWidths == null) columnWidths = new HashMap<String, Integer>();
-					columnWidths.put(property.getQualifiedName(), value);
-				}
-			}			
+			persistentRowsHidden = preferences.getBoolean(ROWS_HIDDEN, rowsHidden);
+			rowsHidden = persistentRowsHidden; 
+			filterVisible = preferences.getBoolean(FILTER_VISIBLE, filterVisible); 
+			pageRowCount = Math.min(preferences.getInt(PAGE_ROW_COUNT, pageRowCount), 20);
+			columnWidths = loadMapFromPreferences(preferences, columnWidths, COLUMN_WIDTH, true);
+			labels = loadMapFromPreferences(preferences, labels, COLUMN_LABEL, false);
 			defaultCondition = getCondition();
+			editor = preferences.get(EDITOR, null);
+			if (editor != null && !WebEditors.getEditors(getMetaTab()).contains(editor)) editor = null; // If the developer changes @Tab(editors=) and the last used editor is no longer available
 			loadConfigurationsPreferences();
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("warning_load_preferences_tab"),ex);
 		}
 	}
+	
+	private Map loadMapFromPreferences(Preferences preferences, Map map, String prefix, boolean toInt) { 
+		if (map!= null) map.clear();
+		for (MetaProperty property: getMetaProperties()) {
+			String value = preferences.get(prefix + property.getQualifiedName(), null);
+			if (value != null) {
+				if (map == null) map = new HashMap();
+				map.put(property.getQualifiedName(), toInt?Integer.parseInt(value):value);
+			}
+		}		
+		return map;
+	}
 
 	private void loadConfigurationsPreferences() throws Exception {  
 		Preferences configurationsPreferences = getConfigurationsPreferences();
 		configurations.clear();
 		configuration = null; 
-		List<Configuration> allConfs = new ArrayList<Configuration>(); 
+		Preferences currentConfigurationPreferences = configurationsPreferences.node(CURRENT_CONFIGURATION_NODE);
+		int currentConfigurationId = currentConfigurationPreferences.getInt(CURRENT_CONFIGURATION_ID, 0);
+		List<Configuration> allConfs = new ArrayList<Configuration>();
+		Configuration defaultConf = null;
 		for (String confName: configurationsPreferences.childrenNames()) {
+			if (confName.equals(CURRENT_CONFIGURATION_NODE)) continue; 
 			Preferences pref = configurationsPreferences.node(confName);
 			if (pref.getBoolean(CONFIGURATION_REMOVED, false)) continue; 
 			Configuration conf = new Configuration();
@@ -2164,17 +2347,24 @@ public class Tab implements java.io.Serializable {
 				configuration = conf;
 				break;
 			}
-			if (conf.isDefault()) configuration = conf; 
+			if (configuration == null) {
+				if (currentConfigurationId != 0 && conf.getId() == currentConfigurationId) configuration = conf; 
+			}
+			if (defaultConf == null) {
+				if (conf.isDefault()) defaultConf = conf;
+			}
 		}
+		if (configuration == null && defaultConf != null) configuration = defaultConf;
 		int count = 0;
 		Collections.sort(allConfs);
 		for (Configuration conf: allConfs) { // To purge and keep just the most relevant configurations
 			if (count++ < MAX_CONFIGURATIONS_COUNT) configurations.put(conf.getId(), conf);
 			else removeConfigurationPreferences(conf.getId());
 		}
+		if (defaultConf == null) defaultConf = addDefaultConfiguration(); 
 		if (configuration != null) applyConfiguration();
 		else {
-			configuration = addDefaultConfiguration();
+			configuration = defaultConf; 
 			refine();
 		}
 	}
@@ -2207,6 +2397,7 @@ public class Tab implements java.io.Serializable {
 	
 	private boolean propertyExists(String property) { 
 		try {
+			if (!Is.emptyString(groupBy) && property.equals(GROUP_COUNT_PROPERTY)) return true; 
 			getMetaTab().getMetaModel().getMetaProperty(property);
 			return true;
 		}
@@ -2220,23 +2411,30 @@ public class Tab implements java.io.Serializable {
 			try { 
 				Preferences preferences = getPreferences();
 				preferences.put(SUM_PROPERTIES_NAMES, Strings.toString(getSumPropertiesNames()));
-				preferences.putBoolean(ROWS_HIDDEN, rowsHidden); 
-				preferences.putBoolean(FILTER_VISIBLE, filterVisible); 
-				preferences.putInt(PAGE_ROW_COUNT, pageRowCount);  
-				if (columnWidths != null) { 
-					for (Map.Entry<String, Integer> columnWidth: columnWidths.entrySet()) {
-						preferences.putInt(
-							COLUMN_WIDTH + columnWidth.getKey(),
-							columnWidth.getValue()
-						);
-					}
-				}
+				preferences.putBoolean(ROWS_HIDDEN, persistentRowsHidden); 
+				preferences.putBoolean(FILTER_VISIBLE, filterVisible);  
+				preferences.putInt(PAGE_ROW_COUNT, pageRowCount);
+				if (editor == null) preferences.remove(EDITOR);
+				else preferences.put(EDITOR, editor);
+				saveMapInPreferences(preferences, columnWidths, COLUMN_WIDTH);
+				saveMapInPreferences(preferences, labels, COLUMN_LABEL);
 				preferences.flush();
 			}
 			catch (Exception ex) {
 				log.warn(XavaResources.getString("warning_save_preferences_tab"),ex);
 			}
 		}
+	}
+	
+	private void saveMapInPreferences(Preferences preferences, Map map, String prefix) { 
+		if (map != null) { 
+			for (Map.Entry<String, Object> entry: ((Map<String, Object>) map).entrySet()) {
+				preferences.put(
+					prefix + entry.getKey(),
+					entry.getValue().toString()
+				);
+			}
+		}				
 	}
 	
 	private void removeUserPreferences() { 		
@@ -2339,11 +2537,13 @@ public class Tab implements java.io.Serializable {
 	
 	public void hideRows() {		
 		this.rowsHidden = true;
+		this.persistentRowsHidden = true;
 		saveUserPreferences();
 	}	
 	
 	public void showRows() {
 		this.rowsHidden = false;
+		this.persistentRowsHidden = false;
 		saveUserPreferences();
 	}
 	
@@ -2437,7 +2637,7 @@ public class Tab implements java.io.Serializable {
 	 */	
 	public void setCollectionView(View collectionView) {
 		this.collectionView = collectionView;
-		this.filterVisible = XavaPreferences.getInstance().isShowFilterByDefaultInCollections();
+		this.filterVisible = true;
 	}
 			
 	public boolean isFilterVisible() {
@@ -2522,7 +2722,7 @@ public class Tab implements java.io.Serializable {
 	 * @since 4.1
 	 */
 	public boolean hasTotal(int column) {
-		if (column >= getMetaProperties().size()) return false; 
+		if (column >= getMetaProperties().size()) return false;
 		MetaProperty p = getMetaProperty(column);
 		if (getTotalProperties().containsKey(p.getQualifiedName())) return true;
 		if (!getSumPropertiesNames().contains(p.getQualifiedName())) return false;
@@ -2545,13 +2745,22 @@ public class Tab implements java.io.Serializable {
 	/**
 	 * @since 4.3
 	 */
-	public boolean hasTotal(int row, int column) { 
+	public boolean hasTotal(int row, int column) {
 		if (row == 0) return hasTotal(column);		
 		MetaProperty p = getMetaProperty(column);
 		if (getTotalProperties().containsKey(p.getQualifiedName())) {
 			return row < getTotalProperties().get(p.getQualifiedName()).size(); 
 		}
 		return false;
+	}
+	
+	/**
+	 * 
+	 * @since 5.9
+	 */
+	public boolean isTotalEditable(int row, int column) { 
+		if (getCollectionView() == null) return false;
+		return getCollectionView().isCollectionTotalEditable(row, column);
 	}
 		
 	
@@ -2613,7 +2822,7 @@ public class Tab implements java.io.Serializable {
 	 * @since 4.1
 	 */
 	public boolean isTotalCapable(int column) {  
-		return isTotalCapable(getMetaProperty(column));			
+		return isTotalCapable(getMetaProperty(column));
 	}
 	
 	/**
@@ -2653,14 +2862,30 @@ public class Tab implements java.io.Serializable {
 		try {
 			String columnProperty = getMetaProperty(column).getQualifiedName();			
 			if (!getTotalProperties().containsKey(columnProperty)) return ""; // When it is a sum property
-			String totalProperty = removeTotalPropertyPrefix(getTotalProperties().get(columnProperty).get(row)); 
-			return getCollectionView().getParent().getMetaModel().getMetaProperty(totalProperty).getLabel();
+			String totalProperty = getTotalProperties().get(columnProperty).get(row);
+			if (totalProperty.startsWith("__SUM__")) return ""; 
+			return getTotalMetaProperty(totalProperty).getLabel();
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("total_label_warning"), ex);
 			return "";
 		}
-	}		
+	}
+
+	/**
+	 * 
+	 * @since 5.9
+	 */
+	public String getTotalPropertyName(int row, int column) { 
+		String columnProperty = getMetaProperty(column).getQualifiedName();			
+		return "__PARENT__." + removeTotalPropertyPrefix(getTotalProperties().get(columnProperty).get(row));
+		
+	}
+	
+	private MetaProperty getTotalMetaProperty(String qualifiedPropertyName) { 
+		String totalProperty = removeTotalPropertyPrefix(qualifiedPropertyName); 
+		return getCollectionView().getParent().getMetaModel().getMetaProperty(totalProperty);
+	}
 	
 	/**
 	 * @since 4.1
@@ -2674,7 +2899,7 @@ public class Tab implements java.io.Serializable {
 		try {
 			if (getCollectionView() != null && 					
 				getCollectionView().getTotalProperties().containsKey(qualifiedPropertyName)) 	
-			{ 
+			{
 				return getCollectionView().getCollectionTotal(qualifiedPropertyName, index); 
 			}
 			return getTableModel().getSum(qualifiedPropertyName);
@@ -2743,6 +2968,22 @@ public class Tab implements java.io.Serializable {
 
 	public void setEditor(String editor) {
 		this.editor = editor;
+		saveUserPreferences();
+	}
+
+	/**
+	 * @since 5.9
+	 */
+	public Tab clone() { 
+		try {
+			Tab clone =  (Tab) super.clone();
+			clone.cancelSavingPreferences = true;
+			clone.metaTabCloned = false; 
+			return clone;
+		}
+		catch (CloneNotSupportedException ex) {
+			throw new RuntimeException(ex); // Never 
+		}
 	}
 
 }

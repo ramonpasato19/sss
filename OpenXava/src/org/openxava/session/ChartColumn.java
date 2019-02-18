@@ -5,7 +5,6 @@ import java.util.prefs.*;
 
 import javax.persistence.*;
 
-import org.apache.commons.logging.*;
 import org.openxava.actions.*;
 import org.openxava.annotations.*;
 import org.openxava.util.*;
@@ -16,15 +15,13 @@ import org.openxava.util.*;
  */
 @Embeddable
 public class ChartColumn implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
-	private static Log log = LogFactory.getLog(MyReportColumn.class); 
-	
-	
 	private final static String COLUMN = "column";
 	private final static String NAME = "name";	
 	private final static String NUMBER = "number";
-	
+			
 	@Hidden
 	private Chart chart;
 		
@@ -72,7 +69,7 @@ public class ChartColumn implements Serializable {
 		preferences.remove(COLUMN + index + "." + NUMBER);
 		return true;
 	}
-	
+
 	public String getLabel() { 
 		return Labels.get(name); 
 	}
@@ -84,5 +81,7 @@ public class ChartColumn implements Serializable {
 	public void setNumber(boolean number) {
 		this.number = number;
 	}
+	
+	
 	
 }

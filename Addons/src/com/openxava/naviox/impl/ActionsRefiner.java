@@ -30,7 +30,15 @@ public class ActionsRefiner {
 			metaActions.remove(action);
 		}
 	}
-
+	
+	public void refineForCollections(MetaModule metaModule, Collection<String> actionNames) {
+		String currentUser = Users.getCurrent();
+		if (currentUser == null) return;
+		User user = User.find(currentUser);
+		if (user == null) return;
+		Collection<String> excludedActions = user.getExcludedCollectionActionsForMetaModule(metaModule);
+		actionNames.removeAll(excludedActions);
+	}
 	/** 
 	 * 
 	 * @since 5.3 

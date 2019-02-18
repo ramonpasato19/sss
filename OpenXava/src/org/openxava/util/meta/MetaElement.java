@@ -1,9 +1,8 @@
 package org.openxava.util.meta;
 
 import java.util.*;
+
 import javax.servlet.*;
-
-
 
 import org.openxava.util.*;
 
@@ -15,8 +14,7 @@ abstract public class MetaElement implements java.io.Serializable {
 	private String description;
 	private java.lang.String name;
 	private String label;
-	
-	
+	private String placeholder;
 
 	protected boolean has18nLabel() {		
 		return Labels.exists(getId());
@@ -54,7 +52,8 @@ abstract public class MetaElement implements java.io.Serializable {
 	protected String getLabel(Locale locale, String id) {
 		if (id == null) return "";
 		if (Is.emptyString(label)) label = Strings.javaIdentifierToNaturalLabel(getName());	
-		return Labels.get(id, locale, label).trim();	
+		String result = Labels.get(id, locale, label).trim();
+		return result;
 	}
 	
 		
@@ -88,16 +87,22 @@ abstract public class MetaElement implements java.io.Serializable {
 		return getDescription(locale, getId());
 	}
 	
-	protected String getDescription(Locale locale, String id) {		
+	protected String getDescription(Locale locale, String id) {
+		return getLabel(locale, id, true);
+	}
+	
+	private String getLabel(Locale locale, String id, boolean description) {
+		String key = description ? "[description]" : "[placeholder]";
 		if (id == null) return "";
-		String descriptionId = id + "[description]";
+		String descriptionId = id + key;
 		String result = "";
 		if (Labels.exists(descriptionId)) {
 			result = Labels.get(descriptionId, locale);
 		}
 		else {
-			if (has18nLabel()) result = getLabel(locale);
-			else result = Is.emptyString(description)?getLabel(locale):description;
+			result = description ? 
+				(this.description == null?"":this.description) : 
+				(this.placeholder == null?"":this.placeholder);
 		}				
 		return Strings.change(result, "'", "&#145;");
 	}
@@ -105,9 +110,25 @@ abstract public class MetaElement implements java.io.Serializable {
 	public String getDescription(ServletRequest request) {
 		return getDescription(getLocale(request));
 	}	
+	
 	public void setDescription(String newDescription) {
 		description = newDescription;
 	}
-		
+
+	public String getPlaceholder() {
+		return getPlaceholder(Locales.getCurrent());
+	}
+	
+	public String getPlaceholder(Locale locale){
+		return getPlaceholder(locale, getId());
+	}
+	
+	protected String getPlaceholder(Locale locale, String id){
+		return getLabel(locale, id, false);
+	}
+
+	public void setPlaceholder(String placeholder) {
+		this.placeholder = placeholder;
+	}
 	
 }

@@ -35,7 +35,7 @@ public abstract class OnChangeChartBaseAction extends OnChangePropertyBaseAction
 		if (getNewValue() != null) {
 			executeOnValidValues();
 			Charts.updateView(getRequest(), getView(), getTab(), chart);
-			chart.save(); 
+			chart.save(getTab()); 
 		}
 	}
 	

@@ -13,9 +13,9 @@
 <%@page import="org.openxava.web.dwr.Module"%>
 <%@page import="org.openxava.web.servlets.Servlets"%>
 <%@page import="org.openxava.web.Ids"%>
+<%@page import="org.openxava.web.Requests"%> 
 <%@page import="org.apache.commons.logging.LogFactory" %>
 <%@page import="org.apache.commons.logging.Log" %>
-
 
 <%!private static Log log = LogFactory.getLog("module.jsp");
 
@@ -41,15 +41,19 @@
 	request.setAttribute("style", org.openxava.web.style.Style.getInstance(request));
 %>
 
+<jsp:useBean id="errors" class="org.openxava.util.Messages" scope="request"/>
+<jsp:useBean id="messages" class="org.openxava.util.Messages" scope="request"/>
 <jsp:useBean id="context" class="org.openxava.controller.ModuleContext" scope="session"/>
 <jsp:useBean id="style" class="org.openxava.web.style.Style" scope="request"/>
 <%
+	if ("true".equals(request.getParameter("init"))) {
+		context.resetModule(request);
+	}
 	String windowId = context.getWindowId(request);
 	context.setCurrentWindowId(windowId);	
 	Locales.setCurrent(request);	
 	request.getSession().setAttribute("xava.user",
 			request.getRemoteUser());
-	Users.setCurrent(request); 
 	String app = request.getParameter("application");
 	String module = context.getCurrentModule(request);
 	String contextPath = (String) request.getAttribute("xava.contextPath");
@@ -63,7 +67,7 @@
 					"org.openxava.controller.ModuleManager");
 
 	manager.setSession(session);
-	managerHome.setSession(session);
+	managerHome.setSession(session); 
 	manager.setApplicationName(request.getParameter("application"));
 
 	manager.setModuleName(module); // In order to show the correct description in head
@@ -84,7 +88,9 @@
 	String version = org.openxava.controller.ModuleManager.getVersion();
 	String realPath = request.getSession().getServletContext()
 			.getRealPath("/");			
-	manager.resetPersistence(); 
+	Requests.init(request, app, module); 
+	manager.log(request, "MODULE:" + module);
+	manager.setModuleURL(request); 
 %>
 <jsp:include page="execute.jsp"/>
 <%
@@ -188,6 +194,16 @@
 	<%
 			}
 		}
+		
+		String[] jsFiles = request.getParameterValues("jsFiles");
+		if (jsFiles != null) {
+			for (int i = 0; i < jsFiles.length; i++) {
+				if (jsFiles[i].endsWith(".js")) {
+	%>
+	<script type="text/javascript" src="<%=contextPath%>/<%=jsFiles[i]%>?ox=<%=version%>"></script>				
+	<%			}
+			}
+		}	
 	%>	
 	<script type="text/javascript">
 		$ = jQuery;
@@ -219,7 +235,8 @@ if (manager.isResetFormPostNeeded()) {
 		<input name="module" type="hidden" value="<%=request.getParameter("module")%>"/>
 		<% } %>
 	</form>
-<% } else  { %>	
+<% } else  { %>
+	<% manager.executeBeforeLoadPage(request, errors, messages);  %>
 	<input id="xava_last_module_change" type="hidden" value=""/>
 	<input id="xava_window_id" type="hidden" value="<%=windowId%>"/>	
 	<input id="<xava:id name='loading'/>" type="hidden" value="<%=coreViaAJAX%>"/>
@@ -229,7 +246,7 @@ if (manager.isResetFormPostNeeded()) {
 	<%-- Layer for progress bar --%>
 	<div id='xava_processing_layer' style='display:none;'>
 		<%=XavaResources.getString(request, "processing")%><br/>
-		<img src='<%=contextPath%>/<%=style.getProcessingImage()%>'/>
+		<i class="mdi mdi-settings spin"></i>
 	</div>	
 	<%=style.getCoreStartDecoration()%>
 	<div id="<xava:id name='core'/>" style="display: inline;" class="<%=style.getModule()%>">
@@ -246,14 +263,13 @@ if (manager.isResetFormPostNeeded()) {
 <% } %>			
 	<div id="xava_console" >
 	</div>
-	<% String loadingImage=!style.getLoadingImage().startsWith("/")?contextPath + "/" + style.getLoadingImage():style.getLoadingImage();%>
 	<div id="xava_loading">				
-		<img src="<%=loadingImage%>" style="vertical-align: middle"/>
+		<i class="mdi mdi-autorenew module-loading spin" style="vertical-align: middle"></i>
 		&nbsp;<xava:message key="loading"/>...		 
 	</div>
 	<% if (!style.isFixedPositionSupported()) { %>
-	<div id="xava_loading2">		
-		<img src="<%=loadingImage%>" style="vertical-align: middle"/>
+	<div id="xava_loading2">
+		<i class="mdi mdi-autorenew module-loading spin" style="vertical-align: middle"></i>
 		&nbsp;<xava:message key="loading"/>...
 	</div>	
 	<% } %>	
@@ -292,13 +308,19 @@ if (manager.isResetFormPostNeeded()) {
 		openxava.currentRowClass = '<%=style.getCurrentRow()%>';
 		openxava.currentRowCellClass = '<%=style.getCurrentRowCell()%>';
 		openxava.selectedListFormatClass = '<%=style.getSelectedListFormat()%>'; 
-		openxava.customizeControlsClass = '<%=style.getCustomizeControls()%>'; 
+		openxava.customizeControlsClass = '<%=style.getCustomizeControls()%>';
+		openxava.errorEditorClass = '<%=style.getErrorEditor()%>';
 		openxava.listAdjustment = <%=style.getListAdjustment()%>;
 		openxava.collectionAdjustment = <%=style.getCollectionAdjustment()%>;
 		openxava.closeDialogOnEscape = <%=browser != null && browser.indexOf("Firefox") >= 0 ? "false":"true"%>;		  
-		openxava.calendarAlign = '<%=browser != null && browser.indexOf("MSIE 6") >= 0 ? "tr"
-					: "Br"%>';
+		openxava.calendarAlign = '<%=browser != null && browser.indexOf("MSIE 6") >= 0 ? "tr":"Br"%>';
+		<% java.text.DecimalFormatSymbols symbols = java.text.DecimalFormatSymbols.getInstance(Locales.getCurrent()); %>
+		openxava.decimalSeparator = '<%=symbols.getDecimalSeparator()%>';
+		openxava.groupingSeparator = '<%=symbols.getGroupingSeparator()%>';
 		openxava.setHtml = <%=style.getSetHtmlFunction()%>;			
+		<% if (browser != null && browser.contains("HtmlUnit")) { // Because of low performance of fadeIn with HtmlUnit %>
+		openxava.fadeIn = openxava.show;
+		<% } %>
 		<%String initThemeScript = style.getInitThemeScript();
 			if (initThemeScript != null) {%>
 		openxava.initTheme = function () { <%=style.getInitThemeScript()%> }; 
@@ -318,4 +340,5 @@ document.additionalParameters="<%=getAdditionalParameters(request)%>";
 <% }
 manager.commit();
 context.cleanCurrentWindowId(); 
+org.openxava.util.SessionData.clean(); 
 %>

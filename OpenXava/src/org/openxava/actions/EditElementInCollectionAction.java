@@ -18,10 +18,9 @@ public class EditElementInCollectionAction extends CollectionElementViewBaseActi
 	
 	private int row;
 	
-	
-	@SuppressWarnings("unchecked")
-	public void execute() throws Exception {		
+	public void execute() throws Exception {
 		getCollectionElementView().clear(); 
+		getCollectionElementView().setKeyEditable(false); 
 		getCollectionElementView().setCollectionDetailVisible(true);
 		Collection elements;
 		Map keys = null;

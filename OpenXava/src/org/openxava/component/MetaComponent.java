@@ -482,6 +482,7 @@ public class MetaComponent implements Serializable {
 	}
 
 	public IPersistenceProvider getPersistenceProvider() {
+		if (isTransient()) return TransientPersistenceProvider.getInstance();  
 		return persistenceProvider;
 	}
 

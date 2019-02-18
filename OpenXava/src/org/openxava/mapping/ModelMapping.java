@@ -9,6 +9,7 @@ import org.openxava.converters.*;
 import org.openxava.hibernate.*;
 import org.openxava.jpa.*;
 import org.openxava.model.meta.*;
+import org.openxava.tab.*;
 import org.openxava.util.*;
 
 /**
@@ -339,7 +340,10 @@ abstract public class ModelMapping implements java.io.Serializable {
 	}
 	
 	public String getQualifiedColumn(String modelProperty) 
-		throws XavaException {	
+		throws XavaException {
+		
+		if (Tab.GROUP_COUNT_PROPERTY.equals(modelProperty)) return "e." + modelProperty; // We follow the JPA nomenclature to simplify the code of TabProviderBase
+		
 		PropertyMapping propertyMapping = (PropertyMapping) propertyMappings.get(modelProperty);
 		if (propertyMapping != null && propertyMapping.hasFormula()) return getColumn(modelProperty);
 		
@@ -548,13 +552,22 @@ abstract public class ModelMapping implements java.io.Serializable {
 			if (f < 0)
 				break;
 			String property = r.substring(i + 2, f);
+			String suffix = "";
+			if (property.endsWith("[year]")) {
+				property = property.replace("[year]", "");
+				suffix = "[year]";
+			}
+			else if (property.endsWith("[month]")) {
+				property = property.replace("[month]", "");
+				suffix = "[month]";
+			} 
 			String column = "0"; // thus it remained if it is calculated
 			if (!getMetaModel().isCalculated(property)) {
 				column = Strings.isModelName(property)?
 					getTable(property):
 						qualified?getQualifiedColumn(property):getColumn(property);
 			}			
-			r.replace(i, f + 1, column);
+			r.replace(i, f + 1, column + suffix); 
 			i = r.toString().indexOf("${");
 		}
 		return r.toString();

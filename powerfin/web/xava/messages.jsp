@@ -14,6 +14,7 @@ if (messages.contains()) {
 %>
 <tr><td class=<%=style.getWarnings()%>>
 <%=style.getWarningStartDecoration()%>
+<i class="mdi mdi-close" style="cursor: pointer;" onclick="$(this).parent().fadeOut()"></i>
 <%=it.next()%>
 <%=style.getWarningEndDecoration()%>
 </td></tr>
@@ -26,6 +27,7 @@ if (messages.contains()) {
 %>
 <tr><td class=<%=style.getMessages()%>>
 <%=style.getMessageStartDecoration()%>
+<i class="mdi mdi-close" style="cursor: pointer;" onclick="$(this).parent().fadeOut()"></i>
 <%=it.next()%>
 <%=style.getMessageEndDecoration()%>
 </td></tr>
@@ -38,6 +40,7 @@ if (messages.contains()) {
 %>
 <tr><td class=<%=style.getInfos()%>>
 <%=style.getInfoStartDecoration()%>
+<i class="mdi mdi-close" style="cursor: pointer;" onclick="$(this).parent().fadeOut()"></i>
 <%=it.next()%>
 <%=style.getInfoEndDecoration()%>
 </td></tr>

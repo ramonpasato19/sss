@@ -43,11 +43,11 @@ if (propertyKey == null) {
 	name = Ids.decorate(request, prefix + "conditionComparator." + index);
 	script = Actions.getActionOnChangeComparator(name,idConditionValue,idConditionValueTo);
 	
-	if (org.openxava.util.XavaPreferences.getInstance().isFilterOnChange() & (isString || isDate)) {
+	if (org.openxava.util.XavaPreferences.getInstance().isFilterOnChange()) {
 		String collection = request.getParameter("collection"); 
 		String collectionArgv = Is.emptyString(collection)?"":"collection="+collection;
 		script = new StringBuilder(script.replace(")\"", "); "))
-				    .append("if (this.options[this.selectedIndex].value.indexOf('empty') > -1) { ")
+				    .append("if (this.options[this.selectedIndex].value.indexOf('range') < 0) { ") 
 				    .append("openxava.executeAction('")
 				    .append(request.getParameter("application"))	
 	 			    .append("', '")

@@ -72,7 +72,7 @@ public class Server {
 					packageName = MetaComponent.getQualifiedPackageForUnqualifiedPackage(packageName);
 					ohome = BeansContext.get().lookup("ejb/"+packageName+"/Server"); 
 				}				
-				ServerHome home = (ServerHome) PortableRemoteObject.narrow(ohome, ServerHome.class);
+				ServerHome home = (ServerHome) ohome; 
 				remote = home.create();
 				getRemotes().put(packageName, remote);				
 			}		

@@ -25,16 +25,20 @@ Collection locales = Generators.getAvailableLocales("../" + applicationName + "/
 <java>
 for (Iterator it=application.getMetaModules().iterator(); it.hasNext(); ) {
 	MetaModule module = (MetaModule) it.next();
+	String description = module.getDescription();
+	if (description == null || "".equals(description)) description = module.getLabel();
 </java> 
 	&lt;portlet id="<expr>Strings.toCharSet(module.getName(), encoding)</expr>"&gt;
-		&lt;description&gt;<expr>Strings.toCharSet(application.getLabel(), encoding)</expr> - <expr>Strings.toCharSet(module.getDescription(), encoding)</expr>&lt;/description&gt;
+		&lt;description&gt;<expr>Strings.toCharSet(application.getLabel(), encoding)</expr> - <expr>Strings.toCharSet(description, encoding)</expr>&lt;/description&gt;
     <java>for (Iterator itLocales=locales.iterator(); itLocales.hasNext(); ) { 
     	Locale locale = (Locale) itLocales.next();
+    	String descriptionLocale = module.getDescription(locale);
+    	if (descriptionLocale == null || "".equals(descriptionLocale)) descriptionLocale = module.getLabel(locale);
     </java>    
 		<java>// Avoid to generate "en" locale description because the generated above (default) is English as portlet-app_1_0.xsd specifies. </java> 
 		<java>// JetSpeed 2.2.1 throws a deployment error if this description is generated twice with the same locale </java>
 		<java>if (!locale.getLanguage().equals("en") ) { </java>
-		&lt;description xml:lang="<expr>locale</expr>"&gt;<expr>Strings.toCharSet(application.getLabel(locale), encoding)</expr> - <expr>Strings.toCharSet(module.getDescription(locale), encoding)</expr>&lt;/description&gt;
+		&lt;description xml:lang="<expr>locale</expr>"&gt;<expr>Strings.toCharSet(application.getLabel(locale), encoding)</expr> - <expr>Strings.toCharSet(descriptionLocale, encoding)</expr>&lt;/description&gt;
 		<java>} </java>
 	<java>} </java>       
 		&lt;portlet-name&gt;<expr>Strings.toCharSet(module.getName(), encoding)</expr>&lt;/portlet-name&gt;

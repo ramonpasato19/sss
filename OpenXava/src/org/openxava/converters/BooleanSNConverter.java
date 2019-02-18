@@ -29,7 +29,6 @@ public class BooleanSNConverter implements IConverter {
 		return Boolean.valueOf(stringToBoolean((String) o));
 	}
 	
-	
 	public static String booleanToString(boolean value) {
 		return value?"S":"N";
 	}

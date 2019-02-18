@@ -2,9 +2,11 @@ package org.openxava.util;
 
 import java.io.*;
 import java.math.*;
+import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
+import org.apache.commons.lang3.*;
 import org.apache.commons.logging.*;
 
 /**
@@ -19,6 +21,29 @@ public class Strings {
 	private final static String XSS_REGEXP_PATTERN = "(?i)<[\\s]*/?script.*?>|<[\\s]*/?embed.*?>|<[\\s]*/?object.*?>|<[\\s]*/?iframe.*?>|window.location|<[\\s]*a[\\s]*href[^>]*javascript[\\s]*:[^(^)^>]*[(][^)]*[)][^>]*>[^<]*(<[\\s]*/[\\s]*a[^>]*>)*";
 	private final static Pattern XSS_PATTERN = Pattern.compile(XSS_REGEXP_PATTERN);
 	private static Map separatorsBySpaces;	
+	
+	/**
+	 * Concatenates the list of strings using the separator. <p> 
+	 *
+	 * For example, concat(" - ", "Juan", "Perico", "Andrés") returns 
+	 * "Juan - Perico - Andrés".<br>
+	 *
+	 * @param separator  The character used as separator.
+	 * @param strings  Strings to be concatenated. Can be null.
+	 * @return Not null, including the case <tt>strings == null</tt>.
+	 * @since 6.0
+     */
+	public static String concat(String separator, String ... strings) { 
+		if (strings == null) return "";
+		if (separator == null) separator = "";
+		StringBuffer sb = new StringBuffer();
+		for (String string: strings) {
+			if (Is.empty(string)) continue;
+			if (sb.length() > 0) sb.append(separator);
+			sb.append(string);
+		}
+		return sb.toString();
+	}
 	
 	/**
 	 * The space, comma, dot, + and - are considered as numeric. 
@@ -324,8 +349,7 @@ public class Strings {
 	  fillCollection(rs, list, separator);
 	  return rs;
   }
-  
-  
+    
   private final static void fillCollection(Collection rs, String list, String separator) {
 		Assert.arg(separator);
 		StringTokenizer st = new StringTokenizer(list, separator);
@@ -451,6 +475,28 @@ public class Strings {
   public final static String toString(Object [] array, String separator) {
 	  if (array == null) return ""; 
 	  return toString(Arrays.asList(array), separator);
+  }
+  
+  /**
+   * Try to do a decent toString from a regular object. <p>
+   * 
+   * Good format for arrays, dates, numbers, etc. taking in account the current locales (from Locales.getCurrent())
+   * 
+   * @since 5.9
+   */
+  public final static String toString(Object object) { 
+	  if (object == null) return "";
+	  if (object.getClass().isArray()) return ArrayUtils.toString(object);
+	  Format formatter = null;
+	  if (object instanceof BigDecimal) {
+		  formatter = NumberFormat.getNumberInstance(Locales.getCurrent());
+		  ((NumberFormat) formatter).setMaximumFractionDigits(2);
+	  }
+	  else if (object instanceof java.util.Date) {
+		  formatter = DateFormat.getDateInstance(DateFormat.SHORT, Locales.getCurrent());
+	  }
+	  if (formatter != null) return formatter.format(object);
+	  return object.toString();
   }
 
      
@@ -812,6 +858,8 @@ public class Strings {
 	 * 
 	 * If you send "León, España" it returns "LeonEspana". <br>
 	 * 
+	 * The % is changed by the "percent" string.
+	 * 
 	 * @since 5.6
 	 */
 	public static String naturalLabelToIdentifier(String naturalLabel) { 
@@ -821,6 +869,9 @@ public class Strings {
 			char c = naturalLabel.charAt(i);
 			if (Character.isLetter(c) || Character.isDigit(c)) {
 				sb.append(c);
+			}
+			else if (c == '%') {
+				sb.append("Percent");
 			}
 		}
 		String result = removeAccents(sb.toString()); 
@@ -878,4 +929,47 @@ public class Strings {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Returns a String multiline platform independent. <p>
+	 * 
+	 * For example, 
+	 * <pre>
+	 * Strings.multiline("OpenXava", "AJAX Java Framework Web", "You only have to write the domain classes") -&gt;<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;"OpenXava<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AJAX Java Framework Web<br>
+	 * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;You only have to write the domain classes"
+	 * </pre>
+	 * @param strings
+	 *        The array of String objects, entries not may be null
+	 * 
+	 * @since 5.7
+	 */
+	public static String multiline(String... strings) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < strings.length; i++) {
+			sb.append("%s%n");
+		}
+		return String.format(sb.substring(0, sb.length() - 2), (Object[]) strings);
+	}
+	
+	/**
+	 * Remove the quotes from a sentence between quotes. <p>
+	 * 
+	 * That is:
+	 * <pre>
+	 * "Hi, I'm Peter" --> Hi, I'm Peter
+	 * </pre>
+	 * 
+	 * @param sentence  The original sentence, with or without surrounding quotes.
+	 * @return The sentence without quotes, if the sentence has no quotes returns the original string.
+	 * @since 5.8
+	 */
+	public static String unquote(String sentence) { 
+		if (sentence == null) return "";
+		if (sentence.length() < 2) return sentence;
+		if (!(sentence.startsWith("\"") && sentence.endsWith("\""))) return sentence;
+		return sentence.substring(1, sentence.length() - 1);
+	}
+	
 }

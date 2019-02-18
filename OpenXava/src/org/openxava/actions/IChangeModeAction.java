@@ -15,6 +15,7 @@ public interface IChangeModeAction extends IAction {
 	public final static String LIST = "list";
 	public final static String DETAIL = "detail";
 	/** @since 4m5 */
+	@Deprecated
 	public final static String SPLIT = "split"; 
 	public final static String PREVIOUS_MODE = "__PREVIOUS_MODE__";
 	

@@ -22,7 +22,6 @@ public class LoadImageAction extends ViewBaseAction implements INavigationAction
 			FileItem fi = (FileItem)i.next();
 			String fileName = fi.getName();			
 			if (!Is.emptyString(fileName)) {
-				String propertyName = Strings.lastToken(getNewImageProperty(), ".");
 				getPreviousView().setValue(getNewImageProperty(), fi.get()); 
 			}			
 		}		

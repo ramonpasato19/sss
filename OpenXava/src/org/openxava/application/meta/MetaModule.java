@@ -4,16 +4,16 @@ import java.util.*;
 
 import org.openxava.component.*;
 import org.openxava.controller.*;
-import org.openxava.model.meta.*;
 import org.openxava.util.*;
 import org.openxava.util.meta.*;
 
 /**
  * @author Javier Paniza
  */
+@SuppressWarnings("serial")
 public class MetaModule extends MetaElement implements java.io.Serializable {
 	
-	private Map environmentVariables;
+	private Map<String, String> environmentVariables;
 	private Environment environment;
 	private String folder;
 	private String modelName;
@@ -24,7 +24,7 @@ public class MetaModule extends MetaElement implements java.io.Serializable {
 	private String docURL; 
 	private String docLanguages;	
 	private MetaApplication metaApplication;	
-	private Collection controllersNames = new ArrayList();
+	private Collection<String> controllersNames = new ArrayList<String>();
 	private String modeControllerName;	
 	private MetaReport metaReport;
 
@@ -42,7 +42,7 @@ public class MetaModule extends MetaElement implements java.io.Serializable {
 		this.metaApplication = application;
 	}
 
-	public Collection getControllersNames() {
+	public Collection<String> getControllersNames() {
 		return controllersNames;
 	}		
 	public void addControllerName(String controller) {
@@ -135,7 +135,7 @@ public class MetaModule extends MetaElement implements java.io.Serializable {
 	}
 
 	public void addEnvironmentVariable(String name, String value) {
-		if (environmentVariables == null) environmentVariables = new HashMap();
+		if (environmentVariables == null) environmentVariables = new HashMap<String, String>();
 		environmentVariables.put(name, value);
 	}
 	
@@ -165,5 +165,16 @@ public class MetaModule extends MetaElement implements java.io.Serializable {
 	public String toString() { 
 		return "MetaModule: " + getMetaApplication().getName() + "/" + getName();
 	}
-
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (!(obj instanceof MetaModule)) return false;		
+		return this.getId().equals(((MetaModule) obj).getId());
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.getId().hashCode();
+	}
 }

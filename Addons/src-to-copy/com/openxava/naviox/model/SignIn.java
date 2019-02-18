@@ -14,13 +14,17 @@ public class SignIn {
 	
 	@ManyToOne @DescriptionsList @LabelFormat(LabelFormatType.SMALL)
 	@NoModify @NoCreate
+	@Required 
 	private Organization organization; 
 	
-	@Column(length=30) @LabelFormat(LabelFormatType.SMALL)
-	private String user;
+	@Column(length=60) 
+	@LabelFormat(LabelFormatType.SMALL)
+	@Required 
+	private String user; 
 
 	@Column(length=30) @Stereotype("PASSWORD")
 	@LabelFormat(LabelFormatType.SMALL)
+	@Required 
 	private String password;
 	
 

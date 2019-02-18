@@ -9,9 +9,6 @@
 <%@ page import="org.openxava.model.meta.MetaProperty" %>
 <%@ page import="org.openxava.view.meta.MetaPropertyView" %>
 
-<% if (XavaPreferences.getInstance().isDivForEachEditor()) { %>
-<div>  
-<% } %>
 
 <%
 String viewObject = request.getParameter("viewObject");
@@ -31,6 +28,11 @@ String labelStyle = view.getLabelStyleForProperty(p);
 if (Is.empty(labelStyle)) labelStyle = XavaPreferences.getInstance().getDefaultLabelStyle();
 String label = view.getLabelFor(p);
 %>
+
+<% if (view.isFlowLayout()) { %> 
+<div>  
+<% } %>
+
 <%@ include file="htmlTagsEditor.jsp"%>
 <%  
 if (first && !view.isAlignedByColumns()) label = org.openxava.util.Strings.change(label, " ", "&nbsp;");
@@ -47,42 +49,40 @@ if (labelFormat == MetaPropertyView.NORMAL_LABEL) {
 </span>
 <% } %>
 <%=postLabel%>
-<%=preIcons%>
-<%@ include file="editorIcons.jsp"%>
-<%=postIcons%>
 <%=preEditor%>
 <% 
 if (labelFormat == MetaPropertyView.SMALL_LABEL) { 
 %>
 <span id="<xava:id name='<%="label_" + view.getPropertyPrefix() + p.getName()%>'/>" class="<%=style.getSmallLabel()%> <%=labelStyle%>"><%=label%></span><br/> 
 <% } %>
-<% } else { %>
-<%@ include file="editorIcons.jsp"%>
-<% } // if (!hasFrame) %>
-<span id="<xava:id name='<%="editor_" + view.getPropertyPrefix() + p.getName()%>'/>"> 
+<% } // if (!hasFrame)
+String placeholder = !Is.empty(p.getPlaceholder()) ? "data-placeholder='" + p.getPlaceholder() + "'" : "";
+String required = view.isEditable() && p.isRequired() ? style.getRequiredEditor():""; 
+%>
+<span id="<xava:id name='<%="editor_" + view.getPropertyPrefix() + p.getName()%>'/>" class="xava_editor <%=required%>" <%=placeholder%>>
 <xava:editor property="<%=p.getName()%>" editable="<%=editable%>" throwPropertyChanged="<%=throwPropertyChanged%>"/>
 </span>
 
-<span id="<xava:id name='<%="property_actions_" + view.getPropertyPrefix() + p.getName()%>'/>">
-<% if (view.propertyHasActions(p)) { %>
-<jsp:include page="propertyActions.jsp">
-	<jsp:param name="propertyName" value="<%=p.getName()%>"/>
-	<jsp:param name="lastSearchKey" value="<%=lastSearchKey%>"/>
-	<jsp:param name="editable" value="<%=editable%>"/>
-</jsp:include>
-<% } %>
-</span>
-
-<%@ include file="propertyActionsExt.jsp"%>
+<% if (!(lastSearchKey && view.displayWithFrame())) { %> 
+	<span id="<xava:id name='<%="property_actions_" + view.getPropertyPrefix() + p.getName()%>'/>">
+		<% if (view.propertyHasActions(p)) { %>
+			<jsp:include page="propertyActions.jsp">
+				<jsp:param name="propertyName" value="<%=p.getName()%>"/>
+				<jsp:param name="lastSearchKey" value="<%=lastSearchKey%>"/>
+				<jsp:param name="editable" value="<%=editable%>"/>
+			</jsp:include>
+		<% } %>
+	</span>
+<% } %> 
 
 <% if (!hasFrame) { %>
+<%@ include file="propertyActionsExt.jsp"%> 
 <%=postEditor%>
 <% if (labelFormat == MetaPropertyView.SMALL_LABEL) { %>
 <% } %>
 
 <% } // if (!hasFrame) %>
 
-<% if (XavaPreferences.getInstance().isDivForEachEditor()) { %>
+<% if (view.isFlowLayout()) { %> 
 </div>  
 <% } %>
-

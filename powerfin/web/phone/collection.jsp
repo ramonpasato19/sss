@@ -2,9 +2,15 @@
 
 <%@ page import="org.openxava.model.meta.MetaCollection" %>
 <%@ page import="org.openxava.view.View" %>
-<%@ page import="org.openxava.util.Is" %> 
+<%@ page import="org.openxava.util.Is" %>
+<%@ page import="org.openxava.util.Labels"%> 
 <%@ page import="org.openxava.controller.meta.MetaAction" %>
+<%@ page import="org.openxava.controller.meta.MetaController"%>
 <%@ page import="org.openxava.controller.meta.MetaControllers" %>
+<%@ page import="org.openxava.web.Ids"%>
+
+<%@ page import="java.util.Collection"%>
+<%@ page import="java.util.Iterator"%>
 
 <jsp:useBean id="context" class="org.openxava.controller.ModuleContext" scope="session"/>
 <jsp:useBean id="style" class="org.openxava.web.style.Style" scope="request"/>
@@ -15,22 +21,22 @@ viewObject = (viewObject == null || viewObject.equals(""))?"xava_view":viewObjec
 View view = (View) context.get(request, viewObject);
 String collectionName = request.getParameter("collectionName");
 MetaCollection collection = view.getMetaModel().getMetaCollection(collectionName);
-if (!(collection.hasCalculator() || collection.isSortable())) {
-%>
-
-<% 
 View subview = view.getSubview(collectionName);
 String viewName = viewObject + "_" + collectionName;
 String idCollection = org.openxava.web.Collections.id(request, collectionName);
 boolean collectionEditable = subview.isCollectionEditable();
 boolean collectionMembersEditables = subview.isCollectionMembersEditables();
-String lineAction = ""; 
+String lineAction = "";
 if (collectionEditable || collectionMembersEditables) {
 	lineAction = subview.getEditCollectionElementAction();
 }
 else {
 	lineAction = subview.getViewCollectionElementAction();
 }
+if (!(collection.hasCalculator() || collection.isSortable())) {
+%>
+
+<%
 context.put(request, viewName, subview);
 String tabObject = org.openxava.web.Collections.tabObject(idCollection); 
 org.openxava.tab.Tab tab = subview.getCollectionTab();
@@ -45,16 +51,17 @@ if (selectedRow >= 0) {
 context.put(request, tabObject, tab);
 %>
 
+<div class="phone-frame-title"><%=collection.getLabel()%></div>
+<div class="ox-frame"> 
 <div class="phone-frame-header"> 
-	<span class="phone-frame-title"><%=collection.getLabel()%></span>
-	<% 
+	<%
 	if (collectionEditable) { 
-		String newAction = subview.getNewCollectionElementAction();
+		String newAction = subview.isRepresentsEntityReference()?subview.getAddCollectionElementAction():subview.getNewCollectionElementAction();
 		if (!Is.emptyString(newAction)) {
 	%>
 	<xava:link action='<%=newAction%>' argv='<%="viewObject="+viewName%>'>
 		<div class="phone-frame-action">
-			<p><%=MetaControllers.getMetaAction(newAction).getLabel()%></p>			
+			<%=MetaControllers.getMetaAction(newAction).getLabel()%>
 		</div>
 	</xava:link>
 	<%  
@@ -69,14 +76,27 @@ context.put(request, tabObject, tab);
 			String actionForLabel = subview.getRemoveCollectionElementAction();
 			if (Is.emptyString(actionForLabel)) actionForLabel = removeSelectedAction;
 			%>					
-			<p><%=MetaControllers.getMetaAction(actionForLabel).getLabel()%></p>			
+			<%=MetaControllers.getMetaAction(actionForLabel).getLabel()%>
 		</div>
 	</xava:link>
 	<%
 		}
-	} 
+	}	
 	%>	
-</div>
+
+	<% 
+	Collection<String> listSubcontrollers = subview.getSubcontrollersNamesList();
+	for(String listSubcontroller : listSubcontrollers){
+	%>
+		<jsp:include page="../xava/subButton.jsp">
+			<jsp:param name="controller" value="<%=listSubcontroller%>"/>
+			<jsp:param name="argv" value='<%="viewObject="+viewName%>'/>
+		</jsp:include>
+	<%
+	}
+	%>
+</div>	
+
 
 <jsp:include page="list.jsp">
 	<jsp:param name="collection" value="<%=idCollection%>"/>
@@ -84,8 +104,17 @@ context.put(request, tabObject, tab);
 	<jsp:param name="tabObject" value="<%=tabObject%>"/>
 	<jsp:param name="viewObject" value="<%=viewName%>"/>
 </jsp:include>
+</div> 
 
 <%
-} // of: if (!(collection.hasCalculator() || collection.isSortable())) { 
+} // of: if (!(collection.hasCalculator() || collection.isSortable())) {
+else if (subview.isCollectionFromModel()){	
+	context.put(request, viewName, subview);
+%>	
+<div class="phone-frame-title"><%=collection.getLabel()%></div>
+<div class="ox-frame"> 
+<%@include file="collectionFromModel.jsp" %>
+</div> 
+<%	
+}
 %>
-

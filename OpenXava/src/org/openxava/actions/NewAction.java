@@ -18,7 +18,7 @@ public class NewAction extends ViewBaseAction implements IChangeModeAction, IMod
 	}
 	
 	public String getNextMode() {
-		return getManager().isSplitMode()?IChangeModeAction.SPLIT:IChangeModeAction.DETAIL;
+		return IChangeModeAction.DETAIL;
 	}
 
 	public void setModel(String modelName) { 

@@ -21,7 +21,13 @@ public class ParserUtil {
 	}
 		
 	public static boolean getAttributeBoolean(Element el, String label) {
-		String s = el.getAttribute(label);				
+		String s = el.getAttribute(label);	
+		return Boolean.valueOf(s).booleanValue();
+	}
+	
+	public static boolean getAttributeBoolean(Element el, String label, boolean defaultValue) { 
+		String s = el.getAttribute(label);	
+		if (Is.emptyString(s)) return defaultValue;
 		return Boolean.valueOf(s).booleanValue();
 	}
 	

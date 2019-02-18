@@ -18,6 +18,8 @@ viewObject = (viewObject == null || viewObject.equals(""))?"xava_view":viewObjec
 org.openxava.view.View view = (org.openxava.view.View) context.get(request, viewObject);
 String propertyKey = request.getParameter("propertyKey");
 String script = request.getParameter("script");
+//modelForId is for have a different cache for each condition
+String modelForId = "." + view.getModelName(); 
 // conditionForId is for have a different cache for each condition
 String conditionForId = request.getParameter("condition");
 if (Is.emptyString(conditionForId)) conditionForId = request.getParameter("condicion");
@@ -31,7 +33,7 @@ String orderForId = request.getParameter("order");
 if (Is.emptyString(orderForId)) orderForId = request.getParameter("orden");
 orderForId = Is.emptyString(orderForId)?"":"." + orderForId;
 
-String descriptionsCalculatorKey = propertyKey + conditionForId + orderByKeyForId + orderForId + ".descriptionsCalculator";
+String descriptionsCalculatorKey = propertyKey + modelForId + conditionForId + orderByKeyForId + orderForId + ".descriptionsCalculator"; 
 DescriptionsCalculator calculator = (DescriptionsCalculator) request.getSession().getAttribute(descriptionsCalculatorKey);	
 
 IFilter filter = null;

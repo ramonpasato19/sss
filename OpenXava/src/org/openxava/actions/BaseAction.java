@@ -185,6 +185,7 @@ abstract public class BaseAction implements IAction, IRequestAction, IModuleCont
 	 */		
 	protected void removeActions(String ... qualifiedActions) { 
 		for (String qualifiedAction: qualifiedActions) {
+			if (Is.emptyString(qualifiedAction)) continue;
 			if(getManager().isShowDialog()){
 				getManager().removeMetaAction(MetaControllers.getMetaAction(qualifiedAction));
 			}
@@ -193,7 +194,7 @@ abstract public class BaseAction implements IAction, IRequestAction, IModuleCont
 			}
 		}
 	}
-
+	
 	/**
 	 * @since 4m2
 	 */		
@@ -254,6 +255,36 @@ abstract public class BaseAction implements IAction, IRequestAction, IModuleCont
 	protected void rollback() { 		
 		XPersistence.rollback();
 		XHibernate.rollback();		
-	}	
+	}
+	
+	/**
+	 * Execute an action, you can call it several times, for several actions.
+	 * 
+	 * It does not throw exceptions but accumulate the errors in getErrors(). Also it can modify getMessages().
+	 * 
+	 * @since 5.7
+	 */
+	protected void executeAction(String qualifiedActionName) { 
+		getManager().executeAction(qualifiedActionName, getErrors(), getMessages(), getRequest()); 
+	}
+	
+	
+	/**
+	 * From an action simple name get the qualified name of the action. <br>
+	 * 
+	 * If the action is not available returns null.<br>
+	 * For example, from "new" gets "CRUD.new" if it exists, but if there is no
+	 * an action called "new" in that moment it returns null.  
+	 *  
+	 * @since 5.8
+	 */
+	protected String getQualifiedActionIfAvailable(String simpleName) {   
+		for (MetaAction action: getManager().getMetaActions()) {
+			if (action.getName().equals(simpleName)) {
+				return action.getQualifiedName();
+			}
+		}
+		return null;
+	}
 	       
 }

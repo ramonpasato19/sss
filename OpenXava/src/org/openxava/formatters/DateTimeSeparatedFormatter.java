@@ -42,7 +42,7 @@ public class DateTimeSeparatedFormatter extends DateTimeBaseFormatter implements
 		
 		DateFormat [] dateFormats = getDateTimeFormats();
 		for (int i=0; i < dateFormats.length; i++) {
-			try {				
+			try {			
 				java.util.Date result =  (java.util.Date) dateFormats[i].parseObject(dateTime);				
 				return new java.sql.Timestamp( result.getTime() );
 			}
@@ -53,13 +53,13 @@ public class DateTimeSeparatedFormatter extends DateTimeBaseFormatter implements
 	}
 	
 	private DateFormat getDateFormat() {
-		if (isExtendedFormat()) return extendedDateFormat;		
+		if (isExtendedFormat())	return extendedDateFormat;		
 		return DateFormat.getDateInstance(DateFormat.SHORT, Locales.getCurrent());		
 	}
 	
 	private DateFormat[] getDateTimeFormats() {
 		if (isExtendedFormat()) return getExtendedDateTimeFormats();		
-		return new DateFormat [] { DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locales.getCurrent() ) };
+		return new DateFormat [] { Dates.getDateTimeFormat() }; 
 	}
-	
+		
 }

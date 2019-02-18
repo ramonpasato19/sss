@@ -18,7 +18,6 @@ import org.openxava.util.*;
 import org.openxava.view.View;
 import org.openxava.web.*;
 import org.openxava.web.servlets.*;
-import org.openxava.web.style.*;
 
 /**
  * For accessing to module execution from DWR. <p>
@@ -45,6 +44,7 @@ public class Module extends DWRBase {
 	private String baseFolder = null;
 	
 	public Result request(HttpServletRequest request, HttpServletResponse response, String application, String module, String additionalParameters, Map values, Map multipleValues, String [] selected, String [] deselected, Boolean firstRequest, String baseFolder) throws Exception {
+		long ini = System.currentTimeMillis();
 		Result result = new Result(); 
 		result.setApplication(application); 
 		result.setModule(module);
@@ -55,10 +55,10 @@ public class Module extends DWRBase {
 			this.module = module;
 			this.firstRequest = firstRequest==null?false:firstRequest;
 			this.baseFolder = baseFolder==null?"/xava/":"/" + baseFolder + "/";
-			initRequest(request, response, application, module); 
+			initRequest(request, response, application, module);
 			setPageReloadedLastTime(false);
 			this.manager = (ModuleManager) getContext(request).get(application, module, "manager");
-			restoreLastMessages();  			
+			restoreLastMessages();
 			getURIAsStream("execute.jsp", values, multipleValues, selected, deselected, additionalParameters);
 			setDialogLevel(result); 
 			Map changedParts = new HashMap();
@@ -69,7 +69,8 @@ public class Module extends DWRBase {
 				memorizeLastMessages();
 				if (forwardURI.startsWith("http://") || forwardURI.startsWith("https://") || forwardURI.startsWith("javascript:")) {
 					result.setForwardURL(forwardURI);
-				}else{
+				}
+				else {
 					result.setForwardURL(request.getScheme() + "://" + 
 						request.getServerName() + ":" + request.getServerPort() + 
 						request.getContextPath() + forwardURI);
@@ -97,6 +98,8 @@ public class Module extends DWRBase {
 			result.setViewMember(getView().getMemberName());
 			result.setStrokeActions(getStrokeActions());
 			result.setSelectedRows(getSelectedRows());
+			result.setUrlParam(getUrlParam());
+			result.setViewSimple(getView().isSimple());
 			return result;
 		}
 		catch (SecurityException ex) {
@@ -119,9 +122,30 @@ public class Module extends DWRBase {
 		finally {			
 			if (manager != null) manager.commit(); // If hibernate, jpa, etc is used to render some value here is commit
 			cleanRequest();   
+			long time = System.currentTimeMillis() - ini; 
+			log.debug(XavaResources.getString("request_time") + "=" + time + " ms"); 
 		}
 	}
 	
+	
+	private String getUrlParam() { 
+		// If we change this we should execute the Permanlink Selenium test
+		Stack previousViews = (Stack) getContext(request).get(application, module, "xava_previousViews"); // The previousStack to work for both showDialog() and showNewView()
+		if (!previousViews.isEmpty()) return null;
+		Map key = getView().getKeyValuesWithValue();
+		if (key.size() == 1) {
+			String id = key.values().iterator().next().toString();
+			return "detail=" + id; 				
+		}
+		else if (key.isEmpty()) {
+			String action = manager.getPermanlinkAction();
+			if (action != null) {
+				return "action=" + action; 
+			}
+		}
+		return null;
+	}
+
 	private Map getSelectedRows() { 
 		Map<String, int[]> result = getView().getChangedCollectionsSelectedRows();
 		return result.isEmpty()?null:result;
@@ -140,13 +164,15 @@ public class Module extends DWRBase {
 	 
 	public Map getStrokeActions(HttpServletRequest request, HttpServletResponse response, String application, String module) {
 		try {
-			ModuleContext.setCurrentWindowId(request); 
-			this.manager = (ModuleManager) getContext(request).get(application, module, "manager");
+			ModuleContext.setCurrentWindowId(request);
+			ModuleContext context = getContext(request);
+			if (context == null) return Collections.EMPTY_MAP;
+			this.manager = (ModuleManager) context.get(application, module, "manager");
 			return getStrokeActions();		
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("stroke_actions_errors"), ex); 
-			return Collections.EMPTY_MAP;
+			return null; // Maybe the session has been invalidated and it's needed to reload the page
 		}
 		finally {
 			cleanRequest(); 
@@ -236,12 +262,22 @@ public class Module extends DWRBase {
 			}			
 		}
 				
-		for (Iterator it = getChangedParts(values).entrySet().iterator(); it.hasNext(); ) {
+		Collection<String> propertiesUsedInCalculations = new ArrayList<String>();
+		for (Iterator it = getChangedParts(values, propertiesUsedInCalculations).entrySet().iterator(); it.hasNext(); ) { 
 			Map.Entry changedPart = (Map.Entry) it.next();
 			changedParts.put(changedPart.getKey(),
 				getURIAsString((String) changedPart.getValue(), values, multipleValues, selected, deselected, additionalParameters)	
 			);
 		}
+	
+		fillPropertiesUsedInCalculationsFromSumCollectionProperties(propertiesUsedInCalculations);
+	
+		if (!propertiesUsedInCalculations.isEmpty()) {
+			result.setPropertiesUsedInCalculations(XCollections.toStringArray(propertiesUsedInCalculations));  
+		}
+		
+		fillEditorsWithError(result); 
+		
 		// We tried the errors again because errors could be produced and added when rendering JSPs
 		Messages errors = (Messages) request.getAttribute("errors");
 		if (errors.contains() && changedParts.get("errors") == null) {
@@ -256,12 +292,52 @@ public class Module extends DWRBase {
 			result.setFocusPropertyId(Lists.FOCUS_PROPERTY_ID);
 		}
 		
-		if (manager.isSplitMode()) {
-			int row = (Integer) getContext(request).get(application, module, "xava_row");
-			result.setCurrentRow(row);
-		}
+		result.setPostJS((String) request.getAttribute("xava.postjs"));
 		getView().resetCollectionsCache();
 		if (result.isHideDialog()) result.setFocusPropertyId(null); // To avoid scrolling to the beginning of the page on closing a dialog, something ugly in long pages working on the bottom part.
+	}
+
+
+	private void fillPropertiesUsedInCalculationsFromSumCollectionProperties(Collection<String> propertiesUsedInCalculations) { 
+		View view = getView();
+
+		for (String collection: view.getChangedCollections().keySet()) {
+			View subview = getView().getSubview(collection);
+			fillPropertiesUsedInCalculationsFromSumCollectionPropertiesForSubview(propertiesUsedInCalculations, view, subview, collection);
+		}
+		
+		for (Object o: view.getChangedPropertiesActionsAndReferencesWithNotCompositeEditor().entrySet()) {			
+			Map.Entry e = (Map.Entry) o;
+			String property = (String) e.getKey();
+			int idx = property.indexOf(".");
+			if (idx < 0) continue;
+			String collection = property.substring(0, idx).replace(":", "");
+			View v = (View) e.getValue();
+			try {
+				View subview = v.getSubview(collection);
+				if (subview.isRepresentsElementCollection()) {
+					fillPropertiesUsedInCalculationsFromSumCollectionPropertiesForSubview(propertiesUsedInCalculations,	view, subview, collection);				
+				}
+			}
+			catch (ElementNotFoundException ex) {
+			} 
+			
+		}
+	}
+
+
+	private void fillPropertiesUsedInCalculationsFromSumCollectionPropertiesForSubview( 
+			Collection<String> propertiesUsedInCalculations, View view, View subview, String collection) {
+		int count = subview.getMetaPropertiesList().size();
+		for (int i=0; i<count; i++) {
+			String sumProperty = subview.getCollectionTotalPropertyName(0, i);
+			if (sumProperty.endsWith("_SUM_")) {
+				String qualifiedSumProperty = collection + "." + sumProperty;
+				if (view.isPropertyUsedInCalculation(qualifiedSumProperty)) {
+					propertiesUsedInCalculations.add(qualifiedSumProperty);
+				}
+			}
+		}
 	}
 
 	private void setDialogLevel(Result result) {
@@ -286,7 +362,7 @@ public class Module extends DWRBase {
 		result.setDialogTitle((String) getView().getObject("xava.dialogTitle"));
 	}
 
-	private void setDialogTitle(Result result) {				
+	private void setDialogTitle(Result result) {
 		if (!Is.emptyString(getView().getTitle())) {
 			result.setDialogTitle(getView().getTitle());
 		}
@@ -294,18 +370,23 @@ public class Module extends DWRBase {
 			MetaAction lastAction = manager.getLastExecutedMetaAction();
 			String model = Labels.get(getView().getModelName());
 			if (lastAction == null) result.setDialogTitle(model);
-			else if (Is.emptyString(model)) result.setDialogTitle(lastAction.getDescription()); 
-			else result.setDialogTitle(lastAction.getDescription() + " - " + model);
+			else {
+				String actionTitle = lastAction.getDescription();
+				if (Is.emptyString(actionTitle)) actionTitle = lastAction.getLabel();
+				if (Is.emptyString(model)) result.setDialogTitle(actionTitle); 
+				else result.setDialogTitle(actionTitle + " - " + model);
+			}
 		}		
 		getView().putObject("xava.dialogTitle", result.getDialogTitle());
 	}
 
-	private Map getChangedParts(Map values) { 
+	private Map getChangedParts(Map values, Collection<String> propertiesUsedInCalculations) { 
 		Map result = new HashMap();
 		if (values == null || manager.isReloadAllUINeeded() || manager.isFormUpload()) {
 			put(result, "core", "core.jsp");
 		}
 		else {			
+			manager.isActionsChanged();
 			if (manager.isActionsChanged()) {									
 				if (manager.getDialogLevel() > 0) { 
 					put(result, "bottom_buttons", "bottomButtons.jsp?buttonBar=false");					
@@ -313,35 +394,23 @@ public class Module extends DWRBase {
 				else {						
 					put(result, "button_bar", "buttonBar.jsp");
 					put(result, "bottom_buttons", "bottomButtons.jsp");
-					if (manager.isSplitMode()) {
-						put(result, "list_button_bar", "buttonBar.jsp?xava_mode=list");
-						put(result, "list_bottom_buttons", "bottomButtons.jsp?xava_mode=list");					
-					}
 				}
 			}					
 			Messages errors = (Messages) request.getAttribute("errors");
 			put(result, "errors", errors.contains()?"errors.jsp":null);
 			Messages messages = (Messages) request.getAttribute("messages");
 			put(result, "messages", messages.contains()?"messages.jsp":null);
-						
+			
 			if (manager.isReloadViewNeeded() || getView().isReloadNeeded()) {
 				put(result, "view", manager.getViewURL());
 			}
 			else {
-				fillChangedPropertiesActionsAndReferencesWithNotCompositeEditor(result);
+				fillChangedPropertiesActionsAndReferencesWithNotCompositeEditor(result, propertiesUsedInCalculations); 
 				fillChangedCollections(result);
-				fillChangedCollectionsTotals(result); 
+				fillChangedCollectionsTotals(result);
+				fillChangedCollectionSizesInSections(result); 
 				fillChangedSections(result);
-				fillChangedErrorImages(result);
 				fillChangedLabels(result);
-			}
-			
-			if (manager.isSplitMode() && 
-				((manager.getLastExecutedMetaAction() != null 
-					&& manager.getLastExecutedMetaAction().appliesToMode(IChangeModeAction.LIST)) ||
-					getView().descriptionsListsRefreshed())) 
-			{
-				put(result, "list_view", "list.jsp");
 			}
 			
 		}	
@@ -355,40 +424,75 @@ public class Module extends DWRBase {
 		}
 	}
 	
-	private void fillChangedErrorImages(Map result) {
+	private void fillEditorsWithError(Result result) { 
+		Collection editorsWithoutError = new HashSet(); 
 		if (getContext(request).exists(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST)) {
 			View view = getView();			
 			Collection lastErrors = (Collection) getContext(request).get(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST);
 			for (Iterator it=lastErrors.iterator(); it.hasNext(); ) {
 				String member = (String) it.next();
-				if  (view.getQualifiedNameForDisplayedPropertyOrReferenceWithNotCompositeEditor(member) != null) { 
-					put(result, "error_image_" + member, "html:<i class='" + Style.getInstance().getErrorIcon() + " mdi mdi-alert-circle' style='visibility:hidden;'></i>"); 
-				}				
+				addEditor(editorsWithoutError, view, member);
 			}
+						
 			getContext(request).remove(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST);
 		}
 			
 		Messages errors = (Messages) request.getAttribute("errors");
-		String imageHTML = "html:<i class='" + Style.getInstance().getErrorIcon() + " mdi mdi-alert-circle'></i>"; // If modify this we have to change DefaultLayoutPainter too
+		Collection editorsWithError = new HashSet();
 		if (!errors.isEmpty()) {
 			View view = getView();
 			Collection members = new HashSet();
 			for (Iterator it=errors.getMembers().iterator(); it.hasNext(); ) {
 				String member = (String) it.next();
-				String qualifiedMember = view.getQualifiedNameForDisplayedPropertyOrReferenceWithNotCompositeEditor(member);
-				if (qualifiedMember != null) { 
-					String id = "error_image_" + qualifiedMember;				
-					put(result, id, imageHTML);
-					members.add(qualifiedMember);	
-				}
-				if (!members.isEmpty()) {
-					getContext(request).put(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST, members);
-				}
-			}				
+				String qualifiedMember = addEditor(editorsWithError, view, member);
+				if  (qualifiedMember != null) members.add(qualifiedMember);	
+			}
+			if (!members.isEmpty()) {
+				getContext(request).put(application, module, MEMBERS_WITH_ERRORS_IN_LAST_REQUEST, members);
+			}
 		}
+
+		editorsWithoutError.removeAll(editorsWithError);
+		if (!editorsWithoutError.isEmpty()) result.setEditorsWithoutError(XCollections.toStringArray(editorsWithoutError));
+		if (!editorsWithError.isEmpty()) result.setEditorsWithError(XCollections.toStringArray(editorsWithError));
 	}
 
-	private void fillChangedPropertiesActionsAndReferencesWithNotCompositeEditor(Map result) { 		
+	private String addEditor(Collection editors, View view, String member) { 
+		String qualifiedMember = view.getQualifiedNameForDisplayedPropertyOrReferenceWithNotCompositeEditor(member);
+		if  (qualifiedMember != null) {
+			String model = Strings.firstToken(qualifiedMember, ".");
+			String viewModelName = view.getModelName().contains(".")?Strings.lastToken(view.getModelName(), "."):view.getModelName();
+			if (model.equals(viewModelName)) {
+				String memberWithoutModel = Strings.noFirstTokenWithoutFirstDelim(qualifiedMember, ".");
+				String prefix = view.getMetaModel().containsMetaReference(memberWithoutModel)?"reference_editor_":"editor_";
+				editors.add(prefix + memberWithoutModel);
+			}
+			else {
+				for (MetaReference ref: view.getMetaModel().getMetaReferences()) {
+					if (ref.isAggregate() && ref.getReferencedModelName().equals(model)) {
+						String memberWithoutModel = Strings.noFirstTokenWithoutFirstDelim(qualifiedMember, ".");
+						String memberWithReference = ref.getName() + "." + memberWithoutModel;
+						String prefix = ref.getMetaModelReferenced().containsMetaReference(memberWithoutModel)?"reference_editor_":"editor_";
+						editors.add(prefix + memberWithReference);							
+					}
+				}
+			}
+		}
+		else {
+			String memberWithoutModel = Strings.noFirstTokenWithoutFirstDelim(member, ".");
+			if (view.getMetaModel().containsMetaReference(memberWithoutModel)) {
+				View subview = view.getSubview(memberWithoutModel);
+				for (MetaProperty p: subview.getMetaProperties()) {
+					if (subview.isEditable(p)) {
+						editors.add("editor_" + memberWithoutModel + "___" + p.getName());
+					}
+				}
+			}
+		}
+		return qualifiedMember;
+	}
+
+	private void fillChangedPropertiesActionsAndReferencesWithNotCompositeEditor(Map result, Collection<String> propertiesUsedInCalculations) { 
 		View view = getView();			
 		Collection changedMembers = view.getChangedPropertiesActionsAndReferencesWithNotCompositeEditor().entrySet();
 		for (Iterator it = changedMembers.iterator(); it.hasNext(); ) {
@@ -448,6 +552,7 @@ public class Module extends DWRBase {
 						"&viewObject=" + containerView.getViewObject() +
 						"&lastSearchKey=" + containerView.isLastSearchKey(name));
 				}
+				if (containerView.getCollectionRootOrRoot().isPropertyUsedInCalculation(qualifiedName)) propertiesUsedInCalculations.add(qualifiedName); 
 			}
 		}
 	}
@@ -467,13 +572,13 @@ public class Module extends DWRBase {
 			put(result, "collection_" + qualifiedName + ".", 
 				"collection.jsp?collectionName=" + name + 
 				"&viewObject=" + containerView.getViewObject() + 
-				"&propertyPrefix=" + containerView.getPropertyPrefix());									
+				"&propertyPrefix=" + containerView.getPropertyPrefix());				
 		}
 	}
 	
 	private void fillChangedCollectionsTotals(Map result) { 
 		View view = getView();			
-		Collection changedCollections = view.getChangedCollectionsTotals().entrySet(); 		
+		Collection changedCollections = view.getChangedCollectionsTotals().entrySet();
 		for (Iterator it = changedCollections.iterator(); it.hasNext(); ) {
 			Map.Entry en = (Map.Entry) it.next();
 			String [] key = ((String) en.getKey()).split(":");
@@ -490,8 +595,17 @@ public class Module extends DWRBase {
 				"&propertyPrefix=" + containerView.getPropertyPrefix());  									
 		}
 	}
-
 	
+	private void fillChangedCollectionSizesInSections(Map result) { 
+		View view = getView();			
+		Collection<Map.Entry<View, Integer>> changedCounts = view.getChangedCollectionSizesInSections().entrySet(); 		
+		for (Map.Entry<View, Integer> en: changedCounts) {
+			View containerView = en.getKey();
+			Integer size = en.getValue(); 
+			put(result, containerView.getViewObject() + "_collectionSize", "html:(" + size + ")");
+		}
+	}
+
 	private void fillChangedSections(Map result) {
 		View view = getView();			
 		View changedSections = view.getChangedSectionsView();		

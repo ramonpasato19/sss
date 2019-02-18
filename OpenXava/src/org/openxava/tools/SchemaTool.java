@@ -24,6 +24,7 @@ public class SchemaTool {
 	
 	private static Log log = LogFactory.getLog(SchemaTool.class);	
 	private boolean commitOnFinish = true;
+	private boolean excludeEntitiesWithExplicitSchema = false; 
 	private Collection<Class> annotatedClasses = null;
 	
 	public static void main(String[] args) throws Exception { 
@@ -85,11 +86,12 @@ public class SchemaTool {
 	    	String schema = (String) factoryProperties.get("hibernate.default_schema"); 
 	    	java.sql.Connection connection = ((SessionImpl) XPersistence.getManager().getDelegate()).connection(); 
 	    	DatabaseMetadata metadata = new DatabaseMetadata(connection, Dialect.getDialect(props), cfg); 
-	    	boolean supportsSchemasInIndexDefinitions = connection.getMetaData().supportsSchemasInIndexDefinitions();
+	    	boolean supportsSchemasInIndexDefinitions = supportsSchemasInIndexDefinitions(connection); 
 	    	XPersistence.commit();
 	    	if (update) { 
 		    	List<SchemaUpdateScript> scripts = cfg.generateSchemaUpdateScriptList(Dialect.getDialect(props), metadata);
 		    	for (SchemaUpdateScript script: scripts) {
+		    		if (excludeEntitiesWithExplicitSchema && script.getScript().contains(".")) continue; 
 		    		String scriptWithSchema = addSchema(schema, script.getScript(), supportsSchemasInIndexDefinitions); 
 		    		log.info(XavaResources.getString("executing") + ": " + scriptWithSchema); 
 		    		try {
@@ -106,6 +108,7 @@ public class SchemaTool {
 	    	else {
 		    	String [] scripts = cfg.generateSchemaCreationScript(Dialect.getDialect(props));
 				for (String rawScript: scripts) {
+					if (excludeEntitiesWithExplicitSchema && rawScript.contains(".")) continue; 
 					String script = addSchema(schema, rawScript, supportsSchemasInIndexDefinitions); 
 					if (console) {
 						System.out.print(script); 
@@ -128,8 +131,15 @@ public class SchemaTool {
 		}		
 	}
 	
+	private boolean supportsSchemasInIndexDefinitions(Connection connection) throws SQLException {
+		DatabaseMetaData metaData = connection.getMetaData();
+		if ("PostgreSQL".equals(metaData.getDatabaseProductName())) return false;
+		return metaData.supportsSchemasInIndexDefinitions();
+	}
+
 	private static String addSchema(String schema, String script, boolean supportsSchemasInIndexDefinitions) {
 		if (Is.emptyString(schema)) return script;
+		if (script.contains(".")) return script; 
 		script = script.replaceAll("create table ", "create table " + schema + "."); 
 		script = script.replaceAll("alter table ", "alter table " + schema + "."); 
 		script = script.replaceAll("\\) references ", ") references " + schema + ".");
@@ -161,6 +171,16 @@ public class SchemaTool {
 				.getDelegate();
 		SessionFactoryImpl sessionFactory = (SessionFactoryImpl)impl.getSessionFactory();
 		return sessionFactory.getDialect().getClass().getName();
+	}
+
+	/** @since 5.7 */
+	public boolean isExcludeEntitiesWithExplicitSchema() {
+		return excludeEntitiesWithExplicitSchema;
+	}
+
+	/** @since 5.7 */
+	public void setExcludeEntitiesWithExplicitSchema(boolean excludeEntitiesWithExplicitSchema) {
+		this.excludeEntitiesWithExplicitSchema = excludeEntitiesWithExplicitSchema;
 	}
 
 }

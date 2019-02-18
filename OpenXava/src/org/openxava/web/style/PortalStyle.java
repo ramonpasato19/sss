@@ -355,6 +355,14 @@ public class PortalStyle extends Style {
 	
 	public String getSectionBarEndDecoration() {
 		return "";
-	}	
+	}
 	
+	/**
+	 * @since 5.9
+	 */
+	public String getChartsDataStyle() { 
+		return "width: calc(90vw - 270px); height: calc(70vh - 270px);";
+	}
+
+		
 }

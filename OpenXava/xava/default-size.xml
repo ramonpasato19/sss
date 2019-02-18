@@ -28,6 +28,10 @@
 	<for-stereotype name="ICONO" size="40"/>
 	<for-stereotype name="DISCUSSION" size="32"/> 
 	<for-stereotype name="DISCUSION" size="32"/> 
+	<for-stereotype name="IMAGES_GALLERY" size="32"/>
+	<for-stereotype name="GALERIA_IMAGENES" size="32"/>
+	<for-stereotype name="FILES" size="32"/>
+	<for-stereotype name="ARCHIVOS" size="32"/>	
 	<for-type class="java.sql.Time" size="5"/>
 	<for-type class="java.util.Date" size="10"/>
 	<for-type class="java.sql.Timestamp" size="19"/>

@@ -1,8 +1,10 @@
 package org.openxava.types;
 
 import java.io.*;
+import java.sql.*;
 
 import org.hibernate.dialect.*;
+import org.hibernate.engine.spi.*;
 import org.hibernate.type.*;
 import org.hibernate.type.descriptor.java.*;
 import org.hibernate.type.descriptor.java.BooleanTypeDescriptor;
@@ -32,7 +34,7 @@ public class SiNoType
 	public Class getPrimitiveClass() {
 		return boolean.class;
 	}
-
+	
 	public Boolean stringToObject(String xml) throws Exception {
 		return fromString( xml );
 	}

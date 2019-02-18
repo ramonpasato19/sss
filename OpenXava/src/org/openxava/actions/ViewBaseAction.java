@@ -125,7 +125,7 @@ abstract public class ViewBaseAction extends BaseAction {
 	 * @since 5.6
 	 */
 	protected void validateViewValues() { 
-		Messages errors = MapFacade.validate(getView().getModelName(), getView().getValues());
+		Messages errors = MapFacade.validateIncludingMissingRequired(getView().getModelName(), getView().getValues()); 
 		if (errors.contains()) throw new ValidationException(errors);
 	}
 	
@@ -133,7 +133,7 @@ abstract public class ViewBaseAction extends BaseAction {
 	 * @since 4m1
 	 */	
 	protected View getPreviousView() {
-		return (View) getPreviousViews().peek();					
+		return getPreviousViews().peek();					
 	}
 		
 	public View getView() {
@@ -157,10 +157,9 @@ abstract public class ViewBaseAction extends BaseAction {
 		getView().refreshDescriptionsLists();
 	}
 			
-	public Stack getPreviousViews() {
+	public Stack<View> getPreviousViews() { 
 		return previousViews;
 	}
-
 
 	public void setPreviousViews(Stack previousViews) {
 		this.previousViews = previousViews;

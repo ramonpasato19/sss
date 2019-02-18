@@ -6,6 +6,7 @@ import org.openxava.controller.meta.*;
  * 
  * @author Javier Paniza
  */
+@SuppressWarnings("serial")
 public class PhoneModuleManager extends org.openxava.controller.ModuleManager {
 	
 	private int dialogLevel = 0; 
@@ -19,7 +20,6 @@ public class PhoneModuleManager extends org.openxava.controller.ModuleManager {
 		}
 		else super.addSimpleMetaAction(action);
 	}
-
 	
 	public void showDialog() {
 		dialogLevel++;
@@ -27,6 +27,5 @@ public class PhoneModuleManager extends org.openxava.controller.ModuleManager {
 	
 	public void closeDialog() {
 		dialogLevel--;
-	}
-
+	}		
 }

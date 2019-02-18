@@ -93,5 +93,15 @@ public class XTableModelDecoratorBase
 	public void removeRow(Map keyValues) throws FinderException { 
 		impl.removeRow(keyValues);	
 	}
+
+	/** @since 5.7 */
+	public int getChunkSize() { 
+		return impl.getChunkSize();
+	}
+
+	/** @since 5.7 */
+	public boolean isAllLoaded() { 
+		return impl.isAllLoaded();
+	}
 	
 }

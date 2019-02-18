@@ -4,20 +4,16 @@
 {
 	font-family: sans-serif, Arial, Verdana, "Trebuchet MS";
 	font-size: 13px;
-
 	color: #6F6F6F;
-	
 	line-height: 1.6;
 	word-wrap: break-word;
-	
-
 	margin-bottom: 5px; 
-	
 	box-shadow:0 0 3px lightgrey;
 	border: 1px solid #dcdcdc;
 	padding: 10px;
 	background-color: #fafafa !important;
-	border-radius: 1px;	
+	border-radius: 1px;
+	white-space: normal; 	
 }
 
 .ox-discussion-comment-header {

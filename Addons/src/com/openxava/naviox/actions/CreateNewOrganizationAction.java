@@ -2,7 +2,6 @@ package com.openxava.naviox.actions;
 
 import java.util.*;
 
-import org.apache.commons.logging.*;
 import org.openxava.actions.*;
 import org.openxava.model.*;
 import org.openxava.util.*;
@@ -16,8 +15,6 @@ import com.openxava.naviox.util.*;
  */
 public class CreateNewOrganizationAction extends ViewBaseAction {
 	
-	private static Log log = LogFactory.getLog(CreateNewOrganizationAction.class);
-
 	public void execute() throws Exception {
 		Map values = getView().getValues();
 		Messages errors = MapFacade.validate(getModelName(), values);

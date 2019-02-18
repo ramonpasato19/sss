@@ -2,7 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" output="web/WEB-INF/lib" path="lib"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" output="web/images" path="images"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="src" path="properties"/>
 	<classpathentry kind="src" path="/OpenXava"/>
 	<classpathentry kind="src" path="persistence"/>
@@ -30,5 +35,6 @@
 	<classpathentry kind="lib" path="lib/xmlsec-1.4.2-ADSI-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xmlsec-1.4.2-ADSI-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xstream-1.4.1.jar"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
 	<classpathentry kind="output" path="web/WEB-INF/classes"/>
 </classpath>

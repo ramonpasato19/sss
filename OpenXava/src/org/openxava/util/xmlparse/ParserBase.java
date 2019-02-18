@@ -48,6 +48,10 @@ abstract public class ParserBase extends XmlElementsNames {
 		return ParserUtil.getAttributeBoolean(el, label);
 	}
 	
+	protected boolean getAttributeBoolean(Element el, String label, boolean defaultValue) { 
+		return ParserUtil.getAttributeBoolean(el, label, defaultValue); 
+	}
+	
 	protected Element getElement(Element el, String label) {
 		return ParserUtil.getElement(el, label);
 	}

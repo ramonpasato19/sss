@@ -11,6 +11,7 @@ import org.openxava.controller.meta.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
 
+import com.openxava.naviox.*;
 import com.openxava.naviox.model.*;
 import com.openxava.naviox.util.*;
 
@@ -37,8 +38,9 @@ public class ModulesHelper {
 				indexModule.addEnvironmentVariable("XAVA_SEARCH_ACTION", "Index.search");
 			}
 		}
+		indexModule.addControllerName("WarnNoEmail"); 
 		indexModule.setModelName("Organization"); 
-		indexModule.setModeControllerName(existsIndexController?"DetailList":"ListOnly");
+		indexModule.setModeControllerName("Mode"); 
 		indexModule.setTabName("OfCurrentUser");
 		app.addMetaModule(indexModule);	
 		
@@ -116,6 +118,8 @@ public class ModulesHelper {
 		else {
 			if ("FirstSteps".equals(moduleName)) return true;
 		}
+		if ("RecoverPassword".equals(moduleName)) return true; 
+		if ("RestorePassword".equals(moduleName)) return true; 
 		return false;
 	}
 	
@@ -135,5 +139,27 @@ public class ModulesHelper {
 	public static boolean showsIndexLink() { 
 		return Configuration.getInstance().isSharedUsersBetweenOrganizations();
 	}	
+	
+	public static boolean showsSearchModules(HttpServletRequest request) {
+		Modules modules = (Modules) request.getSession().getAttribute("modules");
+		Folders folders = (Folders) request.getSession().getAttribute("folders");
+		if (folders == null) {			
+			folders = new Folders();
+			request.getSession().setAttribute("folders", folders);
+		}
+		folders.setModules(modules);
+		Boolean showsSearchModules = (Boolean) request.getSession().getAttribute("naviox.showssearchmodules"); 
+		if (showsSearchModules == null) {
+			if (!folders.isRoot()) return true;
+			Collection<Folder> subfolders = folders.getSubfolders();
+			if (subfolders.size() == 1 && subfolders.iterator().next().getName().equals("Admin")) {
+				showsSearchModules = false;
+			}
+			else showsSearchModules = !folders.getSubfolders().isEmpty() || modules.getAll().size() > 30;
+			request.getSession().setAttribute("naviox.showssearchmodules", showsSearchModules);
+		}
+		return showsSearchModules;
+	}	
+
 
 }

@@ -116,7 +116,14 @@ public class WebSpherePortalStyle extends PortalStyle {
 	
 	public String getMessagesWrapper() { 
 		return "wpsTable";
-	}		
+	}
+	
+	/**
+	 * @since 5.8
+	 */
+	public String getErrorsWrapper() {
+		return getMessagesWrapper();
+	}
 	
 	public String getSection() {
 		return "wpsPageBar";

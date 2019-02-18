@@ -35,7 +35,11 @@ public class MetaEditor {
 	private boolean composite = false; 
 	private String listFormatterClassName;
 	private Collection listFormatterMetaSet;
-	private IFormatter listFormatter; 
+	private Object listFormatter; 
+	private String icon; 
+	private String initAction; 
+	private String releaseAction; 
+	private boolean selectableItems;  
 
 	public void _addListFormatterMetaSet(MetaSet metaSet) {
 		if (listFormatterMetaSet == null) listFormatterMetaSet = new ArrayList();
@@ -119,26 +123,38 @@ public class MetaEditor {
 	}
 
 	public boolean hasFormatter() throws XavaException {				
-		return !Is.emptyString(formatterClassName) && getFormatterObject(formatterClassName, formatterMetaSets) instanceof IFormatter;
+		return !Is.emptyString(formatterClassName); 
 	}
-	
+		
 	public boolean hasMultipleValuesFormatter() throws XavaException { 
 		return !Is.emptyString(formatterClassName) && getFormatterObject(formatterClassName, formatterMetaSets) instanceof IMultipleValuesFormatter;
 	}
 	
+	public Object getFormatterObject() throws XavaException { 
+		return getFormatterObject(formatterClassName, formatterMetaSets);
+	}
+		
 	public IFormatter getFormatter() throws XavaException {
-		return (IFormatter) getFormatterObject(formatterClassName, formatterMetaSets);
+		return (IFormatter) getFormatterObject(); 
 	}
 	
-	public IFormatter getListFormatter() throws XavaException {
+	public Object getListFormatterObject() throws XavaException { 
 		if (listFormatter == null) { 
-			listFormatter = (IFormatter) createFormatterObject(listFormatterClassName, listFormatterMetaSet);
+			listFormatter = createFormatterObject(listFormatterClassName, listFormatterMetaSet);
 		}
 		return listFormatter;
 	}
+
+	public IFormatter getListFormatter() throws XavaException {
+		return (IFormatter) getListFormatterObject(); 
+	}
 	
 	public IMultipleValuesFormatter getMultipleValuesFormatter() throws XavaException {  
-		return (IMultipleValuesFormatter) getFormatterObject(formatterClassName, formatterMetaSets);
+		return (IMultipleValuesFormatter) getFormatterObject(); 
+	}
+	
+	public IMetaPropertyFormatter getMetaPropertyFormatter() throws XavaException {   
+		return (IMetaPropertyFormatter) getFormatterObject(); 
 	}
 	
 	/**
@@ -166,7 +182,7 @@ public class MetaEditor {
 					pm.executeSetFromString(metaSet.getPropertyName(), metaSet.getValue());
 				}
 			}
-			if (!(formatter instanceof IFormatter || formatter instanceof IMultipleValuesFormatter)) {
+			if (!(formatter instanceof IFormatter || formatter instanceof IMultipleValuesFormatter || formatter instanceof IMetaPropertyFormatter)) { 
 				throw new XavaException("implements_required", className, IFormatter.class.getName() + " or " + IMultipleValuesFormatter.class.getName());
 			}
 			return formatter;
@@ -247,6 +263,38 @@ public class MetaEditor {
 
 	public void setListFormatterClassName(String listFormatterClassName) {
 		this.listFormatterClassName = listFormatterClassName;
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public String getInitAction() {
+		return initAction;
+	}
+
+	public void setInitAction(String initAction) {
+		this.initAction = initAction;
+	}
+
+	public String getReleaseAction() {
+		return releaseAction;
+	}
+
+	public void setReleaseAction(String releaseAction) {
+		this.releaseAction = releaseAction;
+	}
+
+	public boolean isSelectableItems() {
+		return selectableItems;
+	}
+
+	public void setSelectableItems(boolean selectableItems) {
+		this.selectableItems = selectableItems;
 	}
 
 }

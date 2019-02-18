@@ -29,6 +29,7 @@ public class UploadFileIntoFilesetAction extends    ViewBaseAction
 		String libraryId = getPreviousView().getValueString(newFilesetProperty);
 		Iterator<?> it = fileItems.iterator();		
 		int counter = 0;
+		StringBuffer filesNames = new StringBuffer(); 
 		while(it.hasNext()) {
 			FileItem fi = (FileItem) it.next();
 			if(!Is.emptyString(fi.getName())) {
@@ -38,12 +39,24 @@ public class UploadFileIntoFilesetAction extends    ViewBaseAction
 				file.setData(fi.get());
 				FilePersistorFactory.getInstance().save(file);
 				counter++;
+				if (filesNames.length() > 0) filesNames.append(", ");
+				filesNames.append(fi.getName());
 			}
 		}
 		if(counter == 1) addMessage("file_added_to_fileset", newFilesetProperty);
 		else if(counter > 1) addMessage("files_added_to_fileset", 
 										newFilesetProperty, counter);
+		
+		trackModification(filesNames.toString()); 
 		closeDialog();
+	}
+	
+	private void trackModification(String fileName) {  
+		Map oldChangedValues = new HashMap();
+		oldChangedValues.put(newFilesetProperty, XavaResources.getString("files_files_added"));  
+		Map newChangedValues = new HashMap();
+		newChangedValues.put(newFilesetProperty, fileName); 
+		AccessTracker.modified(getPreviousView().getModelName(), getPreviousView().getKeyValues(), oldChangedValues, newChangedValues);
 	}
 	
 	@Override

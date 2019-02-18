@@ -21,6 +21,13 @@ public class MetaModuleFactory {
 		return MetaApplications.getMetaApplication(application).getMetaModule(module);				
 	}
 	
+	/**
+	 * @since 5.7
+	 */
+	public static MetaModule create(String module) { 		
+		return MetaApplications.getMetaApplication(application).getMetaModule(module);				
+	}
+	
 	public static List<MetaModule> createAll() {
 		MetaApplication app = MetaApplications.getMetaApplication(application);
 		List<MetaModule> metaModules = new ArrayList<MetaModule>();	

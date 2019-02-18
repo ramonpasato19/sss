@@ -4,11 +4,9 @@ import java.util.*;
 
 import javax.ejb.*;
 import javax.inject.*;
-
 import org.apache.commons.logging.*;
 import org.openxava.tab.*;
 import org.openxava.util.*;
-import org.openxava.validators.*;
 
 /**
  * This is for the case of collections of entities without @AsEmbedded (or without as-aggregate="true"). <p>
@@ -55,7 +53,8 @@ public class AddElementsToCollectionAction extends SaveElementInCollectionAction
 		if (failed > 0) addError("elements_not_added_to_collection", new Integer(failed), currentCollectionLabel);
 		getView().setKeyEditable(false); // To mark as saved
 		getTab().deselectAll();
-		resetDescriptionsCache(); 		
+		getCollectionElementView().refreshCollections(); // To reset collection totals 
+		resetDescriptionsCache();
 		closeDialog(); 
 	}
 
@@ -79,29 +78,7 @@ public class AddElementsToCollectionAction extends SaveElementInCollectionAction
 					ex);			
 		}
 	}
-	
-	private void addValidationMessage(Exception ex) { 
-		if (ex instanceof ValidationException) {		
-			addErrors(((ValidationException)ex).getErrors());
-		}
-		else if(ex instanceof javax.validation.ConstraintViolationException){
-			Set<javax.validation.ConstraintViolation<?>> violations = 
-					((javax.validation.ConstraintViolationException) ex).getConstraintViolations();
-			for(javax.validation.ConstraintViolation<?> violation : violations){
-				String message = violation.getMessage();
-				if (message.startsWith("{") && message.endsWith("}")) {			
-					message = message.substring(1, message.length() - 1); 							
-				}				
-				javax.validation.metadata.ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor(); 
-				java.lang.annotation.Annotation annotation = descriptor.getAnnotation();
-				if(annotation instanceof javax.validation.constraints.AssertTrue){							
-					Object bean = violation.getRootBean();				
-					addError(message, bean);					
-				}
-			}					
-		}
-	}
-	
+		
 	public String getNextAction() throws Exception { 
 		// In order to annul the chaining of the action
 		return null;

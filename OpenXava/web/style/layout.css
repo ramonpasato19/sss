@@ -15,11 +15,33 @@
 	display: table-column-group;
 }
 
-.ox-layout-editor-icons {
-	width: 5px;
-}
-
 .ox-layout-descriptions-editor-handler { 
 	display: inline-block;
 } 
 
+.ox-flow-layout {
+	width: 100%;
+	display: inline-flex;
+	flex-wrap: wrap;
+}
+
+.ox-flow-layout > div {
+	min-width: 340px;
+}
+
+.ox-simple-layout.ox-flow-layout > div { 
+	min-width: 100%;
+}
+
+.ox-flow-layout > div.ox-frame {
+	width: 100%;  
+	margin-bottom: 10px;
+}
+
+.ox-flow-layout .ox-layout-new-line {
+	display: none;
+}
+
+.ox-flow-layout .ox-layout-aligned-cell {
+	display: inline-block;
+}

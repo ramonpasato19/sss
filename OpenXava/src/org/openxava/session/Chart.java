@@ -34,20 +34,15 @@ public class Chart implements Serializable {
 	private String chartData;
 
 	public enum ChartType {
-		BAR("bar", false),		
-		LINE("line", false),
-		PIE("pie", false);
+		BAR("bar"),		
+		LINE("line"),
+		PIE("pie");
 		String jsType;
-		boolean grouped;
-		private ChartType(String jsType, boolean grouped) {
+		private ChartType(String jsType) {
 			this.jsType = jsType;
-			this.grouped = grouped;
 		}
 		public String jsType() {
 			return jsType;
-		}
-		public boolean grouped() {
-			return grouped;
 		}
 	};
 	@LabelFormat(LabelFormatType.NO_LABEL) 
@@ -66,11 +61,11 @@ public class Chart implements Serializable {
 	
 	private String nodeName;
 	
+	
 	public static Chart create(org.openxava.tab.Tab tab) { 
 		Chart chart = new Chart();
 		chart.setNodeName(tab);
 		chart.setxColumn(getAxisColumns(tab));
-		// Select the first column that is not the same as the x column
 		chart.createColumns(tab, true, chart.getxColumn());
 		chart.setChartType(ChartType.BAR);
 		return chart;
@@ -113,14 +108,16 @@ public class Chart implements Serializable {
 		nodeName = tab.getPreferencesNodeName("charts.");  
 	}
 		
-	public void save() throws BackingStoreException { 
-		if (nodeName == null) return;
+	public void save(Tab tab) throws BackingStoreException { 
+		if (nodeName == null) return; 
+		if (!Is.emptyString(tab.getGroupBy())) return; 
 		Preferences preferences = getPreferences();
 		preferences.put(CHART_TYPE, chartType.name());		
 		preferences.put(X_COLUMN, xColumn);
+		
 		int i = 0;
 		for (ChartColumn column: columns) {
-			column.save(preferences, i++);
+			column.save(preferences, i++); 
 		}
 		while (ChartColumn.remove(preferences, i)) i++; 		
 		preferences.flush();
@@ -138,7 +135,7 @@ public class Chart implements Serializable {
 		columns = new ArrayList<ChartColumn>();
 		boolean numericChosen = false;
 		for (MetaProperty property: tab.getMetaProperties()) {
-			if (!property.isNumber()) {
+			if (!property.isNumber() || property.getQualifiedName().equals(getxColumn())) { 
 				continue;
 			}
 			ChartColumn column = new ChartColumn();
@@ -186,6 +183,9 @@ public class Chart implements Serializable {
 	}
 
 	public List<ChartColumn> getColumns() {
+		if (chartType == ChartType.PIE && columns != null && columns.size() > 1) {
+			return Collections.singletonList(columns.get(0));
+		}
 		return columns;
 	}
 

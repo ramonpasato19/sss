@@ -1,12 +1,9 @@
 package org.openxava.actions;
 
 import java.util.Map;
-
 import javax.ejb.*;
-
-
-
 import org.openxava.model.*;
+import org.openxava.util.*;
 import org.openxava.validators.*;
 
 /**
@@ -15,46 +12,22 @@ import org.openxava.validators.*;
 
 public class SaveAction extends TabBaseAction {
 		
+	private boolean resetAfterOnCreate = true; 
+	private boolean resetAfterOnModify = true; 
 	private boolean resetAfter = true;
 	private boolean refreshAfter = true; 
     
 	public void execute() throws Exception {
 		try {
-			Map values = null;			
 			if (getView().isKeyEditable()) {
-				// Create			
-				if (isResetAfter() || !isRefreshAfter()) {
-					MapFacade.create(getModelName(), getValuesToSave());
-					addMessage("entity_created", getModelName());
-				}
-				else {								
-					Map keyValues = MapFacade.createReturningKey(getModelName(), getValuesToSave());					
-					addMessage("entity_created", getModelName());
-					getView().clear(); 
-					values = MapFacade.getValues(getModelName(), keyValues, getView().getMembersNamesWithHidden());
-				}
-				getTab().reset(); 
+				Map values = create();
+				updateView(values, isResetAfterOnCreate());
 			}
 			else {
-				// Modify				
-				Map keyValues = getView().getKeyValues();				
-				MapFacade.setValues(getModelName(), keyValues, getValuesToSave());
-				addMessage("entity_modified", getModelName());
-				if (!isResetAfter() && isRefreshAfter()) {
-					getView().clear(); 
-					values = MapFacade.getValues(getModelName(), keyValues, getView().getMembersNamesWithHidden());
-				}
+				Map values = modify();
+				updateView(values, isResetAfterOnModify());
 			}
 			
-			if (isResetAfter()) {
-				getView().setKeyEditable(true);
-				commit(); // If we change this, we should run all test suite using READ COMMITED (with hsqldb 2 for example)
-				getView().reset();				
-			}
-			else {				
-				getView().setKeyEditable(false);				
-				if (isRefreshAfter()) getView().setValues(values); 
-			}			
 			resetDescriptionsCache();
 		}
 		catch (ValidationException ex) {			
@@ -66,6 +39,51 @@ public class SaveAction extends TabBaseAction {
 		catch (DuplicateKeyException ex) {
 			addError("no_create_exists");
 		}
+	}
+
+	private void updateView(Map values, boolean resetAfter) { 
+		if (resetAfter) {
+			getView().setKeyEditable(true);
+			commit(); // If we change this, we should run all test suite using READ COMMITED (with hsqldb 2 for example)
+			getView().reset();				
+		}
+		else {				
+			getView().setKeyEditable(false);				
+			if (isRefreshAfter()) getView().setValues(values); 
+		}
+	}
+
+	private Map modify() throws Exception {
+		Map values = null;
+		Map keyValues = getView().getKeyValues();				
+		MapFacade.setValues(getModelName(), keyValues, getValuesToSave());
+		addMessage("entity_modified", getModelName());
+		if (!isResetAfterOnModify() && isRefreshAfter()) {
+			getView().clear(); 
+			values = MapFacade.getValues(getModelName(), keyValues, getView().getMembersNamesWithHidden());
+		}
+		return values;
+	}
+
+	private Map create() throws Exception {
+		Map values = null;
+		if (isResetAfterOnCreate() || (!isRefreshAfter() && !getView().getMetaModel().hasHiddenKey())) { 
+			MapFacade.create(getModelName(), getValuesToSave());
+			addMessage("entity_created", getModelName());
+		}
+		else {								
+			Map keyValues = MapFacade.createReturningKey(getModelName(), getValuesToSave());					
+			addMessage("entity_created", getModelName());
+			if (isRefreshAfter()) {  
+				getView().clear(); 
+				values = MapFacade.getValues(getModelName(), keyValues, getView().getMembersNamesWithHidden());
+			}
+			else {
+				getView().addValues(keyValues);
+			}
+		}
+		getTab().reset();
+		return values;
 	}
 	
 	protected Map getValuesToSave() throws Exception {		
@@ -90,6 +108,8 @@ public class SaveAction extends TabBaseAction {
 	 */
 	public void setResetAfter(boolean b) {
 		resetAfter = b;
+		resetAfterOnCreate = b; 
+		resetAfterOnModify = b; 
 	}
 
 	/**
@@ -118,6 +138,54 @@ public class SaveAction extends TabBaseAction {
 	 */		
 	public void setRefreshAfter(boolean refreshAfter) {
 		this.refreshAfter = refreshAfter;
+	}
+
+	/**
+	 * If <tt>true</tt> reset the form after save <b>for creating</b>, else refresh the
+	 * form from database displayed the recently saved data. <p>
+	 * 
+	 * The default value is <tt>true</tt>.
+	 * 
+	 * @since 5.8
+	 */	
+	public boolean isResetAfterOnCreate() {
+		return resetAfterOnCreate;
+	}
+
+	/**
+	 * If <tt>true</tt> reset the form after save <b>for creating</b>, else refresh the
+	 * form from database displayed the recently saved data. <p>
+	 * 
+	 * The default value is <tt>true</tt>.
+	 * 
+	 * @since 5.8
+	 */	
+	public void setResetAfterOnCreate(boolean resetAfterOnCreate) {
+		this.resetAfterOnCreate = resetAfterOnCreate;
+	}
+
+	/**
+	 * If <tt>true</tt> reset the form after save <b>for modifying</b>, else refresh the
+	 * form from database displayed the recently saved data. <p>
+	 * 
+	 * The default value is <tt>true</tt>.
+	 * 
+	 * @since 5.8
+	 */
+	public boolean isResetAfterOnModify() {
+		return resetAfterOnModify;
+	}
+
+	/**
+	 * If <tt>true</tt> reset the form after save <b>for modifying</b>, else refresh the
+	 * form from database displayed the recently saved data. <p>
+	 * 
+	 * The default value is <tt>true</tt>.
+	 * 
+	 * @since 5.8
+	 */	
+	public void setResetAfterOnModify(boolean resetAfterOnModify) {
+		this.resetAfterOnModify = resetAfterOnModify;
 	}
 
 }

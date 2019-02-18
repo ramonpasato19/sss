@@ -8,7 +8,8 @@ import org.openxava.util.meta.*;
 /**
  * @author Javier Paniza
  */
-abstract public class MetaMember extends MetaElement implements Comparable { 
+@SuppressWarnings("serial")
+abstract public class MetaMember extends MetaElement implements Comparable<MetaMember> { 
 
 	private MetaModel metaModel;
 	private String labelId;
@@ -17,7 +18,10 @@ abstract public class MetaMember extends MetaElement implements Comparable {
 	private String label;
 	
 	public String getLabel(Locale locale) {
-		return Is.emptyString(label) || Labels.exists(getLabelId(), locale)?super.getLabel(locale):label;
+		if (Is.emptyString(label)) return super.getLabel(locale);
+		String labelId = Strings.naturalLabelToIdentifier(label);
+		if (Labels.exists(labelId, locale)) return super.getLabel(locale, labelId);
+		return label;
 	}
 		
 	public void setLabel(String newLabel) {
@@ -32,10 +36,10 @@ abstract public class MetaMember extends MetaElement implements Comparable {
 		return result;
 	}
 
-	public int compareTo(Object o) { 	
-		return getName().compareTo(((MetaMember) o).getName());
+	public int compareTo(MetaMember o) { 	
+		return getName().compareTo(o.getName());
 	}
-
+	
 	public MetaModel getMetaModel() {		
 		return metaModel;
 	}

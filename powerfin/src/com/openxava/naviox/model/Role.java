@@ -15,11 +15,14 @@ import org.openxava.jpa.*;
 
 @Entity
 @Table(name="OXROLES")
-@View(members="name;modulesRights")
+@View(members="name, description; modulesRights") 
 public class Role implements java.io.Serializable {	
 
 	@Id @Column(length=30)
 	private String name;
+	
+	@Column(length=80)
+	private String description; 
 		
 	@OneToMany(mappedBy="role", cascade=CascadeType.REMOVE)
 	@ListProperties("module.name, excludedActions, excludedMembers, readOnlyMembers")  
@@ -40,6 +43,7 @@ public class Role implements java.io.Serializable {
 	public static Role createJoinedRole() {
 		Role joinedRole = new Role();		
 		joinedRole.setName("joined"); 			
+		joinedRole.setDescription("Add to this role the modules available for users joined to the organization"); 
 		XPersistence.getManager().persist(joinedRole);		
 		return joinedRole;
 	}
@@ -118,6 +122,14 @@ public class Role implements java.io.Serializable {
 		List result = query.getResultList();
 		if (result.isEmpty()) return null;
 		return (ModuleRights) result.get(0);
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

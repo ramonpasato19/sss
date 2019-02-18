@@ -36,10 +36,7 @@ PhoneManager phoneManager = new PhoneManager(manager);
 			if (!manager.isListMode() && !modeNameAction.equals(manager.getModeName())) {
 			%>	
 	<xava:link action="<%=action.getQualifiedName()%>">		
-	<div class="phone-back-button">	
-    	<div><span></span></div>
-    	<p><%=action.getLabel()%></p>		
-	</div>
+		<i class="mdi mdi-arrow-left"></i>
 	</xava:link>
 			<%	
 				backButtonShown = true;
@@ -47,24 +44,14 @@ PhoneManager phoneManager = new PhoneManager(manager);
 			}
 		}		
 		if (!backButtonShown && !manager.getModelName().equals("SignIn")) {
-			int modulesCount = modules.getAll().size(); 
-			if (modulesCount > 1) {
+			boolean showModulesMenuButton = modules.showsIndexLink() || modules.getAll().size() > 1;
+			if (!modules.getCurrent(request).equals("Index") && showModulesMenuButton) {
 		%>
-	<div class="phone-back-button" onclick="window.location='../phone'">
-	   	<div><span></span></div>
-	   	<p><xava:message key="back"/></p>		
-	</div>
-		<%
-			}
-			else {
-		%>
-	<div class="phone-back-button" onclick="window.location='<%=request.getContextPath()%>/naviox/signOut.jsp'">
-   		<div><span></span></div>
-   		<p><xava:message key="exit"/></p>		
-	</div>
-		<%				
-			}
-		}
+	<a href="../phone"><i class="mdi mdi-arrow-left"></i></a>
+		<%  } else { %>
+	<a href="<%=request.getContextPath()%>/naviox/signOut.jsp?organization="><i class="mdi mdi-arrow-left"></i></a>
+		<%	}
+		}		
 	}	
 	else if (!previousViews.isEmpty()) {
 		for (java.util.Iterator it = manager.getMetaActions().iterator(); it.hasNext(); ) {
@@ -73,9 +60,7 @@ PhoneManager phoneManager = new PhoneManager(manager);
 				"cancelar".equals(action.getName()) || "volver".equals(action.getName())) {
 			%>
 	<xava:link action="<%=action.getQualifiedName()%>">
-		<div class="phone-cancel-action">					
-			<p><%=action.getLabel()%></p>			
-		</div>
+		<i class="mdi mdi-arrow-left"></i>
 	</xava:link>			
 			<%
 				break;
@@ -88,16 +73,4 @@ PhoneManager phoneManager = new PhoneManager(manager);
 		<%=phoneManager.getTitle(request)%>
 	</span>
 	
-	<% 
-	MetaAction defaultAction = phoneManager.getDefaultMetaAction(); 
-	if (defaultAction != null) { 
-	%>
-	<xava:link action="<%=defaultAction.getQualifiedName()%>">
-		<div class="phone-default-action">					
-			<p><%=defaultAction.getLabel()%></p>			
-		</div>
-	</xava:link>
-	<%
-	} 
-	%>
 </div>

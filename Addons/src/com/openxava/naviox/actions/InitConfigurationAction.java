@@ -10,7 +10,7 @@ import com.openxava.naviox.model.*;
  */
 public class InitConfigurationAction extends ViewBaseAction {
 	
-	public void execute() throws Exception {
+	public void execute() throws Exception { 
 		if (getManager().getDialogLevel() > 0) return; 
 		getView().setModel(Configuration.getInstance());
 		if (Configuration.getInstance().getId() > 0) getView().setKeyEditable(false);

@@ -1,9 +1,12 @@
 package org.openxava.util.impl;
 
 import java.io.*;
+
 import java.util.*;
 import java.util.prefs.*;
 
+import org.apache.commons.io.*;
+import org.apache.commons.logging.*;
 import org.openxava.util.*;
 
 /**
@@ -18,7 +21,8 @@ import org.openxava.util.*;
  */
 
 public class UserPreferences extends AbstractPreferences {
-	
+
+	private static Log log = LogFactory.getLog(UserPreferences.class); 
 	private final static String ANONIMOUS = "__ANONIMOUS__";
 	private static Map preferencesByUser; 
 	private String userName;
@@ -44,7 +48,20 @@ public class UserPreferences extends AbstractPreferences {
 		}		
 		return preferences;
 	}
-		
+	
+	/**
+	 * @since 5.8
+	 */
+	public static void removeAll() throws BackingStoreException { 
+		try {
+			FileUtils.deleteDirectory(new File(Files.getOpenXavaBaseDir())); 
+		}
+		catch (Exception ex) {
+			log.error(XavaResources.getString("remove_all_user_preferences_error"), ex);
+			throw new BackingStoreException(XavaResources.getString("remove_all_user_preferences_error")); 
+		}
+		preferencesByUser = null;		
+	}
 
 	protected AbstractPreferences childSpi(String name) {
 		if (children == null) children = new HashMap();
@@ -88,17 +105,12 @@ public class UserPreferences extends AbstractPreferences {
 	}
 
 	private void createFileIfNotExist() throws Exception {
-		File f = new File(getFileName());
-		if (!f.exists()) {
-			File dir = new File(Strings.noLastToken(getFileName(), "/")); 
-			if (!dir.exists()) dir.mkdirs();
-			f.createNewFile();
-		}
+		Files.createFileIfNotExist(getFileName()); 
 	}
 
 	private String getFileName() {		
 		if (fileName == null) {
-			fileName = getBaseDir() + userName + "__" + getQualifiedName() + ".properties"; 			
+			fileName = Files.getOpenXavaBaseDir() + userName + "__" + getQualifiedName() + ".properties"; 
 		}
 		return fileName;
 	}
@@ -151,9 +163,5 @@ public class UserPreferences extends AbstractPreferences {
 			throw new BackingStoreException(ex);
 		}		
 	}
-		
-	private String getBaseDir() {		
-		return System.getProperty("user.home") + "/.openxava/";
-	}	
 
 }

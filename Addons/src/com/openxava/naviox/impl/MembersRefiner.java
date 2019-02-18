@@ -28,7 +28,7 @@ public class MembersRefiner {
 		if (user == null) return; 
 		Collection<MetaMember> excludedMembers = user.getExcludedMetaMembersForMetaModule(metaModule);
 		for (MetaMember member: excludedMembers) {		
-			metaMembers.remove(member);
+			remove(metaMembers, member); 
 		}
 		Collection<MetaMember> readOnlyMembers = user.getReadOnlyMetaMembersForMetaModule(metaModule);
 		for (MetaMember member: readOnlyMembers) {	
@@ -36,14 +36,39 @@ public class MembersRefiner {
 		}	
 	}
 	
+	private void remove(Collection<MetaMember> members, MetaMember member) { 
+		for (Iterator<MetaMember> it= members.iterator(); it.hasNext();) {
+			MetaMember m = it.next();
+			if (m.getName().equals(member.getName())) it.remove();
+		}
+	}
+	
 	public void polish(MetaModule metaModule, MetaTab metaTab) {
 		String currentUser = Users.getCurrent();
 		if (currentUser == null) return;
 		User user = User.find(currentUser);
 		if (user == null) return; 
+		
 		Collection<MetaMember> excludedMembers = user.getExcludedMetaMembersForMetaModule(metaModule);
 		for (MetaMember excludedMember: excludedMembers) {
 			metaTab.dropMember(excludedMember.getName());
+		}
+		
+		Map<String, String> modelsOfQualifiedProperties = new HashMap<String, String>();
+		for(String propertyName: metaTab.getRemainingPropertiesNames()) {
+			if (propertyName.contains(".")) {
+				MetaProperty metaProperty = metaTab.getMetaModel().getMetaProperty(propertyName);
+				modelsOfQualifiedProperties.put(metaProperty.getMetaModel().getName(), Strings.noLastToken(propertyName, "."));
+			}
+		}
+		
+		for (Map.Entry<String, String> model: modelsOfQualifiedProperties.entrySet()) {
+			MetaModule module = metaModule.getMetaApplication().getMetaModule(model.getKey());
+			Collection<MetaMember> excludedMembersForQualifiedProperties = user.getExcludedMetaMembersForMetaModule(module);
+			for (MetaMember excludedMember: excludedMembersForQualifiedProperties) {
+				String excludedQualifiedProperty = model.getValue() + excludedMember.getName();
+				metaTab.dropMember(excludedQualifiedProperty);
+			}	
 		}
 	}
 

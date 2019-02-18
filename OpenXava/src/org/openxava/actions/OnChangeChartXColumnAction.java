@@ -19,7 +19,7 @@ public class OnChangeChartXColumnAction extends OnChangeChartBaseAction {
 			} else if (propertyName.equals(OnChangeChartColumnNameAction.SHOW_LESS)) {
 				getView().getRoot().putObject("xava.myReportColumnShowAllColumns", false);
 			} else {
-				getChart().setxColumn(propertyName);
+				getChart().setxColumn(propertyName);	
 			}
 		}
 	}

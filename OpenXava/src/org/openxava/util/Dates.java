@@ -1,6 +1,6 @@
 package org.openxava.util;
 
-import java.text.DateFormat;
+import java.text.*;
 import java.util.*;
 
 
@@ -217,6 +217,48 @@ public class Dates {
 	}
 	
 	/**
+	 * DateFormat for date + time consistently among all Java versions, according current <i>locale</i>. <p>
+	 * 
+	 * The date format is consistent among all Java versions, including Java 6, 7, 8, 9, 10 and 11. 
+	 * While standard Java format differently since Java 9. 
+	 * 
+	 * Current locale is from {@link Locales#getCurrent}. <br>
+	 * 
+	 * @return Not null
+	 * @since 6.0
+	 */
+	public static DateFormat getDateTimeFormat() {  
+		// To use the Java 8 (and previous) format for Java 9 and better
+		return getDateTimeFormat(Locales.getCurrent());
+	}
+
+	/**
+	 * DateFormat for date + time consistently among all Java versions. <p>
+	 * 
+	 * The date format is consistent among all Java versions, including Java 6, 7, 8, 9, 10 and 11. 
+	 * While standard Java format differently since Java 9. 
+	 * 
+	 * @return Not null
+	 * @since 6.0
+	 */	
+	public static DateFormat getDateTimeFormat(Locale locale) {   
+		// To use the Java 8 (and previous) format for Java 9 and better
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+		if (XSystem.isJava9orBetter() && df instanceof SimpleDateFormat) {
+			String pattern = ((SimpleDateFormat) df).toPattern();
+			pattern = pattern.replace(", ", " ");
+			SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+			DateFormatSymbols symbols = new DateFormatSymbols(locale);
+	        symbols.setAmPmStrings(new String[] { "AM", "PM" });
+	        sdf.setDateFormatSymbols(symbols);			
+			df = sdf;
+		}
+		return df;
+	}
+
+
+	
+	/**
 	 * Creates a date with day, month and year of original,
 	 * but with current time. <p>
 	 *  
@@ -431,7 +473,7 @@ public class Dates {
 	}	
 	
 	public static String dateTimeFormatForJSCalendar(Locale locale) {		
-		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+		DateFormat df = getDateTimeFormat(locale); 
 		String datetime = df.format(create(1, 2, 1971, 15, 59, 0)); // d, m, y, hr, min, sec 
 		boolean always4InYear= "es".equals(locale.getLanguage()) || "pl".equals(locale.getLanguage());
 		String result = datetime.

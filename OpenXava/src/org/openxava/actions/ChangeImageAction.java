@@ -12,7 +12,7 @@ import javax.inject.*;
 public class ChangeImageAction extends ViewBaseAction implements ILoadFileAction { 
 		
 	@Inject
-	private String newImageProperty;	
+	private String newImageProperty; 	
 	
 	public void execute() throws Exception {
 		showDialog(); 

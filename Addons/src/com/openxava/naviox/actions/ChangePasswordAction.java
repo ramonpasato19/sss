@@ -1,9 +1,7 @@
 package com.openxava.naviox.actions;
 
 import org.openxava.actions.*;
-import org.openxava.jpa.*;
 import org.openxava.util.*;
-
 import com.openxava.naviox.*;
 import com.openxava.naviox.impl.*;
 import com.openxava.naviox.model.*;

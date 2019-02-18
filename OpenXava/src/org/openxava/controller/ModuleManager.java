@@ -20,10 +20,13 @@ import org.openxava.component.*;
 import org.openxava.controller.meta.*;
 import org.openxava.hibernate.*;
 import org.openxava.jpa.*;
+import org.openxava.model.meta.*;
+import org.openxava.tab.*;
 import org.openxava.util.*;
 import org.openxava.validators.ValidationException;
 import org.openxava.view.*;
 import org.openxava.web.*;
+import org.openxava.web.meta.*;
 import org.openxava.web.style.*;
 
 /**
@@ -119,6 +122,10 @@ public class ModuleManager implements java.io.Serializable {
 	private Collection<MetaSubcontroller> metaSubControllers;
 	private Map<String,Collection<MetaAction>> subcontrollersMetaActions;
 	private Collection<MetaControllerElement> metaControllerElements;
+	private Set<String> actionsForPermalink;
+	private boolean buttonsVisible = true;
+	private boolean viewKeyEditable;
+	private String moduleURL;  
 
 	/**
 	 * HTML action bind to the current form.
@@ -151,8 +158,8 @@ public class ModuleManager implements java.io.Serializable {
 	/**
 	 * @since 4.8
 	 */
-	public void addSimpleMetaAction(MetaAction action) {
-		if (getMetaActions().contains(action)) return; 
+	public void addSimpleMetaAction(MetaAction action) { 
+		if (getMetaActions().contains(action)) return;
 		getMetaActions().add(action);
 		getMetaControllerElements().add(action);
 		defaultActionQualifiedName = null;
@@ -219,7 +226,6 @@ public class ModuleManager implements java.io.Serializable {
 					MetaController mc = (MetaController) it.next();
 					metaControllerElements.addAll(mc.getAllMetaControllerElements());
 				}
-				removeHiddenElements();
 				refine(metaControllerElements); 
 			} 
 		 	catch (Exception ex) {
@@ -245,6 +251,19 @@ public class ModuleManager implements java.io.Serializable {
 		return metaSubControllers;
 	}
 	
+	private boolean appliesToListEditor(MetaAction action) { 
+		if (!isListMode()) return true;
+		if (!action.isProcessSelectedItems()) return true;
+		if (getTab().getModelName() == null) return true;
+		if (!Is.emptyString(getTab().getGroupBy())) return false; 
+		MetaEditor metaEditor = MetaWebEditors.getMetaEditorByName(getTab().getEditor()); 
+		if (metaEditor == null) {
+			log.warn(XavaResources.getString("editor_not_exist", getTab().getEditor()));
+			return true; 
+		}
+		return metaEditor.isSelectableItems();
+	}
+	
 	public Collection<MetaAction> getMetaActions() {
 		if (metaActions == null) {
 			Collection<MetaAction> ma = (Collection<MetaAction>) getContext()
@@ -262,7 +281,6 @@ public class ModuleManager implements java.io.Serializable {
 					MetaController contr = (MetaController) it.next();
 					metaActions.addAll(contr.getAllMetaActions());
 				}
-				removeHiddenActions();
 				refine(metaActions); 
 			} catch (Exception ex) {
 				metaActions = null;
@@ -280,11 +298,11 @@ public class ModuleManager implements java.io.Serializable {
 			try {
 				Iterator it = getMetaControllers().iterator();
 				metaActionsOnInit = new ArrayList();
-				metaActionsOnInit.addAll(getMetaControllerMode().getMetaActionsOnInit());
 				while (it.hasNext()) {
 					MetaController contr = (MetaController) it.next();
 					metaActionsOnInit.addAll(contr.getMetaActionsOnInit());
 				}
+				metaActionsOnInit.addAll(getMetaControllerMode().getMetaActionsOnInit()); 
 			} catch (Exception ex) {
 				log.error(
 						XavaResources.getString("controller_init_action_error"),
@@ -294,7 +312,7 @@ public class ModuleManager implements java.io.Serializable {
 		}
 		return metaActionsOnInit;
 	}
-
+	
 	public Collection getMetaActionsMode() {
 		try {
 			return getMetaControllerMode().getAllNotHiddenMetaActions();
@@ -329,6 +347,10 @@ public class ModuleManager implements java.io.Serializable {
 			metaControllers = new ArrayList();
 			String[] names = getControllersNames();
 			for (int i = 0; i < names.length; i++) {
+				if ("ListOnly".equals(names[i])) { // To not break old code. The combination of Void as mode controller and ListOnly as regular controller to create a list only module 
+					setModeControllerName("Mode");
+					continue; 
+				}
 				metaControllers.add(MetaControllers.getMetaController(names[i]));
 			}
 		}
@@ -350,6 +372,10 @@ public class ModuleManager implements java.io.Serializable {
 	private void setModeControllerName(String controllerName) {
 		metaControllerMode = null;
 		this.modeControllerName = controllerName;
+		if (!Is.anyEqual(this.modeControllerName, "Mode", "DetailOnly", "Void")) {
+			log.warn(XavaResources.getString("mode_controller_not_supported", this.modeControllerName));
+			this.modeControllerName = "Mode";
+		}
 	}
 
 	public boolean hasProcessRequest(HttpServletRequest request) {
@@ -403,8 +429,7 @@ public class ModuleManager implements java.io.Serializable {
 							long ini = System.currentTimeMillis();
 							executeAction(a, errors, messages, av, request);
 							long time = System.currentTimeMillis() - ini;
-							log.debug("Execute " + xavaAction + "=" + time
-									+ " ms");
+							log(request, xavaAction + " " + time + "ms"); 
 						}
 					}
 				}
@@ -413,6 +438,10 @@ public class ModuleManager implements java.io.Serializable {
 			log.error(ex.getMessage(), ex);
 			errors.add("no_execute_action");
 		}
+	}
+	
+	public void log(HttpServletRequest request, String message) {
+		log.debug(request.getRemoteHost() + " " + Users.getCurrent() + " " + message); 
 	}
 
 	private String getParameter(HttpServletRequest request, String parameter)
@@ -449,74 +478,56 @@ public class ModuleManager implements java.io.Serializable {
 			executingAction = false;
 		}
 	}
+	
+	/** @since 5.9 */
+	public boolean isExecutingAction() { 
+		return executingAction;
+	}
+	
+	/**
+	 * @since 5.7 
+	 */
+	public void executeAction(String qualifiedActionName, Messages errors, 
+			Messages messages, HttpServletRequest request) {
+		MetaAction metaAction = MetaControllers.getMetaAction(qualifiedActionName);
+		executeAction(metaAction, errors, messages, null, request);
+	}
+
 
 	public void executeAction(IAction action, Messages errors,
 			Messages messages, HttpServletRequest request) {
 		executeAction(action, null, errors, messages, null, request);
 	}
+	
+	/** @since 5.9 */
+	public boolean isActionAvailable(MetaAction metaAction, Messages errors, 
+		Messages messages, String propertyValues, HttpServletRequest request) 
+	{
+		try {
+			if (implementsAvailableAction(metaAction)) {
+				IAvailableAction action = (IAvailableAction) metaAction.createAction(); 
+				prepareAction(action, metaAction, errors, messages, propertyValues, request);
+				return action.isAvailable();
+			}
+			return true;
+		} 
+		catch (Exception ex) {
+			log.error(ex.getMessage(), ex);
+			errors.add("no_determine_available_action", metaAction.getId()); 
+			return false; 
+		}
+	}
+	
+	private boolean implementsAvailableAction(MetaAction metaAction) throws Exception { 
+		return IAvailableAction.class.isAssignableFrom(Class.forName(metaAction.getClassName()));
+	}
 
 	private void executeAction(IAction action, MetaAction metaAction,
 			Messages errors, Messages messages, String propertyValues,
 			HttpServletRequest request) {
-		int originalDialogLevel = dialogLevel;
 		try {
-			Object previousView = getContext().get(applicationName, moduleName,
-					"xava_view");
-			action.setErrors(errors);
-			action.setMessages(messages);
-			action.setEnvironment(getEnvironment());
-			String previousDefaultActionQualifiedName = getDefaultActionQualifiedName();
-			setObjectsInAction(action, metaAction, request);
-			Map xavaValues = setPropertyValues(action, propertyValues);
-			if (action instanceof IModuleContextAction) {
-				((IModuleContextAction) action).setContext(getContext());
-			}
-			if (action instanceof IModelAction) {
-				((IModelAction) action).setModel(getModelName());
-			}
-			if (action instanceof IRequestAction) {
-				((IRequestAction) action).setRequest(request);
-			}
-
-			if (action instanceof IJDBCAction) {
-				((IJDBCAction) action)
-						.setConnectionProvider(DataSourceConnectionProvider
-								.getByComponent(getModelName()));
-			}
-
-			if (action instanceof IPropertyAction) {
-				String keyProperty = Ids.undecorate((String) xavaValues
-						.get("xava.keyProperty"));
-				if (Is.emptyString(keyProperty)) {
-					throw new XavaException("property_action_error",
-							action.getClass());
-				}
-				int idx = keyProperty.lastIndexOf('.');
-				View view = (View) getContext().get(request, "xava_view");
-				if (idx < 0) {
-					((IPropertyAction) action).setProperty(keyProperty);
-					((IPropertyAction) action).setView(view);
-				} else {
-					String subviewName = keyProperty.substring(0, idx);
-					String propertyName = keyProperty.substring(idx + 1);
-					((IPropertyAction) action).setProperty(propertyName);
-					((IPropertyAction) action).setView(getSubview(view,
-							subviewName));
-				}
-			}
-
-			if (action instanceof IProcessLoadedFileAction) {
-				List fileItems = (List) request
-						.getAttribute("xava.upload.fileitems");
-				String error = (String) request
-						.getAttribute("xava.upload.error");
-				if (!Is.emptyString(error))
-					errors.add(error);
-				((IProcessLoadedFileAction) action)
-						.setFileItems(fileItems == null ? Collections.EMPTY_LIST
-								: fileItems);
-			}
-
+			Object previousView = getContext().get(applicationName, moduleName,	"xava_view");
+			prepareAction(action, metaAction, errors, messages, propertyValues, request);
 			if (action instanceof IRemoteAction) {
 				IRemoteAction remote = (IRemoteAction) action;
 				remote.executeBefore();
@@ -543,7 +554,7 @@ public class ModuleManager implements java.io.Serializable {
 					memorizePreviousMode();
 					setModeName(nextMode);
 				}
-				if (isListMode() && isActionsAddedOrRemoved()) {
+				if (isListMode() && actionsAddedOrRemoved) { 
 					updateXavaMetaActionsInList();
 				}
 			}
@@ -657,12 +668,17 @@ public class ModuleManager implements java.io.Serializable {
 							action.getMessages(), argv, request);
 				}
 			}
+			if (action instanceof IJavaScriptPostAction) {
+				request.setAttribute("xava.postjs", ((IJavaScriptPostAction) action).getPostJavaScript());
+			}
 			if (!reloadViewNeeded) {
 				Object currentView = getContext().get(applicationName,
 						moduleName, "xava_view");
 				reloadViewNeeded = currentView != previousView;
 			}
-			lastExecutedMetaAction = metaAction;
+			if (metaAction != null && !metaAction.isAfterEachRequest()) {   
+				lastExecutedMetaAction = metaAction;
+			}
 			if (!(metaAction == null && executingAction)) { // For avoiding
 															// commit on
 															// OnChange actions
@@ -675,7 +691,64 @@ public class ModuleManager implements java.io.Serializable {
 			manageException(metaAction, errors, messages, ex);
 		}
 	}
+	
+	private void prepareAction(IAction action, MetaAction metaAction, Messages errors, Messages messages,
+			String propertyValues, HttpServletRequest request) throws Exception {
+		action.setErrors(errors);
+		action.setMessages(messages);
+		action.setEnvironment(getEnvironment());
+		setObjectsInAction(action, metaAction, request);
+		Map xavaValues = setPropertyValues(action, propertyValues);
+		if (action instanceof IModuleContextAction) {
+			((IModuleContextAction) action).setContext(getContext());
+		}
+		if (action instanceof IModelAction) {
+			((IModelAction) action).setModel(getModelName());
+		}
+		if (action instanceof IRequestAction) {
+			((IRequestAction) action).setRequest(request);
+		}
 
+		if (action instanceof IJDBCAction) {
+			((IJDBCAction) action)
+					.setConnectionProvider(DataSourceConnectionProvider
+							.getByComponent(getModelName()));
+		}
+
+		if (action instanceof IPropertyAction) {
+			String keyProperty = Ids.undecorate((String) xavaValues
+					.get("xava.keyProperty"));
+			if (Is.emptyString(keyProperty)) {
+				throw new XavaException("property_action_error",
+						action.getClass());
+			}
+			int idx = keyProperty.lastIndexOf('.');
+			View view = (View) getContext().get(request, "xava_view");
+			if (idx < 0) {
+				((IPropertyAction) action).setProperty(keyProperty);
+				((IPropertyAction) action).setView(view);
+			} else {
+				String subviewName = keyProperty.substring(0, idx);
+				String propertyName = keyProperty.substring(idx + 1);
+				((IPropertyAction) action).setProperty(propertyName);
+				((IPropertyAction) action).setView(getSubview(view,
+						subviewName));
+			}
+		}
+
+		if (action instanceof IProcessLoadedFileAction) {
+			List fileItems = (List) request
+					.getAttribute("xava.upload.fileitems");
+			String error = (String) request
+					.getAttribute("xava.upload.error");
+			if (!Is.emptyString(error))
+				errors.add(error);
+			((IProcessLoadedFileAction) action)
+					.setFileItems(fileItems == null ? Collections.EMPTY_LIST
+							: fileItems);
+		}
+	}
+	
 	/**
 	 * 
 	 * @since 4.2.2
@@ -1275,7 +1348,7 @@ public class ModuleManager implements java.io.Serializable {
 		if (Is.emptyString(this.moduleDescription)) {
 			try {
 				return getMetaModule().getMetaApplication().getLabel() + " - "
-						+ getMetaModule().getDescription();
+						+ getMetaModule().getLabel();
 			} catch (Exception ex) {
 				return XavaResources.getString("unknow_module");
 			}
@@ -1300,13 +1373,20 @@ public class ModuleManager implements java.io.Serializable {
 		return IChangeModeAction.LIST.equals(getModeName());
 	}
 
-	public boolean isSplitMode() {
-		return IChangeModeAction.SPLIT.equals(getModeName());
+	@Deprecated
+	public boolean isSplitMode() { 
+		return false; 
 	}
+	
 
 	/** @since 4m6 */
 	public boolean isDetailMode() {
 		return IChangeModeAction.DETAIL.equals(getModeName());
+	}
+	
+	/** @since 6.0 */
+	public boolean isDetailModeOnly() { 
+		return Is.anyEqual(getModeControllerName(), "DetailOnly", "Void");
 	}
 
 	public String getModeName() {
@@ -1327,10 +1407,8 @@ public class ModuleManager implements java.io.Serializable {
 			int max = -1;
 			while (it.hasNext()) {
 				MetaAction a = (MetaAction) it.next();
-				if (a.isHidden())
-					continue;
-				if (!a.appliesToMode(getModeName()))
-					continue;
+				if (!actionApplies(a)) continue; 
+				if (!a.appliesToMode(getModeName())) continue;
 				if (a.getByDefault() > max) {
 					max = a.getByDefault();
 					defaultActionQualifiedName = a.getQualifiedName();
@@ -1397,28 +1475,40 @@ public class ModuleManager implements java.io.Serializable {
 		reloadViewNeeded = false;
 	}
 
-	public void initModule(HttpServletRequest request, Messages errors,
-			Messages messages) {
+	public void initModule(HttpServletRequest request, Messages errors,	Messages messages) {
 		if (!Is.equal(Users.getCurrent(), user)) {
 			user = Users.getCurrent();
 			moduleInitiated = false;
 		}
 		if (!moduleInitiated) {
 			if (modeControllerName == null) {
-				modeControllerName = XavaPreferences.getInstance()
-						.getDefaultModeController();
-				if (Is.emptyString(modeControllerName))
-					modeControllerName = Style.getInstance(request)
-							.getDefaultModeController();
+				if (!Is.emptyString(XavaPreferences.getInstance().getDefaultModeController())) {
+					setModeControllerName(XavaPreferences.getInstance().getDefaultModeController());
+				}
+				else {
+					setModeControllerName(Style.getInstance(request).getDefaultModeController());
+				}
 			}
 			modeName = getMetaActionsMode().isEmpty() ? IChangeModeAction.DETAIL
 					: null;
 			moduleInitiated = true;
 			executeInitAction(request, errors, messages);
 			reloadAllUINeeded = true;
+			actionsForPermalink = toQualifiedNames(getMetaActions(), getMetaActionsMode());  
 		} else {
 			reloadAllUINeeded = false;
 		}		
+		viewKeyEditable = getView().isKeyEditable(); 
+	}
+	
+	private Set<String> toQualifiedNames(Collection<MetaAction> ... metaActions) { 
+		Set<String> result = new HashSet<String>();
+		for (Collection<MetaAction> metaActionsGroup: metaActions) {
+			for (MetaAction action: metaActionsGroup) {
+				result.add(action.getQualifiedName());
+			}
+		}
+		return result;
 	}
 
 	public void executeBeforeEachRequestActions(HttpServletRequest request,
@@ -1428,6 +1518,49 @@ public class ModuleManager implements java.io.Serializable {
 		if (!getMetaActionsBeforeEachRequest().isEmpty()) {
 			defaultActionQualifiedName = null;
 		}
+	}
+	
+	public void executeBeforeLoadPage(HttpServletRequest request, Messages errors, Messages messages) {  
+		try {			
+			String detailId =  request.getParameter("detail");
+			if (!Is.emptyString(detailId)) {
+				getView().setModelName(getMetaModule().getModelName()); 
+				Collection metaKeys = getView().getMetaModel().getMetaPropertiesKey();
+				if (metaKeys.size() != 1) return;
+				MetaProperty metaKey = (MetaProperty) metaKeys.iterator().next();
+				getView().setValue(metaKey.getName(), metaKey.parse(detailId));
+				if (!isDetailMode()) setModeName(IChangeModeAction.DETAIL);
+				String searchAction =  getEnvironment().getValue("XAVA_SEARCH_ACTION");
+				MetaAction searchMetaAction = MetaControllers.getMetaAction(searchAction);
+				executeAction(searchMetaAction, errors, messages, request); 
+			}			
+			else {
+				String action =  request.getParameter("action");
+				if (!Is.emptyString(action)) {
+					if (actionsForPermalink.contains(action)) {
+						MetaAction metaAction = MetaControllers.getMetaAction(action);
+						executeAction(metaAction, errors, messages, request);
+					}
+					else {
+						if (!"SignIn".equals(getModuleName())) { 
+							errors.add("action_not_available", "'" + action + "'");
+						}
+					}
+				}	
+			}
+		}
+		catch (Exception ex) {
+			errors.add("onload_page_error");
+			log.error(XavaResources.getString("onload_page_error"), ex);
+		}
+	}	
+	
+	private View getView() { 
+		return (View) getContext().get(getApplicationName(), getModuleName(), "xava_view");
+	}
+	
+	private Tab getTab() {  
+		return (Tab) getContext().get(getApplicationName(), getModuleName(), "xava_tab");
 	}
 
 	public boolean hasInitForwardActions() {
@@ -1497,7 +1630,7 @@ public class ModuleManager implements java.io.Serializable {
 			executeAction(a, errors, messages, request);
 		}
 	}
-
+	
 	private Collection getMetaActionsOnEachRequest() {
 		if (metaActionsOnEachRequest == null) {
 			try {
@@ -1565,6 +1698,7 @@ public class ModuleManager implements java.io.Serializable {
 	}
 
 	public boolean isButtonBarVisible() {
+		if (!buttonsVisible) return false;  
 		if (!getMetaActionsMode().isEmpty())
 			return true;
 		Iterator it = getMetaActions().iterator();
@@ -1575,6 +1709,36 @@ public class ModuleManager implements java.io.Serializable {
 		}
 		if (!getSubcontrollers().isEmpty()) return true;
 		return false;
+	}
+	
+	/** 
+	 * @since 5.8
+	 */
+	public boolean isBottomButtonsVisible() { 
+		if (getDialogLevel() > 0) return true; 
+		return buttonsVisible;
+	}
+	
+	/**
+	 * Shows the top button bar and the buttons on bottom if they are hidden. 
+	 * 
+	 * @since 5.8
+	 */
+	public void showButtons() { 
+		if (buttonsVisible) return; 
+		buttonsVisible = true;
+		reloadAllUINeeded = true; 
+	}
+
+	/**
+	 * Hides the top button bar and the buttons on bottom. 
+	 * 
+	 * @since 5.8
+	 */	
+	public void hideButtons() { 
+		if (!buttonsVisible) return; 
+		buttonsVisible = false;
+		reloadAllUINeeded = true; 
 	}
 
 	public boolean isFormUpload() {
@@ -1609,35 +1773,24 @@ public class ModuleManager implements java.io.Serializable {
 		if (hiddenActions == null)
 			return;
 		hiddenActions.remove(action);
+		actionsChanged = true;
 		defaultActionQualifiedName = null;
 		metaActions = null;
-		actionsChanged = true;
 		subcontrollersMetaActions = null;
-		metaControllerElements = null; 
-	}
-
-	private void removeHiddenElements(){	
-		if (hiddenActions == null) return;
-		for (Iterator<MetaControllerElement> it = metaControllerElements.iterator(); it.hasNext();){
-			MetaControllerElement element = it.next();
-			if (element instanceof MetaAction){
-				MetaAction action = (MetaAction)element;
-				if (hiddenActions.contains(action.getQualifiedName())){
-					it.remove();
-				}
-			}
-		}
+		metaControllerElements = null;
 	}
 	
-	private void removeHiddenActions() {
-		if (hiddenActions == null)
-			return;
-		for (Iterator it = metaActions.iterator(); it.hasNext();) {
-			MetaAction action = (MetaAction) it.next();
-			if (hiddenActions.contains(action.getQualifiedName())) {
-				it.remove();
-			}
-		}
+	public boolean actionApplies(MetaAction action) { 
+		return !action.isHidden() && 
+			(hiddenActions == null || !hiddenActions.contains(action.getQualifiedName())) && 
+			appliesToListEditor(action) && 
+			appliesToDetailState(action);
+	}
+	
+	private boolean appliesToDetailState(MetaAction action) { 
+		if (isListMode()) return true;
+		if (action.isAvailableOnNew()) return true;
+		return !getView().isKeyEditable();
 	}
 
 	private void refine(Collection collection) throws Exception { 
@@ -1655,7 +1808,22 @@ public class ModuleManager implements java.io.Serializable {
 	 * <p>
 	 */
 	public boolean isActionsChanged() {
-		return actionsChanged;
+		if (actionsChanged) return true;
+		if (isListMode()) return false;
+		if (viewKeyEditable == getView().isKeyEditable()) return false;
+		return isAnyNotAvailableAction();
+	}
+	
+	private boolean isAnyNotAvailableAction() { 
+		for (MetaAction action: getMetaActions()) {
+			if (action.isAvailableOnNew()) return true;
+		}
+		return false;
+	}
+	
+	/** @since 5.7 */
+	public void setActionsChanged(boolean actionsChanged) { 
+		this.actionsChanged = actionsChanged; 
 	}
 
 	public boolean isReloadViewNeeded() {
@@ -1725,6 +1893,18 @@ public class ModuleManager implements java.io.Serializable {
 		if (dialogLevel < 0)
 			dialogLevel = 0;
 	}
+	
+	/**
+	 * 
+	 * @since 5.7
+	 */
+	public String getPermanlinkAction() {  
+		if (lastExecutedMetaAction == null) return null;
+		String lastAction = lastExecutedMetaAction.getQualifiedName();
+		if (!lastAction.endsWith(".new")) return null; 
+		if (actionsForPermalink.contains(lastAction)) return lastAction;
+		return null;
+	}
 
 	public MetaAction getLastExecutedMetaAction() {
 		return lastExecutedMetaAction;
@@ -1742,12 +1922,19 @@ public class ModuleManager implements java.io.Serializable {
 		return resetFormPostNeeded;
 	}
 
-	public boolean isActionsAddedOrRemoved() {
-		return actionsAddedOrRemoved;
+	/**
+	 * @since 5.9
+	 */
+	public String getModuleURL() {
+		return moduleURL;
 	}
 
-	public void setActionsAddedOrRemoved(boolean actionsAddedOrRemoved) {
-		this.actionsAddedOrRemoved = actionsAddedOrRemoved;
+	/**
+	 * @since 5.9
+	 */	
+	public void setModuleURL(HttpServletRequest request) {
+		this.moduleURL = request.getScheme() + "://" + request.getServerName() + ":" + 
+				request.getServerPort() + request.getAttribute("javax.servlet.forward.request_uri");
 	}
-
+	
 }

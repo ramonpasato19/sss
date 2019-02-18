@@ -31,19 +31,19 @@ import org.openxava.util.meta.MetaElement;
 public class MetaView extends MetaElement implements Cloneable {
 	private static Log log = LogFactory.getLog(MetaView.class);
 	
-	// WARNING!: If you add properties you must see if is needed to make a clon of they
+	// WARNING!: If you add properties you must see if is needed to make a clon of them
 	
 	private final static String NAME_SEPARATOR = "\n";
 		
 	private boolean section = false;
 	private MetaView parent; // in section case
 	private String parentName = null; // at momment for use in section
-	private Collection allMetaMembers;
+	private Collection<MetaMember> allMetaMembers; 
 	private Map<String, MetaGroup> metaGroups; 
 	private Map metaProperties;
 	private Collection propertiesNamesThrowOnChange;	
 	private List<MetaView> sections = null; 
-	private Collection metaMembers; // Of MetaMember
+	private Collection<MetaMember> metaMembers; 
 	private Collection _membersNames = new ArrayList(); // Of String
 	private Map metaViewsReferences;
 	private Map metaViewsProperties;
@@ -150,7 +150,7 @@ public class MetaView extends MetaElement implements Cloneable {
 	}
 
 	// Including members inside sections
-	private Collection getAllMetaMembers() throws XavaException { 
+	private Collection<MetaMember> getAllMetaMembers() throws XavaException {  
 		if (!hasSections()) return getMetaMembers();
 		if (allMetaMembers == null) {		
 			allMetaMembers = new ArrayList();
@@ -614,7 +614,7 @@ public class MetaView extends MetaElement implements Cloneable {
 		return result;
 	}
 	
-	private MetaPropertyView getMetaPropertyViewFor(String qualifiedPropertyName) { 		
+	public MetaPropertyView getMetaPropertyViewFor(String qualifiedPropertyName) { 
 		if (metaViewsProperties == null) return null;
 		return (MetaPropertyView) metaViewsProperties.get(qualifiedPropertyName);
 	}
@@ -809,6 +809,13 @@ public class MetaView extends MetaElement implements Cloneable {
 		return metaPropertyView.getLabelFormat();
 	}
 	
+	/** @since 5.7 */
+	public int getLabelFormatFor(MetaMember m) { 
+		if (m instanceof MetaProperty) return getLabelFormatForProperty((MetaProperty) m);
+		if (m instanceof MetaReference) return getLabelFormatForReference((MetaReference) m);
+		return XavaPreferences.getInstance().getDefaultLabelFormat();
+	}	
+	
 	// @Trifon
 	public int getDisplaySizeForProperty(MetaProperty p) throws XavaException {
 		MetaPropertyView metaPropertyView = getMetaPropertyViewFor(p.getName());
@@ -905,5 +912,6 @@ public class MetaView extends MetaElement implements Cloneable {
 		MetaDescriptionsList descriptionsList = metaReferenceView.getMetaDescriptionsList(); 
 		if (descriptionsList == null) return "";  
 		return descriptionsList.getLabelStyle();		
-	}	
+	}
+
 }

@@ -37,6 +37,10 @@
 		<for-model-property model="Organization" property="url" />
 	</editor>
 	
+	<editor url="../../naviox/editors/privacyPolicyEditor.jsp" frame="true">
+		<for-model-property model="SignUp" property="privacyPolicy" />
+	</editor>
+	
 	<editor url="textWithSuffixEditor.jsp">
 		<property name="suffix" value="days_suffix"/>
 		<for-model-property model="ConfigurationRecord" property="forceChangePasswordDays" />

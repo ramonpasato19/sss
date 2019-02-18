@@ -3,6 +3,7 @@ if (elementCollectionEditor == null) var elementCollectionEditor = {};
 openxava.addEditorInitFunction(function() {
 	$('.xava_sortable_elements').sortable({ 
 		items: '>.xava_sortable_element_row',
+		handle: ".xava_handle", 
 	    stop: function( event, ui ) {
 	    	var table = $(event.target).closest("table");	    	
 	    	var row = table.find('tr').eq(1);

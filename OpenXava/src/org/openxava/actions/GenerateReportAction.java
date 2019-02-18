@@ -4,15 +4,16 @@ import org.apache.commons.logging.*;
 import org.openxava.hibernate.*;
 import org.openxava.jpa.*;
 import org.openxava.util.*;
+import org.openxava.view.*;
 
 /**
  * @author Javier Paniza
  */
 
-public class GenerateReportAction extends TabBaseAction implements IForwardAction {
+public class GenerateReportAction extends TabBaseAction implements IForwardAction { 
 
 	private static Log log = LogFactory.getLog(GenerateReportAction.class);
-	private String type;	
+	private String type;
 
 	public void execute() throws Exception {
 		if (!("pdf".equals(getType()) || "csv".equals(getType()) || "xls".equals(getType()))) {

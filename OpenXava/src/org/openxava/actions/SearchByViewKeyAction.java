@@ -33,7 +33,7 @@ public class SearchByViewKeyAction extends ViewBaseAction {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(SearchByViewKeyAction.class);
 
-	public void execute() throws Exception {	
+	public void execute() throws Exception {
 		Map keys = null;  
 		Map valuesForSearchByAnyProperty = null;
 		try {									
@@ -53,9 +53,9 @@ public class SearchByViewKeyAction extends ViewBaseAction {
 			}
 			else {				
 				getView().clear(); 
-				values = MapFacade.getValues(getModelName(), keys, getMemberNames());				
+				values = MapFacade.getValues(getModelName(), keys, getMemberNames());
 			}
-			
+		
 			getView().setEditable(true);	
 			getView().setKeyEditable(false);			
 			setValuesToView(values); 		
@@ -67,7 +67,7 @@ public class SearchByViewKeyAction extends ViewBaseAction {
 		catch (Exception ex) {
 			log.error(ex.getMessage(),ex);
 			addError("system_error");			
-		}			
+		}
 	}
 	
 	/**

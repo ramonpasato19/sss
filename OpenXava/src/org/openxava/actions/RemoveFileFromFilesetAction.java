@@ -1,5 +1,8 @@
 package org.openxava.actions;
 
+import java.util.*;
+
+import org.openxava.util.*;
 import org.openxava.web.editors.*;
 
 /**
@@ -8,6 +11,7 @@ import org.openxava.web.editors.*;
  * It remove the file of the file container. <p>
  * 
  * @author Jeromy Altuna
+ * @author Javier Paniza
  */
 public class RemoveFileFromFilesetAction extends ViewBaseAction {
 	
@@ -15,8 +19,20 @@ public class RemoveFileFromFilesetAction extends ViewBaseAction {
 	
 	@Override
 	public void execute() throws Exception {
+		AttachedFile file = FilePersistorFactory.getInstance().find(getFileId()); 
 		FilePersistorFactory.getInstance().remove(getFileId());
+		trackModification(file); 
 	}	
+	
+	private void trackModification(AttachedFile file) { 
+		String property = (String) Maps.getKeyFromValue(getView().getValues(), file.getLibraryId(), "FILES"); 
+		Map oldChangedValues = new HashMap();
+		oldChangedValues.put(property, XavaResources.getString("files_file_removed"));  
+		Map newChangedValues = new HashMap();
+		newChangedValues.put(property, file.getName()); 
+		AccessTracker.modified(getView().getModelName(), getView().getKeyValues(), oldChangedValues, newChangedValues);
+	}
+
 
 	public String getFileId() {
 		return fileId;

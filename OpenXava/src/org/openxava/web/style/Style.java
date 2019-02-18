@@ -156,15 +156,7 @@ public class Style {
 	public boolean isForBrowse(String browser) {
 		return false;
 	}
-	
-	/** 
-	 * 
-	 * @since 4.2
-	 */
-	public boolean isOnlyOneButtonForModeIfTwoModes() {
-		return false;
-	}
-	
+		
 	public String [] getNoPortalModuleJsFiles() { 
 		return null;
 	}
@@ -286,6 +278,13 @@ public class Style {
 	public String getModule() {
 		return "ox-module";		
 	}
+	
+	/**
+	 * @since 6.0
+	 */
+	public String getListMode() {
+		return "ox-list-mode";
+	}
 			
 	/**
 	 * 
@@ -373,19 +372,7 @@ public class Style {
 	public String getButtonBarImage() { 
 		return "ox-button-bar-image";
 	}
-	
-	public String getButtonBarModeButton() {		
-		return "ox-button-bar-mode-button"; 
-	}
-
-	/**
-	 * 
-	 * @since 5.1.1
-	 */
-	public String getButtonBarActiveModeButtonContent() { 		
-		return "ox-button-bar-active-mode-button-content"; 
-	}
-		
+			
 	/**
 	 * 
 	 * @since 4.2
@@ -487,8 +474,64 @@ public class Style {
 	public String getChartType() {  
 		return "ox-chart-type";
 	}
+	
+	/**
+	 * @since 6.0
+	 */
+	public String getChartData() {   
+		return "ox-chart-data";
+	}
+	
+	/**
+	 * @since 5.9
+	 */
+	public String getChartsDataStyle() { 
+		return "width:calc(100vw - 385px); height:calc(100vh - 300px);"; 
+	}
 
-				
+	
+	/**
+	 * @since 5.7
+	 */
+	public String getCards() {
+		return "ox-cards";
+	}
+
+	/**
+	 * @since 5.7
+	 */
+	public String getCard() {
+		return "ox-card";
+	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public String getCardHeader() {
+		return "ox-card-header";
+	}
+
+	/**
+	 * @since 5.7
+	 */
+	public String getCardSubheader() {
+		return "ox-card-subheader";
+	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public String getCardContent() {
+		return "ox-card-content";
+	}
+		
+	/**
+	 * @since 5.7
+	 */
+	public String getNoObjects() {
+		return "ox-no-objects";
+	}
+			
 	public String getListCellSpacing() {
 		return ""; 
 	}
@@ -595,6 +638,14 @@ public class Style {
 		return "ox-element-collection";
 	}
 
+	/**
+	 * 
+	 * @since 6.0
+	 */	
+	public String getElementCollectionDataCell() {  
+		return "ox-element-collection-data-cell";
+	}
+
 	public String getFrameHeaderStartDecoration() {
 		return getFrameHeaderStartDecoration(0); 
 	}
@@ -602,20 +653,25 @@ public class Style {
 	/**
 	 * 
 	 * @since 5.1.1
-	 * @deprecated Only used by the old Java renderer 
 	 */
-	@Deprecated 
 	public String getCollectionFrameHeaderStartDecoration(int width) { 
-		return getFrameHeaderStartDecoration(width, false);  		
+		return getFrameHeaderStartDecoration(width, true);  
+	}
+	
+	public String getFrameHeaderStartDecoration(int width) {
+		return getFrameHeaderStartDecoration(width, false);
 	}
 
-
-	public String getFrameHeaderStartDecoration(int width) {  
+	public String getFrameHeaderStartDecoration(int width, boolean collection) {   
 		StringBuffer r = new StringBuffer();
 		r.append("<table ");
 		r.append(" class='");
 		if (width != 0) { // For several collections in the same row 
 			r.append(getFrame());
+		}
+		if (collection) {
+			r.append(' ');
+			r.append(getCollection());
 		}
 		r.append("' style='float:left;margin-right:4px;");
 		if (width != 0) {
@@ -697,11 +753,10 @@ public class Style {
 		r.append("' ");
 		if (closed) r.append("style='display: none;'");
 		r.append("><td class='");
-		r.append(getFrameContent());		
+		r.append(getFrameContent());
 		r.append("'>\n");
 		return r.toString();
-	}
-	
+	}	
 	
 	public String getFrameContentEndDecoration() { 
 		return "\n</td></tr></table>";
@@ -824,10 +879,19 @@ public class Style {
 	}
 	
 	/**
-	 * For messages and errors
+	 * For messages
 	 */
 	public String getMessagesWrapper() { 
-		return "";
+		return "ox-messages-wrapper";
+	}
+
+	/**
+	 * For errors
+	 * 
+	 * @since 5.8
+	 */
+	public String getErrorsWrapper() {  
+		return "ox-errors-wrapper";
 	}
 	
 	public String getMessageStartDecoration() { 
@@ -882,6 +946,14 @@ public class Style {
 	 */
 	public String getSortIndicator2() { 
 		return "ox-sort-indicator2";
+	}
+	
+
+	/**
+	 * @since v5.7
+	 */
+	public String getSections() { 
+		return "ox-sections";
 	}
 
 	
@@ -963,6 +1035,13 @@ public class Style {
 		return "</span></span>";
 	}
 	
+	/**
+	 * @since 5.8 
+	 */
+	public String getCollection() {  
+		return "ox-collection"; 
+	}	
+	
 	public String getCollectionListActions() { 
 		return "ox-collection-list-actions"; 
 	}
@@ -987,18 +1066,8 @@ public class Style {
 	public String getRemoveImage() {
 		return getImagesFolder() +  "/remove.gif";
 	}
-	
-	public String getLoadingImage() {
-		return getImagesFolder() +  "/loading.gif";
-	}
-	
-	/**
-	 * @since 5.1.1
-	 */
-	public String getProcessingImage() {
-		return getImagesFolder() +  "/processing.gif";
-	}	
-	
+
+
 	/**
 	 * If <code>true</code< the header in list is aligned as data displayed in its column. <p>
 	 * 
@@ -1339,43 +1408,17 @@ public class Style {
 	}
 	
 	/**
-	 * @param width Width of the table container.
-	 * @param sibling If true this frame is a sibling (to the right) frame.
-	 * @return String representing the decoration of the frame.
-	 * @since 5.0
-	 * @deprecated Only used by the old Java renderer 
+	 * @since v6.0
 	 */
-	@Deprecated 
-	public String getFrameHeaderStartDecoration(int width, boolean sibling) {
-		StringBuffer returnValue = new StringBuffer(getFrameHeaderStartDecoration(width));
-		// This is a heuristic approach to have subclasses of Style working without changes, 
-		// but it should be implemented in the subclass itself.
-		// The implementation should take into consideration the state of the sibling parameter.
-		if (sibling) {
-			if (!replacedFrameHeaderClass(returnValue, "'")) {
-				if (!replacedFrameHeaderClass(returnValue, "'", " ")) {
-					if (!replacedFrameHeaderClass(returnValue, "\"")) {
-						replacedFrameHeaderClass(returnValue, "\"", " ");
-					}
-				}
-			}
-		}
-		return returnValue.toString();
-	}
-	
-	/**
-	 * Before v5.5 it was getErrorImage(). 
-	 * @since v5.5
-	 */
-	public String getErrorIcon() {
-		return "ox-error-icon";
+	public String getErrorEditor() { 
+		return "ox-error-editor";
 	}
 
 	/**
-	 * @since v5.5
+	 * @since v6.0
 	 */
-	public String getRequiredIcon() {
-		return "ox-required-icon";
+	public String getRequiredEditor() { 
+		return "ox-required-editor";
 	}
 	
 	/**
@@ -1418,4 +1461,26 @@ public class Style {
 	public String getAttachedFile() {
 		return "ox-attached-file";
 	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public String getResizeColumns() { 
+		return "ox-resize-columns";
+	}
+	
+	/**
+	 * @since 5.9
+	 */
+	public String getSubscribed() { 
+		return "ox-subscribed";
+	}
+	
+	/**
+	 * @since 5.9
+	 */	
+	public String getUnsubscribed() { 
+		return "ox-unsubscribed";
+	}
+	
 }

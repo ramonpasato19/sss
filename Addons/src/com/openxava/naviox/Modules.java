@@ -13,9 +13,6 @@ import org.openxava.util.*;
 
 import com.openxava.naviox.impl.*;
 import com.openxava.naviox.util.*;
-import com.powerfin.helper.*;
-import com.powerfin.model.*;
-import com.powerfin.util.*;
 
 /**
  * 
@@ -26,15 +23,17 @@ public class Modules implements Serializable {
 	public final static String FIRST_STEPS = "FirstSteps";
 	
 	private static Log log = LogFactory.getLog(Modules.class);
-	private final static int MODULES_ON_TOP = 20; 
 	private final static int BOOKMARK_MODULES = 100;
 	private final static ModuleComparator comparator = new ModuleComparator();
 	private static String preferencesNodeName = null; 
 	private List<MetaModule> all;
-	private List<MetaModule> topModules = null;
-	private List<MetaModule> bookmarkModules = null; 
+	private List<MetaModule> bookmarkModules = null;
+	private List<MetaModule> regularModules; 
+	private List<MetaModule> fixedModules; 
 	
-	private MetaModule current; 
+	private MetaModule current;
+
+	 
 
 	public static void init(String applicationName) {
 		MetaModuleFactory.setApplication(applicationName);
@@ -55,8 +54,9 @@ public class Modules implements Serializable {
 		
 	public void reset() {
 		all = null;
-		topModules = null;
-		bookmarkModules = null; 
+		bookmarkModules = null;
+		fixedModules = null; 
+		regularModules = null; 
 		current = null; 		
 		if (!NaviOXPreferences.getInstance().isStartInLastVisitedModule()) {
 			try {
@@ -69,7 +69,7 @@ public class Modules implements Serializable {
 	}
 	
 	public boolean hasModules() { 
-		return !getAll().isEmpty();
+		return (NaviOXPreferences.getInstance().isShowModulesMenuWhenNotLogged() || Users.getCurrent() !=null) && !getAll().isEmpty(); 
 	}
 	
 	private MetaModule createWelcomeModule(MetaApplication app) {
@@ -80,26 +80,28 @@ public class Modules implements Serializable {
 	}
 
 
-	public void setCurrent(String application, String module, boolean retainOrder) { 
+	public void setCurrent(String application, String module) { 
 		this.current = MetaModuleFactory.create(application, module);
-		if (topModules == null) loadTopModules();	
-		int idx = indexOf(topModules, current); 
-		if (idx < 0) {
-			if (topModules.size() >= MODULES_ON_TOP) {
-				topModules.remove(topModules.size() - 1); 
-			}				
-			topModules.add(0, current);
-		}		
-		else if (!retainOrder) {
-			topModules.remove(idx);
-			topModules.add(0, current);
+		try {			
+			Preferences preferences = getPreferences();
+			if (!"SignIn".equals(current.getName())) {
+				preferences.put("current", current.getName());
+			}
+			
+			preferences.flush();
 		}
-		storeTopModules();
+		catch (Exception ex) {
+			log.warn(XavaResources.getString("storing_current_module_problem"), ex);   
+		}
 	}
 		
 	public boolean showsIndexLink() { 
 		return ModulesHelper.showsIndexLink(); 
 	}
+	
+	public boolean showsSearchModules(HttpServletRequest request) { 
+		return ModulesHelper.showsSearchModules(request); 
+	}	
 
 	public String getCurrent(HttpServletRequest request) { 
 		try {
@@ -111,29 +113,56 @@ public class Modules implements Serializable {
 			return FIRST_STEPS;
 		}
 	}
-	
-	public String getCurrentModuleDescription(HttpServletRequest request) { 
+
+	/** @since 6.0 */
+	public String getOrganizationName(HttpServletRequest request) {  
 		try {
 			String organization = Organizations.getCurrentName(request); 	
-			String prefix = organization == null?"":organization + " - ";
-			String application = NaviOXPreferences.getInstance().isShowApplicationName()?current.getMetaApplication().getLabel() + " - ":"";
-			return prefix + application + current.getLabel();
+			return organization == null?"":organization; 
 		}
 		catch (Exception ex) {
+			log.warn(XavaResources.getString("organization_name_problem"), ex); 			
+			return XavaResources.getString("unknow_organization"); 
+		}
+	}
+
+	
+	public String getApplicationLabel(HttpServletRequest request) { 
+		try {
+			return NaviOXPreferences.getInstance().isShowApplicationName()?current.getMetaApplication().getLabel():"";
+		}
+		catch (Exception ex) {
+			log.warn(XavaResources.getString("application_name_problem"), ex); 	
+			return XavaResources.getString("unknow_application"); 
+		}
+	}
+		
+	public String getCurrentModuleDescription(HttpServletRequest request) {
+		try {
+			return Strings.concat(" - ", getOrganizationName(request), getApplicationLabel(request), current.getLabel());
+		}
+		catch (Exception ex) { 
 			log.warn(XavaResources.getString("module_description_problem"), ex);			
 			return XavaResources.getString("unknow_module");
 		}
 	}
 	
+	public String getCurrentModuleLabel() {  
+		return current == null?XavaResources.getString("unknow_module"):current.getLabel(); 
+	}
+	
 	public String getCurrentModuleName() { 
-		return current.getName();
+		return current == null?null:current.getName(); 
 	}
 
 	public void bookmarkCurrentModule() { 
+		if (indexOf(fixedModules, current) >= 0) return; 
+		if (current != null && "Index".equals(current.getName())) return;
 		if (bookmarkModules == null) loadBookmarkModules();	
 		int idx = indexOf(bookmarkModules, current); 
 		if (idx < 0) {
 			bookmarkModules.add(current);
+			if (regularModules != null) regularModules.remove(current);  
 		}		
 		storeBookmarkModules();
 	}
@@ -155,18 +184,35 @@ public class Modules implements Serializable {
 		if (bookmarkModules == null) loadBookmarkModules();
 		return indexOf(bookmarkModules, module) >= 0;
 	}
-	
-	private void loadTopModules() {
-		topModules = NaviOXPreferences.getInstance().isRememberVisitedModules()?
-			loadModulesFromPreferences("", MODULES_ON_TOP):new ArrayList<MetaModule>();
+		
+	private void loadFixedModules() { 
+		String fixedModulesOnMenu = NaviOXPreferences.getInstance().getFixModulesOnTopMenu();
+		fixedModules = new ArrayList();
+		if (Is.emptyString(fixedModulesOnMenu)) return;
+		for (String moduleName: Strings.toCollection(fixedModulesOnMenu)) {
+			loadModule(fixedModules, moduleName);												
+		}
 	}
-	
+
+	private void loadModule(Collection<MetaModule> modules, String moduleName) {  
+		try {
+			MetaModule module = MetaModuleFactory.create(moduleName);
+			if (!modules.contains(module) && isModuleAuthorized(module)) { 
+				modules.add(module);
+			}
+		}
+		catch (Exception ex) {					
+			log.warn(XavaResources.getString("module_not_loaded", moduleName, MetaModuleFactory.getApplication()), ex);
+		}
+	}
+
 	private void loadBookmarkModules() {  
-		bookmarkModules = loadModulesFromPreferences("bookmark.", BOOKMARK_MODULES);  
+		bookmarkModules = new ArrayList<MetaModule>();
+		loadModulesFromPreferences(bookmarkModules, "bookmark.", BOOKMARK_MODULES);
+		bookmarkModules.removeAll(getFixedModules()); 
 	}
 	
-	private List<MetaModule> loadModulesFromPreferences(String prefix, int limit) {
-		List<MetaModule> modules = new ArrayList<MetaModule>(); 
+	private void loadModulesFromPreferences(List<MetaModule> modules, String prefix, int limit) { 
 		try {
 			Preferences preferences = getPreferences();
 			for (int i = 0; i < limit; i++) { 
@@ -174,21 +220,12 @@ public class Modules implements Serializable {
 				if (applicationName == null) break;
 				String moduleName = preferences.get(prefix + "module." + i, null);
 				if (moduleName == null) break;				
-				try {
-					MetaModule module = MetaModuleFactory.create(applicationName, moduleName);
-					if (isModuleAuthorized(module)) {
-						modules.add(module);
-					}
-				}
-				catch (Exception ex) {					
-					log.warn(XavaResources.getString("module_not_loaded", moduleName, applicationName), ex); 
-				}							
+				loadModule(modules, moduleName); 
 			}		
 		}
 		catch (Exception ex) {
 			log.warn(XavaResources.getString("loading_modules_problem"), ex); 
 		}
-		return modules;
 	}
 	
 				
@@ -202,6 +239,27 @@ public class Modules implements Serializable {
 			String [] uri = request.getRequestURI().split("/");
 			if (uri.length < 4) return false;			
 			return isModuleAuthorized(request, MetaModuleFactory.create(uri[1], uri[3])); 
+		}
+		catch (Exception ex) {			
+			log.warn(XavaResources.getString("module_not_authorized"), ex); 
+			return false;
+		}
+			
+	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public boolean isModuleAuthorized(String module) { 	
+		return isModuleAuthorized(null, module); 			
+	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public boolean isModuleAuthorized(HttpServletRequest request, String module) {
+		try {		
+			return isModuleAuthorized(request, MetaModuleFactory.create(module)); 
 		}
 		catch (Exception ex) {			
 			log.warn(XavaResources.getString("module_not_authorized"), ex); 
@@ -224,16 +282,12 @@ public class Modules implements Serializable {
 		if (request != null && ModulesHelper.isPublic(request, module.getName())) return true; 
 		return Collections.binarySearch(getAll(), module, comparator) >= 0;
 	}
-
-	private void storeTopModules() {
-		storeModulesInPreferences(topModules, "", MODULES_ON_TOP, true);
-	}
 	
 	private void storeBookmarkModules() { 
-		storeModulesInPreferences(bookmarkModules, "bookmark.", BOOKMARK_MODULES, false); 
+		storeModulesInPreferences(bookmarkModules, "bookmark.", BOOKMARK_MODULES); 
 	}
 	
-	private void storeModulesInPreferences(Collection<MetaModule> modules, String prefix, int limit, boolean storeCurrent) { 
+	private void storeModulesInPreferences(Collection<MetaModule> modules, String prefix, int limit) { 
 		try {			
 			Preferences preferences = getPreferences();
 			int i=0;
@@ -245,9 +299,6 @@ public class Modules implements Serializable {
 			for (; i < limit; i++) {				
 				preferences.remove(prefix + "application." + i);
 				preferences.remove(prefix + "module." + i);
-			}
-			if (storeCurrent && !"SignIn".equals(current.getName())) {
-				preferences.put("current", current.getName());
 			}
 			
 			preferences.flush();
@@ -273,15 +324,16 @@ public class Modules implements Serializable {
 		}
 		return preferencesNodeName;
 	}
-
-	public Collection getTopModules() {
-		return topModules;	
-	}
-	
 	
 	public Collection getBookmarkModules() { 
 		if (bookmarkModules == null) loadBookmarkModules();
 		return bookmarkModules;
+	}
+	
+	/** @since 6.0 */
+	public Collection getFixedModules() { 
+		if (fixedModules == null) loadFixedModules();
+		return fixedModules;
 	}
 	
 	public List getAll() {
@@ -291,21 +343,32 @@ public class Modules implements Serializable {
 		}
 		return all;
 	}
+	
+	/** @since 6.0 */
+	public List getRegularModules() { 
+		if (getBookmarkModules().isEmpty() && getFixedModules().isEmpty()) return getAll(); 
+		if (regularModules == null) {			
+			regularModules = new ArrayList(getAll());
+			regularModules.removeAll(getFixedModules());
+			regularModules.removeAll(getBookmarkModules());
+		}
+		return regularModules;
+	}
 
 	public String getUserAccessModule(ServletRequest request) { 
 		return ModulesHelper.getUserAccessModule(request);
 	}
 
-	private int indexOf(Collection<MetaModule> topModules, MetaModule current) { 
+	private int indexOf(Collection<MetaModule> modules, MetaModule current) { 
+		if (modules == null) return -1; 
 		int idx = 0;
-		for (MetaModule module: topModules) {
+		for (MetaModule module: modules) {
 			if (module.getName().equals(current.getName()) &&
 					module.getMetaApplication().getName().equals(current.getMetaApplication().getName())) return idx;
 			idx++;
 		}
 		return -1;
 	}
-	
 	
 	private static class ModuleComparator implements Comparator<MetaModule> {
 
@@ -314,8 +377,17 @@ public class Modules implements Serializable {
 		}
 		
 	}
+	
 	/*
-	 * Nuevo para powerfin
+	 * Powerfin Accounting Date
+	 */
+	public String getAccountingDate()
+	{
+		return com.powerfin.util.UtilApp.dateToString(com.powerfin.helper.CompanyHelper.getCurrentAccountingDate());
+	}
+	
+	/*
+	 * Powerfin Logo Name
 	 */
 	public String getLogoName(HttpServletRequest request) { 
 		try {
@@ -330,20 +402,5 @@ public class Modules implements Serializable {
 			return XavaResources.getString("unknow_module");
 		}
 	}
-	public String getPowerfinModuleDescription(HttpServletRequest request) { 
-		try {
-			return XavaResources.getString("module_initials")
-					+ ": " 
-					+ current.getLabel() 
-					+ ", "
-					+ XavaResources.getString("accountingDate_initials")
-					+ ": " 
-					+ UtilApp.dateToString(CompanyHelper.getCurrentAccountingDate());
-		}
-		catch (Exception ex) {
-			log.warn(XavaResources.getString("module_description_problem"), ex);			
-			return XavaResources.getString("unknow_module");
-		}
-	}
-	
+
 }

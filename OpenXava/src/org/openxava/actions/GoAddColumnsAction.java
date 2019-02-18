@@ -17,7 +17,7 @@ public class GoAddColumnsAction extends ViewBaseAction implements ICustomViewAct
 	private Tab customizingTab;
 	
 	public void execute() throws Exception {
-		String objectName =  Is.emptyString(collection)?"xava_tab":Tab.COLLECTION_PREFIX + collection;
+		String objectName =  Is.emptyString(collection)?"xava_tab":Tab.COLLECTION_PREFIX + collection.replace(".", "_"); 
 		setCustomizingTab((Tab) getContext().get(getRequest(), objectName)); 
 		getCustomizingTab().setColumnsToAddUntilSecondLevel(true);  
 		setControllers("AddColumns"); 

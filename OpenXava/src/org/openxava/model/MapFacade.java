@@ -720,6 +720,40 @@ public class MapFacade {
 		}						
 	}
 	
+	/**
+	 * Set new values to a entity/aggregate that is found from its key values without tracking the changes. <p>
+	 * 
+	 * All methods of MapFacade track the changes (using AccessTracker), but this one.
+	 * 
+	 * @since 5.9
+	 * @param modelName  OpenXava model name. Not null.
+	 * @param keyValues  Key values of object. Not null. <i>By value</i> semantics.
+	 * @param values  New values to set. Not null. <i>By value</i> semantics.
+	 * @exception ObjectNotFoundException  If object with this key does not exist 
+	 * @exception FinderException  Logic problem on find.	
+	 * @exception ValidationException  Data validation problems.	  
+	 * @exception XavaException  Any problem related to OpenXava. Rollback transaction.
+	 * @exception SystemException  System problem. Rollback transaction.
+	 */	
+	public static void setValuesNotTracking(String modelName, Map keyValues, Map values) 
+		throws ObjectNotFoundException, FinderException, ValidationException,
+				XavaException, SystemException 
+	{		
+		Assert.arg(modelName, keyValues, values);				
+		try {
+			getImpl(modelName).setValuesNotTracking(Users.getCurrentUserInfo(), modelName, keyValues, values);								
+		}
+		catch (RemoteException ex) {
+			annulImpl(modelName);
+			try {
+				getImpl(modelName).setValuesNotTracking(Users.getCurrentUserInfo(), modelName, keyValues, values);
+			}
+			catch (RemoteException rex) {
+				throw new SystemException(rex);
+			}			
+		}						
+	}
+	
 	/**	 
 	 * Validates the sent values but does not create or update the object. <p>
 	 *
@@ -750,6 +784,37 @@ public class MapFacade {
 		}				
 	}
 	
+	
+	/**
+	 * Validates the sent values and if required values are included, but does not create or update the object. <p>
+	 *
+	 * Validates the sent data and certify that exist all needed data to create a new object.<br> 
+	 * 
+	 * @since 6.0
+	 * @param modelName  OpenXava model name, can be an qualified aggregate. Not null.
+	 * @param values  Values to validate. Not null. <i>By value</i> semantics.
+	 * @return Message list with validation errors. Not null.
+	 * @exception XavaException  Any problem related to OpenXava. Rollback transaction.
+	 * @exception SystemException  System problem. Rollback transaction.
+	 */	
+	public static Messages validateIncludingMissingRequired(String modelName, Map values)
+		throws XavaException, SystemException 
+	{
+		Assert.arg(modelName, values);			
+		try {
+			return getImpl(modelName).validateIncludingMissingRequired(Users.getCurrentUserInfo(), modelName, values);								
+		}
+		catch (RemoteException ex) {			
+			annulImpl(modelName);
+			try {
+				return getImpl(modelName).validateIncludingMissingRequired(Users.getCurrentUserInfo(), modelName, values);
+			}
+			catch (RemoteException rex) {
+				throw new SystemException(rex);
+			}	
+		}				
+	}
+	
 									
 	
 	private static IMapFacadeImpl getImpl(String modelName) throws SystemException {
@@ -761,9 +826,8 @@ public class MapFacade {
 			}			
 			String paquete = MetaComponent.get(modelName).getPackageNameWithSlashWithoutModel();			
 			MapFacadeRemote remote = (MapFacadeRemote) getRemotes().get(paquete);
-			if (remote == null) {							
-				Object ohome = BeansContext.get().lookup("ejb/"+paquete+"/MapFacade");
-				MapFacadeHome home = (MapFacadeHome) PortableRemoteObject.narrow(ohome, MapFacadeHome.class);
+			if (remote == null) {					
+				MapFacadeHome home = (MapFacadeHome) BeansContext.get().lookup("ejb/"+paquete+"/MapFacade");
 				remote = home.create();
 				getRemotes().put(paquete, remote);				
 			}		
@@ -889,6 +953,50 @@ public class MapFacade {
 			}
 		}		
 	}	
+	
+	/** 
+	 * Move an element from a collection to another. <p>
+	 * 
+	 * @since 5.9
+	 * @param sourceContainerModelName  OpenXava model name of the container of the source collection. Not null.
+	 * @param sourceContainerKeyValues  Key values of the container of the source collection. Not null. <i>By value</i> semantics.
+	 * @param sourceCollectionName  Source collection name. Not null.
+	 * @param targetContainerModelName  OpenXava model name of the container of the target collection. Not null.
+	 * @param targetContainerKeyValues  Key values of the container of the target collection. Not null. <i>By value</i> semantics.
+	 * @param targetCollectionName  Target collection name. Not null.
+	 * @param collectionElementKeyValues  Key value of element to move. Not null. <i>By value</i> semantics.
+	 * @exception ObjectNotFoundException  If object with this key does not exist 
+	 * @exception FinderException  Logic problem on find.	
+	 * @exception ValidationException  Data validation problems. 
+	 * @exception XavaException  Any problem related to OpenXava. Rollback transaction.
+	 * @exception SystemException  System problem. Rollback transaction.
+	 */ 
+	public static void moveCollectionElementToAnotherCollection( 
+		String sourceContainerModelName, Map sourceContainerKeyValues, String sourceCollectionName, 
+		String targetContainerModelName, Map targetContainerKeyValues, String targetCollectionName,
+		Map collectionElementKeyValues) 
+		throws ObjectNotFoundException, FinderException, ValidationException, XavaException, SystemException
+	{
+		Assert.arg(sourceContainerModelName, sourceContainerKeyValues, sourceCollectionName, targetContainerModelName, targetContainerKeyValues, targetCollectionName, collectionElementKeyValues);
+		try {
+			getImpl(sourceContainerModelName).moveCollectionElementToAnotherCollection(Users.getCurrentUserInfo(),
+				sourceContainerModelName, sourceContainerKeyValues, sourceCollectionName, 
+				targetContainerModelName, targetContainerKeyValues, targetCollectionName,
+				collectionElementKeyValues);
+		}
+		catch (RemoteException ex) {
+			annulImpl(sourceContainerModelName);
+			try {
+				getImpl(sourceContainerModelName).moveCollectionElementToAnotherCollection(Users.getCurrentUserInfo(),
+					sourceContainerModelName, sourceContainerKeyValues, sourceCollectionName, 
+					targetContainerModelName, targetContainerKeyValues, targetCollectionName,
+					collectionElementKeyValues);
+			}
+			catch (RemoteException rex) {
+				throw new SystemException(rex);
+			}
+		}		
+	}
 	
 	/** 
 	 * Move an element in a collection. <p>

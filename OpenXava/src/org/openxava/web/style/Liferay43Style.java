@@ -1,5 +1,7 @@
 package org.openxava.web.style;
 
+import org.openxava.util.*;
+
 /**
  * For Liferay 4.3, 4.4 and 5.0. <p>
  * 
@@ -137,10 +139,9 @@ public class Liferay43Style extends PortalStyle {
 	
 	public String getFrameContentStartDecoration(String id, boolean closed) {
 		String closedStyle = closed?"style='display: none;'":"";
-		return "<div id='" + id + "' " + closedStyle + " class='portlet-content'><div class='portlet-content-container'>\n";			
+		return "<div id='" + id + "' " + closedStyle + " class='portlet-content'><div class='portlet-content-container'>\n";
 	}	
-	
-	
+		
 	public String getFrameContentEndDecoration() { 		
 		return "\n</div></div></div>"; 
 	}
@@ -196,14 +197,7 @@ public class Liferay43Style extends PortalStyle {
 	public String getSmallLabel() {
 		return "''";
 	}
-	
-	/**
-	 * For messages and errors
-	 */
-	public String getMessagesWrapper() { 
-		return "";
-	}
-	
+		
 	public String getButton() {
 		return ""; 
 	}
@@ -260,11 +254,7 @@ public class Liferay43Style extends PortalStyle {
 	public String getRemoveImage() {
 		return getLiferayImagesFolder() + "portlet/close.png";
 	}
-	
-	public String getLoadingImage() { 
-		return getLiferayImagesFolder() + "progress_bar/loading_animation.gif";
-	}
-	
+		
 	public boolean isApplySelectedStyleToCellInList() {
 		return false;
 	}

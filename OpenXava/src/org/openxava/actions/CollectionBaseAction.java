@@ -7,6 +7,7 @@ import javax.ejb.*;
 
 import org.apache.commons.logging.*;
 import org.openxava.model.*;
+import org.openxava.model.meta.*;
 import org.openxava.util.*;
 
 /**
@@ -23,7 +24,8 @@ abstract public class CollectionBaseAction extends CollectionElementViewBaseActi
 	private static Log log = LogFactory.getLog(CollectionBaseAction.class);
 
 	private List mapValues = null;
-	private List mapsSelectedValues;
+	private List<Map> mapsSelectedValues; 
+	private Map [] selectedKeys; 
 	private List objects;
 	private List selectedObjects;
 	private int row = -1;  
@@ -36,7 +38,7 @@ abstract public class CollectionBaseAction extends CollectionElementViewBaseActi
 	 * The values only include the displayed data in the row.<br>
 	 * @return  Of type <tt>Map</tt>. Never null.
 	 */
-	protected List getMapValues() throws XavaException {
+	protected List<Map> getMapValues() throws XavaException { 
 		if (mapValues == null) {
 			mapValues = getCollectionElementView().getCollectionValues();
 		}
@@ -53,14 +55,41 @@ abstract public class CollectionBaseAction extends CollectionElementViewBaseActi
 	 * The values only include the displayed data in the row.<br>
 	 * 
 	 * @return  Of type <tt>Map</tt>. Never null.
-	 */
-	protected List getMapsSelectedValues() throws XavaException { 
+	 */ 
+	protected List<Map> getMapsSelectedValues() throws XavaException {
 		if (mapsSelectedValues == null) {
+			if (row >= 0) {
+				mapsSelectedValues = Collections.singletonList(getMapValues().get(row)); 	
+			}			
+			else {
+				mapsSelectedValues = getCollectionElementView().getCollectionSelectedValues();
+			}
+		}
+		return mapsSelectedValues;
+	}
+
+	/**
+	 * Keys of the selected collection element.<p>
+	 * 
+	 * If <code>row</code> property has value it returns the resulting list
+	 * will contain the value of that row only.<br>
+	 * 
+	 * The result is a Map with the key of each selected row, with the exception 
+	 * of @ElementCollection that returns all the displayed values of each selected row.<br>
+	 * 
+	 * @return  Never null.
+	 * @since 6.0.2
+	 */ 	
+	protected Map [] getSelectedKeys() throws XavaException {  
+		if (selectedKeys == null) {
 			if (row >= 0) {
 				Map key;
 				try {
 					if (getCollectionElementView().isCollectionFromModel()) {
 						key = (Map) getCollectionElementView().getCollectionValues().get(row);
+						if (!getCollectionElementView().isRepresentsElementCollection()) {
+							key = getCollectionElementView().getMetaModel().extractKeyValues(key); 
+						}
 					}
 					else {
 						key = (Map) getCollectionElementView().getCollectionTab().getTableModel().getObjectAt(getRow());
@@ -70,13 +99,29 @@ abstract public class CollectionBaseAction extends CollectionElementViewBaseActi
 					log.error(XavaResources.getString("get_row_object_error", row), ex);
 					throw new XavaException("get_row_object_error", row); 
 				}
-				mapsSelectedValues = Collections.singletonList(key);
+				 
+				selectedKeys = new Map[] { key };
 			}			
 			else {
-				mapsSelectedValues = getCollectionElementView().getCollectionSelectedValues();
+				
+				if (getCollectionElementView().isCollectionFromModel()) {
+					List<Map> selectedValues = getCollectionElementView().getCollectionSelectedValues();
+					selectedKeys = new HashMap[selectedValues.size()];
+					MetaModel metaModel = getCollectionElementView().getMetaModel();
+					boolean elementCollection = getCollectionElementView().isRepresentsElementCollection();
+					int i = 0;
+					for (Map values: selectedValues) {
+						selectedKeys[i++] = elementCollection?values:metaModel.extractKeyValues(values); 
+					}
+				}
+				else {
+					selectedKeys = getCollectionElementView().getCollectionTab().getSelectedKeys();
+				}				
+
+				
 			}
 		}
-		return mapsSelectedValues;
+		return selectedKeys;
 	}
 	
 	

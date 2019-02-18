@@ -12,11 +12,13 @@ public class MetaController extends MetaElement {
 	private static Log log = LogFactory.getLog(MetaController.class);
 	private String className; // Only for spanish/swing version
 	private Collection metaActions = new ArrayList();
-	private Collection parentsNames = new ArrayList();
-	private Collection parents = new ArrayList();
+	private Collection<String> parentsNames; 
+	private Map<String, Collection<String>> parentsExcludedActions;
+	private Collection<MetaController> parents;	
 	private Map mapMetaActions = new HashMap();
 	private Collection<MetaSubcontroller> metaSubcontrollers = new ArrayList<MetaSubcontroller>();
 	private Collection<MetaControllerElement> metaControllerElements = new ArrayList<MetaControllerElement>();	// actions and subcontroller order by occurrence
+	private String icon, image; // for when the controller is used as a subcontroller
 	
 	public void addMetaControllerElement(MetaControllerElement controllerElement){
 		metaControllerElements.add(controllerElement);
@@ -26,11 +28,12 @@ public class MetaController extends MetaElement {
 		return metaControllerElements;
 	}
 	
-	private void addMetaControllerElementOverWritteActions(List result, Collection<MetaControllerElement> elements){
-	    for (MetaControllerElement controllerElement : elements){
+	private void addMetaControllerElementOverWritteActions(List result, Collection<String> excludedActions){
+	    for (MetaControllerElement controllerElement : getMetaControllerElements()) {
 	        if (controllerElement instanceof MetaAction){
 	            // overwritte actions
 	            MetaAction metaAction = (MetaAction)controllerElement;
+	            if (excludedActions != null && excludedActions.contains(metaAction.getName())) continue;
 	            int pos = -1;
 	            for (int i=0; i<result.size(); i++) {
 	                if (result.get(i) instanceof MetaAction && ((MetaAction)result.get(i)).getName().equals(metaAction.getName())) {
@@ -39,25 +42,36 @@ public class MetaController extends MetaElement {
 	            }
 	            if (pos < 0) result.add(metaAction);
 	            else {
-	                result.remove(pos);
-	                result.add(pos, metaAction);
+	                result.set(pos, metaAction); 
 	            }
 	        }
 	        else result.add(controllerElement); // MetaSubcontroller
 	    }
 	}
-
-	private void getMetaControllerElementParents(List result, Collection<MetaController> parents){
-	    for(MetaController parent : parents) {
-	        if (!parent.getParents().isEmpty()) getMetaControllerElementParents(result, parent.getParents());
-	        addMetaControllerElementOverWritteActions(result, parent.getMetaControllerElements());
+	
+	private void getMetaControllerElementParents(List result, Collection<String> sonExcludedActions){
+	    for(MetaController parent : getParents()) {
+	        Collection<String> excludedActions = sonExcludedActions;
+	        if (parentsExcludedActions != null) {
+				Collection<String> parentExcludedActions = parentsExcludedActions.get(parent.getName());
+				if (parentExcludedActions != null) {
+					if (excludedActions == null) {
+						excludedActions = parentExcludedActions;
+					}
+					else {
+						excludedActions.addAll(parentExcludedActions);
+					}
+				}
+	        }
+	        if (!parent.getParents().isEmpty()) parent.getMetaControllerElementParents(result, excludedActions);
+	        parent.addMetaControllerElementOverWritteActions(result, excludedActions);
 	    }
 	}
 
 	public Collection<MetaControllerElement> getAllMetaControllerElements(){
 	    List<MetaControllerElement> result = new ArrayList();
-	    getMetaControllerElementParents(result, getParents());
-	    addMetaControllerElementOverWritteActions(result, getMetaControllerElements());
+	    getMetaControllerElementParents(result, null); 
+	    addMetaControllerElementOverWritteActions(result, null); 
 	    return result;
 	}
 	
@@ -87,9 +101,13 @@ public class MetaController extends MetaElement {
 		mapMetaActions.put(action.getName(), action);
 	}
 	
-	public void addParentName(String parentName) {
-		if (parentsNames == null) parentsNames = new ArrayList();
-		parentsNames.add(parentName);  	
+	public void addParent(String parentName, String excludedActions) { 
+		if (parentsNames == null) parentsNames = new ArrayList<String>();
+		parentsNames.add(parentName);
+		if (!Is.emptyString(excludedActions)) {
+			if (parentsExcludedActions == null) parentsExcludedActions = new HashMap<String, Collection<String>>();
+			parentsExcludedActions.put(parentName, Strings.toCollection(excludedActions));
+		}		  	
 		parents = null;	
 	}
 	
@@ -150,13 +168,13 @@ public class MetaController extends MetaElement {
 	}
 
 	
-	private Collection getAllMetaActions(boolean excludeHidden, boolean recursive) throws XavaException {  
+	private Collection<MetaAction> getAllMetaActions(boolean excludeHidden, boolean recursive) throws XavaException {   
 		List result = new ArrayList();
 		// Adding parents
-		Iterator itParents = getParents().iterator();
+		Iterator<MetaController> itParents = getParents().iterator(); 
 		while (itParents.hasNext()) {
-			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getAllMetaActions(excludeHidden, recursive));
+			MetaController parent = itParents.next();
+			addParentActions(result, parent.getName(), parent.getAllMetaActions(excludeHidden, recursive));
 		}
 				
 		// and now ours 
@@ -182,8 +200,21 @@ public class MetaController extends MetaElement {
 		return result;
 	}
 	
-		
-	
+	private void addParentActions(Collection<MetaAction> result, String parentName, Collection<MetaAction> metaActions) { 
+		if (parentsExcludedActions != null) {
+			Collection<String> excludedActions = parentsExcludedActions.get(parentName); 
+			if (excludedActions != null) {
+				for (MetaAction metaAction: metaActions) {
+					if (!excludedActions.contains(metaAction.getName())) {
+						result.add(metaAction);
+					}					
+				}
+				return;
+			}
+		}
+		result.addAll(metaActions);
+	}
+
 	public String getId() {
 		return getName();
 	}
@@ -198,7 +229,7 @@ public class MetaController extends MetaElement {
 		Iterator itParents = getParents().iterator();
 		while (itParents.hasNext()) {
 			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getMetaActionsOnInit());
+			addParentActions(result, parent.getName(), parent.getMetaActionsOnInit());  
 		}
 
 		// Ours
@@ -217,6 +248,7 @@ public class MetaController extends MetaElement {
 		
 		return result;
 	}
+		
 	public boolean hasParents() {
 		return parentsNames != null;		 	
 	}		
@@ -224,13 +256,13 @@ public class MetaController extends MetaElement {
 	/**
 	 * @return of type MetaController
 	 */
-	public Collection getParents() throws XavaException {
+	public Collection<MetaController> getParents() throws XavaException {
 		if (!hasParents()) return Collections.EMPTY_LIST;
 		if (parents == null) {
-			parents = new ArrayList();
-			Iterator it = parentsNames.iterator();
+			parents = new ArrayList<MetaController>(); 
+			Iterator<String> it = parentsNames.iterator(); 
 			while (it.hasNext()) {
-				String name = (String) it.next();
+				String name = it.next();
 				parents.add(MetaControllers.getMetaController(name));
 			}
 		}
@@ -246,7 +278,7 @@ public class MetaController extends MetaElement {
 		Iterator itParents = getParents().iterator();
 		while (itParents.hasNext()) {
 			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getMetaActionsOnEachRequest());
+			addParentActions(result, parent.getName(), parent.getMetaActionsOnEachRequest()); 
 		}
 
 		Iterator it = metaActions.iterator();		
@@ -273,7 +305,7 @@ public class MetaController extends MetaElement {
 		Iterator itParents = getParents().iterator();
 		while (itParents.hasNext()) {
 			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getMetaActionsAfterEachRequest());
+			addParentActions(result, parent.getName(), parent.getMetaActionsAfterEachRequest()); 
 		}
 
 		Iterator it = metaActions.iterator();		
@@ -300,7 +332,7 @@ public class MetaController extends MetaElement {
 		Iterator itParents = getParents().iterator();
 		while (itParents.hasNext()) {
 			MetaController parent = (MetaController) itParents.next();
-			result.addAll(parent.getMetaActionsBeforeEachRequest());
+			addParentActions(result, parent.getName(), parent.getMetaActionsBeforeEachRequest()); 
 		}
 
 		Iterator it = metaActions.iterator();		
@@ -316,8 +348,23 @@ public class MetaController extends MetaElement {
 		}
 		
 		return result;
-	}	
-	
+	}
+
+	public String getIcon() {
+		return icon;
+	}
+
+	public void setIcon(String icon) {
+		this.icon = icon;
+	}
+
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
 }
 
 

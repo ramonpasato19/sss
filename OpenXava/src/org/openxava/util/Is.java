@@ -3,6 +3,8 @@ package org.openxava.util;
 import java.math.*;
 import java.util.*;
 
+import org.apache.commons.lang3.*;
+
 import net.sf.jasperreports.engine.virtualization.*;
 
 /**
@@ -55,6 +57,8 @@ public class Is {
 	/**
 	 * Verifies if the sent object is <code>null</code> or empty string 
 	 * (if it's string) or 0 (if it's number) or empty Map. <p>
+	 * 
+	 * Since v5.9 it supports Java native arrays. 
 	 */
 	public final static boolean empty(Object object) {
 		if (object == null) return true;
@@ -62,6 +66,7 @@ public class Is {
 		if (object instanceof BigDecimal) return ZERO.compareTo((BigDecimal)object) == 0;
 		if (object instanceof Number) return ((Number) object).intValue() == 0;
 		if (object instanceof Map) return Maps.isEmptyOrZero((Map) object);
+		if (object.getClass().isArray()) return ArrayUtils.toString(object).equals("{}"); 
 		return false;
 	}
 	
@@ -96,6 +101,8 @@ public class Is {
 	 * Also admits to compare objects of not compatible types, just it returns 
 	 * false in this case.
 	 * 
+	 * Since v5.9 works fine with Java native arrays.
+	 * 
 	 * @param a Can be null.
 	 * @param b Can be null.
 	 */
@@ -106,6 +113,9 @@ public class Is {
 		if (b instanceof Enum) b = enumToInteger(b);		
 		if (isInteger(a)) a = toLong(a);
 		if (isInteger(b)) b = toLong(b);
+		if (a.getClass().isArray() && b.getClass().isArray()) {
+			return ArrayUtils.isEquals(a, b);
+		}
 		try {
 			if (a instanceof Comparable) {
 				try {

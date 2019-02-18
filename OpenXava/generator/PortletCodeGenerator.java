@@ -172,7 +172,9 @@ public class PortletCodeGenerator {
 			Locale locale = (Locale) olocale;
 			Properties i18n = new Properties();			
 			i18n.put("category." + app.getId(), app.getLabel(locale));
-			i18n.put("javax.portlet.title", app.getLabel(locale) + " - " +  module.getDescription(locale));
+			String description = module.getDescription(locale);
+			if (Is.empty(description)) description = module.getLabel(locale);
+			i18n.put("javax.portlet.title", app.getLabel(locale) + " - " +  description);
 			i18n.put("javax.portlet.short-title", module.getLabel(locale));
 			i18n.store(new FileOutputStream("../" + project + "/i18n/portlets/" + module.getName() + "_" + locale.getLanguage() + ".properties"), null);			
 		}

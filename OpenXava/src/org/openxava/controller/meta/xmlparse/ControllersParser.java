@@ -42,6 +42,8 @@ public class ControllersParser extends ParserBase {
 		if (!isContextComun(context) && !context.equals(this.context)) return null;		
 		result.setLabel(el.getAttribute(xlabel[lang]));
 		result.setClassName(el.getAttribute(xclass[lang]));
+		result.setImage(el.getAttribute(ximage[lang]));
+		result.setIcon(el.getAttribute(xicon[lang]));
 		fillControllerElements(el, result);
 		fillExtends(el, result);		
 		fillActions(el, result);
@@ -119,6 +121,8 @@ public class ControllersParser extends ParserBase {
 		result.setTakesLong(getAttributeBoolean(el, xtakes_long[lang]));
 		result.setConfirm(getAttributeBoolean(el, xconfirm[lang]));
 		result.setInEachRow(getAttributeBoolean(el, xin_each_row[lang]));
+		result.setProcessSelectedItems(getAttributeBoolean(el, xprocess_selected_items[lang]));
+		result.setAvailableOnNew(getAttributeBoolean(el, xavailable_on_new[lang], true)); 
 		fillSet(el, result);		
 		fillUseObject(el, result);
 		return result;
@@ -187,7 +191,7 @@ public class ControllersParser extends ParserBase {
 		int c = l.getLength();
 		for (int i = 0; i < c; i++) {
 			Element elDepends = (Element) l.item(i);			
-			container.addParentName(elDepends.getAttribute(xcontroller[lang]));
+			container.addParent(elDepends.getAttribute(xcontroller[lang]), elDepends.getAttribute(xexcluded_actions[lang]));
 		}
 	}
 

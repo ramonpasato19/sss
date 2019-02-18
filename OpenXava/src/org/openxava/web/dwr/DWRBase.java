@@ -4,6 +4,7 @@ import javax.servlet.http.*;
 
 import org.openxava.controller.*;
 import org.openxava.util.*;
+import org.openxava.web.*;
 import org.openxava.web.servlets.*;
 import org.openxava.web.style.*;
 
@@ -25,14 +26,13 @@ class DWRBase {
 		Servlets.setCharacterEncoding(request, response);
 		ModuleContext.setCurrentWindowId(request); 
 		checkSecurity(request, application, module);
-		Users.setCurrent(request);
-		request.setAttribute("style", Style.getInstance(request));
-		ModuleManager manager = (ModuleManager) getContext(request).get(application, module, "manager");
-		manager.resetPersistence();
+		request.setAttribute("style", Style.getInstance(request)); 
+		Requests.init(request, application, module); 
 	}
 	
 	protected void cleanRequest() { 
 		ModuleContext.cleanCurrentWindowId(); 
+		SessionData.clean(); 
 	}
 
 	protected static void checkSecurity(HttpServletRequest request, String application, String module) {

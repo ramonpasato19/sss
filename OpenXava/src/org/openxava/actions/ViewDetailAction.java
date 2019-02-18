@@ -38,6 +38,7 @@ public class ViewDetailAction extends TabBaseAction implements IChainAction, IMo
 
 	public void execute() throws Exception {
 		getView().setModelName(model); 
+		getView().setViewName(getManager().getXavaViewName()); 
 		setAtListBegin(false);
 		setNoElementsInList(false);				
 		int previous = -1;
@@ -99,7 +100,7 @@ public class ViewDetailAction extends TabBaseAction implements IChainAction, IMo
 	}
 	
 	public String getNextAction() throws XavaException {
-		if (Is.emptyString(nextAction) || getManager().isSplitMode()) { 
+		if (Is.emptyString(nextAction)) { 
 			return getEnvironment().getValue("XAVA_SEARCH_ACTION");
 		} 		
 		return nextAction;

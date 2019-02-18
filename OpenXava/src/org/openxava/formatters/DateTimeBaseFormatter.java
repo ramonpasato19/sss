@@ -10,7 +10,7 @@ import org.openxava.util.*;
  */
 
 abstract public class DateTimeBaseFormatter {
-	
+		
 	private static DateFormat [] extendedDateTimeFormats = {
 		new SimpleDateFormat("dd/MM/yy HH:mm:ss"),
 		new SimpleDateFormat("dd/MM/yy HH:mm"),
@@ -33,6 +33,10 @@ abstract public class DateTimeBaseFormatter {
 			"pl".equals(Locales.getCurrent().getLanguage()) ||
 			"fr".equals(Locales.getCurrent().getLanguage());
 	}
-
-		
+	
+	private static String dateTimeSeparator = XSystem.isJava9orBetter()?", ":" ";
+	protected String getDateTimeSeparator() {
+		return dateTimeSeparator;
+	}
+			
 }

@@ -26,7 +26,7 @@ public class JPATabProvider extends TabProviderBase {
 		while (condition.contains("?")) {		
 			condition = condition.replaceFirst("\\?", ":p" + (i++));
 		}
-		return changePropertiesByJPAProperties(condition); 
+		return changePropertiesByJPAProperties(condition);
 	}
 	
 	public String toQueryField(String propertyName) {		
@@ -104,21 +104,26 @@ public class JPATabProvider extends TabProviderBase {
 		int f = 0;
 		while (i >= 0) {
 			f = r.toString().indexOf("}", i + 2);
-			if (f < 0)
-				break;
+			if (f < 0) break;
 			String modelElement = r.substring(i + 2, f);
-			String jpaElement = "e." + modelElement; // The more common case			
+			String jpaElement = "e." + modelElement; // The more common case
 			if (getMetaModel().isCalculated(modelElement)) {
 				jpaElement = "0";
 			}
 			else if (modelElement.contains(".")) {				
 				String reference = modelElement.substring(0, modelElement.lastIndexOf('.'));
+				String suffix = "";
+				if (modelElement.contains("[")) { // For date functions, like [month] or [year]
+					String [] tokens = modelElement.split("\\[");
+					modelElement = tokens[0];
+					suffix = "[" + tokens[1];
+				}
 				if (!isAggregate(reference)) {
 					if (!getMetaModel().getMetaProperty(modelElement).isKey()) {
 						StringBuffer qualifiedElement = new StringBuffer(modelElement.replaceAll("\\.", "_"));
 						int last = qualifiedElement.lastIndexOf("_");
 						qualifiedElement.replace(last, last + 1, ".");
-						jpaElement = "e_" + qualifiedElement;
+						jpaElement = "e_" + qualifiedElement + suffix;
 					}
 				}
 			}						
@@ -136,9 +141,16 @@ public class JPATabProvider extends TabProviderBase {
 			return new DataChunk(Collections.EMPTY_LIST, true, getCurrent()); // Empty
 		}		
 		try {
+			// If you change this code verify that Cards editor do the minimum amount of SELECTs on scroll loading, 
+			// testing edge cases, such as 119, 120 and 121 if chunk size is 120 
 			List data = nextBlock();			
 			setCurrent(getCurrent() + data.size());			
-			setEOF(data.size() != getChunkSize());
+			setEOF(data.size() <= getChunkSize());
+			if (!isEOF()) {
+				// We remove the one we add to know if EOF
+				data.remove(data.size() - 1);
+				setCurrent(getCurrent() - 1);
+			}
 			return new DataChunk(data, isEOF(), getCurrent());
 		}
 		catch (Exception ex) {
@@ -165,20 +177,20 @@ public class JPATabProvider extends TabProviderBase {
 		}
 		log.debug(message);
 		
-		query.setMaxResults(getChunkSize()); 
+		query.setMaxResults(getChunkSize()==Integer.MAX_VALUE?Integer.MAX_VALUE:getChunkSize() + 1); // One more to know if EOF
 		query.setFirstResult(getCurrent());
 		return query.getResultList();						
 	}
 
 	protected Number executeNumberSelect(String select, String errorId) {
-		if (select == null || keyHasNulls()) return 0;						
+		if (select == null) return Integer.MAX_VALUE; 
+		if (keyHasNulls()) return 0;						
 		try {			
 			Query query = XPersistence.getManager().createQuery(select);
 			Object [] key = getKey();
 			for (int i = 0; i < key.length; i++) {
 				query.setParameter("p" + i, key[i]);				
 			}			
-			
 			return (Number) query.getSingleResult();
 		}
 		catch (Exception ex) {
@@ -193,6 +205,10 @@ public class JPATabProvider extends TabProviderBase {
 
 	protected String translateProperty(String property) {
 		return "e." + property;
+	}
+
+	protected String noValueInSelect() { 
+		return "''";
 	}
 
 }

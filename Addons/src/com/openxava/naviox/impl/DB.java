@@ -20,6 +20,12 @@ import com.openxava.naviox.util.*;
 public class DB {
 	
 	private static Log log = LogFactory.getLog(DB.class);
+	
+	public static final String ROOT_SCHEMA;
+	
+	static {
+		ROOT_SCHEMA = (String) XPersistence.getManager().getEntityManagerFactory().getProperties().get("hibernate.default_schema");
+	}
 		
 	public static void init() {
 		try {
@@ -32,7 +38,9 @@ public class DB {
 				createDB(false);  
 				populateDB();
 			}
-			populateAllTenancies(); 
+			if (NaviOXPreferences.getInstance().isUpdateNaviOXTablesInOrganizationsOnStartup()) {
+				populateAllTenancies();
+			}
 			XPersistence.commit(); 
 		}
 		catch (RuntimeException ex) {
@@ -60,6 +68,7 @@ public class DB {
 	public static void createTenancy(String schema, String adminUser) { 
 		XPersistence.commit(); 
 		XPersistence.setDefaultSchema(schema);
+		XPersistence.resetEntityManagerFactory(); 
 		try { 
 			createDB(true);
 			populateDB(schema, adminUser); 
@@ -108,7 +117,7 @@ public class DB {
 					}
 				} else {
 					userModules.add(module);
-					if (module.getName().equals("ChangePassword")) {
+					if (module.getName().equals("ChangePassword") || module.getName().equals("MyPersonalData")) { 
 						module.setFolder(adminFolder);
 					}
 				}
@@ -152,6 +161,7 @@ public class DB {
 		log.info(XavaResources.getString("creating_xavapro_tables"));
 		SchemaTool tool = new SchemaTool();
 		tool.setCommitOnFinish(false);
+		tool.setExcludeEntitiesWithExplicitSchema(true); 
 		if (!allEntities) {
 			tool.addAnnotatedClass(User.class);
 			tool.addAnnotatedClass(Role.class);
@@ -178,10 +188,12 @@ public class DB {
 			Collection<Role> roles = new ArrayList<Role>();
 			Role adminRole = new Role();
 			adminRole.setName("admin");
-			if (adminUser == null) roles.add(adminRole); 
+			adminRole.setDescription("Manages users, roles, folder, modules, organizations, etc."); 
+			roles.add(adminRole); 
 			
 			Role userRole = new Role();		
 			userRole.setName("user");
+			userRole.setDescription("With access to all modules except administration ones"); 
 			roles.add(userRole);
 			
 			User admin = new User();		

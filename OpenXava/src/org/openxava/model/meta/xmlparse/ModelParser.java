@@ -211,6 +211,7 @@ public class ModelParser extends XmlElementsNames {
 		else {
 			p.setRequired(ParserUtil.getAttributeBoolean(el, xrequired[lang]));
 		}
+		p.setCalculation(ParserUtil.getString(el, xcalculation[lang]));
 		return p;
 	}
 	

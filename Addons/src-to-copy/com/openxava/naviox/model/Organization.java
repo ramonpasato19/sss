@@ -21,10 +21,13 @@ import org.openxava.util.*;
 @Tabs({
 	@Tab(properties="name"),	
 	@Tab(name="OfCurrentUser", filter=UserFilter.class, 
+		properties="name", editors="Cards", 
 		baseCondition="from Organization e, in (e.users) u where u.name = ?") 
 })
 public class Organization implements java.io.Serializable {
 	
+	private static final long serialVersionUID = -5904310527593026919L;
+
 	private static HashMap<String, String> names;
 	
 	@Id @Hidden @Column(length=50) 
@@ -103,7 +106,8 @@ public class Organization implements java.io.Serializable {
 			names.put(o.getId(), o.getName());
 		}		
 	}
-
+	
+	@SuppressWarnings("unchecked")
 	private static Collection<Organization> findAll() {
 		return XPersistence.getManager().createQuery("from Organization").getResultList();
 	}
@@ -120,5 +124,16 @@ public class Organization implements java.io.Serializable {
 	public void setUsers(Collection<User> users) {
 		this.users = users;
 	}
-
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (!(obj instanceof Organization)) return false;
+		return getId().equals(((Organization) obj).getId());
+	}
+	
+	@Override
+	public int hashCode() {
+		return getId().hashCode();
+	}
 }

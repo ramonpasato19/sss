@@ -63,6 +63,14 @@ public class XavaPreferences {
 		return "true".equalsIgnoreCase(getProperties().getProperty(
 				"readOnlyAsLabel", "false").trim());
 	}
+	
+	/**
+	 * @since 5.8
+	 */
+	public boolean isShowDefaultActionInBottom() { 
+		return "true".equalsIgnoreCase(getProperties().getProperty(
+				"showDefaultActionInBottom", "true").trim());
+	}
 
 	public boolean isTabAsEJB() {
 		return "true".equalsIgnoreCase(getProperties().getProperty("tabAsEJB",
@@ -114,7 +122,7 @@ public class XavaPreferences {
 	public String getCSVSeparator() {
 		return getProperties().getProperty("csvSeparator", ";");
 	}
-		
+	
 	/**
 	 * @since 4.2.1 
 	 */
@@ -150,17 +158,21 @@ public class XavaPreferences {
 		return getProperties().getProperty("componentParsersClasses",
 				"org.openxava.component.parse.XMLComponentParser,org.openxava.component.parse.AnnotatedClassParser").trim();
 	}
-
+	/**
+	 * @since 5.9 
+	 */
+	public String getAccessTrackerProvidersClasses() { 
+		return getProperties().getProperty("accessTrackerProvidersClasses", "").trim(); 
+	}
 	
 
 	public String getStyleClass() {
 		return getProperties().getProperty("styleClass",
-				"com.openxava.naviox.web.NaviOXStyle").trim();
+			"org.openxava.web.style.XavaStyle").trim();
 	}
 
 	public String getStyleCSS() {
-		return getProperties().getProperty("styleCSS",
-				"liferay51/css/everything_unpacked.css").trim();
+		return getProperties().getProperty("styleCSS", "terra.css").trim(); 
 	}
 
 	public String getLiferay51StyleClass() {
@@ -348,18 +360,6 @@ public class XavaPreferences {
 				"showFilterByDefaultInList", "true").trim());
 	}
 
-	/**
-	 * If <code>true</code> filter is show by default for collections on init.
-	 * <p>
-	 * 
-	 * The user always have the option to show or hide the filter.<br>
-	 * The default value is <code>true</code>.<br>
-	 */
-	public boolean isShowFilterByDefaultInCollections() {
-		return "true".equalsIgnoreCase(getProperties().getProperty(
-				"showFilterByDefaultInCollections", "true").trim());
-	}
-
 	public String getPortletLocales() {
 		return getProperties()
 				.getProperty("portletLocales",
@@ -406,12 +406,12 @@ public class XavaPreferences {
 
 	/** @since 4m5 */
 	public String getHelpPrefix() {
-		return getProperties().getProperty("helpPrefix", "http://openxava.wikispaces.com/help_").trim(); 
+		return getProperties().getProperty("helpPrefix", "http://www.openxava.org/OpenXavaDoc/docs/help_").trim(); 
 	}
 
 	/** @since 4m5 */
 	public String getHelpSuffix() {
-		return getProperties().getProperty("helpSuffix", "").trim();
+		return getProperties().getProperty("helpSuffix", ".html").trim(); 
 	}
 
 	/** @since 4m5 */
@@ -435,16 +435,17 @@ public class XavaPreferences {
 				"helpInNewWindow", "true").trim());
 	}
 	
-	/** @since 5.6.1 */
-	public boolean isDivForEachEditor() { 
-		return "true".equalsIgnoreCase(getProperties().getProperty(
-				"divForEachEditor", "false").trim());
-	}
 	
 	/** @since 5.6 */
-	public boolean isHelpAvailable() { 
+	public boolean isHelpAvailable() {
 		return "true".equalsIgnoreCase(getProperties().getProperty(
-				"helpAvailable", "true").trim());
+				"helpAvailable", "false").trim()); 
+	}
+	
+	/** @since 5.7 */
+	public boolean isFlowLayout() {  
+		return "true".equalsIgnoreCase(getProperties().getProperty(
+				"flowLayout", "false").trim());
 	}
 	
 	/** @since 4m5 */
@@ -454,7 +455,7 @@ public class XavaPreferences {
 	
 	/** @since 4m5 */
 	public boolean isResizeColumns(){
-		return "true".equalsIgnoreCase(getProperties().getProperty("resizeColumns", "true").trim());
+		return "true".equalsIgnoreCase(getProperties().getProperty("resizeColumns", "false").trim());
 	}
 	
 	
@@ -489,12 +490,6 @@ public class XavaPreferences {
 				"summationInList", "true").trim());
 	}
 	
-	/** @since 4.5 */
-	public boolean isMessagesOnTop() { 
-		return "true".equalsIgnoreCase(getProperties().getProperty(
-				"messagesOnTop", "true").trim());
-	}
-
 	/** @since 4.5 */
 	public String getLayoutParser() {
 		return getProperties().getProperty("layoutParser"); 

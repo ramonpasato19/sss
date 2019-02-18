@@ -85,4 +85,20 @@ public class XSystem {
 		return encoding;				
 	}
 	
+	/** @since 6.0 */
+	public static boolean isJava9orBetter() {
+		try {
+			String version = System.getProperty("java.specification.version");
+			return Integer.parseInt(version) >= 9;
+		}
+		catch (NumberFormatException ex) {
+			// Because because 1.6, 1.7 and 1.8 as value
+			return false;
+		}
+		catch (Exception ex) {
+			log.warn(XavaResources.getString("determine_is_java9_problem"), ex);
+			return false;
+		}
+	}
+	
 }

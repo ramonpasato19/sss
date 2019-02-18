@@ -1,9 +1,7 @@
 package com.openxava.naviox.model;
 
 import javax.persistence.*;
-
 import org.openxava.annotations.*;
-import org.openxava.model.*;
 
 /**
  * To generate the view to change the password of the current user.

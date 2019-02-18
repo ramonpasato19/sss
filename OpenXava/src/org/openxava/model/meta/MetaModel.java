@@ -23,7 +23,7 @@ import org.openxava.view.meta.*;
  * @author Javier Paniza
  */
 abstract public class MetaModel extends MetaElement {
-
+	
 	private static Log log = LogFactory.getLog(MetaModel.class);
 	
 	private static boolean someModelHasDefaultCalculatorOnCreate = false;
@@ -38,7 +38,7 @@ abstract public class MetaModel extends MetaElement {
 	private List metaCalculatorsPostLoad;
 	private List metaCalculatorsPostModify;
 	private List metaCalculatorsPreRemove;
-	private List propertiesNamesWithoutHiddenNorHidden;
+	private List<String> propertiesNamesWithoutHiddenNorTransient;  
 	private String containerReference; 
 	private String containerModelName;
 	private MetaModel metaModelContainer;
@@ -58,7 +58,7 @@ abstract public class MetaModel extends MetaElement {
 	private MetaView metaViewByDefault;
 	private boolean pojoGenerated;
 	private Collection keyReferencesNames; 
-	private Collection keyPropertiesNames; 
+	private Collection<String> keyPropertiesNames; 
 	
 	private Collection metaPropertiesWithDefaultValueCalculator;
 	private List propertiesNames;
@@ -66,7 +66,7 @@ abstract public class MetaModel extends MetaElement {
 	
 	private Collection metaFinders;
 
-	private Collection metaPropertiesPersistents;
+	private Collection<MetaProperty> metaPropertiesPersistents; 
 
 	private Collection persistentPropertiesNames;
 	private Collection interfaces;
@@ -83,6 +83,7 @@ abstract public class MetaModel extends MetaElement {
 	private boolean versionPropertyNameObtained = false;
 	private Collection metaReferencesKey;
 	private Collection metaReferencesKeyAndSearchKey;
+	private List<MetaProperty> allMetaPropertiesKey; 
 	
 	private interface IKeyTester { 
 		boolean isKey(MetaProperty property);
@@ -617,7 +618,7 @@ abstract public class MetaModel extends MetaElement {
 	/**
 	 * @return Collection of <tt>String</tt>, not null and read only
 	 */
-	public Collection getRequiredMemberNames() throws XavaException {
+	public Collection<String> getRequiredMemberNames() throws XavaException { 
 		Iterator it = getMembersNames().iterator();
 		ArrayList result = new ArrayList();
 		while (it.hasNext()) {
@@ -644,7 +645,7 @@ abstract public class MetaModel extends MetaElement {
 	 * 
 	 * @return Collection of <tt>String</tt>, not null and read only 
 	 */
-	public Collection getKeyPropertiesNames() throws XavaException {
+	public Collection<String> getKeyPropertiesNames() throws XavaException { 
 		if (keyPropertiesNames == null) {
 			Iterator it = getMembersNames().iterator(); // memberNames to keep order		
 			ArrayList result = new ArrayList();
@@ -717,9 +718,9 @@ abstract public class MetaModel extends MetaElement {
 	 * 
 	 * @return Collection of <tt>String</tt>, not null and read only
 	 */
-	public List getPropertiesNamesWithoutHiddenNorTransient() throws XavaException {
+	public List<String> getPropertiesNamesWithoutHiddenNorTransient() throws XavaException { 
 		// We get it from memberNames to keep order
-		if (propertiesNamesWithoutHiddenNorHidden == null) {
+		if (propertiesNamesWithoutHiddenNorTransient == null) {
 			List result = new ArrayList();
 			Iterator it = getMembersNames().iterator();
 			while (it.hasNext()) {
@@ -729,16 +730,15 @@ abstract public class MetaModel extends MetaElement {
 					result.add(name);  
 				}									
 			}		
-			propertiesNamesWithoutHiddenNorHidden = Collections.unmodifiableList(result);
+			propertiesNamesWithoutHiddenNorTransient = Collections.unmodifiableList(result);
 		}
-		return propertiesNamesWithoutHiddenNorHidden;
+		return propertiesNamesWithoutHiddenNorTransient;
 	}
-	
-	
+		
 	/**
 	 * @return Collection of <tt>MetaProperty</tt>, not null and read only
 	 */
-	public Collection getMetaPropertiesKey() throws XavaException {
+	public Collection<MetaProperty> getMetaPropertiesKey() throws XavaException { 
 		Iterator it = getMembersNames().iterator(); // memberNames to keep order		
 		ArrayList result = new ArrayList();
 		while (it.hasNext()) {
@@ -783,21 +783,24 @@ abstract public class MetaModel extends MetaElement {
 	 * 
 	 * @return Collection of <tt>MetaProperty</tt>, not null and read only
 	 */
-	public Collection getAllMetaPropertiesKey() throws XavaException {				
-		ArrayList result = new ArrayList(getMetaPropertiesKey());
-		Iterator itRef = getMetaReferencesKey().iterator();
-		while (itRef.hasNext()) {
-			MetaReference ref = (MetaReference) itRef.next();
-			Iterator itProperties = ref.getMetaModelReferenced().getAllMetaPropertiesKey().iterator();
-			while (itProperties.hasNext()) {
-				MetaProperty original = (MetaProperty) itProperties.next();
-				original.getMapping(); // Thus the clon will have the mapping
-				MetaProperty p = original.cloneMetaProperty();
-				p.setName(ref.getName() + "." + p.getName());
-				result.add(p);
+	public List<MetaProperty> getAllMetaPropertiesKey() throws XavaException { 
+		if (allMetaPropertiesKey == null) {
+			ArrayList result = new ArrayList(getMetaPropertiesKey());
+			Iterator itRef = getMetaReferencesKey().iterator();
+			while (itRef.hasNext()) {
+				MetaReference ref = (MetaReference) itRef.next();
+				Iterator itProperties = ref.getMetaModelReferenced().getAllMetaPropertiesKey().iterator();
+				while (itProperties.hasNext()) {
+					MetaProperty original = (MetaProperty) itProperties.next();
+					original.getMapping(); // Thus the clon will have the mapping
+					MetaProperty p = original.cloneMetaProperty();
+					p.setName(ref.getName() + "." + p.getName());
+					result.add(p);
+				}
 			}
+			allMetaPropertiesKey = Collections.unmodifiableList(result); 
 		}
-		return Collections.unmodifiableCollection(result);
+		return allMetaPropertiesKey;
 	}
 	
 	
@@ -872,7 +875,7 @@ abstract public class MetaModel extends MetaElement {
 		return calculatedPropertiesNames;
 	}
 	
-	public Collection getMetaPropertiesWithDefaultValueCalculator() {
+	public Collection getMetaPropertiesWithDefaultValueCalculator() { 
 		if (metaPropertiesWithDefaultValueCalculator == null) {
 			Iterator it = getMetaProperties().iterator();
 			ArrayList result = new ArrayList();
@@ -921,7 +924,7 @@ abstract public class MetaModel extends MetaElement {
 	/**
 	 * Ordered as in component definition.
 	 */
-	public Collection getMetaPropertiesPersistents() throws XavaException {
+	public Collection<MetaProperty> getMetaPropertiesPersistents() throws XavaException { 
 		if (metaPropertiesPersistents == null) {
 			Iterator it = getMembersNames().iterator(); // memberNames to keep order
 			ArrayList result = new ArrayList();			
@@ -984,7 +987,7 @@ abstract public class MetaModel extends MetaElement {
 	 * 
 	 * @return Collection of <tt>String</tt>, not null and read only
 	 */
-	public Collection getMetaPropertiesWithDefaultValueOnCreate() throws XavaException{
+	public Collection<MetaProperty> getMetaPropertiesWithDefaultValueOnCreate() throws XavaException { 
 		if (metaPropertiesWithDefaultValueCalcultaorOnCreate == null) {
 			Iterator it = getMetaProperties().iterator();
 			ArrayList result = new ArrayList();
@@ -1593,14 +1596,14 @@ abstract public class MetaModel extends MetaElement {
 	public MetaModel getMetaModelContainer() throws XavaException { 
 		if (metaModelContainer == null) {
 			if (Is.emptyString(this.containerModelName)) {
-				metaModelContainer = getMetaComponent().getMetaEntity();	
+				metaModelContainer = getMetaComponent().getMetaEntity();
 			}
 			else {
 				try {
-					metaModelContainer = getMetaComponent().getMetaAggregate(this.containerModelName); 					
+					metaModelContainer = getMetaComponent().getMetaAggregate(this.containerModelName);
 				}
 				catch (ElementNotFoundException ex) {
-					metaModelContainer = getMetaComponent().getMetaEntity(); 
+					metaModelContainer = getMetaComponent().getMetaEntity();
 				}
 			}			 			
 		}
@@ -1865,6 +1868,17 @@ abstract public class MetaModel extends MetaElement {
 	
 	public boolean hasVersionProperty() throws XavaException { 
 		return getVersionPropertyName() != null;
+	}
+	
+	/**
+	 * 
+	 * @sincd 5.7.1
+	 */
+	public boolean hasHiddenKey() { 
+		for (MetaProperty p: getMetaPropertiesKey()) {
+			if (p.isHidden()) return true;
+		}
+		return false;
 	}
 
 

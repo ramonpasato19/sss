@@ -22,7 +22,7 @@ public class ModuleContext implements java.io.Serializable {
 		MetaControllers.setContext(MetaControllers.WEB);		
 	}
 	
-	private transient Map contexts = null; 
+	private transient Map<String, Map> contexts = null; 
 	private transient Map globalContext = null; 
 	private String lastUsedWindowId; 
 	private String windowIdForNextTime = null; 
@@ -114,15 +114,7 @@ public class ModuleContext implements java.io.Serializable {
 
 
 	public void put(HttpServletRequest request, String objectName, Object value) throws XavaException {
-		String application = request.getParameter("application");
-		if (Is.emptyString(application)) {
-			throw new XavaException("application_and_module_required_in_request");
-		}
-		String module = request.getParameter("module");
-		if (Is.emptyString(module)) {
-			throw new XavaException("application_and_module_required_in_request");
-		}				
-		Map context = getContext(application, module, objectName);
+		Map context = getContext(request, objectName); 
 		context.put(objectName, value);
 	}
 		
@@ -132,16 +124,8 @@ public class ModuleContext implements java.io.Serializable {
 	}
 
 	public void remove(HttpServletRequest request, String objectName) throws XavaException {
-		String application = request.getParameter("application");
-		if (Is.emptyString(application)) {
-			throw new XavaException("application_and_module_required_in_request");
-		}
-		String module = request.getParameter("module");
-		if (Is.emptyString(module)) {
-			throw new XavaException("application_and_module_required_in_request");
-		}				
-		Map context = getContext(application, module, objectName); 
-		context.remove(objectName);
+		Map context = getContext(request, objectName);
+		context.remove(objectName);		
 	}
 		
 	public void remove(String application, String module, String objectName) throws XavaException {
@@ -167,6 +151,42 @@ public class ModuleContext implements java.io.Serializable {
 	private Object createObject(String objectName) throws XavaException{			
 		return MetaControllers.getMetaObject(objectName).createObject();
 	}
+	
+	/**
+	 * Reset all the context state for the module. Actually reinit the module. <p>
+	 * 
+	 * @since 6.0
+	 */
+	public void resetModule(HttpServletRequest request) throws XavaException { 
+		getContext(request, null).clear(); 
+	}
+
+	/**
+	 * Reset all the context state for all the module but the current one. Actually reinit the modules. <p>
+	 * 
+	 * @since 6.0.2
+	 */	
+	public void resetAllModulesExceptCurrent(HttpServletRequest request) throws XavaException { 
+		Map current = getContext(request, null);
+		for (Map context: getContexts().values()) {
+			if (context != current) { 
+				context.clear();
+			}
+		}
+	}
+
+	
+	public Map getContext(HttpServletRequest request, String objectName) throws XavaException {  
+		String application = request.getParameter("application");
+		if (Is.emptyString(application)) {
+			throw new XavaException("application_and_module_required_in_request");
+		}
+		String module = request.getParameter("module");
+		if (Is.emptyString(module)) {
+			throw new XavaException("application_and_module_required_in_request");
+		}				
+		return getContext(application, module, objectName); 
+	}
 
 	private Map getContext(String application, String module, String objectName) throws XavaException {
 		if (isGlobal(objectName)) {
@@ -175,6 +195,7 @@ public class ModuleContext implements java.io.Serializable {
 		if (currentWindowId.get() == null) currentWindowId.set(lastUsedWindowId);
 		else lastUsedWindowId = currentWindowId.get();
 		String id = application + "/" + module + "/" + currentWindowId.get();
+		
 		Map context = (Map) getContexts().get(id);
 		if (context == null) {
 			context = new HashMap();			
@@ -202,7 +223,7 @@ public class ModuleContext implements java.io.Serializable {
 		return globalContext;
 	}
 	
-	private Map getContexts() {
+	private Map<String, Map> getContexts() { 
 		if (contexts == null) {
 			contexts = new HashMap();
 		}
@@ -246,7 +267,7 @@ public class ModuleContext implements java.io.Serializable {
 			}
 			request.setAttribute("xava.new.window.id", windowId);	
 		}
-		windowIdForNextTime = null; 
+		windowIdForNextTime = null;
 		return windowId;
 	}
 	

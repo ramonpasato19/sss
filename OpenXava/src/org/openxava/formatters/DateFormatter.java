@@ -27,6 +27,7 @@ public class DateFormatter implements IFormatter {
 	
 	public String format(HttpServletRequest request, Object date) {
 		if (date == null) return "";
+		if (date instanceof String || date instanceof Number) return date.toString(); 
 		if (Dates.getYear((java.util.Date)date) < 2) return "";
 		return getDateFormat().format(date);
 	}

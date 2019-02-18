@@ -60,5 +60,9 @@ public class XArrays {
 		XCollections.move(list, from, to);
 		list.toArray(array);
 	}
+	
+	public static boolean isArray(Object object) { 
+		return object != null && object.getClass().isArray();
+	}
 		
 }

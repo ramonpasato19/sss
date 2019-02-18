@@ -59,13 +59,13 @@ public class EditorTag extends TagSupport {
 			propertyPrefix = propertyPrefix == null?"":propertyPrefix; 
 			String application = request.getParameter("application");
 			String module = request.getParameter("module");
-			String propertyKey = Ids.decorate(application, module, propertyPrefix + property); 
+			String propertyKey = Ids.decorate(application, module, propertyPrefix + property);
 			String valueKey = propertyKey + ".value";
 			request.setAttribute(propertyKey, metaProperty);
 			Object value = view.getValue(property);
 			request.setAttribute(valueKey, value);
 									
-			Messages errors = (Messages) request.getAttribute("errors"); 													
+			Messages errors = (Messages) request.getAttribute("errors"); 	
 			boolean throwsChanged=explicitThrowPropertyChanged?this.throwPropertyChanged:view.throwsPropertyChanged(property);
 			
 			String scriptFocus =  
@@ -88,6 +88,11 @@ public class EditorTag extends TagSupport {
 				")\""  
 			:
 			"";
+			
+			View rootView = view.getCollectionRootOrRoot();
+			if (rootView.isPropertyUsedInCalculation(propertyPrefix + property)) { 
+				script = Collections.sumPropertyScript(application, module, rootView, propertyPrefix + property); 
+			}
 
 			script = script + scriptFocus;
 
@@ -95,7 +100,8 @@ public class EditorTag extends TagSupport {
 			
 			boolean inElementCollection = property.contains(".");
 			String viewName = inElementCollection?"":view.getViewName();
-			StringBuffer editorURL = new StringBuffer(org.openxava.web.WebEditors.getUrl(metaProperty, viewName)); 
+			String editorBaseURL = view.hasValidValues(property)?"editors/dynamicValidValuesEditor.jsp":org.openxava.web.WebEditors.getUrl(metaProperty, viewName); // We could move editors/dynamicValidValuesEditor.jsp to default-editors.xml
+			StringBuffer editorURL = new StringBuffer(editorBaseURL);			
 			char nexus = editorURL.toString().indexOf('?') < 0?'?':'&';
 			String maxSize = "";
 			int displaySize = view.getDisplaySizeForProperty(property);
@@ -116,7 +122,7 @@ public class EditorTag extends TagSupport {
 			
 			if (org.openxava.web.WebEditors.mustToFormat(metaProperty, viewName)) { 
 				Object fvalue = org.openxava.web.WebEditors.formatToStringOrArray(request, metaProperty, value, errors, viewName, false); 
-				request.setAttribute(propertyKey + ".fvalue", fvalue); 
+				request.setAttribute(propertyKey + ".fvalue", fvalue);
 			}
 						
 			String editableKey = propertyKey + "_EDITABLE_";  
@@ -125,6 +131,14 @@ public class EditorTag extends TagSupport {
 			pageContext.getOut().print("' value='");
 			pageContext.getOut().print(editable);
 			pageContext.getOut().println("'/>");
+			if (metaProperty.hasCalculation()) { 
+				String calculationKey = propertyKey + "_CALCULATION_";  
+				pageContext.getOut().print("<input type='hidden' id='"); 
+				pageContext.getOut().print(calculationKey);
+				pageContext.getOut().print("' value=\"");
+				pageContext.getOut().print(toJavaScriptExpression(metaProperty));
+				pageContext.getOut().println("\"/>");
+			}			
 			if (org.openxava.web.WebEditors.hasMultipleValuesFormatter(metaProperty, viewName)) { 
 				pageContext.getOut().print("<input type='hidden' name='");
 				pageContext.getOut().print(Ids.decorate(application, module, "xava_multiple"));
@@ -144,7 +158,7 @@ public class EditorTag extends TagSupport {
 			catch (Exception ex) {	
 				log.error(ex.getMessage(), ex);
 				pageContext.include(prefix + "editors/notAvailableEditor.jsp"); 
-			}								
+			}
 		}
 		catch (Exception ex) {
 			throw new JspException(XavaResources.getString("editor_tag_error", property), ex); 
@@ -152,6 +166,24 @@ public class EditorTag extends TagSupport {
 		return SKIP_BODY;
 	}
 	
+	private String toJavaScriptExpression(MetaProperty metaProperty) { 
+		StringBuffer expression = new StringBuffer();
+	    for (String property: metaProperty.getPropertiesNamesUsedForCalculation()) {
+    		expression.append("var ");
+    		expression.append(property.replace(".", "_"));
+    		expression.append("=openxava.getNumber(application,module,'");
+    		expression.append(property);
+    		expression.append("');");
+	    }
+	    expression.append(
+	    	metaProperty.getCalculation() 
+    		.replaceAll("[Ss][Uu][Mm]\\((.*)\\)", "$1_SUM_")
+			.replaceAll("([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)", "$1_$2_$3_$4")
+			.replaceAll("([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)", "$1_$2_$3")
+    		.replaceAll("([a-zA-Z_][a-zA-Z\\d_]*)\\.([a-zA-Z_][a-zA-Z\\d_]*)", "$1_$2")	    
+    	);
+	    return expression.toString();
+	}
 
 	public String getProperty() {
 		return property;

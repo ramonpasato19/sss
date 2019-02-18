@@ -68,7 +68,7 @@ public class DefaultLayoutParser implements ILayoutParser {
 
 	private String groupLabel;
 	private List<ILayoutElement> elements;
-	private HttpServletRequest request;
+	private transient HttpServletRequest request; 
 	private ModuleContext context;
 	private boolean editable;
 	private int groupLevel;

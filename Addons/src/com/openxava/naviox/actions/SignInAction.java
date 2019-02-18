@@ -1,6 +1,9 @@
 package com.openxava.naviox.actions;
 
+import org.openxava.controller.*;
 import org.openxava.util.*;
+import org.openxava.view.*;
+
 import com.openxava.naviox.impl.*;
 
 /**
@@ -22,7 +25,8 @@ public class SignInAction extends ForwardToOriginalURIBaseAction {
 		}		
 		SignInHelper.signIn(getRequest().getSession(), userName);
 		getView().reset();
-		forwardToOriginalURI(); 
+		getContext().resetAllModulesExceptCurrent(getRequest()); 
+		forwardToOriginalURI();
 	}
 	
 }

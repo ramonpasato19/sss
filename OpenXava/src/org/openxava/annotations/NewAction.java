@@ -4,11 +4,11 @@ import java.lang.annotation.*;
 
 /**
  * Allows you to define your custom action to start
- * adding a new element to a collection. <p>
+ * creating a new element to a collection. <p>
  * 
  * Applies to @OneToMany/@ManyToMany collections. <p>
  * 
- * This is the action executed on click in 'Add' link.<br>
+ * This is the action executed on click in 'New' link.<br>
  * Example:
  * <pre>
  * &nbsp;@OneToMany (mappedBy="delivery", cascade=CascadeType.REMOVE)

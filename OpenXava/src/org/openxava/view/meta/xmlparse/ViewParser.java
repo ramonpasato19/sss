@@ -233,6 +233,7 @@ public class ViewParser extends XmlElementsNames {
 		a.setEditActionName(getAction(el, xedit_action[lang], lang));
 		a.setViewActionName(getAction(el, xview_action[lang], lang));
 		a.setNewActionName(getAction(el, xnew_action[lang], lang));
+		a.setAddActionName(getAction(el, xadd_action[lang], lang)); 
 		a.setSaveActionName(getAction(el, xsave_action[lang], lang));
 		a.setHideActionName(getAction(el, xhide_detail_action[lang], lang));
 		a.setRemoveActionName(getAction(el, xremove_action[lang], lang));
@@ -282,6 +283,7 @@ public class ViewParser extends XmlElementsNames {
 		else if (XNO_LABEL[lang].equals(labelFormat)) a.setLabelFormat(MetaPropertyView.NO_LABEL);
 		else throw new XavaException("invalid_label_format", labelFormat);				
 		a.setDisplaySize(ParserUtil.getAttributeInt(el, xdisplay_size[lang])); // @Trifon
+		a.setLabelStyle(el.getAttribute(xlabel_style[lang]));
 		fillOnChangeAction(el, a, lang);	
 		fillActions(el, a, lang);
 		return a;
@@ -424,6 +426,7 @@ public class ViewParser extends XmlElementsNames {
 		else if (XSMALL[lang].equals(labelFormat)) m.setLabelFormat(MetaPropertyView.SMALL_LABEL);
 		else if (XNO_LABEL[lang].equals(labelFormat)) m.setLabelFormat(MetaPropertyView.NO_LABEL);
 		else throw new XavaException("invalid_label_format", labelFormat);
+		m.setLabelStyle(el.getAttribute(xlabel_style[lang]));
 		return m;
 	}
 	

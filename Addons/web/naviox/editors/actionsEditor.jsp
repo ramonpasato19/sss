@@ -39,6 +39,7 @@ for (Object ocontroller: module.getControllersNames()) {
 	}
 }
 %>
+<%@ include file="collectionActions.jsp" %>
 </tr></table>
 <% 
 if (!editable) { 

@@ -28,6 +28,7 @@ public class JPAFilePersistor implements IFilePersistor {
 	@Override
 	public void remove(String id) {
 		AttachedFile file = getManager().find(AttachedFile.class, id);
+		if (file == null) return; 
 		getManager().remove(file);
 		commit();
 	}

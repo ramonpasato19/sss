@@ -203,7 +203,17 @@ public class XPersistence {
 			entityManagerFactories.put(new HashMap(properties), entityManagerFactory);			
 		}
 		return entityManagerFactory;
-	}		
+	}	
+	
+	/**
+	 * @since 5.7.1
+	 */
+	public static void resetEntityManagerFactory() { 
+		Map properties = getPersistenceUnitProperties();
+		EntityManagerFactory factory = (EntityManagerFactory) 
+			entityManagerFactories.remove(properties);
+		if (factory != null) factory.close();
+	}
 
 	/**
 	 * The name of persistence unit in persistence.xml file. <p>

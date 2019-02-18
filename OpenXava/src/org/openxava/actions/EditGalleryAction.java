@@ -54,13 +54,13 @@ public class EditGalleryAction extends ViewBaseAction implements INavigationActi
 			addMessage("no_images");
 		}
 		gallery.setReadOnly(!isEditable());
-		showDialog(); 
+		showDialog();
 	}
 
 	private void updateOidInObject(String oid) throws Exception {
 		Map values = new HashMap();
 		values.put(galleryProperty, oid);
-		MapFacade.setValues(getContainerView().getModelName(), getContainerView().getKeyValues(), values);		
+		MapFacade.setValuesNotTracking(getContainerView().getModelName(), getContainerView().getKeyValues(), values); 
 	}
 
 	private String getObjectDescription() {
@@ -77,10 +77,11 @@ public class EditGalleryAction extends ViewBaseAction implements INavigationActi
 				}
 			}
 
-			String [] descriptionProperties = { "name", "nombre", "description", "descripcion" };
+			String [] descriptionProperties = { "name", "nombre", "title", "titulo", "description", "descripcion" }; 
 			for (int i = 0; i < descriptionProperties.length; i++) {
 				String des = (String) getContainerView().getValue(descriptionProperties[i]);
 				if (!Is.emptyString(des)) {
+					if (isHtml(des)) continue; 
 					if (result.length() > 0) result.append(" - ");
 					result.append(des);
 					break;
@@ -95,6 +96,10 @@ public class EditGalleryAction extends ViewBaseAction implements INavigationActi
 		}		
 	}
 	
+	private boolean isHtml(String des) { 
+		return des.contains("<") && des.contains(">"); 
+	}
+
 	private View getContainerView() { 
 		if (containerView == null) {
 			containerView = (View) getContext().get(getRequest(), viewObject==null?"xava_view":viewObject);

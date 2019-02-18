@@ -28,6 +28,7 @@ import org.openxava.validators.meta.MetaValidator;
 import org.openxava.validators.meta.MetaValidatorFor;
 import org.openxava.validators.meta.MetaValidators;
 
+
 /**
  * @author Javier Paniza; modified by Radoslaw OStrzycki, Newitech Sp. z o.o.
  */
@@ -61,8 +62,10 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	private DateFormat timeFormat = new SimpleDateFormat("HH:mm"); // 24 hours for all locales
 	private boolean _transient;
 	private String requiredMessage = "required";
-	
 	private String label;
+	private String qualifiedLabel;
+	private String calculation; 
+	private Set<String> propertiesNamesUsedForCalculation; 
 	
 	public void setLabel(String newLabel) {
 		super.setLabel(newLabel);
@@ -134,27 +137,48 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	}
 	
 	public String getQualifiedLabel(Locale locale) throws XavaException {
-		if (!Is.emptyString(label)) return label; 
+		if (!Is.emptyString(qualifiedLabel)) return qualifiedLabel; 
 		String labelId = getId();
+		boolean tabReferenceLabel = isTabReferenceLabel(labelId);
+		if (!Is.emptyString(label) && !tabReferenceLabel) return label;
 		if (Labels.existsExact(labelId, locale)) {
 			return getLabel(locale);
+		}
+		String qualifiedName = getQualifiedName();
+		if (tabReferenceLabel && (
+				labelId.endsWith(".name") || labelId.endsWith(".nombre") ||
+				labelId.endsWith(".description") || labelId.endsWith(".descripcion") ||
+				labelId.endsWith(".title") || labelId.endsWith(".titulo") 
+			)
+		) 
+		{
+			labelId = Strings.noLastTokenWithoutLastDelim(labelId, ".");
+			qualifiedName = Strings.noLastTokenWithoutLastDelim(qualifiedName, ".");
 		}
 		if (isTabLabel(labelId)) {
 			String genericIdForTab = "*" + Strings.noFirstToken(labelId, ".");
 			if (Labels.existsExact(genericIdForTab, locale)) {
 				return getLabel(locale, genericIdForTab);
 			}
-			return Labels.getQualified(getMetaModel().getName() + "." + getQualifiedName(), locale);
+			return Labels.getQualified(getMetaModel().getName() + "." + qualifiedName, locale);
 		}
-		return Labels.getQualified(getQualifiedName(), locale);
+		return Labels.getQualified(qualifiedName, locale);
+	}
+
+	private boolean isTabReferenceLabel(String labelId) {
+		if (!isTabLabel(labelId)) return false;
+		int idx = labelId.indexOf(".properties.");
+		if (idx < 0) return false;
+		String property = labelId.substring(idx + ".properties.".length());
+		return property.split("\\.").length > 1;
 	}
 	
-	private boolean isTabLabel(String labelId) {  
+	private boolean isTabLabel(String labelId) {   
 		String [] tokens = labelId.split("\\.");		
 		if (tokens.length < 2) return false;
 		return "tab".equals(tokens[1]) || "tabs".equals(tokens[1]);
 	}
-	
+
 	public String getQualifiedLabel(ServletRequest request) throws XavaException { 
 		return getQualifiedLabel(getLocale(request));
 	}	
@@ -847,7 +871,7 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	 * 
 	 * @return Can be null 
 	 */
-	public Object parse(String value, Locale locale) throws ParseException, XavaException { 		
+	public Object parse(String value, Locale locale) throws ParseException, XavaException { 
 		if (value == null) return null;		
 		boolean emptyString = Is.emptyString(value);
 		Class type = getType();
@@ -869,7 +893,7 @@ public class MetaProperty extends MetaMember implements Cloneable {
 				if (emptyString) return null;
 				java.util.Date date = null;
 				try {
-					date = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).parse(value); 
+					date = Dates.getDateTimeFormat(locale).parse(value); 
 				}
 				catch (ParseException ex) {
 					date = DateFormat.getDateInstance(DateFormat.SHORT, locale).parse(value);
@@ -1043,7 +1067,7 @@ public class MetaProperty extends MetaMember implements Cloneable {
 				return timeFormat.format(value);
 			}
 			if (isTimestamp()) { 
-				return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale).format(value); 
+				return Dates.getDateTimeFormat(locale).format(value); 
 			}		
 			if (java.util.Date.class.isAssignableFrom(type)) {
 				return DateFormat.getDateInstance(DateFormat.SHORT, locale).format(value);
@@ -1087,6 +1111,24 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	public void addMetaValidator(MetaValidator metaValidator) {
 		if (metaValidators == null) metaValidators = new ArrayList();
 		metaValidators.add(metaValidator);		
+	}
+	
+	public boolean usesForCalculation(String qualifiedPropertyName) { 
+		if (!hasCalculation()) return false;
+		return getPropertiesNamesUsedForCalculation().contains(qualifiedPropertyName);
+	}
+	
+	public Set<String> getPropertiesNamesUsedForCalculation() { 
+		if (propertiesNamesUsedForCalculation == null) {
+			propertiesNamesUsedForCalculation = new HashSet<String>();
+			String [] properties = calculation.replaceAll("[Ss][Uu][Mm]\\((.*)\\)", "$1_SUM_").split("[\\*()/+\\- ]"); 
+		    for (String property: properties) {
+		    	if (!Is.emptyString(property) && !Strings.isNumeric(property)) {
+		    		propertiesNamesUsedForCalculation.add(property);
+		    	}
+		    }
+		}
+		return propertiesNamesUsedForCalculation;
 	}
 	
 	public String toString() {		
@@ -1138,5 +1180,30 @@ public class MetaProperty extends MetaMember implements Cloneable {
 	public void setRequiredMessage(String requiredMessage) {
 		this.requiredMessage = requiredMessage;
 	}
+
+	public String getQualifiedLabel() {
+		return qualifiedLabel;
+	}
+
+	public void setQualifiedLabel(String qualifiedLabel) {
+		this.qualifiedLabel = qualifiedLabel;
+	}
+
+	public String getCalculation() {
+		return calculation;
+	}
+
+	public void setCalculation(String calculation) {
+		this.calculation = calculation;
+	}
+	
+	/**
+	 * @since 5.7
+	 */
+	public boolean hasCalculation() { 
+		return !Is.emptyString(calculation);
+	}
+
+
 	
 }

@@ -118,6 +118,7 @@ public class XmlElementsNames {
 	protected final static String [] xedit_only = { "edit-only", "solo-edicion" };
 	protected final static String [] xlist_properties = { "list-properties", "propiedades-lista" };
 	protected final static String [] xlabel_format = { "label-format", "formato-etiqueta" };
+	protected final static String [] xlabel_style = { "label-style", "estilo-etiqueta" };
 	protected final static String [] xon_change = { "on-change", "al-cambiar" };
 	protected final static String [] xsearch_action = { "search-action", "accion-buscar" };
 	protected final static String [] xsearch = { "search", "buscar" };
@@ -206,5 +207,15 @@ public class XmlElementsNames {
 	protected final static String [] xfor_tab = { "for-tab", "para-tab" };
 	protected final static String [] xsubcontroller = { "subcontroller", "subcontrolador"}; 
 	protected final static String [] xcollapsed = { "collapsed", "plegada"}; 
-	protected final static String [] xshow_reference_view = { "show-reference-view", "mostrar-vista-referencia"}; 
+	protected final static String [] xshow_reference_view = { "show-reference-view", "mostrar-vista-referencia"};
+	protected final static String [] xinit_action = { "init-action", "accion-iniciar"}; 
+	protected final static String [] xrelease_action = { "release-action", "accion-liberar"};
+	protected final static String [] xeditors = { "editors", "editores" };
+	protected final static String [] xselectable_items = { "selectable-items", "elementos-seleccionables" }; 
+	protected final static String [] xprocess_selected_items = { "process-selected-items", "procesar-elementos-seleccionados" };
+	protected final static String [] xadd_action = { "add-action", "accion-anadir" }; 
+	protected final static String [] xcalculation = { "calculation", "calculo" };
+	protected final static String [] xavailable_on_new = { "available-on-new", "disponible-en-nuevo" };
+	protected final static String [] xexcluded_actions = { "excluded-actions", "acciones-excluidas" }; 
+	
 }

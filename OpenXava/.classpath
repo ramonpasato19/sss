@@ -13,9 +13,9 @@
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/javassist.jar"/>
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/commons-validator.jar"/>
-	<classpathentry kind="lib" path="web/WEB-INF/lib/mailapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/mailapi.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/htmlunit.jar"/>
-	<classpathentry kind="lib" path="web/WEB-INF/lib/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/commons-io.jar"/>
 	<classpathentry kind="lib" path="lib/sac.jar"/>
 	<classpathentry kind="lib" path="lib/cssparser.jar"/>
 	<classpathentry kind="lib" path="lib/nekohtml.jar"/>
@@ -32,7 +32,6 @@
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/commons-beanutils.jar"/>
 	<classpathentry kind="lib" path="lib/portal-kernel.jar"/>
 	<classpathentry kind="lib" path="lib/portal-service.jar"/>
-	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/groovy-all.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/xalan.jar"/>
 	<classpathentry kind="lib" path="lib/serializer.jar"/>
@@ -46,6 +45,7 @@
 	<classpathentry kind="lib" path="lib/fontbox.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
@@ -69,5 +69,9 @@
 	<classpathentry kind="lib" path="lib/javax.el.jar"/>
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/hibernate-envers.jar"/>
 	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/poi.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/jsoup.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/poi-ooxml.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="web/WEB-INF/lib/jaxb-api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -15,8 +15,6 @@ else {
 
 String preLabel="<div class='" + labelClass + " " + style.getLabel() + "'>";
 String postLabel="</div>";
-String preIcons="<div class='" + editorClass + "'><div class='ox-layout-editor-icons'>"; 
-String postIcons="</div></div>";	
 String preEditor="<div class='" + editorClass + " " + style.getEditorWrapper()+ "'>";
 String postEditor="</div>";
 %>

@@ -20,6 +20,10 @@ public class AddColumnsAction extends ViewBaseAction implements INavigationActio
 		if (!XavaPreferences.getInstance().isCustomizeList()) return;
 		if (property == null) {
 			String [] values = getRequest().getParameterValues("selectedProperties");
+			if (values == null) { 
+				addError("choose_columns_before_add");
+				return; 
+			}	
 			getTab().addProperties(Arrays.asList(values));
 		}
 		else {

@@ -78,7 +78,7 @@ public class MetaCollection extends MetaMember implements IPropertyValidator {
 		}
 	}
 	/**
-	 * @param errors  Object that acumulate the list of validation errors.
+	 * @param errors  Object that accumulate the list of validation errors.
 	 * @param object Collection to validate. Has to be of type Collection. If null empty collection is assumed.
 	 * @param objectName Object that contains the collection to validate.
 	 * @param propertyName Name of the collection property within objectName. 

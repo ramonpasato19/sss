@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openxava.formatters.*;
 import org.openxava.model.meta.MetaMember;
 import org.openxava.model.meta.MetaModel;
 import org.openxava.model.meta.MetaProperty;
@@ -46,7 +47,7 @@ public class WebEditors {
 	
 	public static boolean hasMultipleValuesFormatter(MetaProperty p, String viewName) throws XavaException { 
 		try {
-			return getMetaEditorFor(p, viewName).hasMultipleValuesFormatter(); 
+			return getMetaEditorFor(p, viewName).hasMultipleValuesFormatter();
 		}
 		catch (ElementNotFoundException ex) {
 			return false; 
@@ -64,26 +65,19 @@ public class WebEditors {
 
 	public static Object parse(HttpServletRequest request, MetaProperty p, String [] strings, Messages errors, String viewName) throws XavaException { 
 		try {
-			String string = strings == null?null:strings[0];						
 			if (!(p.isKey() && p.isHidden())) { 
 				MetaEditor ed = getMetaEditorFor(p, viewName);
 				if (ed.hasFormatter()) { 								
-					return ed.getFormatter().parse(request, string);
-				}
-				else if (ed.hasMultipleValuesFormatter()) {								
-					return ed.getMultipleValuesFormatter().parse(request, strings);
+					return parse(request, ed.getFormatterObject(), p, strings);
 				}
 				else if (ed.isFormatterFromType()){				
 					MetaEditor edType = MetaWebEditors.getMetaEditorForTypeOfProperty(p); 
 					if (edType != null && edType.hasFormatter()) {				
-						return edType.getFormatter().parse(request, string);
+						return parse(request, edType.getFormatterObject(), p, strings);
 					}
-					else if (edType != null && edType.hasMultipleValuesFormatter()) {				
-						return edType.getMultipleValuesFormatter().parse(request, strings);
-					} 
 				}
 			}
-			return p.parse(string, Locales.getCurrent());
+			return p.parse(strings == null?null:strings[0], Locales.getCurrent());
 		}
 		catch (Exception ex) {
 			log.warn(ex.getMessage(), ex);
@@ -91,6 +85,19 @@ public class WebEditors {
 			errors.add(messageId, p.getName(), p.getMetaModel().getName());
 			return null;
 		}		
+	}
+	
+	private static Object parse(HttpServletRequest request, Object formatter, MetaProperty p, String [] strings) throws Exception { 
+		if (formatter instanceof IFormatter) {				
+			return ((IFormatter) formatter).parse(request, strings == null?null:strings[0]);
+		}
+		if (formatter instanceof IMultipleValuesFormatter) { 
+			return ((IMultipleValuesFormatter) formatter).parse(request, strings);
+		}
+		if (formatter instanceof IMetaPropertyFormatter) {				
+			return ((IMetaPropertyFormatter) formatter).parse(request, p, strings == null?null:strings[0]);
+		}
+		throw new XavaException("formatter_incorrect_class"); 
 	}
 		
 	public static Object parse(HttpServletRequest request, MetaProperty p, String string, Messages errors, String viewName) throws XavaException { 
@@ -143,27 +150,21 @@ public class WebEditors {
 	public static Object formatToStringOrArrayImpl(HttpServletRequest request, MetaProperty p, Object object, Messages errors, String viewName, boolean fromList) throws XavaException {  
 		try {
 			MetaEditor ed = getMetaEditorFor(p, viewName);
-			if (fromList && p.hasValidValues()){
+			if (fromList && !Is.empty(ed.getListFormatterClassName())){
+				return format(request, ed.getListFormatterObject(), p, object);
+			}						
+			else if (fromList && p.hasValidValues()){
 				return p.getValidValueLabel(object);
 			}
-			if (fromList && !Is.empty(ed.getListFormatterClassName())){
-				return ed.getListFormatter().format(request, object);
-			}
 			else if (ed.hasFormatter()) {				
-				return ed.getFormatter().format(request, object);
-			}
-			else if (ed.hasMultipleValuesFormatter()) { 
-				return ed.getMultipleValuesFormatter().format(request, object);
+				return format(request, ed.getFormatterObject(), p, object);
 			}
 			else if (ed.isFormatterFromType()){
 				MetaEditor edType = MetaWebEditors.getMetaEditorForType(p.getTypeName());
 				if (edType != null && edType.hasFormatter()) {				
-					return edType.getFormatter().format(request, object);
+					return format(request, edType.getFormatterObject(), p, object);
 				}
-				else if (edType != null && edType.hasMultipleValuesFormatter()) { 
-					return edType.getMultipleValuesFormatter().format(request, object);
-				}
-			}			
+			}					
 			return p.format(object, Locales.getCurrent());									
 		}
 		catch (Exception ex) {
@@ -171,6 +172,19 @@ public class WebEditors {
 			errors.add("no_convert_to_string", p.getName(), p.getMetaModel().getName());
 			return "";
 		}
+	}
+	
+	private static Object format(HttpServletRequest request, Object formatter, MetaProperty p, Object object) throws Exception { 
+		if (formatter instanceof IFormatter) {				
+			return ((IFormatter) formatter).format(request, object);
+		}
+		if (formatter instanceof IMultipleValuesFormatter) { 
+			return ((IMultipleValuesFormatter) formatter).format(request, object);
+		}
+		if (formatter instanceof IMetaPropertyFormatter) {				
+			return ((IMetaPropertyFormatter) formatter).format(request, p, object);
+		}
+		throw new XavaException("formatter_incorrect_class");
 	}
 	
 	public static String getUrl(MetaProperty p, String viewName) throws XavaException {
@@ -203,6 +217,12 @@ public class WebEditors {
 	}
 	
 	public static Collection<String> getEditors(MetaTab metaTab) throws ElementNotFoundException, XavaException { 
+		if (!Is.emptyString(metaTab.getEditors())) {
+			if (!Is.emptyString(metaTab.getEditor())) {
+				log.warn(XavaResources.getString("editors_over_editor", metaTab.getEditor(), metaTab.getName(), metaTab.getModelName()));
+			}
+			return Strings.toCollection(metaTab.getEditors());
+		}
 		Collection<String> editors = new ArrayList<String>();
 		String customEditor = metaTab.getEditor();
 		if (!Is.emptyString(customEditor)) editors.add(customEditor);
@@ -223,8 +243,23 @@ public class WebEditors {
 			}
 		}
 		return getUrl(metaTab);
-	}	
+	}
 	
+	/**
+	 * 
+	 * @return Null if the editor does not exists. A default value if exists but has not icon or the param is null or empty.  
+	 */
+	public static String getIcon(String editor) throws ElementNotFoundException, XavaException { 
+		if (Is.emptyString(editor)) return "view-list"; // A good default because icon is only used for list, by now. If we remove this line test with a editor for tabs with no name
+		MetaEditor metaEditor = MetaWebEditors.getMetaEditorByName(editor);
+		if (metaEditor == null) {
+			log.warn(XavaResources.getString("editor_not_exist", editor)); 
+			return null;
+		}
+		String result = metaEditor.getIcon(); 		
+		return Is.emptyString(result)?"view-list":result; 
+	}	
+		
 	public static MetaEditor getMetaEditorFor(MetaMember m, String viewName) throws ElementNotFoundException, XavaException {
 		if (m.getMetaModel() != null) {
 			try {				
@@ -316,7 +351,7 @@ public class WebEditors {
 					+ "&descriptionProperty=" + metaDescriptionsList.getDescriptionPropertyName()
 					+ "&descriptionProperties=" + metaDescriptionsList.getDescriptionPropertiesNames()
 					+ "&parameterValuesProperties=" + metaReference.getParameterValuesPropertiesInDescriptionsList(metaView)
-					+ "&condition=" + metaDescriptionsList.getCondition()
+					+ "&condition=" + refineURLParam(metaDescriptionsList.getCondition()) 
 					+ "&orderByKey=" + metaDescriptionsList.isOrderByKey()
 					+ "&order=" + metaDescriptionsList.getOrder();
 				if (forTabs.contains(tabName)) return url;
@@ -324,6 +359,10 @@ public class WebEditors {
 			}
 		}
 		return defaultURL;
+	}
+
+	private static String refineURLParam(String condition) {
+		return condition.replace("%", "%25");
 	}
 
 }

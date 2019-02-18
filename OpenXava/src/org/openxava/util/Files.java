@@ -31,5 +31,24 @@ public class Files {
         }    
         return dir.delete();
     }	
+	
+	/**
+	 * @since 5.9
+	 */
+	public static void createFileIfNotExist(String fileName) throws Exception { 
+		File f = new File(fileName);
+		if (!f.exists()) {
+			File dir = new File(Strings.noLastToken(fileName, "/")); 
+			if (!dir.exists()) dir.mkdirs();
+			f.createNewFile();
+		}
+	}
+	
+	/**
+	 * @since 5.9
+	 */
+	public static String getOpenXavaBaseDir() { 
+		return System.getProperty("user.home") + "/.openxava/"; 
+	}
 
 }

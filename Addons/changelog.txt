@@ -1,9 +1,117 @@
 ﻿Change Log for XavaPro
 ======================
 
+XavaPro 6.0.2 (2019-1-23)
+-------------------------
+- Includes OpenXava 6.0.2.
+- Some security fixes.
+- Fix: Date editor goes outside frame in mobile UI.
+- Fix: Buttons are ugly on iPhone.
+- Fix: Excluded data can be added customizing the list if they are second level or more. 
+
+XavaPro 6.0.1 (2018-12-11)
+--------------------------
+- Includes OpenXava 6.0.1.
+- Fix: Subcontroller button bad aligned in mobile where it is the first of its row.
+- Fix: After generating a custom PDF from iPhone the modules goes to list mode.
+- Fix: After generating a custom PDF from a dialog a "record not found" message is shown in mobile.
+- Fix: 'Forgot your password?' link difficult to read because of high contrast. 
+- Fix: Privacy policy style not adapted to Terra theme.
+- Fix: Ugly brown band on bottom of collections without totals in mobile.
+
+XavaPro 6.0 (2018-11-23)
+------------------------
+- New visual style for mobile user interface with two themes.
+- CSS for desktop user interface used also in mobile.
+- Privacy policy shown on sign up to be accepted configurable via Configuration module.
+- Date of privacy policy acceptance is stored for each user.
+- Email as user name configurable via Configuration module.
+- Name of current organization is placed in left menu.
+- Link for going to the list of organizations in shared user among organization is in left menu.
+- New method delete() in Organizations class to delete organizations by code.
+- emailValidatorForSignUpClass in naviox.properties to define the email validator on sign up.
+- Includes OpenXava 6.0.
+
+XavaPro 5.9.1 (2018-6-20)
+-------------------------
+- New .mobile CSS class to use in custom.css to apply different style for mobile UI.
+- Includes OpenXava 5.9.1.
+- Fix: On enter in an organization sometimes the list of modules is not shown in mobile UI.
+- Fix: Accessing to an organization URL without login doesn't ask for sign in with mobile UI.
+- Fix: LDAP does not work with OpenLDAP.
+- Fix: Many tabs in mobile UI have bad layout.
+- Fix: It does not work with Firebird and Oracle.
+- Fix: Stereotype FILES fails on uploading files in mobile UI.
+- Fix: Stereotype FILES is not correctly displayed in mobile UI.
+- Fix: CSS from new versions is not updated by the browser in mobile UI.
+- Fix: EmailSubscription is available as module in new organizations.
+
+XavaPro 5.9 (2018-5-24)
+-----------------------
+- New users have "user" role by default.
+- Collection totals available in mobile UI.
+- Welcome page shown in mobile UI when accessing to root.
+- Improved UX for log in with mobile UI, before the user clicked on 'Sign Up' instead of 'Sign In'.
+- Removed action from top bar menu in mobile UI.
+- Default action is shown the first one on bottom with mobile UI.
+- Includes OpenXava 5.9.
+
+XavaPro 5.8.1 (2017-11-22)
+--------------------------
+- Includes OpenXava 5.8.1.
+- Fix: Element collections do not work.
+- Fix: Import data does not work.
+- Fix: Removing from the entity code a property included in excluded members makes the module fails.
+- Fix: With shared users among organizations the list of organizations is not shown with mobile UI.
+- Fix: Excluding a reference for a role that already exists fails.
+- Fix: LDAP fails if ldapDomain is not specified.
+- Fix: Unlock session dialog has the textfield truncated.
+- Fix: Clicking twice in join organization produces an ugly error.
+
+XavaPro 5.8 (2017-10-18)
+------------------------
+- It is possible to veto collection actions of a module for a role.
+- Search in list for mobile UI. 
+- Calculated collections in mobile UI.
+- Subcontroller actions are available in mobile UI. 
+- Configuration and Organizations modules not available from organizations. 
+- Sign off from an organizations goes to Sign in page of that organization when showOrganizationOnSignIn=false. 
+- Includes OpenXava 5.8.
+- Fix: Accessing directly to an organization with shared users from a mobile produces a NullPointerException.
+
+XavaPro 5.7.1 (2017-6-14)
+-------------------------
+- New property dropSchema in naviox.properties to specify the syntax to drop schema for each database vendor.
+- Some security fixes.
+- Includes OpenXava 5.7.1.
+- Fix: Excluding members does not work for members inside sections or groups.
+- Fix: Ugly desktop dialog in mobile UI when accessing the module from menu.
+- Fix: When come back to root from an organization using the back browser button login fails first time.
+- Fix: Creating an organization, removing it and creating it again with the same name fails.
+- Fix: Removing an organization fails with MySQL.
+- Fix: Creating a new organization fails in MySQL when hibernate.hbm2ddl.auto is specified.
+- Fix: Creating a new organization fails in PostgreSQL when hibernate.hbm2ddl.auto is not specified.
+- Fix: Error on change module from a IChangeModuleAction.
+
+XavaPro 5.7 (2017-5-18)
+-----------------------
+- User can recover his password if he forget it.
+- On sign in the user is asked to enter his email if not entered yet.
+- The user can update his own personal data such as email, given name, family name, etc.
+- Organization index for shared user among organizations uses cards format.
+- New icon for going to the organizations index.
+- Field description in roles.
+- Emails cannot be duplicated.
+- Property updateNaviOXTablesInOrganizationsOnStartup in naviox.properties for faster startup with no new modules. 
+- Entities with @Table(schema=) do not generate table on create new organization.
+- New method hasRole() in User class to do programmatic security verifications.
+- New NaviOXTestBase class to create JUnit tests for specific XavaPro features like folder navigation.
+- Includes OpenXava 5.7.
+- Fix: FILES stereotype storing in database does not work with multitenancy. 
+
 XavaPro 5.6.1 (2017-2-2)
 ------------------------
-- With shared users among organization the list of top modules and current module are not reset.
+- With shared users among organizations the list of top modules and current module are not reset.
 - UserInfo object returned by Users.getCurrentUserInfo() includes organization name.
 - When there is just one module available with mobile UI it's possible to logout directly from the module.
 - Includes OpenXava 5.6.1.
@@ -17,7 +125,7 @@ XavaPro 5.6.1 (2017-2-2)
 - Fix: Folders with dots in the name are not shown.
 - Fix: "Join to organization" is shown in the modules menu after creating a new organization.
 - Fix: Users.getCurrentUserInfo() does not work inside organizations.
-- Fix: When the same user name is used in several organization user customizations do not work.
+- Fix: When the same user name is used in several organizations user customizations do not work.
 - Fix: Moving rows in an @OrderColumn list does not work with multitenancy.
 
 XavaPro 5.6 (2016-11-4)

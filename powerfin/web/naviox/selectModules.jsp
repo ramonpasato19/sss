@@ -17,7 +17,7 @@ boolean bookmarkModules = false;
 <%@ include file="getModulesList.jsp" %> 
 <%
 String smodulesLimit = request.getParameter("modulesLimit");
-int modulesLimit = smodulesLimit == null?15:Integer.parseInt(smodulesLimit);
+int modulesLimit = smodulesLimit == null?30:Integer.parseInt(smodulesLimit); 
 int counter = 0; 
 boolean loadMore = false;
 for (Iterator it= modulesList.iterator(); it.hasNext();) {
@@ -34,16 +34,15 @@ for (Iterator it= modulesList.iterator(); it.hasNext();) {
 	if (!Is.emptyString(searchWord) && !normalizedLabel.contains(searchWord) && !normalizedDescription.contains(searchWord)) continue;
 	counter++;
 %>
-	<a  href="javascript:void(0)" onclick="window.location='<%=modules.getModuleURI(request, module)%>'">
+	<a href="<%=modules.getModuleURI(request, module)%>?init=true"> <%-- href with the URL in order right mouse button works to add in another tab --%>
 	<div id="<%=module.getName()%>_module" class="module-row <%=selected%>" onclick="$('#<%=module.getName()%>_loading').show()">	
 		<div class="module-name">
 			<%=label%>
 			<% if (bookmarkModules) { %>
-			<img src="<%=request.getContextPath()%>/naviox/images/bookmark-on.png" class="bookmark-decoration"/>
+			<i class="mdi mdi-star bookmark-decoration"></i>
 			<% } %>
-			<img id="<%=module.getName()%>_loading" src="<%=request.getContextPath()%>/naviox/images/loading.gif" style="float: right; display:none;"/>
+			<i id="<%=module.getName()%>_loading" class="mdi mdi-autorenew module-loading spin" style="float: right; display:none;"></i>
 		</div>
-		<div class="module-description"><%=description%></div>
 	</div>	
 	</a>
 	
@@ -56,7 +55,7 @@ if (loadMore) {
 	<div id="more_modules" class="module-row" onclick="$('#loading_more_modules').show(); $('#load_more_modules').hide();">
 	<span id="loading_more_modules" style="display:none;">
 	<xava:message key="loading"/>...
-	<img src="<%=request.getContextPath()%>/naviox/images/loading.gif" style="float: right;"/>
+	<i class="mdi mdi-autorenew module-loading spin" style="float: right;"></i>
 	</span>
 	<span id="load_more_modules">
 	<xava:message key="load_more_modules"/>...

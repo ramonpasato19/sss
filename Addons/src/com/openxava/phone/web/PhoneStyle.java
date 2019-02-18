@@ -41,7 +41,7 @@ public class PhoneStyle extends Style {
 	}
 		
 	public String getDefaultModeController() {
-		return "DetailList";		
+		return "Mode";
 	}
 	
 	public boolean allowsResizeColumns() { 
@@ -93,9 +93,8 @@ public class PhoneStyle extends Style {
 	}
 	
 	public boolean isFixedPositionSupported() {
-		return false;
+		return true; 
 	}
-
 	
 	public String getModuleSpacing() {
 		return "style='padding: 0px;'";		

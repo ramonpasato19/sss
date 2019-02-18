@@ -1,5 +1,7 @@
 <%@include file="../xava/imports.jsp"%>
 
+<%@page import="com.openxava.naviox.util.Organizations"%>
+
 <jsp:useBean id="modules" class="com.openxava.naviox.Modules" scope="session"/>
 <jsp:useBean id="folders" class="com.openxava.naviox.Folders" scope="session"/>
 
@@ -7,16 +9,19 @@
 
 <% if (!folders.isRoot()) { %>
 <a href="javascript:naviox.goBack()">		
-<div class="phone-back-button">	
-   	<div><span></span></div>
-   	<p><xava:message key="back"/></p>		
-</div>
+	<i class="mdi mdi-arrow-left"></i>
 </a>
-<% } else { %>
-<div class="phone-back-button" onclick="window.location='<%=request.getContextPath()%>/naviox/signOut.jsp'">
-   	<div><span></span></div>
-   	<p><xava:message key="exit"/></p>		
-</div>
+<% } else if (modules.showsIndexLink()) { %>
+<a href="<%=request.getContextPath()%>/m/Index">
+	<i class="mdi mdi-arrow-left"></i>
+</a>
+<% } else {
+	String organization = Organizations.getCurrent(request);
+	if (organization == null) organization = "";
+%>
+<a href="<%=request.getContextPath()%>/naviox/signOut.jsp?organization=<%=organization%>">
+	<i class="mdi mdi-arrow-left"></i>
+</a>
 <% } %>
 
 <span class="phone-title">

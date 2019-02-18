@@ -5,8 +5,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import junit.framework.*;
-
 import org.apache.commons.beanutils.*;
 import org.apache.commons.logging.*;
 import org.apache.pdfbox.pdmodel.*;
@@ -18,6 +16,7 @@ import org.openxava.hibernate.*;
 import org.openxava.jpa.*;
 import org.openxava.model.meta.*;
 import org.openxava.tab.*;
+import org.openxava.tab.impl.*;
 import org.openxava.tab.meta.*;
 import org.openxava.util.*;
 import org.openxava.view.meta.*;
@@ -26,8 +25,11 @@ import org.openxava.web.style.*;
 import org.xml.sax.*;
 
 import com.gargoylesoftware.htmlunit.*;
+import com.gargoylesoftware.htmlunit.CookieManager;
 import com.gargoylesoftware.htmlunit.ElementNotFoundException;
 import com.gargoylesoftware.htmlunit.html.*;
+
+import junit.framework.*;
 
 
 /**
@@ -63,7 +65,8 @@ public class ModuleTestBase extends TestCase {
 	private static int loginFormIndex = -1;
 	private static Collection excludedActions;  
 	private static Collection ignoredActions;
-	private static BrowserVersion defaultBrowserVersion; 
+	private static BrowserVersion defaultBrowserVersion;
+	private static WebClient utilClient; 
 	
 	private String locale;
 	private MetaModule metaModule;
@@ -120,7 +123,19 @@ public class ModuleTestBase extends TestCase {
 		XHibernate.reset();
 		XHibernate.setConfigurationFile("/hibernate-junit.cfg.xml");
 		XPersistence.setPersistenceUnit("junit");
+		resetPreferences();
 		resetModule();	
+	}
+	
+	private void resetPreferences() throws Exception {
+		getUtilClient().getPage("http://" + getHost() + ":" + getPort() + "/" + application + "/xava/resetPreferences.jsp?zxy=HOljkso83");
+	}
+	
+	private static WebClient getUtilClient() throws Exception { 
+		if (utilClient == null) {
+			utilClient = new WebClient(getDefaultBrowserVersion());
+		}
+		return utilClient;
 	}
 	
 	protected void tearDown() throws Exception {
@@ -480,7 +495,7 @@ public class ModuleTestBase extends TestCase {
 	/**
 	 * User logout. <p>
 	 * 
-	 * At the moment only works against Liferay and JetSpeed2.
+	 * At the moment only works against Liferay, JetSpeed2 and NaviOX.
 	 */
 	protected void logout() throws Exception {
 		if (isLiferayEnabled()) {
@@ -493,7 +508,7 @@ public class ModuleTestBase extends TestCase {
 		}
 		else {
 			// NaviOX, the built-in login mechanism of OpenXava
-			page = getHtmlPage().getAnchorByHref("/" + application + "/naviox/signOut.jsp").click();
+			page = ((HtmlAnchor)getHtmlPage().getByXPath("//a[contains(@href, '/" + application + "/naviox/signOut.jsp')]").get(0)).click();
 		}
 	}
 	
@@ -658,6 +673,17 @@ public class ModuleTestBase extends TestCase {
 		restorePage(); 		
 	}
 	
+	/** 
+	 * Wait until the current AJAX request is done and update the page if needed. <p>
+	 * 
+	 * Usually is only needed to call this method when you use directly HtmlUnit APIs.
+	 * @since 5.7
+	 */
+	protected void waitAJAX() throws Exception {
+		resetForm();
+		restorePage();
+	}
+	
 	private void throwChangeOfLastNotNotifiedProperty() throws Exception {		
 		if (lastNotNotifiedPropertyName != null) {
 			setFormValueNoRefresh(lastNotNotifiedPropertyName, lastNotNotifiedPropertyValue);
@@ -731,8 +757,8 @@ public class ModuleTestBase extends TestCase {
 			if (arguments != null) { // 'List.viewDetail', 'row=0'				
 				if (
 					(
-						anchor.getHrefAttribute().endsWith("'" + action + "', '" + arguments + "')") ||
-						anchor.getHrefAttribute().endsWith("'" + action + "', '," + arguments + "')")
+						anchor.getHrefAttribute().contains("'" + action + "', '" + arguments + "'") ||
+						anchor.getHrefAttribute().contains("'" + action + "', '," + arguments + "'")							
 					)
 					&& anchor.getHrefAttribute().indexOf(moduleMarkForAnchor) >= 0)  			
 				{				
@@ -779,7 +805,7 @@ public class ModuleTestBase extends TestCase {
 		}
 		else {
 			if (isReferenceActionWithObsoleteStyle(action, arguments)) {		
-				log.warn(XavaResources.getString("keyProperty_obsolete_style"));
+				log.warn(XavaResources.getString("keyProperty_obsolete_style")); 
 				execute(action, refineArgumentsForReferenceActionWithObsoleteStyle(arguments));
 				return;
 			}
@@ -827,16 +853,16 @@ public class ModuleTestBase extends TestCase {
 		}
 	}
 
-	private String refineArgumentsForReferenceActionWithObsoleteStyle(String arguments) {
+	private String refineArgumentsForReferenceActionWithObsoleteStyle(String arguments) { 
 		int idx1 = arguments.indexOf("keyProperty=xava.");
 		int idx2 = arguments.indexOf(".", idx1 + 17);		
 		return arguments.substring(0, idx1 + 12) + arguments.substring(idx2 + 1);
 	}
-
-	private boolean isReferenceActionWithObsoleteStyle(String action, String arguments) { 
+	
+	private boolean isReferenceActionWithObsoleteStyle(String action, String arguments) {  
 		return action.startsWith("Reference.") && arguments.indexOf("keyProperty=xava.") >= 0;
 	}
-
+	
 	protected void executeDefaultAction() throws Exception {
  		HtmlButton button = getForm().getButtonByName("xava.DEFAULT_ACTION");
  		page = (HtmlPage) button.click();
@@ -1136,8 +1162,9 @@ public class ModuleTestBase extends TestCase {
 	/**
 	 * @since 5.6
 	 */
-	protected void clearCondition() { 
+	protected void clearCondition() throws Exception {   
 		page.executeJavaScript("openxava.clearCondition('" + application + "', '" + module + "', '')"); 
+		waitAJAX(); 
 	}
 	
 	private void setCollectionCondition(String id, String[] values) throws Exception {
@@ -1315,7 +1342,7 @@ public class ModuleTestBase extends TestCase {
 			if (!getExcludedActions().contains(actionName)) {  
 				actions.add(removeActionPrefix(input.getNameAttribute()));
 			}
-		}						
+		}	
 		return actions;				
 	}
 			
@@ -1326,6 +1353,8 @@ public class ModuleTestBase extends TestCase {
 			excludedActions.add("List.moveColumnToRight");
 			excludedActions.add("List.moveColumnToLeft");
 			excludedActions.add("List.addColumns");
+			//
+			excludedActions.add("EmailNotifications.subscribe"); // Available since v5.9 
 		}
 		return excludedActions;
 	}
@@ -1344,7 +1373,7 @@ public class ModuleTestBase extends TestCase {
 		Collection actionsInForm = getActions();		
 		Collection left = new ArrayList();		
 		for (int i = 0; i < expectedActions.length; i++) {
-			String expectedAction = expectedActions[i];				
+			String expectedAction = expectedActions[i];
 			if (actionsInForm.contains(expectedAction)) {
 				actionsInForm.remove(expectedAction);
 			}
@@ -1377,14 +1406,25 @@ public class ModuleTestBase extends TestCase {
 		return getTableCellInList(row, column).asText().trim();
 	}
 	
-	private HtmlTable getTable(String id, String errorId) { 
+	/**
+	 * @since 5.7 
+	 */
+	protected String getValueInList(int row) throws Exception { 
+		return getElementInList(row).asText().trim();
+	}
+	
+	private HtmlElement getListElement(String id, String errorId) {  
 		try {
-			return (HtmlTable) getElementById(id);
+			return getElementById(id);
 		}
 		catch (com.gargoylesoftware.htmlunit.ElementNotFoundException ex) {
 			fail(XavaResources.getString(errorId, id));
 			return null;
 		}		
+	}
+	
+	private HtmlTable getTable(String id, String errorId) { 
+		return (HtmlTable) getListElement(id, errorId); 
 	}
 		
 	private HtmlTableCell getTableCellInList(int row, int column) throws Exception {
@@ -1393,8 +1433,21 @@ public class ModuleTestBase extends TestCase {
 		return table.getCellAt(row+2, column+columnIncrement);
 	}
 	
+	private HtmlElement getElementInList(int index) throws Exception { 
+		HtmlElement list = getListElement("list", "list_not_displayed");
+		return getChild(list, index);
+	}
+	
 	private HtmlTableRow getTableRow(String tableId, int row) throws Exception {
 		return getTable(tableId, "collection_not_displayed").getRow(row+2);
+	}
+	
+	private HtmlElement getChild(HtmlElement parent, int index) {
+		int i=0;
+		for (DomElement element: parent.getChildElements()) {
+			if (i++ == index) return (HtmlElement) element;
+		}
+		throw new IndexOutOfBoundsException(XavaResources.getString("elements_out_of_bounds", index, i - 1)); 
 	}
 		
 	protected String getValueInCollection(String collection, int row, String name) throws Exception {
@@ -1541,7 +1594,20 @@ public class ModuleTestBase extends TestCase {
 	 * Exclude heading and footing, and the not displayed data (maybe in cache).
 	 */
 	protected int getListRowCount() throws Exception {
-		HtmlTable table = getTable("list", XavaResources.getString("list_not_displayed"));
+		HtmlElement listElement = getListElement("list", XavaResources.getString("list_not_displayed"));
+		if (listElement instanceof HtmlTable) return getListTableRowCount((HtmlTable) listElement);
+		else return getListDivRowCount((HtmlDivision) listElement);
+	}
+	
+	
+	private int getListDivRowCount(HtmlDivision div) { 
+		int elementCount = div.getChildElementCount();
+		if (elementCount == 1) return div.asXml().contains(Style.getInstance().getNoObjects())?0:1;
+		if (elementCount > EntityTab.DEFAULT_CHUNK_SIZE && div.asXml().contains("xava_loading_more_elements")) return elementCount - 2; 
+		return elementCount;
+	}
+
+	private int getListTableRowCount(HtmlTable table) throws Exception { 
 		if (table.getRowCount() > 2 && "nodata".equals(table.getRow(2).getId())) { 
 			return 0;
 		}						
@@ -1549,6 +1615,7 @@ public class ModuleTestBase extends TestCase {
 		if (collectionHasFilterHeader(table)) increment++; // The filter
 		return table.getRowCount() - increment;
 	}
+
 	
 	protected int getListColumnCount() throws Exception {
 		return getListColumnCount("list", XavaResources.getString("list_not_displayed"));
@@ -1617,6 +1684,18 @@ public class ModuleTestBase extends TestCase {
 		
 	protected void assertValueInList(int row, String name, String value) throws Exception {
 		assertEquals(XavaResources.getString("unexpected_value_in_list", name, new Integer(row)), value, getValueInList(row, name));
+	}
+	
+	/** @since 5.7 */
+	protected void assertValueInList(int row, String value) throws Exception { 
+		assertEquals(XavaResources.getString("unexpected_value_in_list", "", new Integer(row)), value, getValueInList(row));
+	}
+	
+	/** @since 5.8 */
+	protected void assertValuesInList(int row, String ... values) throws Exception {   
+		for (int i=0; i<values.length; i++) {
+			assertValueInList(row, i, values[i]);
+		}
 	}
 	
 	protected void assertValueInList(int row, int column, String value) throws Exception {
@@ -1705,7 +1784,7 @@ public class ModuleTestBase extends TestCase {
 	private void assertTotalInList(String tableId, String message, int row, int column, String total) throws Exception { 
 		HtmlTable table = getTable(tableId, message);
 		int rowInTable = table.getRowCount() - getTotalsRowCount(table) + row;
-		column+=getColumnIncrement(table, column); 
+		column+=getColumnIncrement(table, column);
 		assertEquals(XavaResources.getString("total_not_match", new Integer(column)), total,   
 				table.getCellAt(rowInTable, column).asText().trim());		
 	}		
@@ -1716,11 +1795,11 @@ public class ModuleTestBase extends TestCase {
 		if (isElementCollection(table)) {
 			int i=1;
 			HtmlTableCell cell = table.getCellAt(0, i++);
-			while (cell != null && i < originalColumn + increment) {
+			while (cell != null && i < originalColumn + increment + 2) {  
 				String value = cell.asText().trim();
 				if (Is.emptyString(value)) increment++;
 				cell = table.getCellAt(0, i++);
-			} 
+			}
 		}		
 		int i=1;
 		HtmlTableCell cell = table.getCellAt(0, i);
@@ -1732,13 +1811,14 @@ public class ModuleTestBase extends TestCase {
 	}
 	
 	private boolean isElementCollection(HtmlTable table) { 
-		HtmlElement container = (HtmlElement) table.getParentNode().getParentNode();
+		HtmlElement container = (HtmlElement) table.getParentNode(); 
+		if (XavaPreferences.getInstance().isResizeColumns()) container = (HtmlElement) container.getParentNode();
 		return Style.getInstance().getElementCollection().equals(container.getAttribute("class"));
 	}
 
 	private int getTotalsRowCount(HtmlTable table) { 
 		int count = 0;
-		for (int i=table.getRowCount() - 1; table.getRow(i).getId().equals("") && i >=0; i--) count++;
+		for (int i=table.getRowCount() - 1; i >=1 && table.getRow(i).getId().equals(""); i--) count++; 
 		return count;
 	}
 
@@ -2196,6 +2276,41 @@ public class ModuleTestBase extends TestCase {
 		assertValidValuesCount(elementCollectionPropertyName, count);		
 	}
 
+	protected void assertValidValueNotExists(String name, String key) throws Exception {
+		try {
+			assertValidValueNotExistsWithHtmlSelect(name, key);
+		}
+		catch (ElementNotFoundException ex) {
+			assertValidValueNotExistsWithUIAutocomplete(name, key);
+		}
+	}
+	
+	private void assertValidValueNotExistsWithUIAutocomplete(String name, String key) throws Exception {
+		List<KeyAndDescription> validValues = getValidValuesWithUIAutocomplete(name);
+		if (validValues.size() > 0){
+			int i = 0;
+			for (KeyAndDescription validValue: validValues) {
+				if (key.equals((String) validValue.getKey())){
+					fail(XavaResources.getString("option_found", name, key));
+				}
+			}
+		}
+	}
+	
+	private void assertValidValueNotExistsWithHtmlSelect(String name, String key) {
+		Collection options = getSelectByName(decorateId(name)).getOptions();
+		if (options.size() > 0){
+			int i=0;
+			for (Iterator it = options.iterator(); it.hasNext(); i++) {
+				HtmlOption option = (HtmlOption) it.next();
+				if (option.getValueAttribute().equals(key)) {
+					fail(XavaResources.getString("option_found", name, key));
+					break;
+				}
+			}
+		}
+	}
+	
 	protected void assertValidValues(String name, String [][] values) throws Exception {
 		try {
 			assertValidValuesWithHtmlSelect(name, values);
@@ -2379,10 +2494,7 @@ public class ModuleTestBase extends TestCase {
 		assertTrue(XavaResources.getString("minimum_1_elements_in_collection", collection), getCollectionRowCount(collection) > 0);
 	}
 	
-	/**
-	 * @since 5.3
-	 */
-	protected void assertValidValueExists(String name, String key, String description) {
+	private void assertValidValueExistsWithHtmlSelect(String name, String key, String description) {
 		Collection options = getSelectByName(decorateId(name)).getOptions();
 		assertTrue(XavaResources.getString("unexpected_valid_values", name), options.size() > 0);
 		int i=0;
@@ -2398,7 +2510,32 @@ public class ModuleTestBase extends TestCase {
 		if (!found) {
 			fail(XavaResources.getString("option_not_found", name, key));
 		}
-		
+	}
+	
+	private void assertValidValueExistsWithUIAutocomplete(String name, String key, String description) throws Exception {
+		List<KeyAndDescription> validValues = getValidValuesWithUIAutocomplete(name);
+		assertTrue(XavaResources.getString("unexpected_valid_values", name), validValues.size() > 0);
+		int i = 0;
+		boolean found = false;
+		for (KeyAndDescription validValue: validValues) {
+			if (key.equals((String) validValue.getKey())){
+				found = true;
+				assertEquals(XavaResources.getString("unexpected_description", name), description, (String) validValue.getDescription());
+			}
+		}
+		if (!found) fail(XavaResources.getString("option_not_found", name, key));
+	}
+	
+	/**
+	 * @since 5.3
+	 */
+	protected void assertValidValueExists(String name, String key, String description) throws Exception {
+		try {
+			assertValidValueExistsWithHtmlSelect(name, key, description);
+		}
+		catch (ElementNotFoundException ex) {
+			assertValidValueExistsWithUIAutocomplete(name, key, description);
+		}
 	}
 		
 	protected static String getPort() { 
@@ -2518,7 +2655,9 @@ public class ModuleTestBase extends TestCase {
 	}
 	
 	private void setNewModuleIfChanged() throws Exception {		
-		String lastModuleChange = ((HtmlInput) page.getElementById("xava_last_module_change")).getValueAttribute();
+		HtmlInput lastModuleChangeInput = (HtmlInput) page.getElementById("xava_last_module_change"); 
+		if (lastModuleChangeInput == null) return;
+		String lastModuleChange = lastModuleChangeInput.getValueAttribute();
 		if (Is.emptyString(lastModuleChange)) return;
 		String [] modules = lastModuleChange.split("::"); 
 		if (!module.equals(modules[0])) return;
@@ -2722,18 +2861,49 @@ public class ModuleTestBase extends TestCase {
 	}
 
 	/**
-	 * Assert the content of a comment of DISCUSSION property as text. <p> 
+	 * Assert the content of a comment of DISCUSSION property as text,
+	 * including header data like user and date. <p> 
 	 * 
 	 * @since 5.6
 	 */
-	protected void assertDiscussionCommentText(String name, int row, String extendedText) {  
+	protected void assertDiscussionCommentText(String name, int row, String extendedText) {
+		assertEquals(extendedText, getDiscussionCommentText(name, row));
+	}
+	
+	/**
+	 * Get the content of a comment of DISCUSSION property as text,
+	 * including header data like user and date. <p> 
+	 * 
+	 * @since 5.7
+	 */
+	protected String getDiscussionCommentText(String name, int row) { 
 		int i=0;
 		for (DomElement comment: getDiscussionCommentsElement(name).getChildElements()) {
-			if (i == row) {
-				assertEquals(extendedText, comment.asText());
-				return;
+			if (i++ == row) {
+				return comment.asText();
 			}
 		}
+		throw new IndexOutOfBoundsException(XavaResources.getString("not_discussion_comment_at", row)); 
+	}
+	
+	/**
+	 * Get the content of a comment of DISCUSSION property as text,
+	 * just the content of the comment excluding header data.<p> 
+	 * 
+	 * @since 5.7
+	 */
+	protected String getDiscussionCommentContentText(String name, int row) {  
+		return getDiscussionCommentText(name, row).split("\r\n", 2)[1];
+	}
+	
+	/**
+	 * Assert the content of a comment of DISCUSSION property as text,
+	 * just the content of the comment excluding header data. <p> 
+	 * 
+	 * @since 5.7
+	 */
+	protected void assertDiscussionCommentContentText(String name, int row, String expectedText) {  
+		assertEquals(expectedText, getDiscussionCommentContentText(name, row));
 	}
 
 	/**
@@ -2760,7 +2930,7 @@ public class ModuleTestBase extends TestCase {
 		postButton.click();
 	}
 	
-	private HtmlElement getDiscussionElement(String name) {  
+	private HtmlElement getDiscussionElement(String name) {   
 		return getHtmlPage().getHtmlElementById(decorateId("editor_" + name));
 	}
 	
@@ -2771,10 +2941,8 @@ public class ModuleTestBase extends TestCase {
 	/**
 	 * @since 5.6 
 	 */
-	protected void selectListConfiguration(String title) throws Exception {   
-		HtmlOption option =  getSelectListConfigurations().getOptionByText(title);
-		option.click();
-		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
+	protected void selectListConfiguration(String title) throws Exception {
+		selectComboOption(getSelectListConfigurations(), title);
 	}
 
 	/**
@@ -2782,16 +2950,41 @@ public class ModuleTestBase extends TestCase {
 	 */	
 	protected void assertListSelectedConfiguration(String expectedTitle) {   
 		String title = getSelectListConfigurations().getSelectedOptions().get(0).asText();
-		assertEquals(expectedTitle, refineListConfigurationTitle(title));
+		assertEquals(expectedTitle, title); 
 	}
 	
 	/**
 	 * @since 5.6 
 	 */	
-	protected void assertListAllConfigurations(String ... expectedTitles) throws Exception { 
+	protected void assertListAllConfigurations(String ... expectedTitles) throws Exception {
+		assertAllComboOptions(getSelectListConfigurations(), expectedTitles); 
+	}
+	
+	
+	/**
+	 * @since 5.8 
+	 */
+	protected void selectGroupBy(String title) throws Exception {  
+		selectComboOption(getSelectGroupBy(), title);
+	}
+	
+	private void selectComboOption(HtmlSelect combo, String title) throws Exception {     
+		HtmlOption option =  combo.getOptionByText(title);
+		option.click();
+		getWebClient().waitForBackgroundJavaScriptStartingBefore(10000);
+	}	
+
+	/**
+	 * @since 5.8 
+	 */	
+	protected void assertAllGroupBys(String ... expectedTitles) throws Exception {  
+		assertAllComboOptions(getSelectGroupBy(), expectedTitles);
+	}
+	
+	private void assertAllComboOptions(HtmlSelect combo, String ... expectedTitles) throws Exception {   
 		List<String> titles = new ArrayList<String>();
-		for (HtmlOption option: getSelectListConfigurations().getOptions()) {
-			String title = titles.isEmpty()?refineListConfigurationTitle(option.asText()):option.asText();
+		for (HtmlOption option: combo.getOptions()) {
+			String title = option.asText(); 
 			titles.add(title);
 		}
 		List<String> expectedTitleList = Arrays.asList(expectedTitles);
@@ -2799,13 +2992,55 @@ public class ModuleTestBase extends TestCase {
 	}
 	
 	private HtmlSelect getSelectListConfigurations() { 
-		HtmlBody body = (HtmlBody) getHtmlPage().getElementsByTagName("body").get(0); 
-		HtmlElement listTitle = body.getOneHtmlElementByAttribute("td", "class", "ox-list-title"); // This class depend on the style
-		return (HtmlSelect) listTitle.getElementsByTagName("select").get(0); 
-	}
-
-	private String refineListConfigurationTitle(String title) {
-		return title.substring(0, title.length() - 4);
+		return getSelectInListTitle(0);
+	} 
+	
+	private HtmlSelect getSelectGroupBy() { 
+		return getSelectInListTitle(1);
 	}
 	
+	private HtmlSelect getSelectInListTitle(int index) { 
+		HtmlBody body = (HtmlBody) getHtmlPage().getElementsByTagName("body").get(0); 
+		HtmlElement listTitle = body.getOneHtmlElementByAttribute("td", "class", "ox-list-title"); // This class depend on the style
+		return (HtmlSelect) listTitle.getElementsByTagName("select").get(index); 
+	}
+	
+	/**
+	 * Assert the amount of attachments. <p> 
+	 * 
+	 * @param name of the ATTACHMENTS property
+	 * @param expectedCount the amount of attachments expected
+	 * 
+	 * @since 5.8
+	 */
+	protected void assertAttachmentsCount(String name, int expectedCount) { 
+		HtmlElement holder = getAttachmentsHolderElement(name);
+		assertEquals(expectedCount, holder.getByXPath("a[@class='ox-attachment-item' and not(@style='display: none')]").size());		
+	}
+	
+	/**
+	 * Assert the name of the attachment. <p> 
+	 * 
+	 * @param name of the ATTACHMENTS property
+	 * @param expectedName expected name of the attachment
+	 * 
+	 * @since 5.8
+	 */
+	@SuppressWarnings("unchecked")
+	protected void assertExistsAttachmentName(String name, String expectedName) { 
+		boolean exists = false;
+		HtmlElement holder = getAttachmentsHolderElement(name);		
+		
+		for (HtmlAnchor anchor : 
+			 (List<HtmlAnchor>) holder.getByXPath("a[@class='ox-attachment-item' and not(@style='display: none')]")) {
+			if (exists = anchor.getTextContent().trim().equals(expectedName)) break;
+		}
+		assertTrue(exists);
+	}
+	
+	private HtmlElement getAttachmentsHolderElement(String name) {
+		HtmlElement attachmentsEditor = getHtmlPage().getHtmlElementById(decorateId("editor_" + name));
+		return attachmentsEditor.getOneHtmlElementByAttribute("div", "class", "ox-attachments");
+	}
+
 }

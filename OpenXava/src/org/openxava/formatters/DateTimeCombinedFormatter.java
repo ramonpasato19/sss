@@ -43,7 +43,7 @@ public class DateTimeCombinedFormatter extends DateTimeBaseFormatter implements 
 
 	private DateFormat getDateTimeFormat() {
 		if (isExtendedFormat()) return extendedDateTimeFormat;		
-		return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locales.getCurrent());
+		return Dates.getDateTimeFormat(); 
 	}
 
 	private DateFormat[] getDateTimeFormats() {

@@ -18,10 +18,8 @@ long dif = System.currentTimeMillis();
 %>
 <input id="<%=propertyKey%>" name="<%=propertyKey%>" value="<%=fvalue%>" type="hidden"/>
 <%
-boolean isEmpty = true;
 if (!Is.emptyString(fvalue)) {
 	Collection<AttachedFile> files = FilePersistorFactory.getInstance().findLibrary(fvalue);
-	isEmpty = files.isEmpty();
 	for (AttachedFile file : files) {
 %>
 	  <a href='<%=request.getContextPath()%>/xava/xfile?application=<%=applicationName%>&module=<%=module%>&fileId=<%=file.getId()%>&dif=<%=dif%>' target="_blank" tabindex="1">		
@@ -39,8 +37,5 @@ if(editable) {
 %>
 	<span valign='middle'>
 	  <xava:action action='AttachedFiles.add' argv='<%="newFilesetProperty=" + Ids.undecorate(propertyKey)%>'/>
-	  <%if(isEmpty) { %>			
-		<xava:link action='AttachedFiles.add' argv='<%="newFilesetProperty=" + Ids.undecorate(propertyKey)%>'/>
-	  <%} %>
 	</span>   		
 <%}%>

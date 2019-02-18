@@ -19,14 +19,11 @@ public class RemoveSelectedTreeViewNodeAction extends CollectionBaseAction {
 	public void execute() throws Exception {
 		TreeViewParser treeViewParser = (TreeViewParser) getContext().get(getRequest(), TreeViewParser.XAVA_TREE_VIEW_PARSER);
 		TreeView metaTreeView = treeViewParser.getMetaTreeView(getCollectionElementView().getModelName());
-		Map values;
 		try{						
-			Collection selectedOnes = getMapsSelectedValues();
-			List<Map> selected = new ArrayList<Map>(); 
-			if (!selectedOnes.isEmpty()){
-				Iterator it = selectedOnes.iterator();
-				while(it.hasNext()) {
-					values = (Map) it.next();
+			Map [] selectedOnes = getSelectedKeys(); 
+			List<Map> selected = new ArrayList<Map>();
+			if (selectedOnes.length > 0){
+				for (Map values: selectedOnes) {
 					selected.add(values);
 					Object treeNode = MapFacade.findEntity(getCollectionElementView().getModelName(), values);
 					if (metaTreeView != null){
@@ -44,11 +41,10 @@ public class RemoveSelectedTreeViewNodeAction extends CollectionBaseAction {
 					}
 				}
 				
-				it = selected.iterator();
-				while(it.hasNext()){
-					values = (Map) it.next();
+				for (Map values: selected) {
 					removeElement(values);
 				}
+				
 				if (isEntityReferencesCollection()) {
 					addMessage("association_removed", getCollectionElementView().getModelName(), 
 							getCollectionElementView().getParent().getModelName());

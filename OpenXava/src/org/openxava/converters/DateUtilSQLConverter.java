@@ -22,6 +22,7 @@ public class DateUtilSQLConverter implements IConverter {
 	
 	public Object toJava(Object o) throws ConversionException {
 		if (o == null) return null;
+		if (o instanceof Number || o instanceof String) return o; 
 		if (!(o instanceof java.util.Date)) { // java.util.Date is more tolerant that java.sql.Date in this case		
 			throw new ConversionException("conversion_java_sqldate_expected");
 		}

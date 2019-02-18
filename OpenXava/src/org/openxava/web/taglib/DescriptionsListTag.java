@@ -23,6 +23,7 @@ public class DescriptionsListTag extends TagSupport {
 	
 	private static Log log = LogFactory.getLog(DescriptionsListTag.class);
 	private String reference;
+	private boolean readOnlyAsLabel; 
 	
 	public int doStartTag() throws JspException {
 		try {			
@@ -41,7 +42,8 @@ public class DescriptionsListTag extends TagSupport {
 			String module = request.getParameter("module");
 			String referenceKey = Ids.decorate(application, module, prefix + reference); 
 			request.setAttribute(referenceKey, metaReference);
-			String editorURL = "reference.jsp?referenceKey=" + referenceKey + "&onlyEditor=true&frame=false&composite=false&descriptionsList=true";
+			String readOnlyAsLabelSuffix = readOnlyAsLabel?"&readOnlyAsLabel=true":"";
+			String editorURL = "reference.jsp?referenceKey=" + referenceKey + "&onlyEditor=true&frame=false&composite=false&descriptionsList=true" + readOnlyAsLabelSuffix; 
 			String editorPrefix = Module.isPortlet()?"/WEB-INF/jsp/xava/":"/xava/";  
 			try {
 				pageContext.include(editorPrefix + editorURL); 
@@ -69,6 +71,14 @@ public class DescriptionsListTag extends TagSupport {
 
 	public void setReference(String property) {
 		this.reference = property;		
+	}
+
+	public boolean isReadOnlyAsLabel() {
+		return readOnlyAsLabel;
+	}
+
+	public void setReadOnlyAsLabel(boolean readOnlyAsLabel) {
+		this.readOnlyAsLabel = readOnlyAsLabel;
 	}
 	
 }

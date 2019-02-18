@@ -661,6 +661,11 @@
 		<antcall target="createWebXml"/>
 		<antcall target="filter"/>
 		<antcall target="createEditorsJS"/>
+		<antcall target="createDefaultI18nFiles"/>
+		<jar jarfile="../${project}/web/WEB-INF/lib/openxava.jar" basedir="../OpenXava/bin"/>
+	</target>
+	
+	<target name="createDefaultI18nFiles">
 		<copy file="../OpenXava/bin/Messages_${default.language}.properties" 
 			tofile="../OpenXava/bin/Messages.properties"/>
 		<copy file="../OpenXava/bin/Labels_${default.language}.properties" 
@@ -676,8 +681,7 @@
 			failonerror="false"/>
 		<copy file="../${project}/${classes.dir}/Etiquetas${project}_${default.language}.properties" 
 			tofile="../${project}/${classes.dir}/Etiquetas${project}.properties"
-			failonerror="false"/>
-		<jar jarfile="../${project}/web/WEB-INF/lib/openxava.jar" basedir="../OpenXava/bin"/>
+			failonerror="false"/>		
 	</target>
 
 	<target name="createWar" depends="prepareWar">
@@ -912,6 +916,7 @@
 		<antcall target="copyWeb"/>
 		<antcall target="installAddons"/>
 		<antcall target="createWebXml"/>
+		<antcall target="createDefaultI18nFiles"/>
 		<jar jarfile="../${project}/web/WEB-INF/lib/openxava.jar" basedir="../OpenXava/bin"/>
 		<!-- Delete the old Hibernate jars (used until v4m5) -->
 		<delete file="../${project}/web/WEB-INF/lib/ejb3-persistence.jar"/>
@@ -922,10 +927,7 @@
 		<delete file="../${project}/web/WEB-INF/lib/hibernate-classic-validator.jar"/>		
 		<!-- Delete other unused libraries -->
 		<delete file="../${project}/web/WEB-INF/lib/jboss-archive-browsing.jar"/>
-		<delete file="../${project}/web/WEB-INF/lib/jaxb-api.jar"/>
-		<delete file="../${project}/web/WEB-INF/lib/jaxb-impl.jar"/>
 		<delete file="../${project}/web/WEB-INF/lib/jakarta-oro.jar"/>
-		<delete file="../${project}/web/WEB-INF/lib/activation.jar"/>
 		<delete file="../${project}/web/WEB-INF/lib/autobizlogic.jar"/>
 		<delete file="../${project}/web/WEB-INF/lib/commons-jexl.jar"/>		
 		
@@ -955,18 +957,21 @@
 		<delete file="../${project}/web/xava/calculatedCollectionList.jsp"/>
 		<!-- Delete unused JSPs -->
 		<delete file="../${project}/web/xava/editors/chartNameEditor.jsp"/> 
+		<delete file="../${project}/web/naviox/mainNavigation.jsp"/>
+		<delete file="../${project}/web/xava/editorIcons.jsp"/>
+		<delete file="../${project}/web/xava/referenceEditorIcons.jsp"/>
 		
 	</target>
 	
 	<target name="copyWeb">
 		<copy todir="../${project}/web/xava" overwrite="true" >
-			<fileset dir="../OpenXava/web" excludes="WEB-INF/**,style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp"/>
+			<fileset dir="../OpenXava/web" excludes="WEB-INF/**,style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp,viewExt.jsp,editors/listEditorTotalActionsExt.jsp,editors/listEditorLastRowExt.jsp"/>
 		</copy>
 		<copy todir="../${project}/web/xava">
-			<fileset dir="../OpenXava/web" includes="style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp">
+			<fileset dir="../OpenXava/web" includes="style/custom.css,propertyActionsExt.jsp,referenceActionsExt.jsp,referenceFrameHeaderExt.jsp,collectionFrameHeaderExt.jsp,viewExt.jsp,editors/listEditorTotalActionsExt.jsp,editors/listEditorLastRowExt.jsp">
 				<present present="srconly" targetdir="../${project}/web/xava" />
 			</fileset>
-		</copy>				
+		</copy>
 		<copy todir="../${project}/web/WEB-INF" overwrite="true">
 			<fileset dir="../OpenXava/web/WEB-INF"/>
 		</copy>
@@ -974,10 +979,10 @@
 
 	<target name="installAddons">
 		<copy todir="../${project}/web" overwrite="true">
-			<fileset dir="../Addons/web" excludes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp"/>
+			<fileset dir="../Addons/web" excludes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp,naviox/organizationNameExt.jsp"/>
 		</copy>
 		<copy todir="../${project}/web">
-			<fileset dir="../Addons/web" includes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp">
+			<fileset dir="../Addons/web" includes="naviox/firstSteps.jsp,naviox/welcome.jsp,naviox/indexExt.jsp,naviox/organizationNameExt.jsp">
 				<present present="srconly" targetdir="../${project}/web" />
 			</fileset>
 		</copy>			

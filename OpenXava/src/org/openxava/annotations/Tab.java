@@ -65,6 +65,18 @@ public @interface Tab {
 	 */
 	String defaultOrder() default "";
 	
+	/**
+	 * Editor from default-editors.xml or editors.xml used for default list format. <p>
+	 * 
+	 * It replace the "List" editor but does not remove the other ones.
+	 */
 	String editor() default "";
+	
+	/**
+	 * Editors from default-editors.xml or editors.xml used for all the list format. <p>
+	 * 
+	 * It replace all editors.
+	 */	
+	String editors() default ""; 
 	
 }

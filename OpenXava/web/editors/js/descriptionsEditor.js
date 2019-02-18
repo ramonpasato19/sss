@@ -18,7 +18,7 @@ openxava.addEditorInitFunction(function() {
 				event.preventDefault();
 			},			
 			change: function( event, ui ) {
-				if ($(event.target).val() === "" && ($(event.target).next().val() !== "" || $(event.target).next().next().val() !== "")) {
+				if ($(event.target).val() === "" && $(event.target).next().val() !== "") {  
 					$(event.target).next().val("");
 					$(event.target).next().next().val("");
 					descriptionsEditor.executeOnChange($(event.target));
@@ -44,7 +44,10 @@ openxava.addEditorInitFunction(function() {
 			},
 			appendTo: "body"
 		}); 	
+		
+		$(this).attr("autocomplete", "nope");
 	});
+	
 	
 });
 

@@ -28,7 +28,7 @@ abstract public class CollectionElementViewBaseAction extends ViewBaseAction {
 	}
 	
 	protected boolean mustRefreshCollection() { 
-		return true;
+		return getManager().isExecutingAction(); // So false when we are determining if the action is available 
 	}
 		
 	protected void showDialog(View viewToShowInDialog) throws Exception {

@@ -24,4 +24,7 @@ public interface IEntityTabImpl extends IWithXTableModel, ISearch, IDataReader {
 
   Number getSum(String property) throws RemoteException; 
   
+  /** @since 5.7 */
+  int getChunkSize(); 
+  
 }

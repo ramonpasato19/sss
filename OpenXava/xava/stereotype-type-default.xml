@@ -43,5 +43,5 @@
 	<for stereotype="ICON" type="String"/> 
 	<for stereotype="ICONO" type="String"/>
 	<for stereotype="DISCUSSION" type="String"/>
-	<for stereotype="DISCUSION" type="String"/> 
+	<for stereotype="DISCUSION" type="String"/>	
 </stereotype-type-default>

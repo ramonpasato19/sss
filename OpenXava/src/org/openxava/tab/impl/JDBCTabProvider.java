@@ -5,7 +5,6 @@ import java.sql.*;
 import java.util.*;
 
 import org.apache.commons.logging.*;
-import org.openxava.component.*;
 import org.openxava.converters.*;
 import org.openxava.mapping.*;
 import org.openxava.model.meta.*;
@@ -223,7 +222,8 @@ public class JDBCTabProvider extends TabProviderBase {
 
 
 	protected Number executeNumberSelect(String select, String errorId) {
-		if (select == null || keyHasNulls()) return 0;						
+		if (select == null) return Integer.MAX_VALUE; 
+		if (keyHasNulls()) return 0;						
 		Connection con = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
@@ -338,5 +338,10 @@ public class JDBCTabProvider extends TabProviderBase {
 	protected String translateProperty(String property) {
 		return getMetaModel().getMapping().getQualifiedColumn(property);
 	}
+	
+	protected String noValueInSelect() { 
+		return "null";
+	}
+
 	
 }

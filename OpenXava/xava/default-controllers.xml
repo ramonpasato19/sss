@@ -1,6 +1,8 @@
 <?xml version = "1.0" encoding = "ISO-8859-1"?>
 
-<!DOCTYPE controllers SYSTEM "dtds/controllers.dtd"><!-- 
+<!DOCTYPE controllers SYSTEM "dtds/controllers.dtd">
+
+<!-- 
 default-controllers.xml: OpenXava core controllers 
 
 In your project use the name 'controllers.xml' or 'controladores.xml'
@@ -12,15 +14,21 @@ here that you want to override.
 
 <controllers>
 
-	<env-var name="XAVA_SEARCH_ACTION" value="CRUD.searchByViewKey"/>	<env-var name="XAVA_LIST_ACTION" value="List.viewDetail"/>		<object name="xava_view" class="org.openxava.view.View"/>		<object name="xava_referenceSubview" class="org.openxava.view.View"/>	
+	<env-var name="XAVA_SEARCH_ACTION" value="CRUD.searchByViewKey"/>
+	<env-var name="XAVA_LIST_ACTION" value="List.viewDetail"/>
+	
+	<object name="xava_view" class="org.openxava.view.View"/>	
+	<object name="xava_referenceSubview" class="org.openxava.view.View"/>	
 	<object name="xava_tab" class="org.openxava.tab.Tab"/>		
 	<object name="xava_mainTab" class="org.openxava.tab.Tab"/>		
 	<object name="xava_customizingTab" class="org.openxava.tab.Tab"/>
 	<object name="xava_myReport" class="org.openxava.session.MyReport"/>
 	<object name="xava_chart" class="org.openxava.session.Chart"/>	
-	<object name="xava_row" class="java.lang.Integer" value="-1"/>		<object name="xava_newImageProperty" class="java.lang.String"/>
+	<object name="xava_row" class="java.lang.Integer" value="-1"/>	
+	<object name="xava_newImageProperty" class="java.lang.String"/>
 	<object name="xava_currentCollectionLabel" class="java.lang.String"/>
-	<object name="xava_collectionViewObject" class="java.lang.String"/>		<object name="xava_previousControllers" class="java.util.Stack"/>
+	<object name="xava_collectionViewObject" class="java.lang.String"/>	
+	<object name="xava_previousControllers" class="java.util.Stack"/>
 	<object name="xava_previousViews" class="java.util.Stack"/>
 	<object name="xava_previousCustomViews" class="java.util.Stack"/>
 	<object name="xava_gallery" class="org.openxava.session.Gallery"/>
@@ -34,15 +42,18 @@ here that you want to override.
 	<object name="xava_newFileProperty" class="java.lang.String" />
 	<object name="xava_newFilesetProperty" class="java.lang.String" />
 	<object name="xava_newIconProperty" class="java.lang.String"/> 
+	<object name="xava_cutCollectionElements" class="org.openxava.session.CutCollectionElements" scope="global"/> 
 		
 	<controller name="Typical">
 		<!-- If you modify this controller revise the other Typical controllers below -->
 		<extends controller="Navigation"/>
 		<extends controller="CRUD"/>
 		<extends controller="Print"/>
+		<extends controller="ImportData"/>
 	</controller>
 	
-	<controller name="Void"/>	
+	<controller name="Void"/>
+	
 	<controller name="CRUD">
 	
 		<action  name="new" 
@@ -60,23 +71,18 @@ here that you want to override.
 			icon="content-save"
 			keystroke="Control S"/>	
 		
-		<action name="delete" mode="detail" confirm="true"
-			class="org.openxava.actions.DeleteAction"
-			image="delete.gif"
-			icon="delete"
-			keystroke="Control D"/>
-		
-		<action name="search" mode="detail" 			 
-			class="org.openxava.actions.OpenSearchDialogAction" 
-			image="find.gif"
-			icon="magnify" 
-			keystroke="control B"/> 
-		
 		<action name="refresh" mode="detail"			
 			class="org.openxava.actions.SearchAction"
 			image="refresh.gif"
 			icon="refresh"
-			keystroke="control B"/>											
+			keystroke="control B"/>
+		
+		<action name="delete" mode="detail" confirm="true"
+			class="org.openxava.actions.DeleteAction"
+			image="delete.gif"
+			icon="delete"
+			available-on-new="false"
+			keystroke="Control D"/>		
 		
 		<action name="searchByViewKey" hidden="true"			
 			class="org.openxava.actions.SearchByViewKeyAction"/>
@@ -88,17 +94,21 @@ here that you want to override.
 			class="org.openxava.actions.SearchReadOnlyAction"/>
 						
 		<action name="deleteSelected" mode="list" confirm="true"
+			process-selected-items="true"
+			image="delete.gif"
+			icon="delete"			 
 			class="org.openxava.actions.DeleteSelectedAction"
-			keystroke="Control D"/>
+			keystroke="Control D"/>				
 		
 		<action name="deleteRow" mode="NONE" confirm="true"
 			class="org.openxava.actions.DeleteSelectedAction"
 			image="delete.gif"
 			icon="delete"
-			in-each-row="true"/>					
-		
+			in-each-row="true"/>	
+			
 	</controller>
-		<controller name="Print">
+	
+	<controller name="Print">
 								
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
@@ -127,6 +137,25 @@ here that you want to override.
 			icon="library-books">	
 		</action>
 		
+	</controller>
+	
+	<controller name="ImportData">
+		<action name="importData" icon="import" image="import.png" mode="list"
+			class="org.openxava.actions.ImportDataAction"/>
+	</controller>
+	
+	<controller name="ConfigureImport">
+		<action name="configureImport"
+			class="org.openxava.actions.ConfigureImportAction"/>										
+		<action name="cancel"
+			class="org.openxava.actions.CancelAction"/>			
+	</controller>
+	
+	<controller name="Import">
+		<action name="import" takes-long="true"
+			class="org.openxava.actions.ImportAction"/>										
+		<action name="cancel"
+			class="org.openxava.actions.CancelToDefaultControllersAction"/>			
 	</controller>
 	
 	<controller name="MyReport">
@@ -183,6 +212,10 @@ here that you want to override.
 	</controller>
 	
 	<controller name="Chart"> 
+		<action name="init" hidden="true"
+			class="org.openxava.actions.InitChartAction"/>
+		<action name="release" hidden="true"
+			class="org.openxava.actions.ReleaseChartAction"/>			
 		<action name="selectType" hidden="true"
 			class="org.openxava.actions.SelectChartTypeAction"/>
 		<action name="removeColumn" hidden="true" in-each-row="true"
@@ -229,74 +262,44 @@ here that you want to override.
 		<extends controller="Navigation"/>
 		<extends controller="CRUD"/>
 		<extends controller="ExtendedPrint"/>
-	</controller>
-				
-	<controller name="DetailList">
-		<action name="initList" on-init="true"
-			class="org.openxava.actions.InitListAction"
-			hidden="true"/>	
-		<action name="detailAndFirst"
-			class="org.openxava.actions.GoDetailAction"
-			keystroke="F8">
-			<set property="nextAction" value="Navigation.first"/>
-		</action>
-		<action name="list"
-			class="org.openxava.actions.GoListAction"
-			keystroke="F9"/>
+		<extends controller="ImportData"/>  
 	</controller>
 	
+	<controller name="TypicalWithSearch"> 
+		<extends controller="Typical"/>
+		<extends controller="SearchForCRUD"/>
+	</controller>
+	
+	<controller name="SearchForCRUD"> 
+		<action name="search" mode="detail" 			 
+			class="org.openxava.actions.OpenSearchDialogAction" 
+			image="find.gif"
+			icon="magnify" 
+			keystroke="control B"/>
+	</controller>
+							
 	<controller name="DetailOnly">
 	</controller>	
 	
 	<controller name="Mode">
-		<action name="initList" on-init="true"
-			class="org.openxava.actions.InitListAction"
-			hidden="true"/>
-		<action name="detailAndFirst"
-			class="org.openxava.actions.GoDetailAction"
-			keystroke="F8">
-			<set property="nextAction" value="Navigation.first"/>
-		</action>
 		<action name="list"
+			icon="chevron-left"
 			class="org.openxava.actions.GoListAction"
 			keystroke="F9"/>
-		<action name="split"
-			class="org.openxava.actions.GoSplitAction"
-			keystroke="F10"/>
 		<action name="detail"
 			hidden="true"
-			class="org.openxava.actions.GoDetailAction"/>		
+			class="org.openxava.actions.GoDetailAction"/>
+				
 		<action name="initView"
-			class="org.openxava.actions.SetEditableAction"
-			hidden="true" on-init="true">
-			<set property="editable" value="false"/>
-			<set property="keyEditable" value="false"/>
-		</action>															
+			class="org.openxava.actions.InitViewAction"
+			hidden="true" on-init="true"/>
+		<action name="initList" on-init="true"
+			class="org.openxava.actions.InitListAction"
+			hidden="true"/>			
 	</controller>
 	
-	<controller name="ListOnly">
-		<action name="initList" on-init="true"
-			class="org.openxava.actions.InitListAction"
-			hidden="true"/>		
-		<action name="init"
-			class="org.openxava.actions.GoListAction"
-			hidden="true" on-init="true"/>
-	</controller>	
 		
-	<controller name="SplitOnly">
-		<action name="initList" on-init="true"
-			class="org.openxava.actions.InitListAction"
-			hidden="true"/>
-		<action name="initMode"
-			class="org.openxava.actions.GoSplitAction"
-			hidden="true" on-init="true"/>
-		<action name="initView" on-init="true"
-			class="org.openxava.actions.ViewDetailAction"
-			by-default="never" hidden="true">
-			<set property="goFirst" value="true"/>
-		</action>
-	</controller>			
-			<controller name="List">
+	<controller name="List">
 	
 		<action name="setPageRowCount"
 			class="org.openxava.actions.SetPageRowCountAction"
@@ -304,7 +307,6 @@ here that you want to override.
 
 		<action name="viewDetail"
 			class="org.openxava.actions.ViewDetailAction"
-			keystroke="F7"
 			hidden="true"
 			mode="list"
 			image="edit.gif"
@@ -336,7 +338,13 @@ here that you want to override.
 			class="org.openxava.actions.OrderByAction"
 			hidden="true"
 			mode="list">
-		</action>		
+		</action>
+		
+		<action name="groupBy"
+			class="org.openxava.actions.GroupByAction"
+			hidden="true"
+			mode="list">
+		</action>
 					
 		<action name="filter" by-default="almost-always"
 			class="org.openxava.actions.FilterAction"
@@ -382,19 +390,38 @@ here that you want to override.
 			icon="close-circle"
 			image="remove.gif"/>
 
-		<action name="changeConfigurationName"
-			class="org.openxava.actions.GoChangeListConfigurationNameAction"
+		<action name="changeConfiguration"
+			class="org.openxava.actions.GoChangeListConfigurationAction"
+			hidden="true"
+			mode="list"
+			icon="rename-box"/>		 
+			
+		<action name="changeColumnName"
+			class="org.openxava.actions.GoChangeColumnNameAction"
 			hidden="true"
 			mode="list"
 			icon="rename-box"/>
 		
-	</controller>	
+	</controller>
 	
-	<controller name="ChangeListConfigurationName">
+	<controller name="ChangeListConfiguration">
 		<action name="change"
-			class="org.openxava.actions.ChangeListConfigurationNameAction"/>	
+			class="org.openxava.actions.ChangeListConfigurationNameAction"/>
+		<action name="remove"
+			class="org.openxava.actions.RemoveListConfigurationAction"/>
+		<action name="cancel" 
+			class="org.openxava.actions.CancelAction"/>		
+	</controller>
+	
+	<controller name="ChangeColumnName">
+		<action name="change"
+			class="org.openxava.actions.ChangeColumnNameAction"/>
 		<action name="cancel" 
 			class="org.openxava.actions.CancelDialogAction"/>			
+	</controller>	
+	
+	<controller name="Cards"> 
+		<action name="loadMoreCards" class="org.openxava.actions.LoadMoreCardsAction"/>
 	</controller>
 	
 	<controller name="ListFormat">
@@ -426,7 +453,8 @@ here that you want to override.
 		<action name="addColumn" mode="NONE"
 			class="org.openxava.actions.AddColumnsAction"/>							
 	</controller>				
-			<controller name="Navigation">
+		
+	<controller name="Navigation">
 		<action name="first" mode="detail"
 			image="home.gif"
 			icon="skip-backward"
@@ -453,7 +481,8 @@ here that you want to override.
 			<set property="increment" value="1"/>			
 		</action>									
 	</controller>
-										<controller name="ImageEditor">
+									
+	<controller name="ImageEditor">
 		<action name="changeImage"			
 			class="org.openxava.actions.ChangeImageAction"/>								
 		<action name="deleteImage" confirm="true"
@@ -485,9 +514,13 @@ here that you want to override.
 		<action name="cancel"
 			class="org.openxava.actions.CancelAction"/>		
 	</controller>	
-			<controller name="LoadImage">		<action name="loadImage"			class="org.openxava.actions.LoadImageAction"/>										
+		
+	<controller name="LoadImage">
+		<action name="loadImage"
+			class="org.openxava.actions.LoadImageAction"/>										
 		<action name="cancel"
-			class="org.openxava.actions.CancelAction"/>				</controller>
+			class="org.openxava.actions.CancelAction"/>			
+	</controller>
 	
 	<controller name="Dialog">
 		<action name="cancel" 
@@ -528,13 +561,18 @@ here that you want to override.
 		This controller is using when create a new entity from a reference.
 		If you need to overwrite, you can create your own controller
 		with the name {MyEntity}Creation. For example PersonCreation for create Person.
-		-->	<controller name="NewCreation">
+		-->
+	<controller name="NewCreation">
 		<!-- The action 'new' is execute automatically -->
 		<action name="new" hidden="true"
 			class="org.openxava.actions.NewAction"
 			keystroke="F2"/>			
-		<action name="saveNew" by-default="almost-always"			class="org.openxava.actions.SaveNewAction"/>					<action name="cancel"			class="org.openxava.actions.CancelAction"/>			
-				</controller>
+		<action name="saveNew" by-default="almost-always"
+			class="org.openxava.actions.SaveNewAction"/>			
+		<action name="cancel"
+			class="org.openxava.actions.CancelAction"/>			
+			
+	</controller>
 	
 	<!--
 		This controller is using when modifying an entity from a reference.
@@ -551,7 +589,12 @@ here that you want to override.
 		<action name="cancel"
 			class="org.openxava.actions.CancelAction"/>
 	</controller>
-					<controller name="ReferenceSearch">		<action name="choose" by-default="almost-always"			class="org.openxava.actions.ChooseReferenceAction"/> 		<action name="cancel"			class="org.openxava.actions.CancelFromCustomListAction"/>
+				
+	<controller name="ReferenceSearch">
+		<action name="choose" by-default="almost-always"
+			class="org.openxava.actions.ChooseReferenceAction"/> 
+		<action name="cancel"
+			class="org.openxava.actions.CancelFromCustomListAction"/>
 	</controller>
 	
 	<controller name="AddToCollection">
@@ -560,31 +603,76 @@ here that you want to override.
 		<action name="cancel" 
 			class="org.openxava.actions.CancelFromCustomListAction"/>
 	</controller>
-		<controller name="Collection">
-				<action name="new" image="create_new.gif"
-			icon="library-plus"			class="org.openxava.actions.CreateNewElementInCollectionAction"/>							
+	
+	<controller name="Collection">
+		
+		<action name="new" image="create_new.gif"
+			icon="library-plus"
+			class="org.openxava.actions.CreateNewElementInCollectionAction"/>							
 			
 		<action name="add" image="create_new.gif"
 			icon="table-row-plus-after"
 			class="org.openxava.actions.GoAddElementsToCollectionAction"/>
 			
-		<action name="hideDetail"			class="org.openxava.actions.HideDetailElementInCollectionAction"/>			
-		<action name="save"			class="org.openxava.actions.SaveElementInCollectionAction"/>			
+		<action name="hideDetail"
+			class="org.openxava.actions.HideDetailElementInCollectionAction"/>			
+
+		<action name="save"
+			class="org.openxava.actions.SaveElementInCollectionAction"/>			
 
 		<action name="saveAndStay"
 			class="org.openxava.actions.SaveAndStayElementInCollectionAction"/>			
-							<action name="remove" confirm="true"			class="org.openxava.actions.RemoveElementFromCollectionAction"/>
+					
+		<action name="remove" confirm="true"
+			class="org.openxava.actions.RemoveElementFromCollectionAction"/>
 						
 		<action name="edit" image="edit.gif"
-			icon="pencil"			class="org.openxava.actions.EditElementInCollectionAction"/>					
-											<action name="view" image="view.gif"
-			icon="eye"			class="org.openxava.actions.ViewElementInCollectionAction"/>
+			icon="pencil"
+			class="org.openxava.actions.EditElementInCollectionAction"/>					
+									
+		<action name="view" image="view.gif"
+			icon="eye"
+			class="org.openxava.actions.ViewElementInCollectionAction"/>
 			
 		<action name="removeSelected" confirm="true"
 			icon="delete" 
 			image="delete.gif" in-each-row="true"
 			class="org.openxava.actions.RemoveSelectedInCollectionAction"/>
-											
+													
+	</controller>
+	
+	<controller name="CollectionTotals">
+			
+		<action name="sumColumn"
+			class="org.openxava.actions.SumCollectionColumnAction"
+			hidden="true"
+			icon="sigma"
+			image="summation.gif"/>
+			
+		<action name="removeColumnSum"
+			class="org.openxava.actions.RemoveCollectionColumnSumAction"
+			hidden="true"
+			icon="close-circle"
+			image="remove.gif"/>
+			
+		<action name="save"
+			class="org.openxava.actions.SaveCollectionTotalsAction"
+			hidden="true"/>
+						
+	</controller>
+	
+	<controller name="CollectionCopyPaste">
+			
+		<action name="cut" 
+			icon="content-cut" 
+			image="cut.gif" in-each-row="true"
+			class="org.openxava.actions.CutElementsFromCollectionAction"/>		
+			
+		<action name="paste" 
+			icon="content-paste" 
+			image="paste.gif" 
+			class="org.openxava.actions.PasteElementsIntoCollectionAction"/>
+						
 	</controller>
 	
 	<controller name="ElementCollection">	
@@ -619,14 +707,20 @@ here that you want to override.
 			class="org.openxava.actions.UpdateElementInManyToManyCollectionAction"/> 
 	</controller>
 	
-	<controller name="DefaultListActionsForCollections"> 
+	<controller name="DefaultListActionsForCollections">
+		<extends controller="CollectionCopyPaste"/>  
 		<extends controller="Print"/>
 	</controller>
 	
 	<controller name="DefaultRowActionsForCollections">
-	</controller>			<controller name="Sections">		<action name="change" 			class="org.openxava.actions.ChangeSectionAction"
+	</controller>	
+	
+	<controller name="Sections">
+		<action name="change" 
+			class="org.openxava.actions.ChangeSectionAction"
 			keystroke="Control 1..9"/>
-	</controller>			
+	</controller>
+			
 	<!-- 
 	If you want that your module use the default schema in the object
 	'xava_defaultSchema' your module has to use this controller,
@@ -759,6 +853,17 @@ here that you want to override.
 	<controller name="UploadFileIntoFileset">
 		<action name="uploadFile" class="org.openxava.actions.UploadFileIntoFilesetAction" />
 		<action name="cancel" class="org.openxava.actions.CancelAction" />
+	</controller>
+	
+	<controller name="EmailNotifications">
+		<action name="subscribe" icon="rss" 
+			class="org.openxava.actions.SubscribeToEmailNotificationsAction">
+			<set property="subscribe" value="true" />
+		</action>
+		<action name="unsubscribe" icon="rss" 
+			class="org.openxava.actions.SubscribeToEmailNotificationsAction">
+			<set property="subscribe" value="false" />	
+		</action>	
 	</controller>
 	
 </controllers>

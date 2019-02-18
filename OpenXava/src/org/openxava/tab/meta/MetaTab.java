@@ -49,6 +49,7 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	private String id;
 	private Collection<String> sumPropertiesNames;
 	private String editor;
+	private String editors;  
 	private Set<String> droppedMembers; 
 
 
@@ -108,8 +109,8 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 		return metaPropertiesHidden;
 	}
 
-	public List namesToMetaProperties(Collection names) throws XavaException {
-		List metaProperties = new ArrayList();
+	public List<MetaProperty> namesToMetaProperties(Collection names) throws XavaException {
+		List<MetaProperty> metaProperties = new ArrayList();
 		Iterator it = names.iterator();
 		int i = -1;
 		while (it.hasNext()) {
@@ -134,7 +135,8 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 				}
 				if (Labels.exists(labelId)) {
 					metaProperty.setLabelId(labelId);
-				} else if (metaPropertiesTab != null) {
+				} 
+				else if (metaPropertiesTab != null) {
 					// By now only the label overwritten from the property of tab 
 					metaPropertyTab = (MetaProperty) metaPropertiesTab
 							.get(name);
@@ -143,11 +145,15 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 						metaProperty.setLabel(metaPropertyTab.getLabel());
 					}
 				}
+				else{
+					metaProperty.setLabelId(labelId);	// fix: some issues with labels in collection
+				}
 				metaProperties.add(metaProperty);
 			} catch (ElementNotFoundException ex) {
 				MetaProperty notInEntity = new MetaProperty();
 				notInEntity.setName(name);
-				notInEntity.setTypeName("java.lang.Object");
+				if (name.equals(Tab.GROUP_COUNT_PROPERTY)) notInEntity.setTypeName("java.lang.Long"); 
+				else notInEntity.setTypeName("java.lang.Object");
 				if (metaPropertyTab != null) {
 					notInEntity.setLabel(metaPropertyTab.getLabel());
 				}
@@ -339,20 +345,48 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 	
 	private List createAllPropertiesNames() throws XavaException {
 		List result = new ArrayList();
-		// First the properties from a possible @EmbeddedId
-		for (Iterator itRef = getMetaModel().getMetaReferencesKey().iterator(); itRef.hasNext(); ) {
-			MetaReference ref = (MetaReference) itRef.next();
-			if (ref.isAggregate()) {
-				for (Iterator itKey = ref.getMetaModelReferenced().getPropertiesNamesWithoutHiddenNorTransient().iterator(); itKey.hasNext(); ) {
-					result.add(ref.getName() + "." + itKey.next());
+		for (String member: getMetaModel().getMembersNames()) {
+			if (getMetaModel().isHiddenKey(member)) continue;
+			if (getMetaModel().containsMetaProperty(member)) {
+				MetaProperty property = getMetaModel().getMetaProperty(member);
+				if (property.isHidden() || property.isTransient() || property.getSize() == 32) continue; // We assume it is an oid
+				result.add(member);
+			}
+			else if ((getMetaModel().containsMetaReference(member))) {
+				if (member.contains("_")) continue; // For references inside aggregates
+				MetaReference ref = getMetaModel().getMetaReference(member);
+				if (ref.getMetaCollectionFromReferencedModel() != null && representCollection()) continue;
+				
+				MetaModel refModel = ref.getMetaModelReferenced();
+				for (String key: refModel.getKeyPropertiesNames()) {
+					if (!refModel.isHiddenKey(key)) {
+						result.add(member + "." + key); 
+					}
+				}
+				boolean added = addPropertyIfExists(result, refModel, member, "name", "nombre", "description", "descripcion", "title", "titulo");
+				if (!added) {
+					for (String property: refModel.getPropertiesNamesWithoutHiddenNorTransient()) {
+						if (refModel.isKeyOrSearchKey(property)) continue;
+						result.add(member + "." + property);
+						break;
+					}
 				}
 			}
 		}
-		// Now the plain properties
-		result.addAll(getMetaModel().getPropertiesNamesWithoutHiddenNorTransient());
 		return result;
 	}
 	
+	private boolean addPropertyIfExists(Collection result, MetaModel metaModel, String member, String ... properties) {
+		boolean added = false;
+		for (String property: properties) {
+			if (metaModel.containsMetaProperty(property)) {
+				result.add(member + "." + property);
+				added = true;
+			}
+		}
+		return added;
+	}
+
 	public void setDefaultPropertiesNames(String properties) {
 		this.defaultPropertiesNames = properties;
 		if (areAllProperties()) setPropertiesNames(properties); 
@@ -791,7 +825,8 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 			if (t.getMetaRowStyles() != null && getMetaRowStyles() == null) setMetaRowStyles(t.getMetaRowStyles());
 			if (t.properties != null && properties == null) properties = t.properties;
 			if (!Is.emptyString(t.getBaseCondition()) && Is.emptyString(getBaseCondition())) setBaseCondition(t.getBaseCondition());
-			if (!Is.emptyString(t.getDefaultOrder()) & Is.emptyString(getDefaultOrder())) setDefaultOrder(t.getDefaultOrder());			
+			if (!Is.emptyString(t.getDefaultOrder()) & Is.emptyString(getDefaultOrder())) setDefaultOrder(t.getDefaultOrder());		
+			if (!Is.emptyString(t.getEditors()) && Is.emptyString(getEditors())) setEditors(t.getEditors());
 		}
 	}
 
@@ -825,6 +860,14 @@ public class MetaTab implements java.io.Serializable, Cloneable {
 
 	public void setEditor(String editor) {
 		this.editor = editor;
+	}
+
+	public String getEditors() {
+		return editors;
+	}
+
+	public void setEditors(String editors) {
+		this.editors = editors;
 	}
 		
 }

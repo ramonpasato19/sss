@@ -9,8 +9,10 @@ import org.openxava.annotations.*;
  * @author Javier Paniza
  */
 public class SignUp {
-	
-	@Column(length=30) @Required
+	 
+	@Column(length=60) 
+	@DisplaySize(30) 
+	@Required
 	private String userName;
 	
 	@Column(length=30) @Required
@@ -20,6 +22,8 @@ public class SignUp {
 	@Column(length=30) @Required
 	@Stereotype("PASSWORD")	
 	private String repeatPassword;
+	
+	private boolean privacyPolicy; 
 
 	public String getUserName() {
 		return userName;
@@ -44,5 +48,14 @@ public class SignUp {
 	public void setRepeatPassword(String repeatPassword) {
 		this.repeatPassword = repeatPassword;
 	}
+
+	public boolean isPrivacyPolicy() {
+		return privacyPolicy;
+	}
+
+	public void setPrivacyPolicy(boolean privacyPolicy) {
+		this.privacyPolicy = privacyPolicy;
+	}
+
 	
 }

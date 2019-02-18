@@ -23,7 +23,7 @@ public class SelectChartTypeAction extends ViewBaseAction {
 		chart.setChartType(Chart.ChartType.valueOf(chartType));
 		getView().setValue("chartType", chart.getChartType());
 		Charts.updateView(getRequest(), getView(), tab, chart); 
-		chart.save(); 
+		chart.save(tab); 
 	}
 
 	public String getChartType() {

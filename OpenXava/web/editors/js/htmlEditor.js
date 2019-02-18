@@ -1,7 +1,8 @@
 openxava.addEditorInitFunction(function() {
 	var config = { 
 		language: openxava.language,
-		uiColor: '#F5F5F5'
+		uiColor: '#F5F5F5',
+		title: false 
 	};
 	$('.ox-ckeditor').ckeditor(config);
 	
@@ -23,19 +24,28 @@ openxava.addEditorInitFunction(function() {
 			{ name: 'others', groups: [ 'others' ] },
 			{ name: 'about', groups: [ 'about' ] }
 		],
-		removeButtons: 'Save,Templates,Cut,NewPage,Preview,Print,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,CreateDiv,Language,Anchor,Flash,PageBreak,Iframe,ShowBlocks,About,Undo,Redo,Subscript,Superscript,BidiLtr,BidiRtl,SpecialChar,Styles,Format,Font,FontSize'
+		disableNativeSpellChecker: false,
+		title: false,   
+		removeButtons: 'Save,Templates,Cut,NewPage,Preview,Print,Copy,Paste,PasteText,PasteFromWord,Find,Replace,SelectAll,Form,Checkbox,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,CreateDiv,Language,Anchor,Flash,PageBreak,Iframe,ShowBlocks,About,Undo,Redo,Subscript,Superscript,BidiLtr,BidiRtl,SpecialChar,Styles,Font,Scayt,Underline,Strike,BGColor,HorizontalRule' 
 	};
 	$('.ox-simple-ckeditor').ckeditor(simpleConfig);
-});
+	
+	$('.xava-new-comment').each( function () {		 
+		var editor = CKEDITOR.instances[this.id];		
+		if (editor !== undefined) {
+		 	editor.on( 'focus', function( e ) {			
+				var id = "#" + $(e.editor.element).attr("id") + "_buttons";
+				$(id + " input").fadeIn();
+				$('.ox-bottom-buttons').fadeOut();
+				$('.ox-button-bar-button').fadeOut(); 
+			});
+		}
+	 });
 
+});
 
 openxava.addEditorDestroyFunction(function() {
 	for (var instance in CKEDITOR.instances) {
 		CKEDITOR.instances[instance].destroy(false); // Needs to be false, otherwise calculated properties in the same view reset editor content
 	}
 });
-
-
-
-
-

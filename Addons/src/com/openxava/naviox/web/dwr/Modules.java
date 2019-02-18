@@ -1,7 +1,7 @@
 package com.openxava.naviox.web.dwr;
 
 import javax.servlet.http.*;
-import org.openxava.web.dwr.*;
+
 import org.apache.commons.logging.*;
 import org.openxava.controller.*;
 import org.openxava.util.*;

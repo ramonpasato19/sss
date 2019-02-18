@@ -19,18 +19,17 @@ public class RemoveSelectedInCollectionAction extends CollectionBaseAction {
 	
 	public void execute() throws Exception {
 		try{
-			Collection selectedOnes = getMapsSelectedValues();
-			validateMinimum(selectedOnes.size()); 
-			if (!selectedOnes.isEmpty()){
-				Iterator it = selectedOnes.iterator();
-				while(it.hasNext()){
-					Map values = (Map) it.next();
+			Map [] selectedOnes = getSelectedKeys(); 
+			validateMinimum(selectedOnes.length); 
+			if (selectedOnes.length > 0) {
+				for (Map values: selectedOnes) {
 					removeElement(values);
-				}
+				}				
 				commit(); // If we change this, we should run all test suite using READ COMMITED (with hsqldb 2 for example)				
 				addMessage();
 				getView().recalculateProperties();
 				getCollectionElementView().collectionDeselectAll();
+				getCollectionElementView().refreshCollections(); 
 			}
 		}
 		catch (ValidationException ex) {			

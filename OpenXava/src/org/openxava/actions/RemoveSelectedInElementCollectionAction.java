@@ -24,6 +24,7 @@ public class RemoveSelectedInElementCollectionAction extends RemoveSelectedInCol
 	protected void commit() {
 	}
 	
+	
 	/**
 	 * Is called for each selected row with the values that includes the key
 	 * values. 

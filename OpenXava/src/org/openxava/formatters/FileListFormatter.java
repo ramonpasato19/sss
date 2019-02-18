@@ -21,7 +21,6 @@ public class FileListFormatter implements IFormatter {
 				.append("/xava/xfile?application=")
 				.append(request.getParameter("application"))
 				.append("&module=").append(request.getParameter("module"))
-				.append("&schema=").append(org.openxava.jpa.XPersistence.getDefaultSchema())
 				.append("&fileId=").append(file.getId())
 			    .append("&dif=") .append(System.currentTimeMillis())
 			    .append("'target='_blank'>")

@@ -32,6 +32,9 @@ public interface IMapFacadeImpl {
 	
 	void setValues(UserInfo userInfo, String modelName, Map keyValues, Map values)
 		throws FinderException, ValidationException, XavaException, RemoteException;
+	
+	void setValuesNotTracking(UserInfo userInfo, String modelName, Map keyValues, Map values)
+			throws FinderException, ValidationException, XavaException, RemoteException; 
 				
 	void delete(UserInfo userInfo, String modelName, Map keyValues)
 		throws RemoveException, XavaException, ValidationException, RemoteException;
@@ -43,6 +46,8 @@ public interface IMapFacadeImpl {
 				throws CreateException, XavaException, ValidationException, RemoteException;
 				
 	Messages validate(UserInfo userInfo, String modelName, Map values) throws XavaException, RemoteException;
+	
+	Messages validateIncludingMissingRequired(UserInfo userInfo, String modelName, Map values) throws XavaException, RemoteException; 
 
 	Object createAggregate(UserInfo userInfo, String modelName, Map keyContainer, String collectionName, Map values)
 		throws CreateException,ValidationException, XavaException, RemoteException; 
@@ -72,8 +77,14 @@ public interface IMapFacadeImpl {
 	void removeCollectionElement(UserInfo userInfo, String modelName, Map keyValues, String collectionName, Map collectionElementKeyValue) 
 		throws RemoveException, FinderException, ValidationException, XavaException,  RemoteException; 
 	
+	void moveCollectionElementToAnotherCollection(UserInfo userInfo, 
+		String sourceModelName, Map sourceKeyValues, String sourceCollectionName, 
+		String targetModelName, Map targetKeyValues, String targetCollectionName,
+		Map collectionElementKeyValues)   
+		throws FinderException,	ValidationException, XavaException, RemoteException;
+	
 	void moveCollectionElement(UserInfo userInfo, String modelName, Map keyValues, String collectionName, int from, int to)  
-			throws FinderException, XavaException,  RemoteException; 	
+		throws FinderException, XavaException,  RemoteException; 	
 		 			
 	Object getKey(MetaModel metaModel, Map keyValues) throws XavaException, RemoteException;
 	

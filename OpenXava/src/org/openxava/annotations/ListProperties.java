@@ -12,9 +12,11 @@ import java.lang.annotation.*;
  * Example:
  * <pre>
  * &nbsp;@OneToMany (mappedBy="invoice", cascade=CascadeType.REMOVE)
- * &nbsp;@ListProperties("serviceType, product.description, product.unitPriceInPesetas, quantity, unitPrice, amount, free")
+ * &nbsp;@ListProperties("serviceType, product.description, product.unitPriceInPesetas, quantity, unitPrice, amount+, free")
  * &nbsp;private Collection<InvoiceDetail> details;
  * </pre>
+ * 
+ * The suffix + can be added to a property name to show the sum of the column at bottom.
  * 
  * @author Javier Paniza
  */

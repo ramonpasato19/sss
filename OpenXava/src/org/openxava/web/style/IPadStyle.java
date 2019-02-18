@@ -28,12 +28,6 @@ public class IPadStyle extends Style {
 		return browser != null && browser.contains("iPad");		
 	}
 	
-	/* Because with no Flip effect, the two button alternative looks better
-	public boolean isOnlyOneButtonForModeIfTwoModes() {
-		return true;		
-	}
-	*/
-	
 	public boolean isSeparatorBeforeBottomButtons() {
 		return false;
 	}

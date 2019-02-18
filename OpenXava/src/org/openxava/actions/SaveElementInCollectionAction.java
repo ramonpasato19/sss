@@ -4,11 +4,14 @@ import java.rmi.*;
 import java.util.*;
 
 import javax.ejb.*;
+import javax.validation.*;
+import javax.validation.metadata.*;
 
 import org.openxava.model.*;
 import org.openxava.model.meta.*;
 import org.openxava.util.*;
 import org.openxava.validators.*;
+import org.openxava.validators.ValidationException;
 import org.openxava.view.*;
 
 /**
@@ -131,6 +134,39 @@ public class SaveElementInCollectionAction extends CollectionElementViewBaseActi
 			}
 		}
 	}
+	
+	/**
+	 * 
+	 * @since 5.9
+	 */
+	protected void addValidationMessage(Exception ex) {  
+		if (ex instanceof ValidationException) {		
+			addErrors(((ValidationException)ex).getErrors());
+		}  
+		else if(ex instanceof ConstraintViolationException){
+			addConstraintViolationErrors((ConstraintViolationException) ex);					
+		} 
+		else if (ex instanceof javax.validation.ValidationException) {
+			addError(ex.getMessage());
+		}
+	}
+
+	private void addConstraintViolationErrors(ConstraintViolationException ex) {
+		Set<ConstraintViolation<?>> violations = ex.getConstraintViolations();
+		for (ConstraintViolation<?> violation : violations) {
+			String message = violation.getMessage();
+			if (message.startsWith("{") && message.endsWith("}")) {			
+				message = message.substring(1, message.length() - 1); 							
+			}				
+			ConstraintDescriptor<?> descriptor = violation.getConstraintDescriptor(); 
+			java.lang.annotation.Annotation annotation = descriptor.getAnnotation();
+			if(annotation instanceof javax.validation.constraints.AssertTrue) {							
+				Object bean = violation.getRootBean();				
+				addError(message, bean);					
+			}
+		}
+	}
+
 
 	public String getNextAction() throws Exception { 		
 		return getErrors().contains()?null:getCollectionElementView().getNewCollectionElementAction();

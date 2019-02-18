@@ -37,6 +37,13 @@ public interface IXTableModel extends IObjectTableModel, IRefreshTableModel {
 	 * return the loaded objects count, not total.<br>
 	 */
 	int getTotalSize() throws RemoteException;
-	Number getSum(String property) throws RemoteException;  
+	Number getSum(String property) throws RemoteException;
+	
+	
+	/** @since 5.7 */
+	int getChunkSize(); 
+	
+	/** @since 5.7 */
+	boolean isAllLoaded(); 
 	
 }

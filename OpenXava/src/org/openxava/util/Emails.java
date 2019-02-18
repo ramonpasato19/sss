@@ -7,12 +7,41 @@ import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
+import org.apache.commons.logging.*;
+
 /**
  * @author Janesh Kodikara
  * @author Denis Torres 
  */
 
 public class Emails {
+	
+	private static Log log = LogFactory.getLog(Emails.class);  
+		
+	private static class BackgroundSender implements Runnable {
+		
+		private String fromEmail;
+		private String toEmail;
+		private String subject;
+		private String content;
+
+		public BackgroundSender(String fromEmail, String toEmail, String subject, String content) {
+			this.fromEmail = fromEmail;
+			this.toEmail = toEmail;
+			this.subject = subject;
+			this.content = content;
+		}
+
+		public void run() {
+			try {
+				Emails.send(fromEmail, toEmail, subject, content); 
+			}
+			catch (Exception ex) {
+				log.error(XavaResources.getString("email_sending_error"), ex);
+			}
+		}
+		
+	}
 
 	public static class Attachment {
 		private String name;
@@ -86,7 +115,22 @@ public class Emails {
         Transport.send(msg);
 
     }
-
+    
+    /**
+     * @since 5.9
+     */
+    public static void sendInBackground(String toEmail, String subject, String content) {  
+    	new Thread(new BackgroundSender(XavaPreferences.getInstance().getSMTPUserID(), toEmail, subject, content)).start();
+    }
+    
+    /**
+     * @since 5.9
+     */    
+    public static void sendInBackground(String fromEmail, String toEmail, 
+		String subject, String content) 
+    {
+    	new Thread(new BackgroundSender(fromEmail, toEmail, subject, content)).start();
+    }
 
     public static void send(String fromEmail, String toEmail,
 			String subject, String content, Attachment... attachments)

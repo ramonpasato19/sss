@@ -33,19 +33,25 @@ public class SignInHelper {
 		return OrganizationURIs.refine(request, forwardURI); 
 	}	
 	
-	public static void signIn(HttpSession session, String userName) {		
-		session.setAttribute("naviox.user", userName);
-		session.setAttribute("xava.user", userName); 
-		UserInfo userInfo = toUserInfo(userName);
+	public static void signIn(HttpSession session, String userName) {
+		User user = User.find(userName);
+		session.setAttribute("naviox.user", user.getName());
+		session.setAttribute("xava.user", user.getName()); 
+		UserInfo userInfo = toUserInfo(user.getName());
 		userInfo.setOrganization(Organizations.getCurrent(session));
 		session.setAttribute("xava.portal.userinfo", userInfo);
 		Users.setCurrentUserInfo(userInfo);
 		Modules modules = (Modules) session.getAttribute("modules");
 		modules.reset();		
-		User user = User.find(userName);
+		
 		if (user.isForceChangePassword()) {
-			modules.setCurrent(MetaModuleFactory.getApplication(), "ChangePassword", false);
+			modules.setCurrent(MetaModuleFactory.getApplication(), "ChangePassword");
 		} 
+		else if (Is.emptyString(user.getEmail()) && !Configuration.getInstance().isSharedUsersBetweenOrganizations()
+			&& modules.isModuleAuthorized("MyPersonalData")) 
+		{ 
+			modules.setCurrent(MetaModuleFactory.getApplication(), "MyPersonalData");
+		}
 		user.setLastLoginDate(new Date()); 
 	}
 	
@@ -63,10 +69,11 @@ public class SignInHelper {
 	/**
 	 * @since 5.4 
 	 */	
-	public static boolean isAuthorized(String userName, String password, Messages errors, String unauthorizedMessage) { 
+	public static boolean isAuthorized(String userName, String password, Messages errors, String unauthorizedMessage) {
 		User user = User.find(userName);
 		if (user == null) {
 			errors.add(unauthorizedMessage);
+			errors.add("recover_password"); 
 			return false;
 		}
 		boolean authorized = user.isAuthorized(password);
@@ -98,6 +105,9 @@ public class SignInHelper {
 				errors.add("user_blocked");
 				authorized = false;
 			}
+		}
+		if (errors.getIds().size() == 1) {
+			errors.add("recover_password"); 
 		}
 		return authorized;
 	}	 

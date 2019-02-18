@@ -13,6 +13,10 @@
  frame (true|false) "false"
  always-reload (true|false) "false"
  composite (true|false) "false" 
+ icon CDATA #IMPLIED
+ init-action CDATA #IMPLIED
+ release-action CDATA #IMPLIED
+ selectable-items (true|false) "true"
 >
 
 <!ELEMENT property EMPTY>

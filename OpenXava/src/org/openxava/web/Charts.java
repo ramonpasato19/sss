@@ -1,7 +1,5 @@
 package org.openxava.web;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.prefs.BackingStoreException;
 
@@ -9,12 +7,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openxava.controller.*;
 import org.openxava.model.meta.MetaProperty;
 import org.openxava.session.Chart;
+import org.openxava.session.Chart.*;
 import org.openxava.session.ChartColumn;
 import org.openxava.tab.Tab;
 import org.openxava.util.Is;
-import org.openxava.util.Locales;
 import org.openxava.util.XavaException;
 import org.openxava.view.View;
 
@@ -42,7 +41,6 @@ public class Charts {
 		if (!chart.isRendered()) {
 			chart.setRendered(true);
 			MetaProperty labelMetaProperty = null;
-			String name = view.getValueString("name");
 			view.setModel(chart);
 			try {
 				labelMetaProperty = tab.getMetaTab().getMetaModel().getMetaProperty(chart.getxColumn());
@@ -53,8 +51,6 @@ public class Charts {
 			view.setValue("chartType", chart.getChartType());
 			view.setValueNotifying("chartData", chart.getChartType().jsType()
 					 + CHART_DATA_SEPARATOR 
-					 + chart.getChartType().grouped()
-					 + CHART_DATA_SEPARATOR
 					 + chart.getChartType().name()
 					 + CHART_DATA_SEPARATOR
 					 + (labelMetaProperty != null ? labelMetaProperty.isNumber() : "false")
@@ -63,6 +59,7 @@ public class Charts {
 					 + CHART_DATA_SEPARATOR
 					 + (new Date()).getTime()
 					 );
+			view.getSubview("columns").setCollectionEditable(chart.getChartType() != ChartType.PIE);
 			createTab(request, tab, chart);
 			view.refreshCollections();
 			chart.setRendered(false);
@@ -75,22 +72,11 @@ public class Charts {
 	 * @param tab Current tab.
 	 * @param chart Chart.
 	 */
-	private static void createTab(HttpServletRequest request, Tab tab, Chart chart)  {		
-		Tab chartTab = new Tab(true);
+	private static void createTab(HttpServletRequest request, Tab tab, Chart chart)  {
+		Tab chartTab = tab.clone();
 		chartTab.setRequest(request);
-		chartTab.setModelName(tab.getModelName());
-		chartTab.setTabName(tab.getTabName());
-		chartTab.clearProperties();
-		chartTab.clearCondition();
-		Collection<String> comparators = new ArrayList<String>();
-		Collection<String> values = new ArrayList<String>();
-		StringBuffer order = new StringBuffer();
 		for (ChartColumn column: chart.getColumns()) {
-			addColumn(chartTab, comparators, values, order, column);
-		}
-		
-		for (ChartColumn column : chart.getColumns()) { 
-			addColumn(chartTab, comparators, values, order, column);
+			addColumn(chartTab, column);
 		}
 		
 		if (!Is.emptyString(chart.getxColumn())) {
@@ -99,22 +85,17 @@ public class Charts {
 			if (property != null) {
 				column.setChart(chart);
 				column.setName(chart.getxColumn());				
-				addColumn(chartTab, comparators, values, order, column);
+				addColumn(chartTab, column);
 			}
 		}
 
-		if (order.length() > 0) {
-			chartTab.setDefaultOrder(order.toString());			
-		}		
-		chartTab.setConditionComparators(comparators);
-		chartTab.setConditionValues(values);
-		request.getSession().setAttribute("xava_chartTab", chartTab); 
+		getContext(request).put(request, "xava_chartTab", chartTab); 
 	}
 	
 	public static void release(HttpServletRequest request) throws XavaException, BackingStoreException {
-		request.getSession().removeAttribute("xava_chartTab");
+		getContext(request).remove(request, "xava_chartTab"); 
 	}
-	
+		
 
 	/**
 	 * Adds a column to the given tab.
@@ -124,14 +105,15 @@ public class Charts {
 	 * @param order String defining the order for the columns.
 	 * @param column Column to be added.
 	 */	
-	private static void addColumn(Tab tab, Collection<String> comparators,
-			Collection<String> values, StringBuffer order,
-			ChartColumn column) 
-	{
-		if (!("," + tab.getPropertiesNamesAsString() + ",").contains("," + column.getName() + ",")) {
+	private static void addColumn(Tab tab, ChartColumn column) {
+		if (!tab.containsProperty(column.getName())) {  
 			tab.addProperty(column.getName());			
 			tab.setLabel(column.getName(), column.getLabel());
 		}
 	}
-	
+
+	private static ModuleContext getContext(HttpServletRequest request) { 
+		return (ModuleContext) request.getSession().getAttribute("context");
+	}
+
 }

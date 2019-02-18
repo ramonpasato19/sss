@@ -72,6 +72,14 @@ TH.list {
 	background: #cccccc;
 }
 
+.portlet-section-header a {
+	color: #7b7c7f;
+}
+
+.portlet-section-header a:hover {
+	text-decoration: none;
+}
+
 .results-row .mdi-check {
 	color: green;
 	font-weight: bold;
@@ -145,6 +153,29 @@ TD.frame {
 	font-size: 10pt;
 }
 
+.ox-messages-wrapper, .ox-errors-wrapper {
+	position: fixed;
+	top: 32px;
+	z-index: 9999999;
+}
+
+.ox-messages-wrapper {
+	left: 32px;
+}
+
+.ox-errors-wrapper {
+	right: 32px;
+}
+
+.portlet-msg-error .mdi-close, .portlet-msg-alert .mdi-close,
+.portlet-msg-success .mdi-close, .portlet-msg-info .mdi-close
+{
+	color: black;
+	font-weight: bold;
+	float: right;
+	margin-left: 10px;
+}
+
 #xava_processing_layer {
 	position:absolute;
 	right: calc(50% - 120px);
@@ -182,6 +213,10 @@ TD.list-title {
 
 .PTitleContent {
 	color: black;
+}
+
+.ox-sections { 
+	width: 100%;
 }
 
 .section {
@@ -222,7 +257,7 @@ TD.list-title {
 	display: inline;
 }
 
-.results-header .mdi-close-circle {
+.ox-resize-columns .results-header .mdi-close-circle {
 	position: absolute;
 	right: 0px;
 	padding-right: 10px;
@@ -238,7 +273,7 @@ TD.list-title {
 }
 	
 .liferay-xava-label {
-	padding-right: 0px;
+	padding-right: 5px; 
 	vertical-align: middle;
 }
 
@@ -338,7 +373,7 @@ TD.list-title {
 	width: 100%;
 }
 
-.ox-button-bar .ox-button-bar-button a, .ox-button-bar-mode-button {
+.ox-button-bar .ox-button-bar-button a, .ox-card { 
 	background: url() no-repeat 5px 50%; 	
 	border: 1px solid #F6F8FB;
 	color: #9EA8AD;
@@ -351,7 +386,7 @@ TD.list-title {
 }
 
 .ox-button-bar .ox-button-bar-button a:hover, 
-.ox-button-bar-mode-button:hover, .ox-list-formats i:hover, .ox-chart-type i:hover {  
+.ox-list-formats i:hover, .ox-chart-type i:hover, .ox-card:hover {   
 	border: 1px solid #A7CEDF;	
 	background-color: #DFF4FF;
 	color: #346799; 
@@ -363,37 +398,34 @@ TD.list-title {
 	padding: 6px;
 }
 
-.ox-button-bar-mode-button:focus {
-	text-decoration: none; 
-}
 
-.ox-button-bar-mode-button, .ox-button-bar-mode-button:hover { 
-	padding-right: 0px;
-}
 
-.green .ox-button-bar .ox-button-bar-button a:hover, .green .ox-button-bar-mode-button:hover {	
+.green .ox-button-bar .ox-button-bar-button a:hover {	
 	background-color: #D9F4CB;
 	border-color: #BBEAA4
 }
 
-.orange .ox-button-bar .ox-button-bar-button a:hover, .orange .ox-button-bar-mode-button:hover {
+.orange .ox-button-bar .ox-button-bar-button a:hover {
 	background-color: #F4EACB;
 	border-color: #EAD8A4;			
 }
 
-.ox-active .ox-button-bar-mode-button {
-	background-color: #CFD5D7; 
-	border: 1px solid #CFD5D7;
-	color: #000;
-}
-
-.ox-active .ox-button-bar-mode-button:hover {
-	background-color: #d6dcdd;
-	border-color: #B7C0C2;
-}
-
 .ox-button-bar-button span {
 	margin-right: -7px;  
+}
+
+.ox-list-mode .ox-button-bar a[id*="new"], .ox-list-mode .ox-button-bar a[id*="new"] i,
+.ox-frame .ox-button-bar span:nth-of-type(1) a, .ox-frame .ox-button-bar .ox-collection-list-actions span:nth-of-type(1) i,
+.ox-sections .ox-button-bar span:nth-of-type(1) a, .ox-sections .ox-button-bar .ox-collection-list-actions span:nth-of-type(1) i
+{
+	color: black;
+}
+
+.ox-list-mode .ox-button-bar a[id*="new"]:hover, .ox-list-mode .ox-button-bar a[id*="new"]:hover i,
+.ox-frame .ox-button-bar span:nth-of-type(1) a:hover, .ox-frame .ox-button-bar .ox-collection-list-actions span:nth-of-type(1) a:hover i,
+.ox-sections .ox-button-bar span:nth-of-type(1) a:hover, .ox-sections .ox-button-bar .ox-collection-list-actions span:nth-of-type(1) a:hover i
+{
+	color: blue;
 }
 
 .portlet-content i {
@@ -434,7 +466,7 @@ TD.list-title {
 	text-decoration: none;
 }
 
-.ox-selected-list-format i, .ox-selected-list-format:hover i {
+.ox-selected-list-format i, .ox-selected-list-format:hover i, .ox-card { 
 	color: #000; 
 	background: white;
 	border-radius: 2px;
@@ -451,6 +483,10 @@ a.ox-selected-list-format, a.ox-selected-list-format:hover {
 .ox-total-row i {
 	font-size: 120%;
 	margin-right: -6px;
+}
+
+.ox-cut-row {
+	opacity: 0.3;
 }
 
 .ox-button-bar a:focus {
@@ -472,7 +508,7 @@ a.ox-selected-list-format, a.ox-selected-list-format:hover {
 }
 
 .ox-label { 
-	text-align: left; 
+	text-align: left;
 }
 
 .ox-frame-totals {
@@ -501,6 +537,7 @@ a.ox-selected-list-format, a.ox-selected-list-format:hover {
 .ui-dialog { 
 	width: auto; 
 	z-index: 999;
+	overflow: visible !important;
 }
 		
 /* ---------- Styling for Default Layout Painter ---------- */
@@ -520,6 +557,18 @@ a.ox-selected-list-format, a.ox-selected-list-format:hover {
 .ox-subcontroller-button  .mdi-menu-down {
 	margin: 0px !important; 
 	margin-right: -5px !important;
+}
+
+.firefox div.ox-subcontroller, .ui-autocomplete {
+	padding: 0;
+	margin: 0;
+	margin-top: 14px; 
+	position: absolute; 
+	clear: both; 
+	background-color: rgb(246, 248, 251); 
+	display: none; 
+	z-index: 999;
+	box-shadow: 0px 3px 3px #DDDDDD;
 }
 
 div.ox-subcontroller, .ui-autocomplete {
@@ -542,12 +591,12 @@ div.ox-subcontroller table{
 }
 
 div.ox-subcontroller table tr td{
-	float: right;
+	float: inherit;
 	width: 97%;	
 	text-align: left;
 	background-color: rgb(246, 248, 251);
 	z-index: 999; 
-	padding: 4px 4px 4px 4px;
+	padding: 4px;
 }
 
 div.ox-subcontroller table tr td a{
@@ -561,15 +610,15 @@ span.ox-subcontroller-select a{
 	border: 1px solid #A7CEDF !important;
 }
 
+.ui-dialog .ox-element-collection > div {
+	width: 100% !important; /* To avoid horizontal scroll bar in element collection inside dialog, such as Import dialog */
+}
+
 .ox-element-collection .form-text { 
 	width: 100%; 
 	box-sizing: border-box; 
 	-moz-box-sizing: border-box; 
 	-webkit-box-sizing: border-box;
-}
-
-.ox-charts {
-	width: 0px;
 }
 
 .ct-chart {
@@ -597,9 +646,8 @@ span.ox-subcontroller-select a{
 
 .ox-chart-x-column select {
 	position: relative;
-	left: 780px;
-	top: -27px;
-	width: 180px; 
+	left: calc(45vw - 290px);
+	width: 270px; 
 }
 
 .ox-chart-type {
@@ -631,7 +679,7 @@ span.ox-subcontroller-select a{
 	box-shadow: 0px 0px 7px #CCCCCC inset;  
 }
 
-.ox-charts .portlet-section-header { 
+.ox-charts .portlet-section-header, .ox-charts .frame {  
 	display: none;
 }
 
@@ -640,6 +688,9 @@ span.ox-subcontroller-select a{
 	background-color: transparent !important;
 }
 
+.ct-chart { 
+	margin-top: 20px;
+}
 
 .ox-charts .ox-element-collection {
 	width: 200px;
@@ -678,61 +729,8 @@ span.ox-subcontroller-select a{
 	overflow-y: auto;
 }
 
-.ox-required-icon, .ox-error-icon { 
-	width: 0px; 
-	position: relative;
-	float: left; 
-}
-
 .ox-frame table { /* To avoid a blank line produced by the error icon where an editor with frame uses a table as external container */
 	clear: none;
-}
-
-.ox-required-icon { 
-	top: -6px; 
-}
-
-.firefox .ox-layout-not-aligned-cell .ox-layout-editor-icons .ox-required-icon,
-.ie .ox-layout-not-aligned-cell .ox-layout-editor-icons .ox-required-icon {
-	left: 3px;
-}
-
-.ie .ox-layout-aligned-cell .ox-layout-editor-icons .ox-required-icon {
-	top: -20px;
-}
-
-.ie .ox-layout-aligned-cell .ox-layout-editor-icons  .ox-error-icon {
-	top: -22px;
-}
-
-.ie .ox-required-icon { 
-	top: -7px; 
-}
-
-.ox-error-icon { 
-	top: -8px; 
-}
-
-i.ox-required-icon {
-	display: inline-block;
-	color: #3777D7; 
-	font-size: 100%; 
-}
-
-i.ox-error-icon {
-	color: #DC4A38;
-	left: 13px; 
-	font-size: 120%;
-}
-
-.portlet-content-container > .ox-required-icon {
-	top: -4px;
-	left: -5px;
-}
-
-.portlet-content-container > span > .ox-error-icon {
-	top: -6px;
-	left: 9px;
 }
 
 .ox-customize-controls i {
@@ -805,6 +803,19 @@ input[type="radio"] {
 
 span[id*="reference_editor"] + .ox-layout-detail {
 	margin-top: 4px;
+}
+
+.ox-image-link .mdi-magnify {
+	color: black;
+	font-weight: bold;
+}
+
+.ox-required-editor input {
+	border-color: #56b4ef !important; /* To work in dialog */
+}
+
+.ox-error-editor input {
+	border-color: #DC4A38 !important; /* To work in dialog */
 }
 
 .ox-icon i {
@@ -905,29 +916,25 @@ a.cke_button_disabled:hover, a.cke_button_disabled:focus, a.cke_button_disabled:
 }
 
 .list-title select {
-	font-size: 13px;
-	font-weight: bold;
-	margin-top: -13px;
-	padding-bottom: 0px;
-	border: 1px solid transparent;
-	box-shadow: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	cursor: pointer;
-	background: transparent;
+	margin-bottom: 5px;
 }
 
-.list-title select::-ms-expand{
-    display: none;
+.list-title select:nth-of-type(2) {
+	float: right;
+}
+
+.list-title select:nth-of-type(2) option {
+	text-align-last: left;
+}
+
+.list-title a { 
+	font-weight: normal;
+	font-size: 12px;
 }
 
 #list-title {
 	font-weight: bold;
-	position: relative;
-	top: -22px;
-	display: flex;
-    justify-content: center;
-    height: 0px;
+	margin-left: 20px;
 }
 
 .ox-money b {
@@ -946,4 +953,118 @@ a.cke_button_disabled:hover, a.cke_button_disabled:focus, a.cke_button_disabled:
 
 .results-header span {
 	display: initial;
+}
+
+.ie .ox-cards {
+	width: 100vw;
+}
+
+.ox-cards {
+	display: inline-flex;
+	flex-wrap: wrap;
+	padding: 0px 5px 3px 5px;
+}
+
+.ox-card, .ox-card:hover {
+	color:  #9EA8AD;
+	flex: 0 1 330px;
+	margin: 6px;
+	padding: 8px 10px 5px 10px;
+}
+
+.ox-card:hover, .ox-card:hover .ox-card-header {
+	cursor: pointer;
+	color: #346799;
+}
+
+.ox-card-header {
+	color: black;
+	float: left;
+	font-size: larger;
+	font-weight: bold;
+}
+
+.ox-card-subheader {
+	float: right;
+}
+
+.ox-card-content {
+	font-weight: normal;
+	margin: 20px 0px 3px 0px;
+}
+
+#xava_loading_more_elements {
+	min-height: 20px;
+}
+
+#xava_loading_more_elements img {
+	vertical-align: bottom;
+}
+
+.ox-no-objects {
+	margin: 10px;
+	font-size: larger;
+	font-weight: bold;
+}
+
+.ui-tooltip, .arrow:after {
+	background: black !important;
+	border: 1px solid white;
+}
+
+.ui-tooltip {
+	padding: 10px 20px;
+	color: white !important;
+	border-radius: 4px;
+	font-weight: bold;
+	font-size: 12px;
+	box-shadow: 0 0 7px black;
+}
+
+.arrow {
+	width: 23px;
+	height: 26px;
+	overflow: hidden;
+	position: absolute;
+	left: 0px;
+	margin-left: -33px;
+	bottom: calc(30% - 5px);
+}
+
+.arrow.top {
+	top: 16px;
+	bottom: auto;
+}
+
+.arrow.left {
+	left: 10px;
+}
+
+.arrow:after {
+	content: "";
+	position: absolute;
+	left: 20px;
+	top: -2px;
+	width: 25px;
+	height: 25px;
+	box-shadow: 6px 5px 9px -9px black;
+	transform: rotate(135deg);
+}
+
+.arrow.top:after {
+	bottom: 20px;
+	top: auto;
+}
+
+.ox-subscribed i, .ox-unsubscribed i {
+	vertical-align: 3px;
+
+}
+
+.ox-subscribed i {
+	color: blue; 
+}
+
+.ox-unsubscribed i {
+	color: lightgray; 
 }

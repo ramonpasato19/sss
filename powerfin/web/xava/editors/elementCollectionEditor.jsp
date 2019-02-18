@@ -122,7 +122,7 @@ for (int f=0; f < rowCount; f++) {
 	String actionsStyle = subview.isCollectionEditable() && f >= rowCount - 2?"style='visibility:hidden;'":"";
 	String app = request.getParameter("application");
 	String module = request.getParameter("module");
-	boolean hasTotals = subview.getCollectionTotalsCount() > 0;
+	boolean hasTotals = subview.hasCollectionTotals();
 	String sortableClass = subview.isCollectionEditable() && f >= rowCount - 2?"":"xava_sortable_element_row";
 %>
 <tr id="<%=idRow%>" class="<%=cssClass%> <%=sortableClass%>" <%=events%> style="border-bottom: 1px solid; <%=newRowStyle%>">
@@ -183,19 +183,24 @@ for (int f=0; f < rowCount; f++) {
 			fvalue = org.openxava.web.WebEditors.formatToStringOrArray(request, p, value, errors, view.getViewName(), false);
 		}
 %>
-	<td class="<%=cssCellClass%>" style="<%=cellStyle%>; padding-right: 0px">
+	<td class="<%=cssCellClass%> <%=style.getElementCollectionDataCell()%>" style="<%=cellStyle%>; padding-right: 0px">
+	
 		<div class="<xava:id name='<%=idCollection%>'/>_col<%=columnIndex%>" style="overflow: hidden; <%=width%>" <%=lastRowEvent%>>
-		<%if (resizeColumns) {%><nobr><%}%>
+		<nobr> 
 		<% if (!subview.isCollectionMembersEditables()) {%>
-		<%=fvalue%>
+			<% if (referenceName == null) { %>
+				<%=fvalue%>&nbsp;
+			<% } else { %>
+				<xava:descriptionsList reference="<%=referenceName%>" readOnlyAsLabel="true"/>	
+			<% } %>
 		<% } else if (referenceName != null) { %>
 		<xava:descriptionsList reference="<%=referenceName%>"/>
 		<% } else { %>
 		<span id="<xava:id name='<%="editor_" + view.getPropertyPrefix() + propertyName%>'/>">
 		<xava:editor property="<%=propertyName%>" throwPropertyChanged="<%=throwPropertyChanged%>"/>
 		</span>
-		<% } %>		
-	 	<%if (resizeColumns) {%></nobr><%}%>
+		<% } %>	
+	 	</nobr>  
 		</div>
 	</td>		
 	<% if (searchAction != null && subview.isLastSearchKey(p.getName())) {	%>

@@ -11,7 +11,7 @@ import org.openxava.annotations.*;
  * @author Javier Paniza
  */
 
-public class WithRequiredLongName {  
+public class WithRequiredLongName implements java.io.Serializable {    
 		
 	@Column(length=100)
 	@DisplaySize(200)

@@ -26,26 +26,42 @@ import org.openxava.util.*;
  */
 
 @Entity
-@Table(name="OXUSERS")
-@View(members=
-	"#name, active;" +
-	"password, repeatPassword;" + 
-	"creationDate, lastLoginDate;" +
-	"forceChangePassword, authenticateWithLDAP;" + 
-	"personalData [" +
-	"	email;" +
-	"	givenName;" +
-	"	familyName;" +
-	"	jobTitle;" +
-	"	middleName;" +
-	"	nickName;" +
-	"	birthDate;" +
-	"];" +
-	"roles;"  +
-	"modules;" +
-	"sessionsRecord" 
-)
+@Table(name="OXUSERS", indexes={
+	@Index(columnList="email"),
+	@Index(columnList="passwordRecoveringCode")
+})
+@Views({
+	@View(members=
+		"#name, active;" +
+		"password, repeatPassword;" + 
+		"creationDate, lastLoginDate;" +
+		"forceChangePassword, authenticateWithLDAP;" + 
+		"personalData [" +
+		"	email;" +
+		"	givenName;" +
+		"	familyName;" +
+		"	jobTitle;" +
+		"	middleName;" +
+		"	nickName;" +
+		"	birthDate;" +
+		"];" +
+		"roles;"  +
+		"modules;" +
+		"sessionsRecord" 
+	),
+	@View(name="PersonalData", members=
+		"email;" +
+		"givenName;" +
+		"familyName;" +
+		"jobTitle;" +
+		"middleName;" +
+		"nickName;" +
+		"birthDate;" 
+	)	
+})
 public class User implements java.io.Serializable {
+	
+	private static final long serialVersionUID = 2355223287420733687L;
 	
 	private final static String PROPERTIES_FILE = "naviox.properties";
 	private static Log log = LogFactory.getLog(User.class);
@@ -54,7 +70,37 @@ public class User implements java.io.Serializable {
 
 	
 	public static User find(String name) {
-		return XPersistence.getManager().find(User.class, name);
+		User user = XPersistence.getManager().find(User.class, name);
+		if (user != null) return user;
+		if (Configuration.getInstance().isUseEmailAsUserName()) {
+			if (name.contains("@")) {
+				return findByEmail(name);
+			}
+		}
+		return null;
+	}
+	
+	public static User findByEmail(String email) { 
+		try {
+	 		Query query = XPersistence.getManager().createQuery("from User f where f.email = :email");
+	 		query.setParameter("email", email);
+	 		return (User) query.getSingleResult();
+		}
+		catch (NoResultException ex) {
+			return null;
+		}
+	}
+	
+	public static User findByPasswordRecoveringCode(String passwordRecoveringCode) { 
+		try {
+	 		Query query = XPersistence.getManager().createQuery(
+	 			"from User f where f.passwordRecoveringCode = :passwordRecoveringCode");
+	 		query.setParameter("passwordRecoveringCode", passwordRecoveringCode);
+	 		return (User) query.getSingleResult();
+		}
+		catch (NoResultException ex) {
+			return null;
+		}
 	}
 
 	public static int count() {
@@ -106,8 +152,8 @@ public class User implements java.io.Serializable {
 	
 	@org.hibernate.annotations.Type(type="org.hibernate.type.YesNoType")
 	private boolean authenticateWithLDAP; 
-	
-	@Column(length=60) @Stereotype("EMAIL")
+
+	@Column(length=60) @Stereotype("EMAIL") 
 	private String email;
 	
 	@Column(length=30)
@@ -127,7 +173,14 @@ public class User implements java.io.Serializable {
 	
 	private Date birthDate;
 	
-	private int failedLoginAttempts; 
+	private int failedLoginAttempts;
+	
+	@Column(length=32)
+	private String passwordRecoveringCode; 
+	
+	private Date passwordRecoveringDate; 
+	
+	private Date privacyPolicyAcceptanceDate; 
 	
 	@ManyToMany
 	@ReadOnly 
@@ -150,7 +203,7 @@ public class User implements java.io.Serializable {
 	
 	@ReadOnly
 	public Collection<Module> getModules() {
-		if (roles == null) return Collections.EMPTY_LIST;
+		if (roles == null) return Collections.<Module>emptyList();
 		Collection<Module> modules = new ArrayList<Module>();
 		for (Role role: roles) {
 			modules.addAll(role.getModules());
@@ -167,6 +220,20 @@ public class User implements java.io.Serializable {
 			}
 		}
 		return false;
+	}
+	
+	public void generatePasswordRecoveringCode() {
+		passwordRecoveringCode = UUID.randomUUID().toString().replace("-", "");
+		passwordRecoveringDate = new Date();
+	}
+	
+	public void addDefaultRole() { 
+		if (roles == null || roles.isEmpty()) {
+			Role userRole = Role.find("user");
+			if (userRole != null) {
+				addRole(userRole);
+			}
+		}
 	}
 	
 	@PrePersist
@@ -204,11 +271,27 @@ public class User implements java.io.Serializable {
 	}
 	
 	private boolean isValidLoginWithLDAP(String password) { 
-        Hashtable<String, String> props = new Hashtable<String, String>();
-        String securityPrincipal = getProperties().getProperty("ldapDomain", "").trim() + "\\" + this.name;
-        String ldapURL = "ldap://" + getProperties().getProperty("ldapHost", "").trim() +
-                ":" + getProperties().getProperty("ldapPort", "").trim() + 
-                "/" + getProperties().getProperty("ldapDN", "").trim();
+        Hashtable<String, String> props = new Hashtable<String, String>();        
+        String ldapDomain = getProperties().getProperty("ldapDomain", "").trim();
+        String ldapHost = getProperties().getProperty("ldapHost", "").trim();
+        String ldapPort = getProperties().getProperty("ldapPort", "").trim();
+        String ldapDN =  getProperties().getProperty("ldapDN", "").trim();
+        
+        String ldapURL;        
+        String securityPrincipal;
+        if (Is.emptyString(ldapDomain)) {
+        	ldapURL = String.format("ldap://%s:%s", ldapHost, ldapPort);        
+        	securityPrincipal = String.format("%s%s%s", "uid=" + this.name, 		
+   														ldapDN.equals("")?"":",", 
+   														ldapDN);	
+        }
+        else {
+	        ldapURL = String.format("ldap://%s:%s/%s", ldapHost, ldapPort, ldapDN);        
+	        securityPrincipal = String.format("%s%s%s", ldapDomain, 
+	     	                                           ldapDomain.equals("")?"":"\\", 
+	     	                                           this.name);
+        }
+        
         props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         props.put(Context.PROVIDER_URL, ldapURL);
         props.put(Context.SECURITY_AUTHENTICATION, "simple");
@@ -220,7 +303,10 @@ public class User implements java.io.Serializable {
             return true;
         } catch (NamingException ex) {
             log.error(XavaResources.getString("ldap_authentication_error"), ex);  
-        }
+        } finally {
+			log.info("javax.naming.Context.PROVIDER_URL: " + ldapURL);
+			log.info("javax.naming.Context.SECURITY_PRINCIPAL: " + securityPrincipal);
+		}
         return false;
     }
 	
@@ -275,6 +361,10 @@ public class User implements java.io.Serializable {
 	}
 
 	public void setEmail(String email) {
+		if (Is.equal(this.email, email)) return;
+		if (!Is.emptyString(email) && findByEmail(email) != null) {
+			throw new org.openxava.validators.ValidationException("email_already_in_use");
+		}
 		this.email = email;
 	}
 	
@@ -297,6 +387,8 @@ public class User implements java.io.Serializable {
 		this.setLastPasswordChangeDate(new Date()); 
 		this.password = password;
 		encryptPassword(); 
+		passwordRecoveringCode = null;
+		passwordRecoveringDate = null;
 	}
 
 	private void rememberPassword() { 
@@ -341,14 +433,36 @@ public class User implements java.io.Serializable {
 		}
 	}
 	
-	public void addOrganization(Organization organization) { 
+	public boolean addOrganization(Organization organization) { 
 		if (organizations == null) organizations = new ArrayList<Organization>();
-		organizations.add(organization);
+		if (!organizations.contains(organization)) return organizations.add(organization);
+		else return false;
 	}
+	
+	/** @since 6.0 */
+	public boolean addRole(String roleName) { 
+		if (roles == null) roles = new ArrayList<Role>();
+		Role role = Role.find(roleName);
+		if (role != null) {
+			addRole(role);
+			return true;
+		}
+		return false;
+	}
+
 	
 	public void addRole(Role role) { 
 		if (roles == null) roles = new ArrayList<Role>();
 		roles.add(role);
+	}
+	
+	/** @since 5.7 */
+	public boolean hasRole(String roleName) { 
+		if (roles == null) return false;
+		for (Role role: roles) {
+			if (role.getName().equals(roleName)) return true;
+		}
+		return false;
 	}
 	
 	public Collection<Role> getRoles() {
@@ -484,6 +598,15 @@ public class User implements java.io.Serializable {
 		});
 	}
 	
+	public Collection<String> getExcludedCollectionActionsForMetaModule(MetaModule metaModule) {
+		return collectFromRights(metaModule, new IRightsCollectionExtractor() {
+			
+			public Collection get(ModuleRights rights) {
+				return rights.getExcludedCollectionActions();
+			}
+		});
+	}
+	
 	public Collection<MetaMember> getExcludedMetaMembersForMetaModule(MetaModule metaModule) {
 		
 		return collectFromRights(metaModule, new IRightsCollectionExtractor() {
@@ -589,6 +712,29 @@ public class User implements java.io.Serializable {
 	public void setSessionsRecord(Collection<SessionRecord> sessionsRecord) {
 		this.sessionsRecord = sessionsRecord;
 	}
+	
+	public Date getPasswordRecoveringDate() {
+		return passwordRecoveringDate;
+	}
 
+	public void setPasswordRecoveringDate(Date passwordRecoveringDate) {
+		this.passwordRecoveringDate = passwordRecoveringDate;
+	}
+
+	public void setPasswordRecoveringCode(String passwordRecoveringCode) {
+		this.passwordRecoveringCode = passwordRecoveringCode;
+	}
+
+	public String getPasswordRecoveringCode() {
+		return passwordRecoveringCode;
+	}
+
+	public Date getPrivacyPolicyAcceptanceDate() {
+		return privacyPolicyAcceptanceDate;
+	}
+
+	public void setPrivacyPolicyAcceptanceDate(Date privacyPolicyAcceptanceDate) {
+		this.privacyPolicyAcceptanceDate = privacyPolicyAcceptanceDate;
+	}
 
 }

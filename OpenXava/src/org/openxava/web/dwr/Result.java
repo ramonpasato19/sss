@@ -2,6 +2,8 @@ package org.openxava.web.dwr;
 
 import java.util.*;
 
+import org.apache.commons.lang.*;
+
 /**
  * 
  * @author Javier Paniza
@@ -29,14 +31,20 @@ public class Result {
 	private int dialogLevel; 
 	private String viewMember;
 	private int currentRow = -1;  
+	private String urlParam;  
+	private String [] propertiesUsedInCalculations;
+	private boolean viewSimple; 
+	private String postJS;
+	private String [] editorsWithError; 
+	private String [] editorsWithoutError; 
 	
 	public Result() {
 	}
 	
 	public Result(Map changedParts) {
 		this.changedParts = changedParts;
-	}		
-	
+	}
+		
 	public Map getStrokeActions() {
 		return strokeActions == null?Collections.EMPTY_MAP:strokeActions;
 	}
@@ -189,5 +197,52 @@ public class Result {
 		this.resizeDialog = resizeDialog;
 	}
 
+	public String getUrlParam() {
+		return urlParam;
+	}
+
+	public void setUrlParam(String urlParam) {
+		this.urlParam = urlParam;
+	}
+
+	public String [] getPropertiesUsedInCalculations() {
+		return propertiesUsedInCalculations;
+	}
+
+	public void setPropertiesUsedInCalculations(String [] propertiesUsedInCalculations) {
+		this.propertiesUsedInCalculations = propertiesUsedInCalculations;
+	}
+
+	public boolean isViewSimple() {
+		return viewSimple;
+	}
+
+	public void setViewSimple(boolean viewSimple) {
+		this.viewSimple = viewSimple;
+	}
+
+	public String getPostJS() {
+		return postJS;
+	}
+
+	public void setPostJS(String postJS) {
+		this.postJS = postJS;
+	}
+
+	public String [] getEditorsWithError() {
+		return editorsWithError;
+	}
+
+	public void setEditorsWithError(String [] editorsWithError) {
+		this.editorsWithError = editorsWithError;
+	}
+
+	public String [] getEditorsWithoutError() {
+		return editorsWithoutError;
+	}
+
+	public void setEditorsWithoutError(String [] editorsWithoutError) {
+		this.editorsWithoutError = editorsWithoutError;
+	}
 	
 }

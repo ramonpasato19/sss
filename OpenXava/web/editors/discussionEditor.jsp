@@ -13,7 +13,6 @@
 
 <jsp:useBean id="style" class="org.openxava.web.style.Style" scope="request"/>
 
-
 <% 
 String contextPath = (String) request.getAttribute("xava.contextPath");
 if (contextPath == null) contextPath = request.getContextPath();
@@ -49,11 +48,14 @@ for (DiscussionComment comment: comments) {
 </div>
 
 <% if (editable) { %>
-<textarea id="xava_new_comment_<%=discussionId%>" class="ox-simple-ckeditor" tabindex="1"></textarea> 
-	
-<div class="ox-discussion-post-button"> 
-	<input type="button" tabindex="1" title="<xava:label key="postMessage"/>" class="<%=style.getButton()%>" 
-		onclick="discussionEditor.postMessage('<%=request.getParameter("application")%>', '<%=request.getParameter("module")%>', '<%=discussionId%>')" value="<xava:label key="post"/>"/>
+<textarea id="xava_new_comment_<%=discussionId%>" class="ox-simple-ckeditor xava-new-comment" tabindex="1"></textarea>
+
+<div id="xava_new_comment_<%=discussionId%>_buttons" class="ox-discussion-post-button">
+	<input type="button" tabindex="1" class="<%=style.getButton()%>" style="display: none;" 
+		onclick="discussionEditor.postMessage('<%=request.getParameter("application")%>', '<%=request.getParameter("module")%>', '<%=discussionId%>')" value="<xava:label key="addComment"/>"/>
+	<input type="button" tabindex="1" class="<%=style.getButton()%>" style="display: none;" 
+		onclick="discussionEditor.cancel('<%=discussionId%>')" 
+		value="<xava:label key="cancel"/>"/>
 </div>
 <% } %>	
 

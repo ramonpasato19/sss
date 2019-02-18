@@ -12,13 +12,13 @@ import org.openxava.model.*;
  * @author Jeromy Altuna
  */
 @Entity
-@Table(name="OXFILES")
+@Table(name="OXFILES", indexes = {@Index(columnList = "libraryId")}) 
 public class AttachedFile extends Identifiable {
 	
 	private String name;	
 	private byte[] data;
 	
-	@Column(length=32)
+	@Column(length=32) 
 	private String libraryId;
 	
 	/** 

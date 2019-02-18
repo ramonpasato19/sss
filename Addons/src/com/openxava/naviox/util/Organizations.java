@@ -1,6 +1,7 @@
 package com.openxava.naviox.util;
 
 import java.sql.*;
+import java.util.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -75,6 +76,7 @@ public class Organizations {
 			}
 			else {
 				((HttpServletRequest) request).getSession().invalidate();
+				Users.setCurrent((String)null); 
 			}
 			setCurrent(request, organization);	
 		}
@@ -95,14 +97,38 @@ public class Organizations {
 
 	/** @since 5.6 */
 	public static Organization create(String name, String adminUser) { 
+		return create(name, adminUser, false);  
+	}
+	
+	/** @since 6.0 */
+	public static Organization createWithBlankDB(String name, String adminUser) {  
+		return create(name, adminUser, true);
+	}
+	
+	private static Organization create(String name, String adminUser, boolean blankDB) { 
 		String schema = Organization.normalize(name);
 		Organizations.createSchema(schema);
-		DB.createTenancy(schema, adminUser); 
+		if (!blankDB) DB.createTenancy(schema, adminUser); 
 		Organization organization = new Organization();
 		organization.setName(name);
 		XPersistence.getManager().persist(organization);
 		Organization.resetCache();
+		Organization.setUp(); 
 		return organization;
+	}
+
+	
+	/** @since 6.0 */
+	public static void delete(String id) { 
+		deleteSchema(id);
+		Organization organization = Organization.find(id);
+		for (User user: organization.getUsers()) {
+			Collection organizations = user.getOrganizations();
+			if (organizations != null) organizations.remove(organization);
+		}
+		XPersistence.getManager().remove(organization);
+		Organization.resetCache();
+		Organization.setUp(); 
 	}
 
 	private static void createSchema(String schema) { 
@@ -129,5 +155,30 @@ public class Organizations {
 			throw new XavaException("schema_creation_error", schema);
 		}
 	}
+	
+	private static void deleteSchema(String schema) { 
+		try {
+			Connection con = DataSourceConnectionProvider.getByComponent("Organization").getConnection();
+			PreparedStatement ps = null;
+			try {
+				String database = con.getMetaData().getDatabaseProductName().split(" ")[0];
+				String sentenceTemplate = NaviOXPreferences.getInstance().getDropSchema(database);
+				String sentence = sentenceTemplate.replace("${schema}", schema);
+				ps = con.prepareStatement(sentence);
+				ps.executeUpdate();
+			}
+			finally {
+				if (ps != null) {
+					try { ps.close(); } catch (Exception ex) {}
+				}
+				con.close();
+			}
+		}	
+		catch (Exception ex) {
+			log.error(XavaResources.getString("schema_deletion_error", schema), ex); 
+			throw new XavaException("schema_deletion_error", schema); 
+		}	
+	}
+
 
 }

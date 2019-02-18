@@ -17,15 +17,15 @@ import org.openxava.web.*;
  * 
  * @author Javier Paniza 
  */
-public class ListElementIterator implements Iterator {
+public class ListElementIterator implements Iterator<ListElement> {
 	
 	private View view;
 	private HttpServletRequest request;
 	private Messages errors;
 	private Tab tab;
 	private TableModel table; 
-	private int row = 0;
-	private Collection<String> propertiesNames;
+	private int row = 0;	
+	private @SuppressWarnings("unused") Collection<String> propertiesNames;
 	private int headerColumn = -1;
 	private int subheaderColumn = -1;
 	private BooleanFormatter booleanFormatter; 
@@ -42,7 +42,7 @@ public class ListElementIterator implements Iterator {
 		return row < table.getRowCount();
 	}
 
-	public Object next() {
+	public ListElement next() {
 		ListElement el = new ListElement();
 		el.setHeader(obtainHeader(row)); 
 		el.setSubheader(obtainSubheader(row)); 

@@ -10,7 +10,6 @@ import org.apache.commons.logging.*;
 import org.openxava.component.*;
 import org.openxava.ejbx.*;
 import org.openxava.mapping.*;
-import org.openxava.model.impl.*;
 import org.openxava.model.meta.*;
 import org.openxava.tab.meta.*;
 import org.openxava.util.*;
@@ -29,7 +28,7 @@ public class EntityTab implements IEntityTabImpl, java.io.Serializable {
 	private static final long serialVersionUID = -3967727741162794493L;
 	
 	private static Log log = LogFactory.getLog(EntityTab.class);
-	private static final int DEFAULT_CHUNK_SIZE = 50;
+	public static final int DEFAULT_CHUNK_SIZE = 120; 
 	
 	private int chunkSize = DEFAULT_CHUNK_SIZE;
 	private static Map dataProviders;	 
@@ -411,7 +410,7 @@ public class EntityTab implements IEntityTabImpl, java.io.Serializable {
 			if (dataProvider == null) {
 				if (XavaPreferences.getInstance().isTabAsEJB()) { 
 					Object ohome = BeansContext.get().lookup("ejb/"+packageName+"/EntityTab");
-					EntityTabHome home = (EntityTabHome) PortableRemoteObject.narrow(ohome, EntityTabHome.class);
+					EntityTabHome home = (EntityTabHome) ohome; 
 					dataProvider = home.create();
 				}
 				else {

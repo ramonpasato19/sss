@@ -39,7 +39,7 @@ if (view.displayReferenceWithNoFrameEditor(ref)) {
 			<jsp:param name="referenceKey" value="<%=referenceKey%>"/>
 		</jsp:include>
 	</span>
-	<br/>
+	<br/> 
 	<jsp:include page="<%=urlReferenceEditor%>"/>
 </div>	
 <%		
@@ -52,16 +52,17 @@ else {
 	String propertyInReferencePrefix = view.getPropertyPrefix() + ref.getName() + ".";	 
 	boolean editable = view.isEditable(ref); 
 %>
+<div class="phone-frame-title"><%=label%></div>
+<div class="ox-frame">
 <div id="<%=labelKey%>" class="phone-frame-header"> 
-	<span class="phone-frame-title"><%=label%></span>
 <% 
 	if (subview.isRepresentsEntityReference() && editable) { 
 		if (subview.isSearch()) {
 			MetaAction searchAction = MetaControllers.getMetaAction(subview.getSearchAction());
 %>	
 	<xava:link action='<%=subview.getSearchAction()%>' argv='<%="keyProperty="+propertyInReferencePrefix%>'>
-		<div class="phone-frame-action">					
-			<p><%=searchAction.getLabel()%></p>			
+		<div class="phone-frame-action">				
+			<%=searchAction.getLabel()%>
 		</div>
 	</xava:link>
 <% 
@@ -70,8 +71,8 @@ else {
 			MetaAction createNewAction = MetaControllers.getMetaAction("Reference.createNew");
 %> 
 	<xava:link action="Reference.createNew" argv='<%="model="+ref.getReferencedModelName() + ",keyProperty="+propertyInReferencePrefix%>'>
-		<div class="phone-frame-action">					
-			<p><%=createNewAction.getLabel()%></p>			
+		<div class="phone-frame-action">
+			<%=createNewAction.getLabel()%>
 		</div>
 	</xava:link>
 <% 
@@ -83,7 +84,10 @@ else {
 <jsp:include page="detail.jsp"> 
 	<jsp:param name="viewObject" value='<%=viewName%>' />
 	<jsp:param name="propertyPrefix" value='<%=propertyInReferencePrefix%>' />
+	<jsp:param name="frame" value="false"/> 
 </jsp:include>
+
+</div> 
 <% 		
 }
 %>

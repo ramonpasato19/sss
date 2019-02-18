@@ -18,7 +18,7 @@ import org.openxava.util.*;
 @Entity
 @Table(name="OXROLES_OXMODULES")
 @IdClass(ModuleRightsKey.class)
-@View(members="module; excludedActions; excludedMembers; readOnlyMembers") 
+@View(members="module; excludedActions; excludedMembers; readOnlyMembers")
 public class ModuleRights {
 	
 	public static int countForApplication(String application) {
@@ -80,10 +80,21 @@ public class ModuleRights {
 	}
 
 	public Collection<MetaAction> getExcludedMetaActions() { 
-		if (Is.emptyString(excludedActions)) return Collections.EMPTY_LIST;
+		if (Is.emptyString(excludedActions)) return Collections.<MetaAction>emptyList();
 		Collection<MetaAction> result = new ArrayList<MetaAction>();
 		for (String action: excludedActions.split(",")) {
+			if (action.contains(":")) continue;
 			result.add(MetaControllers.getMetaAction(action));
+		}
+		return result;
+	}	
+	
+	public Collection<String> getExcludedCollectionActions() {
+		if (Is.emptyString(excludedActions)) return Collections.<String>emptyList();
+		Collection<String> result = new ArrayList<String>();
+		for (String action: excludedActions.split(",")) {
+			if (!action.contains(":")) continue;
+			result.add(action);
 		}
 		return result;
 	}
@@ -97,16 +108,23 @@ public class ModuleRights {
 	}
 
 	private Collection<MetaMember> toMetaMembers(String members) { 
-		if (Is.emptyString(members)) return Collections.EMPTY_LIST;
+		if (Is.emptyString(members)) return Collections.<MetaMember>emptyList();
 		Collection<MetaMember> result = new ArrayList<MetaMember>();
 		MetaModel metaModel = null;
 		for (String member: members.split(",")) {
-			if (metaModel == null) metaModel = MetaModel.get(member);
-			else result.add(metaModel.getMetaMember(member));
+			if (metaModel == null) {
+				metaModel = MetaModel.get(member);
+			} else {
+				try {
+					MetaMember metaMember = metaModel.getMetaMember(member);
+					result.add(metaMember);
+				} catch(ElementNotFoundException ex) {} // In the Role administration module, 
+														// a warning is printed in log				
+			}
 		}
 		return result;
 	}
-
+	
 	public String getExcludedMembers() {
 		return excludedMembers;
 	}

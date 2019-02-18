@@ -10,7 +10,7 @@ import org.openxava.util.*;
 
 /**
  * Program Generator created by TL2Java
- * @version Thu Sep 13 12:24:33 CEST 2012
+ * @version Thu Nov 09 12:33:38 CET 2017
  */
 public class PortletXmlPG {
     Properties properties = new Properties();
@@ -38,16 +38,20 @@ public class PortletXmlPG {
     
     for (Iterator it=application.getMetaModules().iterator(); it.hasNext(); ) {
     	MetaModule module = (MetaModule) it.next();
+    	String description = module.getDescription();
+    	if (description == null || "".equals(description)) description = module.getLabel();
     
     out.print(" \n\t<portlet id=\"");
     out.print(Strings.toCharSet(module.getName(), encoding));
     out.print("\">\n\t\t<description>");
     out.print(Strings.toCharSet(application.getLabel(), encoding));
     out.print(" - ");
-    out.print(Strings.toCharSet(module.getDescription(), encoding));
+    out.print(Strings.toCharSet(description, encoding));
     out.print("</description>");
     for (Iterator itLocales=locales.iterator(); itLocales.hasNext(); ) { 
         	Locale locale = (Locale) itLocales.next();
+        	String descriptionLocale = module.getDescription(locale);
+        	if (descriptionLocale == null || "".equals(descriptionLocale)) descriptionLocale = module.getLabel(locale);
         
     // Avoid to generate "en" locale description because the generated above (default) is English as portlet-app_1_0.xsd specifies. 
     // JetSpeed 2.2.1 throws a deployment error if this description is generated twice with the same locale 
@@ -57,7 +61,7 @@ public class PortletXmlPG {
     out.print("\">");
     out.print(Strings.toCharSet(application.getLabel(locale), encoding));
     out.print(" - ");
-    out.print(Strings.toCharSet(module.getDescription(locale), encoding));
+    out.print(Strings.toCharSet(descriptionLocale, encoding));
     out.print("</description>");
     } 
     } 
@@ -143,9 +147,9 @@ public class PortletXmlPG {
      * This array provides program generator development history
      */
     public String[][] history = {
-        { "Thu Sep 13 12:24:34 CEST 2012", // date this file was generated
-             "../OpenXava/generator/portletxml.xml", // input file
-             "../OpenXava/generator/PortletXmlPG.java" }, // output file
+        { "Thu Nov 09 12:33:38 CET 2017", // date this file was generated
+             "F:\\java\\workspaces\\workspace_openxava\\OpenXava\\generator\\portletxml.xml", // input file
+             "F:\\java\\workspaces\\workspace_openxava\\OpenXava\\generator\\PortletXmlPG.java" }, // output file
         {"Mon Apr 09 16:45:30 EDT 2001", "TL2Java.xml", "TL2Java.java", }, 
         {"Mon Apr 09 16:39:37 EDT 2001", "TL2Java.xml", "TL2Java.java", }, 
         {"Mon Apr 09 16:37:21 EDT 2001", "TL2Java.xml", "TL2Java.java", }, 

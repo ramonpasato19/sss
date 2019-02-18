@@ -26,6 +26,7 @@ viewObject = (viewObject == null || viewObject.equals(""))?"xava_view":viewObjec
 org.openxava.view.View view = (org.openxava.view.View) context.get(request, viewObject);
 view.setViewObject(viewObject); 
 String propertyPrefix = request.getParameter("propertyPrefix");
+String containerClass = "false".equals(request.getParameter("frame"))?"":"ox-frame"; 
 propertyPrefix = (propertyPrefix == null)?"":propertyPrefix; 
 view.setPropertyPrefix(propertyPrefix);
 boolean divIsOpen = false;
@@ -42,7 +43,7 @@ for (Iterator it = view.getMetaMembers().iterator(); it.hasNext();) {
 		if (!divIsOpen) {  
 			divIsOpen = true;
 %>
-<div class="phone-frame">	
+<div class="<%=containerClass%>">
 <%	
 		}
 %>
@@ -50,8 +51,9 @@ for (Iterator it = view.getMetaMembers().iterator(); it.hasNext();) {
 	<span id="<xava:id name='<%="label_" + view.getPropertyPrefix() + p.getName()%>'/>" class="<%=labelStyle%>">
 		<%=label%>
 	</span>
-	<br/>
-	<span id="<xava:id name='<%="editor_" + view.getPropertyPrefix() + p.getName()%>'/>"> 
+	<br/> 
+	<% String required = view.isEditable() && p.isRequired() ? "class='" + style.getRequiredEditor() + "'":""; %>
+	<span id="<xava:id name='<%="editor_" + view.getPropertyPrefix() + p.getName()%>'/>" <%=required%>>
 		<xava:editor property="<%=p.getName()%>" editable="<%=editable%>" throwPropertyChanged="<%=throwPropertyChanged%>"/>
 	</span>
 </div>	
@@ -63,7 +65,7 @@ for (Iterator it = view.getMetaMembers().iterator(); it.hasNext();) {
 			if (!divIsOpen) {
 				divIsOpen = true;
 %>
-<div class="phone-frame">	
+<div class="<%=containerClass%>"> 	
 <%	
 			}
 		}		
@@ -114,9 +116,7 @@ for (Iterator it = view.getMetaMembers().iterator(); it.hasNext();) {
 		View subview = view.getGroupView(group.getName());			
 		context.put(request, viewName, subview);
 %>
-		<div class="phone-frame-header"> 
-			<span class="phone-frame-title"><%=group.getLabel()%></span>
-		</div>	
+		<div class="phone-frame-title"><%=group.getLabel()%></div>
 		<jsp:include page="detail.jsp">
 				<jsp:param name="viewObject" value="<%=viewName%>" />
 		</jsp:include>

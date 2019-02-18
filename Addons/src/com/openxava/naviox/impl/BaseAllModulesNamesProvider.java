@@ -15,7 +15,7 @@ import org.openxava.util.*;
 abstract public class BaseAllModulesNamesProvider implements IAllModulesNamesProvider {
 
 	public Collection<String> getAllModulesNames(MetaApplication app) {
-		Collection<String> allModulesNames = new ArrayList<String>(app.getModulesNames());
+		Collection<String> allModulesNames = new HashSet<String>(app.getModulesNames());  
 		for (String className: AnnotatedClassParser.getManagedClassNames()) {
 			if (moduleForClass(className)) {
 				allModulesNames.add(Strings.lastToken(className, "."));
@@ -25,7 +25,13 @@ abstract public class BaseAllModulesNamesProvider implements IAllModulesNamesPro
 	}
 	
 	protected boolean moduleForClass(String className) {
-		if (className.endsWith(".GalleryImage") || className.endsWith(".AttachedFile")) return false;
+		if (className.endsWith(".GalleryImage") || 
+			className.endsWith(".AttachedFile") ||
+			className.endsWith(".EmailSubscription") ||
+			className.endsWith(".DiscussionComment")) 
+		{
+			return false;
+		}
 		if (isEmbeddable(className)) return false;
 		return true;
 	}

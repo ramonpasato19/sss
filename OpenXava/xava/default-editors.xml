@@ -12,13 +12,21 @@
 
 <editors>
   
-	<editor name="List" url="listEditor.jsp">
+	<editor name="List" url="listEditor.jsp" icon="table-large">
 		<for-tabs/>
 	</editor>
 	
-	<editor name="Charts" url="chartsEditor.jsp">
+	<editor name="Charts" url="chartsEditor.jsp"
+		selectable-items="false" 
+		icon="chart-line" 
+		init-action="Chart.init" 
+		release-action="Chart.release">
 		<for-tabs/>
-	</editor>
+	</editor>	
+	
+	<editor name="Cards" url="cardsEditor.jsp" icon="view-module" selectable-items="false">
+		<for-tabs/>
+	</editor>	
 		
 	<editor name="Reference" url="referenceEditor.jsp" frame="true" composite="true">
 		<for-references/>
@@ -36,7 +44,7 @@
 		<for-type type="java.lang.String" />
 		<list-formatter class="org.openxava.formatters.HTMLFilterListFormatter" />		
 	</editor>	
-	
+
 
 	<editor name="NumericField" url="textEditor.jsp">
 		<for-type type="java.math.BigDecimal" />
@@ -62,6 +70,7 @@
 	
 	<editor name="BooleanYesNoCombo" url="booleanYesNoEditor.jsp">
 		<formatter class="org.openxava.formatters.BooleanFormatter" />
+		<list-formatter class="org.openxava.formatters.BooleanListFormatter" />
 		<for-model-property model="MyReportColumn" property="booleanValue" />
 	</editor>	
 	<editor name="DateCalendar" url="dateCalendarEditor.jsp">
@@ -179,13 +188,15 @@
 		<for-stereotype stereotype="__ACTION__" />
 	</editor>
 
-	<editor name="HtmlText" url="htmlEditor.jsp" frame="true">
+	<editor name="HtmlText" url="htmlEditor.jsp" frame="true">		 
+		<list-formatter class="org.openxava.formatters.HtmlTextListFormatter"/> 
 		<for-stereotype stereotype="HTML_TEXT" />
 		<for-stereotype stereotype="TEXTO_HTML" />
 	</editor>
 	
 	<editor name="SimpleHtmlText" url="htmlEditor.jsp" frame="true">
 		<property name="config" value="simple" />
+		<list-formatter class="org.openxava.formatters.HtmlTextListFormatter"/> 
 		<for-stereotype stereotype="SIMPLE_HTML_TEXT" />
 		<for-stereotype stereotype="TEXTO_HTML_SIMPLE" />
 	</editor>	
@@ -227,6 +238,13 @@
 		<for-model-property model="MyReportColumn" property="value" />
 		<for-model-property model="DiscussionComment" property="userName" />
 		<for-model-property model="WithRequiredLongName" property="name" />
+		<for-model-property model="ImportColumn" property="nameInApp" />
+	</editor>
+	
+	<editor url="labelEditor.jsp">
+		<for-model-property model="ImportColumn" property="headerInFile" />
+		<for-model-property model="ImportColumn" property="sampleContent1" />
+		<for-model-property model="ImportColumn" property="sampleContent2" />
 	</editor>
 		
 	<editor url="myReportColumnNameEditor.jsp" always-reload="true">

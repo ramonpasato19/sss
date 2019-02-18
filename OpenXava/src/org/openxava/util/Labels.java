@@ -45,14 +45,30 @@ public class Labels {
 		return get(id, locale, false);
 	}
 	
+	/**
+	 * Add or change a label bye locale. <p>
+	 * 
+	 * The result is not persistent, after reinit the application the changes are gone.
+	 * 
+	 * @since 5.8
+	 */
+	public static void put(String id, Locale locale, String label) { 
+		String key = toKey(id, locale, false); 
+		labels.put(key, label);		
+	}
+	
 	private static String get(String id, Locale locale, boolean qualified) { 
-		String key = id + "::" + locale + "::" + qualified;
+		String key = toKey(id, locale, qualified); 
 		String label = labels.get(key);
 		if (label == null) {
 			label = getWithoutCache(id, locale, qualified);
 			labels.put(key, label);
 		}
 		return label;
+	}
+	
+	private static String toKey(String id, Locale locale, boolean qualified) { 
+		return id + "::" + locale + "::" + qualified;
 	}
 	
 	private static String getWithoutCache(String id, Locale locale, boolean qualified) { 

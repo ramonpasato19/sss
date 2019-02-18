@@ -85,7 +85,7 @@ public class XavaPortlet extends GenericPortlet {
 	 */
 	public void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		Style.setPotalInstance(getStyle(request)); 
-		setTitle(request, response); 
+		// setTitle(request, response);	// lost the title on reload inside portal liferay 
 		request.getPortletSession().setAttribute(Ids.decorate(application, module, "xava.portlet.uploadActionURL"), response.createActionURL().toString(), PortletSession.APPLICATION_SCOPE); 
 		request.setAttribute("xava.upload.fileitems", request.getPortletSession().getAttribute("xava.upload.fileitems", PortletSession.PORTLET_SCOPE));  
 		request.setAttribute("xava.upload.error", request.getPortletSession().getAttribute("xava.upload.error", PortletSession.PORTLET_SCOPE)); 

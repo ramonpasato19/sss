@@ -13,6 +13,7 @@ public class Ids {
 
 	public static String decorate(String application, String module, String name) {
 		if (name == null) return null;
+		name = name.replaceAll("__PARENT__\\.", ""); // __PARENT__ is used in View class for internal purposes
 		name = name.replaceAll("\\.", "___"); 
 		if (name.startsWith("ox_")) return name;
 		return "ox_" + application + "_" + module + "__" + name;

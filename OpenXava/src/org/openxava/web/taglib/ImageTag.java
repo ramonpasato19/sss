@@ -2,9 +2,9 @@ package org.openxava.web.taglib;
 
 import javax.servlet.http.*;
 import javax.servlet.jsp.*;
-import javax.servlet.jsp.tagext.*;
 
 import org.apache.commons.logging.*;
+import org.openxava.controller.*;
 import org.openxava.controller.meta.*;
 import org.openxava.util.*;
 import org.openxava.web.*;
@@ -15,12 +15,10 @@ import org.openxava.web.style.*;
  * @author Javier Paniza
  */
 
-public class ImageTag extends TagSupport implements IActionTag {
+public class ImageTag extends ActionTagBase { 
 	
 	private static Log log = LogFactory.getLog(ImageTag.class);
 	
-	private String action;
-	private String argv;
 	private String cssClass;
 	private String cssStyle;
 	
@@ -34,6 +32,9 @@ public class ImageTag extends TagSupport implements IActionTag {
 			MetaAction metaAction = MetaControllers.getMetaAction(getAction());
 			String application = request.getParameter("application");
 			String module = request.getParameter("module");
+			if (!isActionAvailable(metaAction, application, module, request)) {
+				return SKIP_BODY;
+			}
 			Style style = (Style) request.getAttribute("style");
 			pageContext.getOut().print("<input name='");
 			pageContext.getOut().print(Ids.decorate(application, module, "action." + getAction())); 
@@ -55,7 +56,7 @@ public class ImageTag extends TagSupport implements IActionTag {
 				pageContext.getOut().print("'");	
 			}			
 			pageContext.getOut().print(" title='");
-			pageContext.getOut().print(metaAction.getKeystroke() + " - " +  metaAction.getDescription(request));
+			pageContext.getOut().print(getTooltip(metaAction)); 
 			pageContext.getOut().print("'");
 			pageContext.getOut().print(" href=\"javascript:openxava.executeAction(");
 			pageContext.getOut().print("'");				
@@ -71,11 +72,21 @@ public class ImageTag extends TagSupport implements IActionTag {
 			pageContext.getOut().print(metaAction.isTakesLong());
 			pageContext.getOut().print(", '");
 			pageContext.getOut().print(getAction());
+			pageContext.getOut().print("'"); 
 			if (!Is.emptyString(getArgv())) {
-				pageContext.getOut().print("', '");
-				pageContext.getOut().print(getArgv());				
+				pageContext.getOut().print(", '"); 
+				pageContext.getOut().print(getArgv());
+				pageContext.getOut().print("'"); 
 			}
-			pageContext.getOut().print("')\">");
+			if (metaAction.inNewWindow()) {
+				if (Is.emptyString(getArgv())) {
+					pageContext.getOut().print(", undefined, undefined, undefined, true");
+				}
+				else {
+					pageContext.getOut().print(", undefined, undefined, true");
+				}
+			}
+			pageContext.getOut().print(")\">");
 			if (metaAction.hasIcon() && (style.isUseIconsInsteadOfImages() || !metaAction.hasImage())) {  
 				pageContext.getOut().print("<i class='mdi mdi-");
 				pageContext.getOut().print(metaAction.getIcon());
@@ -98,21 +109,10 @@ public class ImageTag extends TagSupport implements IActionTag {
 		}
 		return SKIP_BODY;
 	}
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String string) {
-		action = string;
-	}
-
-	public String getArgv() {
-		return argv;
-	}
-
-	public void setArgv(String string) {
-		argv = string;
+	
+	protected String getActionDescription(MetaAction metaAction) { 
+		String description = metaAction.getDescription();
+		return Is.emptyString(description)?metaAction.getLabel():description;
 	}
 
 	public void setCssClass(String cssClass) {
