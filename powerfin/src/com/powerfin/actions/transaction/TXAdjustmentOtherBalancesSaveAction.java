@@ -82,7 +82,7 @@ public class TXAdjustmentOtherBalancesSaveAction extends TXSaveAction{
 					transaction, 
 					transaction.getSecondaryCategory()));
 			transactionAccounts.add(TransactionAccountHelper.createCustomCreditTransactionAccount(debitAccount, 
-					getSubaccount(),
+					otherSecondaryCategoryId.equals("INTDIF")?0:getSubaccount(),
 					value, 
 					transaction, 
 					otherSecondaryCategory));
@@ -95,7 +95,7 @@ public class TXAdjustmentOtherBalancesSaveAction extends TXSaveAction{
 					transaction, 
 					transaction.getSecondaryCategory()));
 			transactionAccounts.add(TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccount, 
-					getSubaccount(),
+					otherSecondaryCategoryId.equals("INTDIF")?0:getSubaccount(),
 					value.abs(), 
 					transaction, 
 					otherSecondaryCategory));

@@ -429,26 +429,26 @@ public class AccountInvoiceHelper {
 				paymentValue = payment.getValue();
 				
 				//TODO Esta quemado los metodos de pago. hay que ver una forma que sea parametrizado
-				if (payment.getAccountInvoicePaymentId().equals("001"))//cash
+				if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("001"))//cash
 				{
 					if (payment.getChange()!=null && payment.getChange().compareTo(BigDecimal.ZERO)>0)
 						paymentValue = paymentValue.subtract(payment.getChange());
 					
 					debitAccountForPayment = invoice.getPos().getCashAccount();
 				}
-				else if (payment.getAccountInvoicePaymentId().equals("002")) //direct credit
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("002")) //direct credit
 				{
 					//nothing to do
 				}
-				else if (payment.getAccountInvoicePaymentId().equals("003")) //credit card
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("003")) //credit card
 				{
 					debitAccountForPayment = invoice.getPos().getCreditCardAccount();
 				}
-				else if (payment.getAccountInvoicePaymentId().equals("004")) //check
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("004")) //check
 				{
 					debitAccountForPayment = invoice.getPos().getCheckAccount();
 				}
-				else if (payment.getAccountInvoicePaymentId().equals("005")) //discount voucher
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("005")) //discount voucher
 				{
 					debitAccountForPayment = PersonHelper.getDiscountVoucherAccount(account.getPerson());
 				}

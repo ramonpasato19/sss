@@ -34,7 +34,7 @@ for (Iterator it= modulesList.iterator(); it.hasNext();) {
 	if (!Is.emptyString(searchWord) && !normalizedLabel.contains(searchWord) && !normalizedDescription.contains(searchWord)) continue;
 	counter++;
 %>
-	<a href="<%=modules.getModuleURI(request, module)%>?init=true"> <%-- href with the URL in order right mouse button works to add in another tab --%>
+	<a href="<%=modules.getModuleURI(request, module)%>"> <%-- href with the URL in order right mouse button works to add in another tab --%>
 	<div id="<%=module.getName()%>_module" class="module-row <%=selected%>" onclick="$('#<%=module.getName()%>_loading').show()">	
 		<div class="module-name">
 			<%=label%>
