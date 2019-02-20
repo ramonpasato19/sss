@@ -1058,6 +1058,23 @@
 	</module>
 <!-- END TXTransferItem ######################################## -->
 
+<!-- BEGIN TXConversionItem ######################################## -->
+	<module name="RequestTXConversionItem">
+		<model name="Transaction" />
+		<controller name="RequestTXConversionItemController" />
+		<view name="RequestTXConversionItem" />
+		<tab name="TXConversionItem" />
+		<mode-controller name="DetailList" />
+	</module>
+	<module name="AuthorizeTXConversionItem">
+		<model name="Transaction" />
+		<controller name="AuthorizeTXConversionItemController" />
+		<view name="AuthorizeTXConversionItem" />
+		<tab name="TXConversionItem" />
+		<mode-controller name="DetailList" />
+	</module>
+<!-- END TXConversionItem ######################################## -->
+
 <!-- BEGIN Backup ######################################## -->
 	<module name="Backup">
 		<model name="Company" />

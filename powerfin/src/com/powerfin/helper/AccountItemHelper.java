@@ -24,18 +24,17 @@ public class AccountItemHelper {
 		
 		AccountItemBranch accountItemBranch = AccountItemHelper.findOrCreateAccountItemBranch(accountItem, branch);
 		
-		if (quantity.compareTo(BigDecimal.ZERO)>0)
+		if (quantity == null || quantity.compareTo(BigDecimal.ZERO)<0)
+			throw new InternalException("item_quantity_is_negative_or_null", accountItem.getCode());
+		
+		if (balance == null || balance.compareTo(BigDecimal.ZERO)<0)
+			throw new InternalException("item_balance_is_negative_or_null", accountItem.getCode());
+		
+		if (quantity.compareTo(BigDecimal.ZERO)>0 && balance.compareTo(BigDecimal.ZERO)>0)
+		{
 			accountItemBranch.setAverageCost(balance.divide(quantity, 6, RoundingMode.HALF_UP));
-		else if (quantity.compareTo(BigDecimal.ZERO) == 0)
-			accountItemBranch.setAverageCost(BigDecimal.ZERO);
-		else
-			throw new InternalException("item_quantity_is_negative", accountItem.getCode());
-		
-		if (balance.compareTo(BigDecimal.ZERO)<0)
-			throw new InternalException("item_balance_is_negative", accountItem.getCode());
-		
-		
-		XPersistence.getManager().persist(accountItemBranch);
+			XPersistence.getManager().persist(accountItemBranch);
+		}
 	}
 	
 	public static AccountItemBranch findOrCreateAccountItemBranch(AccountItem accountItem, Branch branch)
