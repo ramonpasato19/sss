@@ -564,6 +564,7 @@
 		<subcontroller controller="AccountingEvolution"/>
 		<subcontroller controller="EvolutionVariables"/>
 		<subcontroller controller="AccountingAnalysis"/>
+		<subcontroller controller="SalesReport"/>
 	</controller>
 	
 	<controller name="AccountingEvolution">
@@ -576,6 +577,18 @@
 			<set property="reportName" value="MONTHLY_EVOLUTION_BALANCE_ACCUMULATED"/>
 		</action>
 	</controller>
+	
+	<controller name="SalesReport">
+		<action name="printSalesMonthlyReport" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="MONTHLY_SALES"/>
+		</action>
+		<action name="printSalesDailyReport" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="DAILY_SALES"/>
+		</action>
+	</controller>
+	
 	
 	<controller name="AccountingAnalysis">
 		<action name="printVerticalAnalysisBalance" mode="detail"
@@ -1105,10 +1118,7 @@
 			image="save.gif"
 			by-default="if-possible">
 		</action>
-		<action name="printAccountInvoiceByDate" mode="detail"
-			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
-			<set property="type" value="sale"/>
-		</action>
+		<subcontroller controller="SalesInvoiceReport"/>
 		<action name="printAccountRetentionByDate" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
 			<set property="type" value="sale"/>
@@ -1117,6 +1127,8 @@
 			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceDispatchByDateAction" icon="file-pdf">
 			<set property="type" value="sale"/>
 		</action>
+		
+		
 		<action name="generatePdf" mode="list"
 			class="org.openxava.actions.GenerateReportAction"
 			icon="file-pdf"
@@ -1130,6 +1142,22 @@
 			<set property="type" value="xls"/>	
 		</action>
 	</controller>
+	
+	<controller name="SalesInvoiceReport">
+		<action name="printAccountInvoiceByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
+			<set property="type" value="sale"/>
+		</action>	
+		<action name="printAccountInvoiceItemProviderByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceItemProviderByDateAction" icon="file-excel">
+			<set property="type" value="sale"/>
+		</action>
+		<action name="printAccountInvoiceSalesByDate" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="DAILY_SALES"/>
+		</action>
+	</controller>
+	
 	
 	<controller name="InvoiceActiveReportController">
 		<action name="consult" 
