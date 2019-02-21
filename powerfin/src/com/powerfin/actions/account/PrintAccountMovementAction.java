@@ -15,10 +15,13 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 
 		Date fromDate = (Date)getView().getValue("fromDate");
 		Date toDate = (Date)getView().getValue("toDate");
+		Integer subaccount = (Integer)getView().getValue("subaccount");
 		String accountId = getView().getSubview("account").getValueString("accountId");
 		Map<String, String> mapCategories = (Map<String, String>) getView().getValue("category");
 		String categoryId = (String)mapCategories.get("categoryId");
-		
+		Map<String, Integer> mapBranches = (Map<String, Integer>) getView().getValue("branch");
+		Integer branchId = (Integer)mapBranches.get("branchId");
+
 		Calendar initialBalanceDate = Calendar.getInstance();
 		
 		if (fromDate==null)
@@ -27,8 +30,15 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		if (toDate==null)
 			toDate = CompanyHelper.getCurrentAccountingDate();
 
+		if (subaccount==null)
+			subaccount = 0;
+		
+		if (branchId==null)
+			branchId = 1;
+		
 		getView().setValue("fromDate",fromDate);
 		getView().setValue("toDate",toDate);
+		getView().setValue("subaccount",subaccount);
 		
 		initialBalanceDate.setTime(fromDate);
 		initialBalanceDate.add(Calendar.DAY_OF_MONTH, -1);
@@ -47,6 +57,8 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		parameters.put("INITIAL_BALANCE_DATE", initialBalanceDate.getTime());
+		parameters.put("BRANCH", branchId);
+		parameters.put("SUBACCOUNT", subaccount);
 		return parameters;
 	}
 

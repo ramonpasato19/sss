@@ -50,7 +50,7 @@ public class AccountItemBranch implements Serializable {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "account_id", nullable = false)
-	@ReferenceView("simple")
+	@ReferenceView("basic")
 	@NoCreate
 	@NoModify
 	@Required
