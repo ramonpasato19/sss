@@ -17,10 +17,17 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		Date toDate = (Date)getView().getValue("toDate");
 		Integer subaccount = (Integer)getView().getValue("subaccount");
 		String accountId = getView().getSubview("account").getValueString("accountId");
+		
 		Map<String, String> mapCategories = (Map<String, String>) getView().getValue("category");
 		String categoryId = (String)mapCategories.get("categoryId");
+		
 		Map<String, Integer> mapBranches = (Map<String, Integer>) getView().getValue("branch");
-		Integer branchId = (Integer)mapBranches.get("branchId");
+		Integer branchId = null;
+		
+		if(mapBranches!=null)
+		{
+			branchId = (Integer)mapBranches.get("branchId");
+		}
 
 		Calendar initialBalanceDate = Calendar.getInstance();
 		
@@ -36,9 +43,14 @@ public class PrintAccountMovementAction extends ReportBaseAction {
 		if (branchId==null)
 			branchId = 1;
 		
-		getView().setValue("fromDate",fromDate);
-		getView().setValue("toDate",toDate);
-		getView().setValue("subaccount",subaccount);
+		try
+		{
+			getView().setValue("fromDate",fromDate);
+			getView().setValue("toDate",toDate);
+			getView().setValue("subaccount",subaccount);
+		}catch (Exception e)
+		{		
+		}
 		
 		initialBalanceDate.setTime(fromDate);
 		initialBalanceDate.add(Calendar.DAY_OF_MONTH, -1);
