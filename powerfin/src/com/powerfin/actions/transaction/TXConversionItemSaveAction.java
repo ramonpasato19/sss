@@ -8,7 +8,7 @@ import com.powerfin.helper.AccountInvoiceHelper;
 import com.powerfin.model.Transaction;
 import com.powerfin.model.TransactionAccount;
 
-public class TXTransferItemSaveAction extends TXSaveAction {
+public class TXConversionItemSaveAction extends TXSaveAction {
 
 	public void extraValidations() throws Exception {}
 	

@@ -24,6 +24,8 @@ import com.powerfin.model.Tax;
 import com.powerfin.model.Transaction;
 import com.powerfin.model.TransactionAccount;
 import com.powerfin.model.Unity;
+import com.powerfin.model.types.Types;
+import com.powerfin.util.UtilApp;
 
 public class AccountInvoiceHelper {
 	
@@ -309,6 +311,44 @@ public class AccountInvoiceHelper {
 		}
 	}
 	
+	public static void postTransferItemSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			Account a = transaction.getDebitAccount();
+			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
+			AccountHelper.updateAccount(a);
+			for (TransactionAccount detail: transaction.getTransactionAccounts())
+				if (detail.getDebitOrCredit().equals(Types.DebitOrCredit.DEBIT))
+				{
+					if (detail.getAccount().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
+					{
+						AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccount().getAccountId());
+						AccountItemHelper.updateAverageCost(accountItem, detail.getBranch());
+					}
+				}
+		}
+	}
+	
+	public static void postConversionItemSaveAction(Transaction transaction) throws Exception
+	{
+		if (TransactionHelper.isFinancialSaved(transaction))
+		{
+			Account a = transaction.getDebitAccount();
+			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
+			AccountHelper.updateAccount(a);
+			for (TransactionAccount detail: transaction.getTransactionAccounts())
+				if (detail.getDebitOrCredit().equals(Types.DebitOrCredit.DEBIT))
+				{
+					if (detail.getAccount().getProduct().getProductType().getProductTypeId().equals(AccountItemHelper.ACCOUNT_ITEM_PRODUCT_TYPE))
+					{
+						AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccount().getAccountId());
+						AccountItemHelper.updateAverageCost(accountItem, detail.getBranch());
+					}
+				}
+		}
+	}
+	
 	public static boolean postInvoicePurchasePaymentSaveAction(Transaction transaction) throws Exception
 	{
 		if (TransactionHelper.isFinancialSaved(transaction))
@@ -474,6 +514,11 @@ public class AccountInvoiceHelper {
 		{
 			Account a = transaction.getDebitAccount();
 			a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_ACTIVE));
+			
+			BigDecimal balance = BalanceHelper.getBalance(a.getAccountId(), 0, "BALANCE", a.getBranch().getBranchId(), UtilApp.DEFAULT_EXPIRY_DATE);
+			if (balance.compareTo(BigDecimal.ZERO)==0)
+				a.setAccountStatus(AccountStatusHelper.getAccountStatus(AccountInvoiceHelper.STATUS_INVOICE_CANCEL));
+			
 			AccountHelper.updateAccount(a);
 			AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, a.getAccountId());
 			

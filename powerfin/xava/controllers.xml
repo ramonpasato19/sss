@@ -2725,9 +2725,6 @@
 			keystroke="F3" >
 			<set property="resetAfter" value="false" />
 		</action>
-		<action name="printDocumentTransfer" mode="detail"
-			class="com.powerfin.actions.transaction.PrintDocumentTransfer" icon="file-pdf">
-		</action>
 	</controller>
 	<controller name="RequestTXTransferItemController">
 		<extends controller="RefreshTXController"/>
@@ -2742,7 +2739,33 @@
 		</action>
 	</controller>
 <!-- END TXTransferItem ######################################## -->
-    
+
+<!-- BEGIN TXConversionItem ######################################## -->
+	<controller name="AuthorizeTXConversionItemController">
+		<extends controller="RefreshTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXConversionItemSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3" >
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+	<controller name="RequestTXConversionItemController">
+		<extends controller="RefreshTXController"/>
+		<extends controller="NewTXController"/>
+		<action name="save" 
+			mode="detail" 
+			class="com.powerfin.actions.transaction.TXConversionItemSaveAction"
+			icon="content-save" 
+			by-default="if-possible"
+			keystroke="F3">
+			<set property="resetAfter" value="false" />
+		</action>
+	</controller>
+<!-- END TXConversionItem ######################################## -->
+
     <controller name="BackupController">
 		<action name="backup" mode="detail"
 			class="com.powerfin.actions.company.BackupAction" icon="content-save" image="save.gif" >
