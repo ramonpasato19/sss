@@ -15,6 +15,7 @@ import com.powerfin.helper.*;
 		+ "purchaseRetentions{purchaseRetentions};"),
 @View(name="SaleInvoiceReport", members="fromDate;"
 		+ "toDate;"
+		+ "branch;"
 		+ "saleInvoices{saleInvoices}; "
 		+ "saleRetentions{saleRetentions};"),
 })
@@ -76,6 +77,15 @@ public class ViewAccountInvoiceReport {
 			"and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> saleRetentions;
 	
+	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "branch_id", nullable = false)
+	@NoCreate
+	@NoModify
+	@DescriptionsList
+	@Required
+	private Branch branch;
+	
 	public ViewAccountInvoiceReport() {
 		
 	}
@@ -133,5 +143,15 @@ public class ViewAccountInvoiceReport {
 	public void setSaleRetentions(List<AccountRetention> saleRetentions) {
 		this.saleRetentions = saleRetentions;
 	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
+	
 	
 }
