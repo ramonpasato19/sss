@@ -47,7 +47,7 @@ import com.powerfin.util.UtilApp;
 		),
 @View(name="InvoicePurchase", members = "accountDetail;"
 		+ "tax;"
-		+ "unitPrice;"
+		+ "unitPrice,remark;"
 		+ "quantity;"
 		+ "discount;"
 		+ "taxSpecialConsumption;"
