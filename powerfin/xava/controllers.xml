@@ -1084,11 +1084,8 @@
 			image="save.gif"
 			by-default="if-possible">
 		</action>
-		<action name="printAccountInvoiceByDate" mode="detail"
-			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
-			<set property="type" value="purchase"/>
-		</action>
-		<action name="printAccountRetentionByDate" mode="detail"
+		<subcontroller controller="PurchasesInvoiceReport"/>
+	   	<action name="printAccountRetentionByDate" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrintAccountRetentionByDateAction" icon="file-pdf">
 			<set property="type" value="purchase"/>
 		</action>
@@ -1158,6 +1155,16 @@
 		</action>
 	</controller>
 	
+	<controller name="PurchasesInvoiceReport">
+		<action name="printAccountInvoiceByDatePurchaseProvider" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateProviderAction" icon="file-excel">
+			<set property="type" value="purchase"/>
+		</action>	
+		<action name="printAccountInvoiceByDatePurchaseProviderConsolidated" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateProviderConsolidatedAction" icon="file-excel">
+			<set property="type" value="purchase"/>
+		</action>
+	</controller>
 	
 	<controller name="InvoiceActiveReportController">
 		<action name="consult" 

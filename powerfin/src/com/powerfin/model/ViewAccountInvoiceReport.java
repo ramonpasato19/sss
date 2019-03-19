@@ -11,6 +11,7 @@ import com.powerfin.helper.*;
 @Views({
 @View(name="PurchaseInvoiceReport", members="fromDate;"
 		+ "toDate;"
+		+ "branch;"
 		+ "purchaseInvoices{purchaseInvoices}; "
 		+ "purchaseRetentions{purchaseRetentions};"),
 @View(name="SaleInvoiceReport", members="fromDate;"
