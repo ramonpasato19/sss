@@ -2,21 +2,27 @@ package com.powerfin.model;
 
 import java.util.Date;
 import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
+
+import org.openxava.annotations.DescriptionsList;
 import org.openxava.annotations.NoCreate;
 import org.openxava.annotations.NoModify;
 import org.openxava.annotations.ReferenceView;
+import org.openxava.annotations.Required;
 import org.openxava.annotations.SearchAction;
 import org.openxava.annotations.View;
 import org.openxava.annotations.Views;
 
 @Views({
 	@View(name="ViewInventoryControl",
-			members=
-				"all;"+
-				"account;" +
-				"fromDate, toDate;"
+			members="all;"
+				+ "account;"								
+				+ "fromDate;"
+				+ "toDate;" 
+				+ "branch;"				
 			)
 })
 public class ViewInventoryControl {
@@ -37,6 +43,18 @@ public class ViewInventoryControl {
 
 	@Column
 	private Date toDate;
+	
+	@Column
+	private Date cutOffDate;
+	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "branch_id", nullable = false)
+	@NoCreate
+	@NoModify
+	@DescriptionsList
+	@Required
+	private Branch branch;
+	
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -61,5 +79,13 @@ public class ViewInventoryControl {
 	public void setAll(Boolean all) {
 		this.all = all;
 	}
+	public Branch getBranch() {
+		return branch;
+	}
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
+	
 
 }
