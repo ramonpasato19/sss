@@ -1155,7 +1155,11 @@
 		</action>
 	</controller>
 	
-	<controller name="PurchasesInvoiceReport">
+	<controller name="PurchasesInvoiceReport">	
+		<action name="printAccountInvoiceByDate" mode="detail"
+			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateAction" icon="file-pdf">
+			<set property="type" value="purchase"/>
+		</action>		
 		<action name="printAccountInvoiceByDatePurchaseProvider" mode="detail"
 			class="com.powerfin.actions.accountInvoice.PrintAccountInvoiceByDateProviderAction" icon="file-excel">
 			<set property="type" value="purchase"/>
@@ -2561,9 +2565,9 @@
 		<action name="printInventoryTotalItems" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryTotalItems" icon="file-pdf" image="save.gif" by-default="if-possible" >
 		</action>
-		<action name="printInventoryMovements" mode="detail"
-			class="com.powerfin.actions.inventory.PrintInventoryAccountItemAction" icon="file-pdf">
-		</action>
+		<subcontroller controller="InventoryControlSubController"/>
+		
+		
 		<action name="printInventoryProfitMargin" mode="detail"
 			class="com.powerfin.actions.inventory.PrintInventoryProfitMargin" icon="file-pdf">
 		</action>
@@ -2577,6 +2581,23 @@
 			class="com.powerfin.actions.inventory.PrintInvoiceForItemAction" icon="file-pdf">
 		</action>
 	</controller>
+	
+	
+	<controller name="InventoryControlSubController" >	
+		<action name="loadInventoryMovements" mode="detail"
+			class="com.powerfin.actions.inventory.LoadInventoryAccountItemAction" icon="content-save">
+		</action>	
+		<action name="printInventoryMovements" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryAccountItemAction" icon="file-excel">
+		</action>		
+		<action name="printInventoryToDate" mode="detail"
+			class="com.powerfin.actions.inventory.PrintInventoryBalancesAction" icon="file-excel">
+		</action>		
+		<action name="printTimeOutItems" mode="detail"
+			class="com.powerfin.actions.inventory.PrintExpiredItemsAction" icon="file-excel">
+		</action>
+	</controller>
+	
 	
 	<controller name="DownloadInvoicePrestashopController" >
 		<action name="downloadInvoice" mode="detail"

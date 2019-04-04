@@ -61,7 +61,6 @@ public class TransactionBatch extends AuditEntity implements Serializable {
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "accounting_date", length = 15, nullable = false)
-	@ReadOnly
 	private Date accountingDate;
 
 	@ManyToOne
@@ -149,7 +148,16 @@ public class TransactionBatch extends AuditEntity implements Serializable {
 	@PreCreate
 	public void onCreate()
 	{
-		setAccountingDate(CompanyHelper.getCurrentAccountingDate());
+		if (getAccountingDate() == null)
+			setAccountingDate(CompanyHelper.getCurrentAccountingDate());
 		setTransactionBatchStatus(TransactionBatchHelper.getTransactionBacthRequestStatus());
+	}
+	
+	@PreUpdate
+	public void onUpdate()
+	{
+		if (getAccountingDate() == null)
+			setAccountingDate(CompanyHelper.getCurrentAccountingDate());
+
 	}
 }
