@@ -37,7 +37,7 @@ public class ViewAccountInvoiceReport {
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_PURCHASE_PRODUCT_TYPE_ID+"' "+
-			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
+			"and cast(${issueDate} AS date) between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("PurchaseInvoiceReport")
 	private List<AccountInvoice> purchaseInvoices;
 
@@ -50,7 +50,7 @@ public class ViewAccountInvoiceReport {
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_PURCHASE_PRODUCT_TYPE_ID+"' "+
-			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
+			"and cast(${issueDate} AS date) between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> purchaseRetentions;
 	
 	@OneToMany

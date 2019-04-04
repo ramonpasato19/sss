@@ -55,6 +55,13 @@ public class UtilApp {
 		return formatDate.parse(dateString);
 	}
 	
+	public static Date stringToDate(String dateString, String format) throws ParseException {
+		if (dateString == null)
+			throw new InternalException("string_to_convert_is_null");
+		SimpleDateFormat formatDate = new SimpleDateFormat(format, Locale.getDefault());
+		return formatDate.parse(dateString);
+	}
+	
 	static {
 		try {
 			DEFAULT_EXPIRY_DATE = formatDate.parse("2999-12-31");

@@ -367,6 +367,7 @@ public class AccountInvoiceHelper {
 	{
 		return getTransactionAccountsForInvoiceSale(transaction, 1);
 	}
+	
 	public static List<TransactionAccount> getTransactionAccountsForInvoiceSale(Transaction transaction, Integer accountingCostOfSale) throws Exception
 	{
 		Category costCategory = CategoryHelper.getCostCategory();
@@ -504,6 +505,73 @@ public class AccountInvoiceHelper {
 					transactionAccounts.add(ta);
 				}
 			}
+		}
+		return transactionAccounts;
+	}
+	
+	public static List<TransactionAccount> getTAForInvoiceSalePayment(Transaction transaction) throws Exception
+	{
+
+		Account account = transaction.getCreditAccount();
+		Account debitAccountForPayment = null;
+		AccountInvoice invoice = XPersistence.getManager().find(AccountInvoice.class, account.getAccountId());
+		BigDecimal paymentValue = BigDecimal.ZERO;
+		BigDecimal totalPaymentValue = BigDecimal.ZERO;
+		BigDecimal balance = BigDecimal.ZERO;
+		List<TransactionAccount> transactionAccounts = new ArrayList<TransactionAccount>();
+		TransactionAccount ta = null;
+
+		balance = BalanceHelper.getBalance(account);
+		
+		//Payments
+		if (invoice.getAccountInvoicePayments() != null && invoice.getAccountInvoicePayments().size()>0)
+		{
+			for (AccountInvoicePayment payment: invoice.getAccountInvoicePayments())
+			{
+				paymentValue = payment.getValue();
+				
+				//TODO Esta quemado los metodos de pago. hay que ver una forma que sea parametrizado
+				if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("001"))//cash
+				{
+					if (payment.getChange()!=null && payment.getChange().compareTo(BigDecimal.ZERO)>0)
+						paymentValue = paymentValue.subtract(payment.getChange());
+					
+					debitAccountForPayment = invoice.getPos().getCashAccount();
+				}
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("002")) //direct credit
+				{
+					//nothing to do
+				}
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("003")) //credit card
+				{
+					debitAccountForPayment = invoice.getPos().getCreditCardAccount();
+				}
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("004")) //check
+				{
+					debitAccountForPayment = invoice.getPos().getCheckAccount();
+				}
+				else if (payment.getInvoicePaymentMethod().getInvoicePaymentMethodId().equals("005")) //discount voucher
+				{
+					debitAccountForPayment = PersonHelper.getDiscountVoucherAccount(account.getPerson());
+				}
+				
+				if (debitAccountForPayment!=null)
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, paymentValue, transaction);
+					ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+					transactionAccounts.add(ta);
+					
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(debitAccountForPayment, paymentValue, transaction);
+					ta.setRemark(XavaResources.getString("invoice_collection_detail", account.getCode(), payment.getDetail()));
+					transactionAccounts.add(ta);
+				}
+				
+				totalPaymentValue = totalPaymentValue.add(paymentValue);
+			}
+			
+			if (totalPaymentValue.compareTo(balance)>0)
+				throw new OperativeException("payment_value_is_greater_than_balance", totalPaymentValue, balance);
+			
 		}
 		return transactionAccounts;
 	}

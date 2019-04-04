@@ -332,7 +332,7 @@ public class AccountLoan extends AuditEntity implements Serializable {
 	@Max(31)
 	private Integer paymentDay;
 
-	@ReadOnly
+	@ReadOnly(forViews="ConsultPurchasePortfolio, ConsultSalePortfolio, ConsultAccountLoan, ConsultOriginationPortfolio, PrintDocumentsAccountLoan, RequestTXAccountLoan, AuthorizeTXAccountLoan")
 	private Integer period;
 
 	@Column(name="quotas_number")

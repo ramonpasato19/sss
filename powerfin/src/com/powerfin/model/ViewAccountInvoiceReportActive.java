@@ -52,7 +52,7 @@ public class ViewAccountInvoiceReportActive {
 			@ListAction("PurchaseInvoiceReportController.generateExcel") })
 	@Condition(value = "${account.product.productId} =  ${this.typeInvoiceSelected} "
 			+ "and ${account.accountStatus.accountStatusId} in('002','005') "
-			+ "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
+			+ "and cast(${issueDate} AS date) between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("InvoiceActiveReport")
 	private List<AccountInvoice> purchaseInvoices;
 

@@ -30,7 +30,7 @@ public class ViewAccountInvoiceReportPerson {
 	@Condition(value = 
 			  "${account.person.personId} = ${this.person.personId} and " +
 			   "${account.accountStatus.accountStatusId} in('002','003','005') " +
-			 "and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
+			 "and cast(${issueDate} as date) between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("ConsultInvoiceActive")
 	private List<AccountInvoice> invoices;
 	
@@ -43,7 +43,7 @@ public class ViewAccountInvoiceReportPerson {
 	})
 	@Condition(value=
 			"${account.person.personId} = ${this.person.personId} "+
-			"and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
+			"and cast(${accountInvoice.issueDate} as date) between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> retentions;
 	
 	public Person getPerson() {
