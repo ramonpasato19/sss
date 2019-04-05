@@ -28,19 +28,19 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			toDate = CompanyHelper.getCurrentAccountingDate();			
 		}
 		
-		List<Branch> branchs = XPersistence.getManager().createQuery("select distinct b from Branch b").getResultList();
+		List<Branch> branchs = XPersistence.getManager().createQuery("select distinct b from Branch b order by branchId").getResultList();
 		if (branchs!=null && !branchs.isEmpty()) {
 			XPersistence.getManager().createQuery("DELETE FROM KardexAccountTemp k").executeUpdate();
 			XPersistence.commit();
 			System.out.println("ELEMENTOS BORRADOS");
 			Query queryItems = XPersistence.getManager().createNativeQuery(getNativeQueryItems(XPersistence.getDefaultSchema()));
-			List<String> accountItems = queryItems.getResultList();
+			List<String> accountItems =queryItems.getResultList();
 			int index = 1; 
 			for (String currentAccoutItem:accountItems) {
-				for (Branch b:branchs) {
+				for (Branch b:branchs) {										
 					insertValuesInKardex(fromDate, toDate, currentAccoutItem, b.getName(), b.getBranchId());					
 				}				
-				System.out.println("INSERTANDO MOVIMIENTOS PROGRESO "+index +" de "+accountItems.size());								
+				System.out.println("INSERTANDO MOVIMIENTOS EN "+currentAccoutItem+" PROGRESO "+index +" de "+accountItems.size());								
 				index++;
 			}		
 			XPersistence.commit();			
@@ -97,10 +97,13 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 						k.setAverageCost(k.getAccumulateTotalCost().divide(k.getAccumulateTotalCost(),5, RoundingMode.HALF_UP));						
 					}
 				}
+				if (index>0) {
+					k.setAccumulateBalance(kardexList.get(index-1).getAccumulateBalance().add(k.getBalance()));					
+				}
 			}
 			k.setRegistrationDate(new Date());
 			kardexList.add(k);
-			index++;
+			index++;			
 			XPersistence.getManager().persist(k);
 			XPersistence.commit();
 			
