@@ -18,6 +18,8 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.DecimalMin;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+import org.hibernate.annotations.Type;
 import org.openxava.annotations.NoCreate;
 import org.openxava.annotations.NoModify;
 import org.openxava.annotations.PreCreate;
@@ -29,6 +31,7 @@ import org.openxava.annotations.View;
 import org.openxava.annotations.Views;
 
 import com.powerfin.exception.OperativeException;
+import com.powerfin.model.types.Types.DebitOrCredit;
 import com.powerfin.util.UtilApp;
 
 /**
@@ -162,6 +165,15 @@ public class AccountInvoiceDetail {
 	@JoinColumn(name="unity_id")
 	private Unity unity;
 
+	@Type(type="org.openxava.types.EnumStringType",
+		   parameters={
+			@Parameter(name="strings", value="D,C"), // These are the values stored on the database
+			@Parameter(name="enumType", value="com.powerfin.model.types.Types$DebitOrCredit")
+		   }
+	 )
+	@Column(name="debit_or_credit", nullable=true, length=1)
+	private DebitOrCredit debitOrCredit;
+	
 	public String getAccountInvoiceDetailId() {
 		return accountInvoiceDetailId;
 	}
@@ -438,6 +450,14 @@ public class AccountInvoiceDetail {
 
 	public void setDueDate(Date dueDate) {
 		this.dueDate = dueDate;
+	}
+
+	public DebitOrCredit getDebitOrCredit() {
+		return debitOrCredit;
+	}
+
+	public void setDebitOrCredit(DebitOrCredit debitOrCredit) {
+		this.debitOrCredit = debitOrCredit;
 	}
 	
 }
