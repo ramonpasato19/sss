@@ -15,6 +15,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.DecimalMin;
 
 import org.hibernate.annotations.GenericGenerator;
@@ -22,14 +23,18 @@ import org.hibernate.annotations.Parameter;
 import org.hibernate.annotations.Type;
 import org.openxava.annotations.NoCreate;
 import org.openxava.annotations.NoModify;
+import org.openxava.annotations.OnChange;
 import org.openxava.annotations.PreCreate;
+import org.openxava.annotations.ReadOnly;
 import org.openxava.annotations.ReferenceView;
 import org.openxava.annotations.Required;
 import org.openxava.annotations.SearchAction;
 import org.openxava.annotations.SearchActions;
 import org.openxava.annotations.View;
 import org.openxava.annotations.Views;
+import org.openxava.jpa.XPersistence;
 
+import com.powerfin.actions.accountInvoice.OnModifyItemPurchaseOrder;
 import com.powerfin.exception.OperativeException;
 import com.powerfin.model.types.Types.DebitOrCredit;
 import com.powerfin.util.UtilApp;
@@ -49,6 +54,8 @@ import com.powerfin.util.UtilApp;
 		+ "dueDate"
 		),
 @View(name="InvoicePurchase", members = "accountDetail;"
+		+ "unitMeasure;"
+		+ "lastUnitPrice;"
 		+ "tax;"
 		+ "unitPrice,remark;"
 		+ "quantity;"
@@ -92,6 +99,7 @@ public class AccountInvoiceDetail {
 		@SearchAction(forViews="InvoicePurchase", value="SearchAccountDetail.SearchForInvoicePurchase"),
 		@SearchAction(forViews="InvoiceSale", value="SearchAccountDetail.SearchForInvoiceSale")
 	})
+	@OnChange(forViews = "InvoicePurchase", value = OnModifyItemPurchaseOrder.class) 
 	private Account accountDetail;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -174,6 +182,15 @@ public class AccountInvoiceDetail {
 	@Column(name="debit_or_credit", nullable=true, length=1)
 	private DebitOrCredit debitOrCredit;
 	
+	@Transient
+	@ReadOnly
+	private String unitMeasure;
+
+	@Transient
+	@ReadOnly
+	@DecimalMin(value = "0.00")
+	private BigDecimal lastUnitPrice;
+
 	public String getAccountInvoiceDetailId() {
 		return accountInvoiceDetailId;
 	}
@@ -183,7 +200,31 @@ public class AccountInvoiceDetail {
 	}
 
 	public Account getAccountDetail() {
+		if (accountDetail != null) {
+			AccountItem ai = XPersistence.getManager().find(AccountItem.class, accountDetail.getAccountId());
+			this.unitMeasure = ai.getUnitMeasureBean().getName();
+		}
+		try {
+
+			if (accountDetail.getAccountId() != null) {
+				AccountInvoiceDetail aid = (AccountInvoiceDetail) XPersistence.getManager()
+						.createQuery("select  aid from AccountInvoice ai ,Account a, "
+								+ "AccountInvoiceDetail aid " + "WHERE  a.accountId = ai.accountId"
+								+ " AND  ai.accountId=aid.accountInvoice.accountId"
+								+ " AND  a.product.productId= '202'"
+								+ " AND  aid.accountDetail.accountId =:accountDetail" + " ORDER by ai.issueDate desc ")
+						.setMaxResults(1).setParameter("accountDetail", accountDetail.getAccountId()).getSingleResult();
+				this.lastUnitPrice = aid.getUnitPrice();
+			}
+
+		} catch (Exception e) {
+			if (lastUnitPrice == null) {
+				this.lastUnitPrice = new BigDecimal("0.00");
+			}
+		}
+
 		return accountDetail;
+
 	}
 
 	public void setAccountDetail(Account accountDetail) {
@@ -300,6 +341,23 @@ public class AccountInvoiceDetail {
 
 	public void setUnity(Unity unity) {
 		this.unity = unity;
+	}
+
+	public String getUnitMeasure() {
+		return unitMeasure;
+	}
+
+	public void setUnitMeasure(String unitMeasure) {
+		this.unitMeasure = unitMeasure;
+	}
+
+
+	public BigDecimal getLastUnitPrice() {
+		return lastUnitPrice;
+	}
+
+	public void setLastUnitPrice(BigDecimal lastUnitPrice) {
+		this.lastUnitPrice = lastUnitPrice;
 	}
 
 	@PreCreate
