@@ -62,7 +62,7 @@ public class ViewAccountInvoiceReport {
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.INVOICE_SALE_PRODUCT_TYPE_ID+"'"+
-			"and ${issueDate} between ${this.fromDate} and ${this.toDate} ")
+			"and cast(${issueDate} AS date) between ${this.fromDate} and ${this.toDate} ")
 	@CollectionView("InvoiceSale")
 	private List<AccountInvoice> saleInvoices;
 	
@@ -75,7 +75,7 @@ public class ViewAccountInvoiceReport {
 	})
 	//@OrderBy("financial.accountingDate, financial.registrationDate, movementId")
 	@Condition(value="${account.product.productType.productTypeId} ='"+AccountInvoiceHelper.RETENTION_SALE_PRODUCT_TYPE_ID+"' "+
-			"and ${accountInvoice.issueDate} between ${this.fromDate} and ${this.toDate} ")
+			"and cast(${accountInvoice.issueDate} AS date) between ${this.fromDate} and ${this.toDate} ")
 	private List<AccountRetention> saleRetentions;
 	
 	
