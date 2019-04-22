@@ -136,7 +136,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 	
 	/**
 	 * Consulta que permite recuperar los datos para 
-	 * ingresar en la tabal temporal de KARDEX
+	 * ingresar en la tabla temporal de KARDEX
 	 * @return
 	 */
 	private String getNaviteQueryKardex(String schema) {
@@ -249,7 +249,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("        UNION  ");
 		sql.append("        SELECT  ");
 		sql.append("        	TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID, "); 
-		sql.append("        	TA.REGISTRATION_DATE AS ISSUE_DATE,	 ");
+		sql.append("        	T.ACCOUNTING_DATE AS ISSUE_DATE,	 ");
 		sql.append("        	T.REMARK,  ");
 		sql.append("        	0 AS UNIT_COST, ");
 		sql.append("        	TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID, "); 
@@ -267,12 +267,12 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
 		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID "); 
 		sql.append("	        AND TA.DEBIT_OR_CREDIT ='D' ");
-		sql.append("	        AND TO_DATE(TO_CHAR(TA.REGISTRATION_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME)  ");
 		sql.append("        UNION  ");
 		sql.append("        SELECT  ");
 		sql.append("        	TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID, "); 
-		sql.append("        	TA.REGISTRATION_DATE AS ISSUE_DATE,  ");
+		sql.append("        	T.ACCOUNTING_DATE AS ISSUE_DATE,  ");
 		sql.append("        	T.REMARK, ");
 		sql.append("        	0 AS UNIT_COST,  ");       
 		sql.append("	        TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
@@ -290,12 +290,12 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
 		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
 		sql.append("	        AND TA.DEBIT_OR_CREDIT ='C' ");
-		sql.append("	        AND TO_DATE(TO_CHAR(TA.REGISTRATION_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME)  ");
 		sql.append("        UNION  ");
 		sql.append("		SELECT  ");
 		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
-		sql.append("	        TA.REGISTRATION_DATE AS ISSUE_DATE, ");
+		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE, ");
 		sql.append("	        T.REMARK,  ");
 		sql.append("	        0 AS UNIT_COST, ");
 		sql.append("        	TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
@@ -304,21 +304,21 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("        	TA.QUANTITY AS BALANCE, ");
 		sql.append("	        TA.BRANCH_ID AS BRANCH_ID  ");
 		sql.append("		FROM  ");
-		sql.append("		        "+schema+".ACCOUNT A, ");
-		sql.append("		        "+schema+".TRANSACTION T, ");
-		sql.append("		        "+schema+".TRANSACTION_ACCOUNT TA ");
+		sql.append("		    "+schema+".ACCOUNT A, ");
+		sql.append("		    "+schema+".TRANSACTION T, ");
+		sql.append("		    "+schema+".TRANSACTION_ACCOUNT TA ");
 		sql.append("		WHERE A.PRODUCT_ID IN ( '1060') ");
 		sql.append("	        AND T.TRANSACTION_ID =A.ACCOUNT_ID ");
 		sql.append("	        AND TA.TRANSACTION_ID = T.TRANSACTION_ID ");
 		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
 		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
 		sql.append("	        AND TA.DEBIT_OR_CREDIT ='D' ");
-		sql.append("	        AND TO_DATE(TO_CHAR(TA.REGISTRATION_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME)  ");
 		sql.append("        UNION  ");
 		sql.append("		SELECT  ");
 		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
-		sql.append("	        TA.REGISTRATION_DATE AS ISSUE_DATE,  ");
+		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE,  ");
 		sql.append("	        T.REMARK, ");
 		sql.append("	        0 AS UNIT_COST, ");
 		sql.append("	        TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
@@ -336,8 +336,54 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
 		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
 		sql.append("	        AND TA.DEBIT_OR_CREDIT ='C' ");
-		sql.append("	        AND TO_DATE(TO_CHAR(TA.REGISTRATION_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
+		sql.append("        UNION  ");		
+		sql.append("		SELECT  ");
+		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
+		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE,  ");
+		sql.append("	        T.REMARK, ");
+		sql.append("	        0 AS UNIT_COST, ");
+		sql.append("	        TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
+		sql.append("	        TA.QUANTITY AS INCOME,  ");
+		sql.append("	        0 AS EXPENSES ,  ");
+		sql.append("	        TA.QUANTITY AS BALANCE,  ");
+		sql.append("	        TA.BRANCH_ID AS BRANCH_ID  ");
+		sql.append("		FROM  ");
+		sql.append("	        "+schema+".ACCOUNT A, ");
+		sql.append("	        "+schema+".TRANSACTION T, ");
+		sql.append("	        "+schema+".TRANSACTION_ACCOUNT TA ");
+		sql.append("		WHERE A.PRODUCT_ID IN ( '1064') ");
+		sql.append("	        AND T.TRANSACTION_ID =A.ACCOUNT_ID ");
+		sql.append("	        AND TA.TRANSACTION_ID = T.TRANSACTION_ID ");
+		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
+		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
+		sql.append("	        AND TA.DEBIT_OR_CREDIT ='D' ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
+		sql.append("        UNION  ");
+		sql.append("		SELECT  ");
+		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
+		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE, ");
+		sql.append("	        T.REMARK,  ");
+		sql.append("	        0 AS UNIT_COST, ");
+		sql.append("        	TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
+		sql.append("        	0 AS INCOME,  ");
+		sql.append("        	TA.QUANTITY AS EXPENSES ,  ");
+		sql.append("        	0-TA.QUANTITY AS BALANCE, ");
+		sql.append("	        TA.BRANCH_ID AS BRANCH_ID  ");
+		sql.append("		FROM  ");
+		sql.append("		    "+schema+".ACCOUNT A, ");
+		sql.append("		    "+schema+".TRANSACTION T, ");
+		sql.append("		    "+schema+".TRANSACTION_ACCOUNT TA ");
+		sql.append("		WHERE A.PRODUCT_ID IN ( '1062') ");
+		sql.append("	        AND T.TRANSACTION_ID =A.ACCOUNT_ID ");
+		sql.append("	        AND TA.TRANSACTION_ID = T.TRANSACTION_ID ");
+		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
+		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
+		sql.append("	        AND TA.DEBIT_OR_CREDIT ='C' ");
+		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME)  ");
 		sql.append("	)X  ");
 		sql.append("	GROUP BY 1,2,3,4,5,6,7,8,9 ");
 		sql.append("ORDER BY X.ISSUE_DATE, X.ACCOUNT_ID ");

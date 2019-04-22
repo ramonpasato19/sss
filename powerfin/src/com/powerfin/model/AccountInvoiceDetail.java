@@ -201,18 +201,21 @@ public class AccountInvoiceDetail {
 
 	public Account getAccountDetail() {
 		if (accountDetail != null) {
-			AccountItem ai = XPersistence.getManager().find(AccountItem.class, accountDetail.getAccountId());
-			this.unitMeasure = ai.getUnitMeasureBean().getName();
+			try {
+				AccountItem ai = XPersistence.getManager().find(AccountItem.class, accountDetail.getAccountId());				
+				this.unitMeasure = ai.getUnitMeasureBean().getName();
+			} catch (Exception e) {
+				this.unitMeasure = null;
+			}
 		}
 		try {
-
 			if (accountDetail.getAccountId() != null) {
 				AccountInvoiceDetail aid = (AccountInvoiceDetail) XPersistence.getManager()
 						.createQuery("select  aid from AccountInvoice ai ,Account a, "
-								+ "AccountInvoiceDetail aid " + "WHERE  a.accountId = ai.accountId"
+								+ "AccountInvoiceDetail aid  WHERE  a.accountId = ai.accountId"
 								+ " AND  ai.accountId=aid.accountInvoice.accountId"
-								+ " AND  a.product.productId= '202'"
-								+ " AND  aid.accountDetail.accountId =:accountDetail" + " ORDER by ai.issueDate desc ")
+								+ " AND  a.product.productId = '202'"
+								+ " AND  aid.accountDetail.accountId =:accountDetail ORDER by ai.issueDate desc ")
 						.setMaxResults(1).setParameter("accountDetail", accountDetail.getAccountId()).getSingleResult();
 				this.lastUnitPrice = aid.getUnitPrice();
 			}

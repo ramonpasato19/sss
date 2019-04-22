@@ -33,8 +33,6 @@ import com.powerfin.model.types.*;
 			+ "unitMeasureBean;"
 			+ "inventoried; "
 			+ "brandId;"
-			+ "minimalQuantity;"
-			+ "maximumQuantity;"
 			+ "}"
 			+ "prices{"
 			+ "cost; price; vatTax; retailPrice;"
