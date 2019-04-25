@@ -17,9 +17,13 @@ public class FinancialHelper {
 	public final static String DEFAULT_FIANCIAL_STATUS = "N";
 	public final static String REVERSE_FIANCIAL_STATUS = "R";
 	
+	public static Date initDate;
+	public static Date partialDate;
+	
 	@SuppressWarnings("unchecked")
 	public static void saveFinancial(Transaction t) throws Exception {
-		System.out.println("Begin Save Financial -------------------------");
+		initDate = new Date();
+		System.out.println("Begin Save Financial ------------------------- "+UtilApp.dateToString(initDate, "yyyy-MM-dd HH:mm:ss"));
 		System.out.println("Transaction: "+t.getTransactionId());
 		int line = 0;
 		Financial f = new Financial();
@@ -93,6 +97,7 @@ public class FinancialHelper {
 				
 				if (m.getValue().add(m.getOfficialValue()).compareTo(BigDecimal.ZERO)!=0 || m.getQuantity().compareTo(BigDecimal.ZERO)!=0)
 				{
+					m.setTransactionAccount(ta);
 					movements.add(m);
 					addFinancialCategory(financialCategories, m, ta.getUpdateBalance(), ta.getOfficialValue(), bookAccount.getAllowCurrencyAdjustment(), ta.getDueDate());
 				}
@@ -106,21 +111,153 @@ public class FinancialHelper {
 			throw new OperativeException("unable_to_process_financial_without_movements", t.getVoucher());
 		
 		validateAccountingEquation(movements);
+		
 		XPersistence.getManager().persist(f);
-		System.out.println("Financial: "+f.getFinancialId());
+		System.out.println("Persist Financial: "+f.getFinancialId());
 
 		for (Movement m : movements) {
 			m.setFinancial(f);
 			XPersistence.getManager().persist(m);
 			System.out.println(m.toString());
+			if (m.getTransactionAccount().getUpdateBalance().equals(YesNoIntegerType.YES))
+				updateBalanceOld(m);
 		}
+		/*
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
-				updateBalance(financialCategory);
-
-		System.out.println("End Save Financial -------------------------");
+				updateBalanceOld(financialCategory);
+	*/
+		System.out.println("End Save Financial ------------------------- "+UtilApp.dateToString(new Date(), "yyyy-MM-dd HH:mm:ss")+", time: "+UtilApp.getSecondsCountBetweenDates(initDate, new Date())+"\n");
 	}
 
+	
+	private static void updateBalanceOld(Movement m)
+			throws Exception {
+
+		BigDecimal stock;
+		BigDecimal balance;
+		Date date = m.getAccountingDate();
+		boolean persistNewBalance = true;
+
+		Balance newBalance = new Balance();
+		newBalance.setAccount(m.getAccount());
+		newBalance.setAccountingDate(date);
+		newBalance.setFromDate(date);
+		newBalance.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
+		newBalance.setBookAccount(m.getBookAccount());
+		newBalance.setCategory(m.getCategory());
+		newBalance.setCurrency(m.getAccount().getCurrency());
+		newBalance.setSubaccount(m.getSubaccount());
+		newBalance.setBalance(m.getValue());
+		newBalance.setOfficialBalance(m.getOfficialValue());
+		newBalance.setDueDate(m.getTransactionAccount().getDueDate());
+		newBalance.setStock(m.getQuantity());
+		newBalance.setBranch(m.getBranch());
+		
+		if (m.getBookAccount().getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.YES))
+			newBalance.setOfficialBalance(BigDecimal.ZERO);
+		
+		Balance activeBalance = getActiveBalance(m);
+		
+		if (activeBalance != null )
+		{
+			if (activeBalance.getFromDate().compareTo(date) == 0)
+			{
+				activeBalance.setBalance(activeBalance.getBalance().add(m.getValue()));
+				activeBalance.setStock(activeBalance.getStock().add(m.getQuantity()!=null?m.getQuantity():BigDecimal.ZERO));
+				
+				if (m.getBookAccount().getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
+					activeBalance.setOfficialBalance(activeBalance.getOfficialBalance().add(m.getOfficialValue()));
+				else
+					activeBalance.setOfficialBalance(BigDecimal.ZERO);
+				
+				persistNewBalance = false;
+				
+			}
+			else if (activeBalance.getFromDate().compareTo(date) < 0)
+			{
+				newBalance.setDueDate(activeBalance.getDueDate());
+				newBalance.setBalance(newBalance.getBalance().add(activeBalance.getBalance()));
+				newBalance.setStock(newBalance.getStock().add(activeBalance.getStock()!=null?activeBalance.getStock():BigDecimal.ZERO));
+				
+				if (m.getBookAccount().getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
+					newBalance.setOfficialBalance(newBalance.getOfficialBalance().add(activeBalance.getOfficialBalance()));
+				else
+					newBalance.setOfficialBalance(BigDecimal.ZERO);
+				
+				Calendar oldToDate = Calendar.getInstance();
+				oldToDate.setTime(date);
+				oldToDate.add(Calendar.DAY_OF_YEAR, -1);
+				activeBalance.setToDate(oldToDate.getTime());
+				
+				XPersistence.getManager().merge(activeBalance);
+				XPersistence.getManager().flush();
+				
+				persistNewBalance = true;
+			}
+			else
+			{
+				throw new InternalException("exist_future_balances");
+			}
+		}
+		
+		if (persistNewBalance)
+		{
+			stock =  newBalance.getStock();
+			balance = newBalance.getBalance();
+		}
+		else
+		{
+			stock =  activeBalance.getStock();
+			balance = activeBalance.getBalance();
+		}
+		
+		//Expire balance
+		if (balance.compareTo(BigDecimal.ZERO)==0)
+		{
+			if (m.getCategory().getExpiresZeroBalance().equals(Types.YesNoIntegerType.YES))
+			{
+				if (persistNewBalance)
+						newBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
+				else
+						activeBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
+			}
+		}
+	
+		
+		//Validate NegativeBalance
+		if (!CategoryHelper.getAllowsNegativeBalance(m.getAccount(), m.getCategory()))
+		{
+			if (stock.compareTo(BigDecimal.ZERO)<0)
+				throw new OperativeException("the_account_stock_can_not_be_negative",
+						m.getAccount().getAccountId(),
+						m.getSubaccount(),
+						m.getCategory().getCategoryId(),
+						newBalance.getStock());
+			
+			if (balance.compareTo(BigDecimal.ZERO)<0)
+				throw new OperativeException("the_account_balance_can_not_be_negative",
+						m.getAccount().getAccountId(),
+						m.getSubaccount(),
+						m.getCategory().getCategoryId(),
+						newBalance.getBalance());
+		}
+
+		if (persistNewBalance)
+		{
+			XPersistence.getManager().persist(newBalance);
+			System.out.println("---Persist New "+newBalance.toString());
+		}
+		else
+		{
+			XPersistence.getManager().merge(activeBalance);
+			System.out.println("---Update Active "+activeBalance.toString());
+		}
+			
+		
+	}
+	
+	@SuppressWarnings("unused")
 	private static void updateBalance(FinancialCategoryDTO financialCategory)
 			throws Exception {
 
@@ -317,8 +454,9 @@ public class FinancialHelper {
 				 .setParameter("subaccount", financialCategory.getSubaccount())
 				 .setParameter("category", financialCategory.getCategory().getCategoryId())
 				 .setParameter("branch", financialCategory.getBranch().getBranchId())
+				 .setMaxResults(1)
 				 .getResultList();
-		
+
 		if (acumulatedMovements != null && !acumulatedMovements.isEmpty()) {
 			
 			Object[] acumulatedValues = (Object[])acumulatedMovements.get(0);
@@ -338,6 +476,32 @@ public class FinancialHelper {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private static Balance getActiveBalance(
+			Movement m) throws Exception {
+
+		List<Balance> balances = XPersistence
+				.getManager()
+				.createQuery(
+						"SELECT o FROM Balance o "
+								+ "WHERE :date between fromDate AND toDate "
+								+ "AND o.account = :account "
+								+ "AND o.subaccount = :subaccount "
+								+ "AND o.category = :category "
+								+ "AND o.branch = :branch ")
+				.setParameter("date", m.getAccountingDate())
+				.setParameter("account", m.getAccount())
+				.setParameter("subaccount", m.getSubaccount())
+				.setParameter("category", m.getCategory())
+				.setParameter("branch", m.getBranch())
+				.getResultList();
+		if (balances != null && !balances.isEmpty() && balances.size() > 0 && ((Balance) balances.get(0)).getBalanceId() != null) {
+			return (Balance) balances.get(0);
+		} else {
+			return null;
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	private static Balance getOldBalanceOnDate(
 			FinancialCategoryDTO financialCategory, Date date) throws Exception {

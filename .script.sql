@@ -1,1 +1,1 @@
-alter table account_invoice_detail add COLUMN debit_or_credit CHARACTER VARYING(1);
+ALTER TABLE account_invoice_detail ALTER COLUMN final_amount TYPE NUMERIC(15,6);

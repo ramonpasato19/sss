@@ -769,7 +769,7 @@ public class AccountInvoice extends AuditEntity implements Serializable {
 	}
 	
 	public BigDecimal getCalculateTotal() throws Exception {
-		return getSubtotal().add(getCalculateTaxes());
+		return getSubtotal().add(getCalculateTaxes()).setScale(2, RoundingMode.HALF_UP);
 	}
 	
 	public BigDecimal getBalance() throws Exception {

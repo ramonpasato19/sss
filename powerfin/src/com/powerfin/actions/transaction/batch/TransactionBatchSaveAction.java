@@ -893,9 +893,11 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		//InvoiceTransaction
 		transaction = JPAHelper.getSingleResult(XPersistence.getManager()
 				.createQuery("SELECT t FROM Transaction t "
-						+ "WHERE t.creditAccount = :account "
+						+ "WHERE t.creditAccount.accountId = :accountId "
 						+ "AND t.transactionStatus.transactionStatusId = '001' "
-						+ "AND t.transactionModule.transactionModuleId = 'INVOICE_PURCHASE' ", Transaction.class));
+						+ "AND t.transactionModule.transactionModuleId = 'INVOICE_PURCHASE' ", Transaction.class)
+				.setParameter("accountId", account.getAccountId())
+				);
 		
 		if (transaction == null)
 			throw new OperativeException("transaction_not_found", account.getAccountId());
@@ -982,7 +984,7 @@ public class TransactionBatchSaveAction extends ViewBaseAction {
 		
 		Query query = XPersistence.getManager().createQuery("SELECT o FROM Account o "
 				+ "WHERE o.accountId = :accountId "
-				+ "AND o.accountStatus.accountStatusId = '001' ")
+				+ "AND o.accountStatus.accountStatusId in ('002','005') ")
 			.setParameter("accountId", accountId);
 
 		Account account = (Account) JPAHelper.getSingleResult(query);

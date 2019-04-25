@@ -99,6 +99,9 @@ public class Movement implements Serializable {
 	@DescriptionsList(descriptionProperties = "name")
 	private Branch branch;
 	
+	@Transient
+	private TransactionAccount transactionAccount;
+	
 	public Movement() {
 	}
 
@@ -241,6 +244,14 @@ public class Movement implements Serializable {
 
 	public void setBranch(Branch branch) {
 		this.branch = branch;
+	}
+
+	public TransactionAccount getTransactionAccount() {
+		return transactionAccount;
+	}
+
+	public void setTransactionAccount(TransactionAccount transactionAccount) {
+		this.transactionAccount = transactionAccount;
 	}
 
 	public String toString()
