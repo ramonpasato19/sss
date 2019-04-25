@@ -158,7 +158,7 @@ public class AccountInvoiceDetail {
 	@Column(name = "tax_amount", nullable = false, precision=15, scale=6)
 	private BigDecimal taxAmount;
 	
-	@Column(name = "final_amount", nullable = false, precision=11, scale=2)
+	@Column(name = "final_amount", nullable = false, precision=15, scale=6)
 	private BigDecimal finalAmount;
 	
 	@ManyToOne
@@ -338,7 +338,7 @@ public class AccountInvoiceDetail {
 	{
 		taxAdjust = BigDecimal.ZERO;
 		taxPercentage = tax.getPercentage();
-		amount = calculateAmount().setScale(2, RoundingMode.HALF_UP);
+		amount = calculateAmount();
 		finalAmount = calculateFinalAmount();
 		taxAmount = finalAmount.subtract(amount);
 	}
@@ -413,18 +413,17 @@ public class AccountInvoiceDetail {
 	}
 	
 	public BigDecimal calculateFinalAmount() {
-		BigDecimal finalAmountCalc = calculateAmount().setScale(2, RoundingMode.HALF_UP);
-		BigDecimal aux = calculateAmountForTax().setScale(2, RoundingMode.HALF_UP);
+		BigDecimal finalAmountCalc = calculateAmount();
+		BigDecimal aux = calculateAmountForTax();
 		if(getTax()!=null)
 		{
 			if(getTax().getPercentage()!=null)
 			{
 				finalAmountCalc = finalAmountCalc.add(aux.multiply(tax.getPercentage()).divide(new BigDecimal(100)));
-				finalAmountCalc = finalAmountCalc.setScale(2, RoundingMode.HALF_UP);
 			}
 		}
 		finalAmountCalc = finalAmountCalc.subtract(taxAdjust);
-		finalAmountCalc = finalAmountCalc.setScale(2, RoundingMode.HALF_UP);
+		finalAmountCalc = finalAmountCalc.setScale(6, RoundingMode.HALF_UP);
 		return finalAmountCalc;
 	}
 

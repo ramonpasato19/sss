@@ -16,6 +16,7 @@ public class UtilApp {
 	public static final Date DEFAULT_EXPIRY_DATE;
 
 	public static SimpleDateFormat formatDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+	public static SimpleDateFormat completeFormatDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 	public static DecimalFormat formatDecimal = new DecimalFormat("########.##");
 	public static DecimalFormat formatInteger = new DecimalFormat("###");
 
@@ -111,6 +112,10 @@ public class UtilApp {
 		LocalDate localDateBefore = LocalDate.parse(dateToString(dateBefore));
 		LocalDate localDateAfter = LocalDate.parse(dateToString(dateAfter));
 	    return new Long(ChronoUnit.DAYS.between(localDateBefore, localDateAfter)).intValue();
+	}
+	
+	public static int getSecondsCountBetweenDates(Date dateBefore, Date dateAfter) {
+		return (int) ((dateAfter.getTime()-dateBefore.getTime())/1000);
 	}
 	
 	public static boolean isGreaterThanZero(BigDecimal value) throws Exception

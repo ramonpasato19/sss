@@ -1,9 +1,13 @@
 package com.powerfin.helper;
 
 import java.math.*;
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.util.*;
 
 import org.openxava.jpa.*;
+import org.openxava.util.DataSourceConnectionProvider;
+import org.openxava.util.SystemException;
 
 import com.powerfin.model.*;
 import com.powerfin.util.*;
@@ -104,5 +108,31 @@ public class BalanceHelper {
 				value = value.add(balance.getStock());
 		
 		return value;
+	}
+	
+	public static void generateBalance(Date accountingDate, String accountId, int subaccount, String categoryId, int branchId) {
+		Connection con = null;
+		String schema = XPersistence.getDefaultSchema().toLowerCase();
+		try {
+			con = DataSourceConnectionProvider.getByComponent("Balance")
+					.getConnection();
+			CallableStatement cs = con.prepareCall("{ call "+schema+".generate_balance(?, ?, ?, ?, ?)}");
+			cs.setDate(1, new java.sql.Date(accountingDate.getTime()));
+			cs.setString(2, accountId);
+			cs.setInt(3, subaccount);
+			cs.setString(4, categoryId);
+			cs.setInt(5, branchId);
+			cs.executeUpdate();
+			cs.close();
+
+		} catch (Exception ex) {
+			throw new SystemException(ex);
+		} finally {
+			try {
+				con.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 }

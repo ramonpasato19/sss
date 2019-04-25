@@ -11,6 +11,9 @@ import javax.persistence.Table;
 import org.hibernate.annotations.*;
 import org.openxava.annotations.*;
 
+import com.powerfin.helper.ExchangeRateHelper;
+import com.powerfin.util.UtilApp;
+
 
 /**
  * The persistent class for the balance database table.
@@ -194,5 +197,32 @@ public class Balance implements Serializable {
 	public void setBranch(Branch branch) {
 		this.branch = branch;
 	}
-
+	
+	public String toString()
+	{
+		try {
+			return new StringBuffer("Balance: ")
+					.append(getBranch().getBranchId())
+					.append("|")
+					.append(getAccount().getAccountId())
+					.append("|")
+					.append(getSubaccount())
+					.append("|")
+					.append(getCategory().getCategoryId())
+					.append("|")
+					.append(getBalance())
+					.append("|")
+					.append(UtilApp.valueToOfficialValue(getBalance(), ExchangeRateHelper.getExchangeRate(getAccount().getCurrency(), getFromDate())))
+					.append("|")
+					.append(getStock())
+					.append("|")
+					.append(getBalanceId())
+					.append("|")
+					.append(UtilApp.dateToString(getToDate())).toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 }
