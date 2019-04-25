@@ -54,8 +54,8 @@ public class UnitMeasure implements Serializable {
 	}
 
 	public AccountItem addAccountItem(AccountItem accountItem) {
-		getAccountItems().add(accountItem);
 		accountItem.setUnitMeasureBean(this);
+		getAccountItems().add(accountItem);
 
 		return accountItem;
 	}

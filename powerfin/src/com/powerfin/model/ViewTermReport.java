@@ -7,7 +7,9 @@ import javax.persistence.*;
 import org.openxava.annotations.*;
 
 @View(members="product;"
-		+ "projectedAccountingDate")
+		+ "projectedAccountingDate;"
+		+ "fromDate;"
+		+ "toDate")
 public class ViewTermReport {
 
 	@Column
