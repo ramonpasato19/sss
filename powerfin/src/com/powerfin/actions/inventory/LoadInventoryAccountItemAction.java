@@ -8,6 +8,7 @@ import javax.persistence.Query;
 
 import org.openxava.actions.ViewBaseAction;
 import org.openxava.jpa.XPersistence;
+import org.openxava.util.Users;
 
 import com.powerfin.helper.*;
 import com.powerfin.model.Branch;
@@ -28,11 +29,11 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			toDate = CompanyHelper.getCurrentAccountingDate();			
 		}
 		
-		List<Branch> branchs = XPersistence.getManager().createQuery("select distinct b from Branch b order by branchId").getResultList();
+		List<Branch> branchs = XPersistence.getManager().createQuery("select distinct b from Branch b  order by branchId").getResultList();
 		if (branchs!=null && !branchs.isEmpty()) {
 			XPersistence.getManager().createQuery("DELETE FROM KardexAccountTemp k").executeUpdate();
 			XPersistence.commit();
-			System.out.println("ELEMENTOS BORRADOS");
+			System.out.println("MOVIMIENTOS BORRADOS");
 			Query queryItems = XPersistence.getManager().createNativeQuery(getNativeQueryItems(XPersistence.getDefaultSchema()));
 			List<String> accountItems =queryItems.getResultList();
 			int index = 1; 
@@ -40,7 +41,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 				for (Branch b:branchs) {										
 					insertValuesInKardex(fromDate, toDate, currentAccoutItem, b.getName(), b.getBranchId());					
 				}				
-				System.out.println("INSERTANDO MOVIMIENTOS EN "+currentAccoutItem+" PROGRESO "+index +" de "+accountItems.size());								
+				System.out.println("INSERTANDO MOVIMIENTOS EN "+currentAccoutItem+" PROGRESO "+index +" de "+accountItems.size()+ " ["+Users.getCurrent()+"]");								
 				index++;
 			}		
 			XPersistence.commit();			
@@ -87,12 +88,12 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			k.setAccumulateTotalCost((BigDecimal)data[11]);
 			k.setAverageCost((BigDecimal)data[12]);			
 			if (index>0) {
-				if (k.getUnitCost().compareTo(BigDecimal.ZERO)==0) {
+				if (k.getUnitCost()==null || k.getUnitCost().compareTo(BigDecimal.ZERO)==0) {													
 					k.setUnitCost( kardexList.get(index-1).getUnitCost());
 					k.setTotalCost(k.getUnitCost().multiply(k.getBalance()));
 					k.setAccumulateTotalCost(kardexList.get(index-1).getAccumulateTotalCost().add(k.getTotalCost()));
-					if (k.getAccumulateTotalCost().compareTo(BigDecimal.ZERO)==0) {
-						k.setAverageCost(BigDecimal.ZERO);
+					if (k.getAccumulateTotalCost()==null || k.getAccumulateTotalCost().compareTo(BigDecimal.ZERO)==0) {
+						k.setAverageCost(kardexList.get(index-1).getAverageCost());
 					}else {
 						k.setAverageCost(k.getAccumulateTotalCost().divide(k.getAccumulateTotalCost(),5, RoundingMode.HALF_UP));						
 					}
@@ -127,7 +128,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	"+schema+".ACCOUNT A  ");
 		sql.append("WHERE  ");
 		sql.append("	A.ACCOUNT_ID = AI.ACCOUNT_ID ");
-		sql.append("	AND A.ACCOUNT_STATUS_ID  = '002' ");
+		sql.append("	AND A.ACCOUNT_STATUS_ID  = '002' ");		
 		sql.append("	AND A.PRODUCT_ID IN ('1050', '1051','1052','1053') ");
 		return sql.toString();
 	}
@@ -242,7 +243,29 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("		WHERE ");
 		sql.append("	        AI.ACCOUNT_ID = AID.ACCOUNT_INVOICE_ID ");
 		sql.append("	        AND AI.ACCOUNT_ID = A.ACCOUNT_ID ");
-		sql.append("	        AND A.PRODUCT_ID = '202' ");
+		sql.append("	        AND A.PRODUCT_ID ='202' ");
+		sql.append("	        AND AID.ACCOUNT_DETAIL_ID = :PACCOUNT_ITEM_ID "); 
+		sql.append("	        AND TO_DATE(TO_CHAR(AI.ISSUE_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD') BETWEEN :PFROM_DATE AND :PTO_DATE ");
+		sql.append("			AND A.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
+		sql.append("        UNION  ");
+		sql.append("		SELECT  ");
+		sql.append("	        AI.ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID, ");
+		sql.append("	        AI.ISSUE_DATE, ");
+		sql.append("	        AI.REMARK,  ");
+		sql.append("	        AID.UNIT_PRICE as UNIT_COST, ");                
+		sql.append("	        AID.ACCOUNT_DETAIL_ID,  ");
+		sql.append("	        AID.QUANTITY AS INCOME,  ");
+		sql.append("	        0 AS EXPENSES,  ");
+		sql.append("	        (AID.QUANTITY) AS BALANCE, ");
+		sql.append("	        A.BRANCH_ID AS BRANCH_ID  ");
+		sql.append("		FROM  ");
+		sql.append("	        "+schema+".ACCOUNT_INVOICE AI, ");
+		sql.append("	        "+schema+".ACCOUNT_INVOICE_DETAIL AID, ");
+		sql.append("	        "+schema+".ACCOUNT A ");
+		sql.append("		WHERE ");
+		sql.append("	        AI.ACCOUNT_ID = AID.ACCOUNT_INVOICE_ID ");
+		sql.append("	        AND AI.ACCOUNT_ID = A.ACCOUNT_ID ");
+		sql.append("	        AND A.PRODUCT_ID ='1064' ");
 		sql.append("	        AND AID.ACCOUNT_DETAIL_ID = :PACCOUNT_ITEM_ID "); 
 		sql.append("	        AND TO_DATE(TO_CHAR(AI.ISSUE_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD') BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("			AND A.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
@@ -338,30 +361,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	        AND TA.DEBIT_OR_CREDIT ='C' ");
 		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
 		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
-		sql.append("        UNION  ");		
-		sql.append("		SELECT  ");
-		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
-		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE,  ");
-		sql.append("	        T.REMARK, ");
-		sql.append("	        0 AS UNIT_COST, ");
-		sql.append("	        TA.ACCOUNT_ID AS ACCOUNT_DETAIL_ID,  ");
-		sql.append("	        TA.QUANTITY AS INCOME,  ");
-		sql.append("	        0 AS EXPENSES ,  ");
-		sql.append("	        TA.QUANTITY AS BALANCE,  ");
-		sql.append("	        TA.BRANCH_ID AS BRANCH_ID  ");
-		sql.append("		FROM  ");
-		sql.append("	        "+schema+".ACCOUNT A, ");
-		sql.append("	        "+schema+".TRANSACTION T, ");
-		sql.append("	        "+schema+".TRANSACTION_ACCOUNT TA ");
-		sql.append("		WHERE A.PRODUCT_ID IN ( '1064') ");
-		sql.append("	        AND T.TRANSACTION_ID =A.ACCOUNT_ID ");
-		sql.append("	        AND TA.TRANSACTION_ID = T.TRANSACTION_ID ");
-		sql.append("	        AND TA.CATEGORY_ID = 'COST' ");
-		sql.append("	        AND TA.ACCOUNT_ID = :PACCOUNT_ITEM_ID  ");
-		sql.append("	        AND TA.DEBIT_OR_CREDIT ='D' ");
-		sql.append("	        AND TO_DATE(TO_CHAR(T.ACCOUNTING_DATE, 'YYYY/MM/DD'), 'YYYY/MM/DD')  BETWEEN :PFROM_DATE AND :PTO_DATE ");
-		sql.append("	        AND TA.BRANCH_ID IN (SELECT B.BRANCH_ID  FROM "+schema+".BRANCH B WHERE B.NAME LIKE :PBRANCH_NAME) ");
-		sql.append("        UNION  ");
+		sql.append("        UNION  ");				
 		sql.append("		SELECT  ");
 		sql.append("	        TA.TRANSACTION_ACCOUNT_ID || '_' || :PACCOUNT_ITEM_ID AS ACCOUNT_ID,  ");
 		sql.append("	        T.ACCOUNTING_DATE AS ISSUE_DATE, ");

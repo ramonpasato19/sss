@@ -253,7 +253,8 @@ public class FinancialHelper {
 			XPersistence.getManager().merge(activeBalance);
 			System.out.println("---Update Active "+activeBalance.toString());
 		}
-			
+		XPersistence.getManager().flush();
+		
 		
 	}
 	
