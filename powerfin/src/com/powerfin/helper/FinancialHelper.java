@@ -120,22 +120,61 @@ public class FinancialHelper {
 			XPersistence.getManager().persist(m);
 			System.out.println(m.toString());
 			if (m.getTransactionAccount().getUpdateBalance().equals(YesNoIntegerType.YES))
-				updateBalanceOld(m);
+				updateBalance(m);
 		}
-		/*
+		
 		for (FinancialCategoryDTO financialCategory : financialCategories) 
 			if (financialCategory.getUpdateBalance().equals(YesNoIntegerType.YES))
-				updateBalanceOld(financialCategory);
-	*/
+				validateFinalBalance(financialCategory);
+	
 		System.out.println("End Save Financial ------------------------- "+UtilApp.dateToString(new Date(), "yyyy-MM-dd HH:mm:ss")+", time: "+UtilApp.getSecondsCountBetweenDates(initDate, new Date())+"\n");
 	}
 
-	
-	private static void updateBalanceOld(Movement m)
-			throws Exception {
-
+	private static void validateFinalBalance(FinancialCategoryDTO dto) throws Exception
+	{
 		BigDecimal stock;
 		BigDecimal balance;
+		Balance activeBalance = getActiveBalance(dto.getAccountingDate(), dto.getAccount().getAccountId(), dto.getSubaccount(), 
+				dto.getCategory().getCategoryId(), dto.getBranch().getBranchId());
+		
+		stock =  activeBalance.getStock();
+		balance = activeBalance.getBalance();
+		
+		//Validate NegativeBalance
+		if (!CategoryHelper.getAllowsNegativeBalance(dto.getAccount(), dto.getCategory()))
+		{
+			if (stock.compareTo(BigDecimal.ZERO)<0)
+				throw new OperativeException("the_account_stock_can_not_be_negative",
+						dto.getAccount().getAccountId(),
+						dto.getSubaccount(),
+						dto.getCategory().getCategoryId(),
+						dto.getBranch().getBranchId(),
+						activeBalance.getStock());
+			
+			if (balance.compareTo(BigDecimal.ZERO)<0)
+				throw new OperativeException("the_account_balance_can_not_be_negative",
+						dto.getAccount().getAccountId(),
+						dto.getSubaccount(),
+						dto.getCategory().getCategoryId(),
+						dto.getBranch().getBranchId(),
+						activeBalance.getBalance());
+		}
+		
+		//Expire balance
+		if (balance.compareTo(BigDecimal.ZERO)==0)
+		{
+			if (dto.getCategory().getExpiresZeroBalance().equals(Types.YesNoIntegerType.YES))
+			{
+				activeBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
+				XPersistence.getManager().merge(activeBalance);
+			}
+		}
+
+	}
+	
+	private static void updateBalance(Movement m)
+			throws Exception {
+
 		Date date = m.getAccountingDate();
 		boolean persistNewBalance = true;
 
@@ -157,7 +196,8 @@ public class FinancialHelper {
 		if (m.getBookAccount().getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.YES))
 			newBalance.setOfficialBalance(BigDecimal.ZERO);
 		
-		Balance activeBalance = getActiveBalance(m);
+		Balance activeBalance = getActiveBalance(date, m.getAccount().getAccountId(), m.getSubaccount(), 
+				m.getCategory().getCategoryId(), m.getBranch().getBranchId());
 		
 		if (activeBalance != null )
 		{
@@ -200,48 +240,6 @@ public class FinancialHelper {
 				throw new InternalException("exist_future_balances");
 			}
 		}
-		
-		if (persistNewBalance)
-		{
-			stock =  newBalance.getStock();
-			balance = newBalance.getBalance();
-		}
-		else
-		{
-			stock =  activeBalance.getStock();
-			balance = activeBalance.getBalance();
-		}
-		
-		//Expire balance
-		if (balance.compareTo(BigDecimal.ZERO)==0)
-		{
-			if (m.getCategory().getExpiresZeroBalance().equals(Types.YesNoIntegerType.YES))
-			{
-				if (persistNewBalance)
-						newBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
-				else
-						activeBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
-			}
-		}
-	
-		
-		//Validate NegativeBalance
-		if (!CategoryHelper.getAllowsNegativeBalance(m.getAccount(), m.getCategory()))
-		{
-			if (stock.compareTo(BigDecimal.ZERO)<0)
-				throw new OperativeException("the_account_stock_can_not_be_negative",
-						m.getAccount().getAccountId(),
-						m.getSubaccount(),
-						m.getCategory().getCategoryId(),
-						newBalance.getStock());
-			
-			if (balance.compareTo(BigDecimal.ZERO)<0)
-				throw new OperativeException("the_account_balance_can_not_be_negative",
-						m.getAccount().getAccountId(),
-						m.getSubaccount(),
-						m.getCategory().getCategoryId(),
-						newBalance.getBalance());
-		}
 
 		if (persistNewBalance)
 		{
@@ -253,248 +251,27 @@ public class FinancialHelper {
 			XPersistence.getManager().merge(activeBalance);
 			System.out.println("---Update Active "+activeBalance.toString());
 		}
-		XPersistence.getManager().flush();
-		
-		
-	}
-	
-	@SuppressWarnings("unused")
-	private static void updateBalance(FinancialCategoryDTO financialCategory)
-			throws Exception {
-
-		Calendar start = Calendar.getInstance();
-		start.setTime(financialCategory.getAccountingDate());
-		Calendar end = Calendar.getInstance();
-		end.setTime(CompanyHelper.getCurrentAccountingDate());
-		end.add(Calendar.DATE, 1);
-
-		for (Date date = start.getTime(); start.before(end); start.add(
-				Calendar.DATE, 1), date = start.getTime()) {
-			System.out.println(new StringBuffer("Updating Balance: ") 
-					.append(financialCategory.getBranch().getBranchId())
-					.append("|")
-					.append(financialCategory.getAccount().getAccountId())
-					.append("|")
-					.append(financialCategory.getSubaccount())
-					.append("|")
-					.append(financialCategory.getCategory().getCategoryId())
-					.append("|")
-					.append(UtilApp.dateToString(date)));
-			
-			fillValues(financialCategory, date);
-			
-			Balance newBalance = new Balance();
-			newBalance.setAccount(financialCategory.getAccount());
-			newBalance.setAccountingDate(date);
-			newBalance.setFromDate(date);
-			newBalance.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
-			newBalance.setBookAccount(financialCategory.getBookAccount());
-			newBalance.setCategory(financialCategory.getCategory());
-			newBalance.setCurrency(financialCategory.getAccount().getCurrency());
-			newBalance.setSubaccount(financialCategory.getSubaccount());
-			newBalance.setBalance(financialCategory.getValue());
-			newBalance.setOfficialBalance(financialCategory.getOfficialValue());
-			newBalance.setDueDate(financialCategory.getDueDate());
-			newBalance.setStock(financialCategory.getStock());
-			newBalance.setBranch(financialCategory.getBranch());
-			
-			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.YES))
-				newBalance.setOfficialBalance(BigDecimal.ZERO);			
-			
-			Balance oldBalanceOnDate = getOldBalanceOnDate(financialCategory,date);
-			
-			int balancesDeleted = XPersistence
-					.getManager()
-					.createQuery(
-							"DELETE FROM Balance o "
-									+ "WHERE o.account = :account "
-									+ "AND o.subaccount = :subaccount "
-									+ "AND o.category = :category "
-									+ "AND o.branch = :branch "
-									+ "AND o.fromDate >= :fromDate")
-					.setParameter("fromDate", date)
-					.setParameter("account", financialCategory.getAccount())
-					.setParameter("subaccount", financialCategory.getSubaccount())
-					.setParameter("category", financialCategory.getCategory())
-					.setParameter("branch", financialCategory.getBranch())
-					.executeUpdate();
-			
-			System.out.println("Future Balances removed: "+balancesDeleted);
-			
-			if (oldBalanceOnDate != null) {
-				Calendar oldToDate = Calendar.getInstance();
-				oldToDate.setTime(date);
-				oldToDate.add(Calendar.DAY_OF_YEAR, -1);
-				oldBalanceOnDate.setToDate(oldToDate.getTime());
-				
-				XPersistence.getManager().merge(oldBalanceOnDate);
-				XPersistence.getManager().flush();
-				
-				System.out.println(new StringBuffer("Old Balance expired: ")
-						.append(financialCategory.getBranch().getBranchId())
-						.append("|")
-						.append(oldBalanceOnDate.getAccount().getAccountId())
-						.append("|")
-						.append(oldBalanceOnDate.getSubaccount())
-						.append("|")
-						.append(oldBalanceOnDate.getCategory().getCategoryId())
-						.append("|")
-						.append(oldBalanceOnDate.getBalance())
-						.append("|")
-						.append(oldBalanceOnDate.getOfficialBalance())
-						.append("|")
-						.append(oldBalanceOnDate.getStock())
-						.append("|")
-						.append(oldBalanceOnDate.getBalanceId())
-						.append("|")
-						.append(UtilApp.dateToString(oldBalanceOnDate.getToDate())));
-				
-				newBalance.setDueDate(oldBalanceOnDate.getDueDate());
-				newBalance.setBalance(newBalance.getBalance().add(oldBalanceOnDate.getBalance()));
-				newBalance.setStock(newBalance.getStock().add(oldBalanceOnDate.getStock()!=null?oldBalanceOnDate.getStock():BigDecimal.ZERO));
-				
-				if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
-					newBalance.setOfficialBalance(newBalance.getOfficialBalance().add(oldBalanceOnDate.getOfficialBalance()));
-				else
-					newBalance.setOfficialBalance(BigDecimal.ZERO);
-			}
-			
-			//Expire balance
-			if (financialCategory.getCategory().getAllowsNegativeBalance().equals(Types.YesNoIntegerType.NO))
-				if (financialCategory.getCategory().getExpiresZeroBalance().equals(Types.YesNoIntegerType.YES))
-					if (newBalance.getBalance().compareTo(BigDecimal.ZERO)==0)
-						newBalance.setToDate(CompanyHelper.getCurrentAccountingDate());
-			
-			//Validate NegativeBalance
-			if (!CategoryHelper.getAllowsNegativeBalance(financialCategory.getAccount(), financialCategory.getCategory()))
-			{			
-				if (newBalance.getStock().compareTo(BigDecimal.ZERO)<0)
-					throw new OperativeException("the_account_stock_can_not_be_negative",
-							financialCategory.getAccount().getAccountId(),
-							financialCategory.getSubaccount(),
-							financialCategory.getCategory().getCategoryId(),
-							newBalance.getStock());
-				
-				if (newBalance.getBalance().compareTo(BigDecimal.ZERO)<0)
-					throw new OperativeException("the_account_balance_can_not_be_negative",
-							financialCategory.getAccount().getAccountId(),
-							financialCategory.getSubaccount(),
-							financialCategory.getCategory().getCategoryId(),
-							newBalance.getBalance());
-			}
-
-			XPersistence.getManager().persist(newBalance);
-			
-			if (financialCategory.getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
-				System.out.println(new StringBuffer("Persist New Balance: ")
-						.append(financialCategory.getBranch().getBranchId())
-						.append("|")
-						.append(newBalance.getAccount().getAccountId())
-						.append("|")
-						.append(newBalance.getSubaccount())
-						.append("|")
-						.append(newBalance.getCategory().getCategoryId())
-						.append("|")
-						.append(newBalance.getBalance())
-						.append("|")
-						.append(newBalance.getOfficialBalance())
-						.append("|")
-						.append(newBalance.getStock())
-						.append("|")
-						.append(newBalance.getBalanceId())
-						.append("|")
-						.append(UtilApp.dateToString(newBalance.getToDate())));
-			else
-				System.out.println(new StringBuffer("Persist New Balance: ")
-						.append(financialCategory.getBranch().getBranchId())
-						.append("|")
-						.append(newBalance.getAccount().getAccountId())
-						.append("|")
-						.append(newBalance.getSubaccount())
-						.append("|")
-						.append(newBalance.getCategory().getCategoryId())
-						.append("|")
-						.append(newBalance.getBalance())
-						.append("|")
-						.append(UtilApp.valueToOfficialValue(newBalance.getBalance(), financialCategory.getExchangeRate()))
-						.append("|")
-						.append(newBalance.getStock())
-						.append("|")
-						.append(newBalance.getBalanceId())
-						.append("|")
-						.append(UtilApp.dateToString(newBalance.getToDate())));
-		}
 
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void fillValues(FinancialCategoryDTO financialCategory,
-			Date accountingDate) throws Exception {
-		financialCategory.setValue(BigDecimal.ZERO);
-		financialCategory.setOfficialValue(BigDecimal.ZERO);
-		financialCategory.setStock(BigDecimal.ZERO);
-
-		String schema = XPersistence.getDefaultSchema().toLowerCase();
-		
-		String query = "SELECT "
-		 		+ "SUM(COALESCE(o.value,0)) as value, "
-		 		+ "SUM(COALESCE(o.official_value,0)) as official_value, "
-		 		+ "SUM(COALESCE(o.quantity,0)) as quantity "
-		 		+ "FROM "+schema+".movement o, "+schema+".financial f "
-				+ "WHERE f.accounting_date = :accountingDate "
-				+ "AND o.account_id = :account "
-				+ "AND o.subaccount = :subaccount "
-				+ "AND o.category_id = :category "
-				+ "AND o.branch_id = :branch "
-				+ "AND o.financial_id = f.financial_id";
-		
-		 List<Object[]> acumulatedMovements = XPersistence.getManager()
-				 .createNativeQuery(query)
-				 .setParameter("accountingDate", accountingDate)
-				 .setParameter("account", financialCategory.getAccount().getAccountId())
-				 .setParameter("subaccount", financialCategory.getSubaccount())
-				 .setParameter("category", financialCategory.getCategory().getCategoryId())
-				 .setParameter("branch", financialCategory.getBranch().getBranchId())
-				 .setMaxResults(1)
-				 .getResultList();
-
-		if (acumulatedMovements != null && !acumulatedMovements.isEmpty()) {
-			
-			Object[] acumulatedValues = (Object[])acumulatedMovements.get(0);
-			if (acumulatedValues!=null) 
-			{
-				System.out.println(new StringBuffer("Add Movements of Day: ") 
-						.append(acumulatedValues[0])
-						.append("|")
-						.append(acumulatedValues[1])
-						.append("|")
-						.append(acumulatedValues[2]));
-				financialCategory.setValue(financialCategory.getValue().add((BigDecimal) acumulatedValues[0]));
-				financialCategory.setOfficialValue(financialCategory.getOfficialValue().add((BigDecimal) acumulatedValues[1]));
-				financialCategory.setStock(financialCategory.getStock().add((BigDecimal) acumulatedValues[2]));
-				
-			}
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private static Balance getActiveBalance(
-			Movement m) throws Exception {
+	private static Balance getActiveBalance(Date accountingDate, String accountId, int subaccount, String categoryId, int branchId
+			) throws Exception {
 
 		List<Balance> balances = XPersistence
 				.getManager()
 				.createQuery(
 						"SELECT o FROM Balance o "
 								+ "WHERE :date between fromDate AND toDate "
-								+ "AND o.account = :account "
+								+ "AND o.account.accountId = :account "
 								+ "AND o.subaccount = :subaccount "
-								+ "AND o.category = :category "
-								+ "AND o.branch = :branch ")
-				.setParameter("date", m.getAccountingDate())
-				.setParameter("account", m.getAccount())
-				.setParameter("subaccount", m.getSubaccount())
-				.setParameter("category", m.getCategory())
-				.setParameter("branch", m.getBranch())
+								+ "AND o.category.categoryId = :category "
+								+ "AND o.branch.branchId = :branch ")
+				.setParameter("date", accountingDate)
+				.setParameter("account", accountId)
+				.setParameter("subaccount", subaccount)
+				.setParameter("category", categoryId)
+				.setParameter("branch", branchId)
 				.getResultList();
 		if (balances != null && !balances.isEmpty() && balances.size() > 0 && ((Balance) balances.get(0)).getBalanceId() != null) {
 			return (Balance) balances.get(0);
@@ -503,35 +280,6 @@ public class FinancialHelper {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static Balance getOldBalanceOnDate(
-			FinancialCategoryDTO financialCategory, Date date) throws Exception {
-		Calendar oldToDate = Calendar.getInstance();
-		oldToDate.setTime(date);
-		oldToDate.add(Calendar.DAY_OF_YEAR, -1);
-
-		List<Balance> balances = XPersistence
-				.getManager()
-				.createQuery(
-						"SELECT o FROM Balance o "
-								+ "WHERE :date between fromDate AND toDate "
-								+ "AND o.account = :account "
-								+ "AND o.subaccount = :subaccount "
-								+ "AND o.category = :category "
-								+ "AND o.branch = :branch ")
-				.setParameter("date", oldToDate.getTime())
-				.setParameter("account", financialCategory.getAccount())
-				.setParameter("subaccount", financialCategory.getSubaccount())
-				.setParameter("category", financialCategory.getCategory())
-				.setParameter("branch", financialCategory.getBranch())
-				.getResultList();
-		if (balances != null && !balances.isEmpty() && balances.size() > 0) {
-			return (Balance) balances.get(0);
-		} else {
-			return null;
-		}
-	}
-
 	private static void addFinancialCategory(
 			List<FinancialCategoryDTO> financialCategories, 
 			Movement m, 
