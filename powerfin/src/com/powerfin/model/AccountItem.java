@@ -192,6 +192,12 @@ public class AccountItem extends AuditEntity implements Serializable {
 	@Transient
 	@Column(name="alternate_code")
 	private String alternateCode;
+	
+	@Column(name="cost_last_purchase", precision=13, scale=4)
+	private BigDecimal costLastPurchase;
+
+	@Column(name="provider_last_purchase")
+	private String providerLastPurchase;
 
 	public AccountItem() {
 	}
@@ -437,5 +443,23 @@ public class AccountItem extends AuditEntity implements Serializable {
 	public void setAccountItemPrice(List<AccountItemPrice> accountItemPrice) {
 		this.accountItemPrice = accountItemPrice;
 	}
+
+	public BigDecimal getCostLastPurchase() {
+		return costLastPurchase;
+	}
+
+	public void setCostLastPurchase(BigDecimal costLastPurchase) {
+		this.costLastPurchase = costLastPurchase;
+	}
+
+	public String getProviderLastPurchase() {
+		return providerLastPurchase;
+	}
+
+	public void setProviderLastPurchase(String providerLastPurchase) {
+		this.providerLastPurchase = providerLastPurchase;
+	}
+	
+	
 
 }

@@ -349,13 +349,13 @@
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
 			icon="magnify">
-			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} in ('002','003','005') " property="condition"/>
+			<set value="${account.product.productType.productTypeId} = '201' and ${account.accountStatus.accountStatusId} in ('001','002','003','005') " property="condition"/>
 		</action>
 		<action name="SearchInvoiceSaleToApplyCreditNote" 
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
 			icon="magnify">
-			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} in ('002','003','005') " property="condition"/>
+			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} in ('001','002','003','005') " property="condition"/>
 		</action>
 		<action name="SearchActiveInvoicePurchase" 
 			class="com.powerfin.actions.search.SearchAccountInvoice"
@@ -373,7 +373,7 @@
 			class="com.powerfin.actions.search.SearchAccountInvoice"
 			hidden="true"
 			icon="magnify">
-			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} = '002' " property="condition"/>
+			<set value="${account.product.productType.productTypeId} = '102' and ${account.accountStatus.accountStatusId} in ('001', '002') " property="condition"/>
 		</action>
 		<action name="SearchAccountToDebitBank" 
 			class="com.powerfin.actions.search.SearchAccountByTransactionModule"
@@ -569,7 +569,7 @@
 	
 	<controller name="AccountingEvolution">
 		<action name="printMonthlyEvolutionBalance" mode="detail"
-			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			class="com.powerfin.actions.balanceATXGeneralSaveActionccounting.PrintAccountingReportAction" icon="file-document">
 			<set property="reportName" value="MONTHLY_EVOLUTION_BALANCE"/>
 		</action>
 		<action name="printMonthlyEvolutionBalanceAccumulated" mode="detail"
@@ -1137,6 +1137,44 @@
 			icon="file-excel"
 			keystroke="Control Alt X">
 			<set property="type" value="xls"/>	
+		</action>
+	</controller>
+	
+	<controller name="SaleReportController">
+    	<subcontroller controller="CategoryReport"/>
+    	<subcontroller controller="AnalysisMarginUtility"/>
+	</controller>
+	
+	<controller name="CategoryReport">
+		<action name="printCategorySales" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="EVOLUTION_CATEGORY"/>
+		</action>
+		<action name="printCategorySalesAccumulated" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="EVOLUTION_CATEGORY_ACCUMULATED"/>
+		</action>
+		<action name="printCategorySalesDaily" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="DAILY_EVOLUTION_CATEGORY"/>
+		</action>
+		<action name="printCategorySalesDailyAccumulated" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="DAILY_EVOLUTION_CATEGORY_ACCUMULATED"/>
+		</action>	
+	</controller>
+	<controller name="AnalysisMarginUtility">
+	<action name="categoryByBranch" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_BY_CATEGORIES_WITH_COST_UTILITY_MARGIN_EXCEL"/>
+		</action>
+			<action name="categoryByProductMonthly" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_BY_CATEGORIES_MONTHLY_EXCEL"/>
+		</action>
+		<action name="categoryByProductDaily" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_BY_CATEGORIES_DAILY_EXCEL"/>
 		</action>
 	</controller>
 	
