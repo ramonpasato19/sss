@@ -318,10 +318,10 @@ public class ElectronicVoucherHelper {
 					accountInvoice.getPerson().getLegalPerson().getHomeMainStreet()));
 
 		invoiceInformationElement
-				.appendChild(addElement(xmlDocument, "totalSinImpuestos", accountInvoice.getSubtotal().toString()));
+				.appendChild(addElement(xmlDocument, "totalSinImpuestos", accountInvoice.getSubtotal().setScale(2,RoundingMode.HALF_UP).toString()));
 
 		invoiceInformationElement
-				.appendChild(addElement(xmlDocument, "totalDescuento", accountInvoice.getDiscount().toString()));
+				.appendChild(addElement(xmlDocument, "totalDescuento", accountInvoice.getDiscount().setScale(2,RoundingMode.HALF_UP).toString()));
 
 		Element totalWithTaxElement = xmlDocument.createElement("totalConImpuestos");
 		invoiceInformationElement.appendChild(totalWithTaxElement);
@@ -347,8 +347,8 @@ public class ElectronicVoucherHelper {
 						taxAmount = taxAmount.add(detail.getTaxAmount());
 					}
 				}
-				totalTaxElement.appendChild(addElement(xmlDocument, "baseImponible", amount.toString()));
-				totalTaxElement.appendChild(addElement(xmlDocument, "valor", taxAmount.toString()));
+				totalTaxElement.appendChild(addElement(xmlDocument, "baseImponible", amount.setScale(2,RoundingMode.HALF_UP).toString()));
+				totalTaxElement.appendChild(addElement(xmlDocument, "valor", taxAmount.setScale(2,RoundingMode.HALF_UP).toString()));
 			}
 		}
 
@@ -465,6 +465,7 @@ public class ElectronicVoucherHelper {
             System.out.println("Envio: "+respuestaSolicitudEnvio.getEstado());
             
             if (respuestaSolicitudEnvio.getEstado().equals("DEVUELTA")) {
+            	System.out.println("Error: "+SendVoucherWS.obtenerMensajeRespuesta(respuestaSolicitudEnvio));
             	return new ElectronicVoucherResponce (mergeArchivos(XMLDocumentToByteArray(xmlDocumentSigned), Java2XML.convertirAXml(respuestaSolicitudEnvio)), 1, "DEVUELTA");
             }
                         

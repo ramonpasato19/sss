@@ -630,12 +630,50 @@ public class AccountInvoiceHelper {
 				}
 				
 				totalPaymentValue = totalPaymentValue.add(paymentValue);
+				
+				debitAccountForPayment = null;
 			}
+			
+			
+			BigDecimal diff = totalPaymentValue.subtract(balance);
+			diff = diff.setScale(2,RoundingMode.HALF_UP);
+			
+			if (diff.abs().doubleValue()<=0.03)
+			{
+				Account adjustAccount = XPersistence.getManager().find(Account.class, "A1101010199");
+				
+				if (totalPaymentValue.compareTo(balance)<0)
+				{
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(account, diff.abs(), transaction);
+					ta.setRemark("Ajuste para cobro correcto de factura");
+					transactionAccounts.add(ta);
+					
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(adjustAccount, diff.abs(), transaction);
+					ta.setRemark("Ajuste para cobro correcto de factura");
+					transactionAccounts.add(ta);
+				}
+				else
+				{
+					ta = TransactionAccountHelper.createCustomDebitTransactionAccount(account, diff.abs(), transaction);
+					ta.setRemark("Ajuste para cobro correcto de factura");
+					transactionAccounts.add(ta);
+					
+					ta = TransactionAccountHelper.createCustomCreditTransactionAccount(adjustAccount, diff.abs(), transaction);
+					ta.setRemark("Ajuste para cobro correcto de factura");
+					transactionAccounts.add(ta);
+				}
+			}
+			else
+				
 			
 			if (totalPaymentValue.compareTo(balance)>0)
 				throw new OperativeException("payment_value_is_greater_than_balance", totalPaymentValue, balance);
 			
 		}
+		
+		if (transactionAccounts.size()<=0)
+			throw new OperativeException("invoice_not_have_payments");
+		
 		return transactionAccounts;
 	}
 	

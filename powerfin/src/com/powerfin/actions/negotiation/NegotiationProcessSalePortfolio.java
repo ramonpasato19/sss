@@ -39,11 +39,14 @@ public class NegotiationProcessSalePortfolio {
         int lineNumber = 1;
         int row=0;
         BigDecimal capitalBalance;
+        BigDecimal spreadPurchaseBalance = BigDecimal.ZERO;
+        Category purchaseSpreadCategory = null;
+        
         currentAccountingDate = CompanyHelper.getCurrentAccountingDate();
         
         accountPortfolioStatus = XPersistence.getManager().find(AccountPortfolioStatus.class, AccountLoanHelper.SALE_PORTFOLIO_STATUS_ID);
     	try {
-    		
+    		purchaseSpreadCategory = CategoryHelper.getCategoryById(CategoryHelper.PURCHASE_SPREAD_PR_CATEGORY);
 			br = new BufferedReader(new StringReader(fileString));
 	        for(String line; (line = br.readLine()) != null; ) {
 	        	if(row>0){//informacion desde la 2da linea
@@ -83,7 +86,18 @@ public class NegotiationProcessSalePortfolio {
 	            				.setParameter("fromSubaccount", Integer.parseInt(loanDTO.getSaleFromSubaccount()))
 	            				.getResultList();
 		        		
+		        		List<Balance> spreadBalances = XPersistence.getManager()
+	            				.createQuery("SELECT o FROM Balance o "
+	            						+ "WHERE o.account.accountId = :accountId "
+	            						+ "AND o.category.categoryId = :categoryId "
+	            						+ "AND o.toDate = :toDate ")
+	            				.setParameter("accountId", loanDTO.getOriginalAccount())
+	            				.setParameter("categoryId", purchaseSpreadCategory.getCategoryId())
+	            				.setParameter("toDate", UtilApp.DEFAULT_EXPIRY_DATE)
+	            				.getResultList();
+		        		
 		        		capitalBalance = BigDecimal.ZERO;
+		        		spreadPurchaseBalance = BigDecimal.ZERO;
 		        		
 		        		if (balances==null || balances.isEmpty())
 	                		throw new OperativeException("sale_not_processed_with_out_balances");
@@ -100,6 +114,9 @@ public class NegotiationProcessSalePortfolio {
 	            		if (capitalBalance.compareTo(new BigDecimal(loanDTO.getAmount()))>0)
 	                		throw new OperativeException("sale_not_processed_sale_amout_less_than_balance",capitalBalance,new BigDecimal(loanDTO.getAmount()));
 	            		
+	            		if (spreadBalances!=null && !spreadBalances.isEmpty())
+	            			for (Balance spreadBalance : spreadBalances)
+	            				spreadPurchaseBalance = spreadPurchaseBalance.add(spreadBalance.getBalance());
 	            		
 		        		accountLoan = XPersistence.getManager().find(AccountLoan.class, loanDTO.getOriginalAccount());
 		        		accountPortfolio = XPersistence.getManager().find(AccountPortfolio.class, loanDTO.getOriginalAccount());
@@ -119,7 +136,7 @@ public class NegotiationProcessSalePortfolio {
 	        			if(validationMessages.equals(NegotiationHelper.MESSAGE_OK))
 	        			{
 		        			updateAccountPortfolio();
-		        			updateAccountPayTable();
+		        			updateAccountPayTable(spreadPurchaseBalance);
 		        			createAccountSoldPayTable();
 		        			createTransaction();
 	        			}
@@ -255,44 +272,47 @@ public class NegotiationProcessSalePortfolio {
 		}
 	}
 	
-	private void updateAccountPayTable() throws Exception
+	private void updateAccountPayTable(BigDecimal puchaseSpread) throws Exception
 	{
 		int daysPreviousPeriod = 0;
 		int daysCurrentPeriod = 0;
 		int fullPeriod = 0;
 		Date lastDueDate = null;
-		BigDecimal utility = accountPortfolio.getSaleSpread().subtract(accountPortfolio.getPurchaseSpread());
+		BigDecimal utility = accountPortfolio.getSaleSpread().subtract(puchaseSpread);
 		
 		try{
-					
-			BigDecimal incomeUtility = AccountLoanHelper.getIncomeUtilityDistribution(accountPortfolio);
 			
-			if (incomeUtility.compareTo(BigDecimal.ZERO) > 0)
-				utility = utility.subtract(incomeUtility).setScale(2, RoundingMode.HALF_UP);
-			
-			for (AccountPaytable accountPaytable : payTables)
+			if (utility.compareTo(BigDecimal.ZERO)>0)
 			{
-				lastDueDate = accountPaytable.getDueDate();
-			}
-			
-			fullPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, lastDueDate);
-					
-			for (AccountPaytable accountPaytable : payTables)
-			{
-				daysCurrentPeriod = 0;
-	
-				if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
+				BigDecimal incomeUtility = AccountLoanHelper.getIncomeUtilityDistribution(accountPortfolio);
+				
+				if (incomeUtility.compareTo(BigDecimal.ZERO) > 0)
+					utility = utility.subtract(incomeUtility).setScale(2, RoundingMode.HALF_UP);
+				
+				for (AccountPaytable accountPaytable : payTables)
 				{
-					daysCurrentPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate());
+					lastDueDate = accountPaytable.getDueDate();
 				}
-				else
-					daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
 				
-				accountPaytable.setUtilitySalePortfolio(getAccumulatedProvision(fullPeriod, utility, daysPreviousPeriod, daysCurrentPeriod));
-				
-				XPersistence.getManager().merge(accountPaytable);
-				
-				daysPreviousPeriod = daysCurrentPeriod; 
+				fullPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, lastDueDate);
+						
+				for (AccountPaytable accountPaytable : payTables)
+				{
+					daysCurrentPeriod = 0;
+		
+					if (accountPaytable.getSubaccount() == Integer.parseInt(loanDTO.getSaleFromSubaccount()) )
+					{
+						daysCurrentPeriod = UtilApp.getDaysCountBetweenDates(currentAccountingDate, accountPaytable.getDueDate());
+					}
+					else
+						daysCurrentPeriod = accountPaytable.getProvisionDays()+daysPreviousPeriod;
+					
+					accountPaytable.setUtilitySalePortfolio(getAccumulatedProvision(fullPeriod, utility, daysPreviousPeriod, daysCurrentPeriod));
+					
+					XPersistence.getManager().merge(accountPaytable);
+					
+					daysPreviousPeriod = daysCurrentPeriod; 
+				}
 			}
 		}catch(Exception e){
 			e.printStackTrace();

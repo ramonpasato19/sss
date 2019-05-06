@@ -205,6 +205,8 @@ public class FinancialHelper {
 			{
 				activeBalance.setBalance(activeBalance.getBalance().add(m.getValue()));
 				activeBalance.setStock(activeBalance.getStock().add(m.getQuantity()!=null?m.getQuantity():BigDecimal.ZERO));
+				activeBalance.setToDate(UtilApp.DEFAULT_EXPIRY_DATE);
+				activeBalance.setBookAccount(m.getBookAccount());
 				
 				if (m.getBookAccount().getAllowCurrencyAdjustment().equals(Types.YesNoIntegerType.NO))
 					activeBalance.setOfficialBalance(activeBalance.getOfficialBalance().add(m.getOfficialValue()));
