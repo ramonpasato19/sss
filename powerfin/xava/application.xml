@@ -170,6 +170,11 @@
 		<mode-controller name="DetailOnly" />
 	</module>
 <!-- END InvoicePurchase ######################################## -->
+	<module name="SalesReportPrint">
+		<model name="ViewSalesReport" />
+		<controller name="SaleReportController" /> 		 
+		<mode-controller name="DetailOnly" />
+	</module>
 <!-- BEGIN AccountBank ######################################## -->
 	<module name="NewAccountBank">
 		<model name="AccountBank" />
@@ -1173,6 +1178,8 @@
 		<tab name="TXReverseTransaction" />
 		<mode-controller name="DetailList" />
 	</module>
+	
+	
 	<module name="AuthorizeTXReverseTransaction">
 		<model name="Transaction" />
 		<controller name="AuthorizeTXTransactionController" />

@@ -16,7 +16,8 @@ import org.openxava.annotations.Views;
 @Entity
 @Table(name="account_item_type")
 @Views({
-	@View(name="selectionType",members="accountItemTypeId, name, code")
+	@View(name="selectionType",members="accountItemTypeId, name, code"),
+	@View(name="selectionTypeCategory",members="accountItemTypeId;name")
 })
 
 public class AccountItemType {
