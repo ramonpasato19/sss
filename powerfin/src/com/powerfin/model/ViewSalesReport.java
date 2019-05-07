@@ -28,7 +28,6 @@ public class ViewSalesReport {
 	private Types.ReportFormat reportFormat;
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "branch_id", nullable = false)
 	@NoCreate
 	@NoModify
 	@DescriptionsList
@@ -45,7 +44,6 @@ public class ViewSalesReport {
 	private Date accountingDate;
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_item_type_id", nullable = false)
 	@NoCreate
 	@NoModify
 	@ReferenceView("selectionTypeCategory")

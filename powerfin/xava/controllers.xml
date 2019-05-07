@@ -569,7 +569,7 @@
 	
 	<controller name="AccountingEvolution">
 		<action name="printMonthlyEvolutionBalance" mode="detail"
-			class="com.powerfin.actions.balanceATXGeneralSaveActionccounting.PrintAccountingReportAction" icon="file-document">
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
 			<set property="reportName" value="MONTHLY_EVOLUTION_BALANCE"/>
 		</action>
 		<action name="printMonthlyEvolutionBalanceAccumulated" mode="detail"
