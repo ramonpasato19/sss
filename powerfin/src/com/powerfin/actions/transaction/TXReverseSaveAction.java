@@ -61,7 +61,7 @@ public class TXReverseSaveAction extends TXSaveAction {
 			ta.setBranch(m.getBranch());
 			ta.setCategory(m.getCategory());
 			ta.setDebitOrCredit(m.getDebitOrCredit().equals(Types.DebitOrCredit.DEBIT)?Types.DebitOrCredit.CREDIT:Types.DebitOrCredit.DEBIT);
-			ta.setQuantity(m.getQuantity());
+			ta.setQuantity(m.getQuantity().abs());
 			ta.setRemark(m.getRemark());
 			ta.setSubaccount(m.getSubaccount());
 			ta.setTransaction(transaction);

@@ -25,10 +25,10 @@ public class AccountItemHelper {
 		AccountItemBranch accountItemBranch = AccountItemHelper.findOrCreateAccountItemBranch(accountItem, branch);
 		
 		if (quantity == null || quantity.compareTo(BigDecimal.ZERO)<0)
-			throw new InternalException("item_quantity_is_negative_or_null", accountItem.getCode());
+			throw new InternalException("item_quantity_is_negative_or_null", accountItem.getCode(), branch.getBranchId());
 		
 		if (balance == null || balance.compareTo(BigDecimal.ZERO)<0)
-			throw new InternalException("item_balance_is_negative_or_null", accountItem.getCode());
+			throw new InternalException("item_balance_is_negative_or_null", accountItem.getCode(), branch.getBranchId());
 		
 		if (quantity.compareTo(BigDecimal.ZERO)>0 && balance.compareTo(BigDecimal.ZERO)>0)
 		{

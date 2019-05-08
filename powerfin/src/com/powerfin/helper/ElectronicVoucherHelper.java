@@ -400,8 +400,8 @@ public class ElectronicVoucherHelper {
 			taxElement.appendChild(
 					addElement(xmlDocument, "tarifa", accountInvoiceDetail.getTax().getPercentage().toString()));
 			taxElement
-					.appendChild(addElement(xmlDocument, "baseImponible", accountInvoiceDetail.getAmount().toString()));
-			taxElement.appendChild(addElement(xmlDocument, "valor", accountInvoiceDetail.getTaxAmount().toString()));
+					.appendChild(addElement(xmlDocument, "baseImponible", accountInvoiceDetail.getAmount().setScale(2,RoundingMode.HALF_UP).toString()));
+			taxElement.appendChild(addElement(xmlDocument, "valor", accountInvoiceDetail.getTaxAmount().setScale(2,RoundingMode.HALF_UP).toString()));
 
 		}
 

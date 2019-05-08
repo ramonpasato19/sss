@@ -139,9 +139,6 @@ public class NegotiationSaleLoan {
 	            		if (spreadBalances!=null && !spreadBalances.isEmpty())
 	            			for (Balance spreadBalance : spreadBalances)
 	            				spreadPurchaseBalance = spreadPurchaseBalance.add(spreadBalance.getBalance());
-	            		
-	            		if (accountPortfolio.getSaleSpread().compareTo(spreadPurchaseBalance)<0)
-	            			throw new OperativeException("sale_not_processed_sale_spread_is_less_than_spread_purchase_balance");
 
 	        			if(validationMessages.equals(NegotiationHelper.MESSAGE_OK))
 	        			{
