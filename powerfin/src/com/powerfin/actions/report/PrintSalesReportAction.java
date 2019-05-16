@@ -24,7 +24,8 @@ public class PrintSalesReportAction extends ReportBaseAction {
 
 		Date accountingDate = (Date)getView().getValue("accountingDate");
 		Date fromDate = (Date)getView().getValue("fromDate");
-		Date toDate = (Date)getView().getValue("toDate");	
+		Date toDate = (Date)getView().getValue("toDate");
+		Integer level = (Integer)getView().getValue("level");
 		
 		if (accountingDate==null)
 			accountingDate = CompanyHelper.getCurrentAccountingDate();
@@ -34,9 +35,7 @@ public class PrintSalesReportAction extends ReportBaseAction {
 		
 		if (toDate==null)
 			toDate = CompanyHelper.getCurrentAccountingDate();
-		
-
-		
+				
 		Map<String, Integer> mapBranch = (Map<String, Integer>) getView().getRoot().getValue("branch");
 		String branch="%";
 		if (mapBranch.get("branchId")!=null ){
@@ -55,8 +54,10 @@ public class PrintSalesReportAction extends ReportBaseAction {
 		parameters.put("FROM_DATE", fromDate);
 		parameters.put("TO_DATE", toDate);
 		parameters.put("SUCURSAL",branch );
+		parameters.put("LEVEL", level);
 		
-		if (reportName.equals("EVOLUTION_CATEGORY")) {
+		
+		if (reportName.equals("EVOLUTION_CATEGORY")|| reportName.equals("SALES_TRANSACTIONS_DAILY_PER_HOUR")|| reportName.equals("SALES_TRANSACTIONS_MONTHLY_PER_HOUR")) {
 			if (mapBranch.get("branchId")==null) {
 				throw new Exception("Debe escoger una sucursal");
 			}

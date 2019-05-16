@@ -36,15 +36,19 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			XPersistence.commit();
 			System.out.println("MOVIMIENTOS BORRADOS");
 			Query queryItems = XPersistence.getManager().createNativeQuery(getNativeQueryItems(XPersistence.getDefaultSchema()));
-			List<String> accountItems =queryItems.getResultList();
-			int index = 1; 
-			for (String currentAccoutItem:accountItems) {
-				for (Branch b:branchs) {										
-					insertValuesInKardex(fromDate, toDate, currentAccoutItem, b.getName(), b.getBranchId());					
-				}				
-				System.out.println("INSERTANDO MOVIMIENTOS EN "+currentAccoutItem+" PROGRESO "+index +" de "+accountItems.size()+ " ["+Users.getCurrent()+"]");								
-				index++;
-			}		
+			List<Object[]> accountItems =queryItems.getResultList();
+			if (accountItems!=null && !accountItems.isEmpty()) {
+				
+				int index = 1; 
+				for (Object []currentAccoutItem:accountItems) {
+					
+					for (Branch b:branchs) {
+						insertValuesInKardex(fromDate, toDate, (String)currentAccoutItem[0], (BigDecimal)currentAccoutItem[1], b.getName(), b.getBranchId());
+					}
+					System.out.println("INSERTANDO MOVIMIENTOS EN "+currentAccoutItem+" PROGRESO "+index +" de "+accountItems.size()+ " ["+Users.getCurrent()+"]");
+					index++;
+				}
+			}
 			XPersistence.commit();			
 		}				
 	}
@@ -59,7 +63,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 	 * @param branchName
 	 * @return
 	 */
-	private boolean insertValuesInKardex(Date fromDate, Date toDate, String accountItemId , String branchName, Integer brachId) {
+	private boolean insertValuesInKardex(Date fromDate, Date toDate, String accountItemId , BigDecimal costLastPurchase, String branchName, Integer brachId) {
 		
 		String schema = XPersistence.getDefaultSchema();		
 		Query query = XPersistence.getManager().createNativeQuery(getNaviteQueryKardex(schema));
@@ -89,15 +93,16 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			k.setAccumulateTotalCost((BigDecimal)data[11]);
 			k.setAverageCost((BigDecimal)data[12]);			
 			if (index>0) {
-				if (k.getUnitCost()==null || k.getUnitCost().compareTo(BigDecimal.ZERO)==0) {													
-					k.setUnitCost( kardexList.get(index-1).getUnitCost());
+				if (k.getUnitCost()==null || k.getUnitCost().compareTo(BigDecimal.ZERO)==0) {
+					if ( kardexList.get(index-1).getAverageCost()==null &&  kardexList.get(index-1).getAverageCost().compareTo(BigDecimal.ZERO)==0) {
+						k.setUnitCost(costLastPurchase);
+						k.setAverageCost(costLastPurchase);
+					}else {
+						k.setUnitCost( kardexList.get(index-1).getAverageCost());
+						k.setAverageCost(kardexList.get(index-1).getAverageCost());
+					}
 					k.setTotalCost(k.getUnitCost().multiply(k.getBalance()));
 					k.setAccumulateTotalCost(kardexList.get(index-1).getAccumulateTotalCost().add(k.getTotalCost()));
-					if (k.getAccumulateTotalCost()==null || k.getAccumulateTotalCost().compareTo(BigDecimal.ZERO)==0) {
-						k.setAverageCost(kardexList.get(index-1).getAverageCost());
-					}else {
-						k.setAverageCost(k.getAccumulateTotalCost().divide(k.getAccumulateTotalCost(),5, RoundingMode.HALF_UP));						
-					}
 				}
 				if (index>0) {
 					k.setAccumulateBalance(kardexList.get(index-1).getAccumulateBalance().add(k.getBalance()));					
@@ -123,7 +128,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		StringBuilder sql = new StringBuilder();
 		
 		sql.append("SELECT  ");
-		sql.append("	DISTINCT AI.ACCOUNT_ID  ");
+		sql.append("	DISTINCT AI.ACCOUNT_ID, COALESCE(AI.COST_LAST_PURCHASE, 0)  ");
 		sql.append("FROM  ");
 		sql.append("	"+schema+".ACCOUNT_ITEM AI, ");
 		sql.append("	"+schema+".ACCOUNT A  ");

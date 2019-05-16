@@ -18,6 +18,7 @@ import org.openxava.annotations.View;
 import com.powerfin.model.types.Types;
 
 @View(members="reportFormat;"
+		+ "level;"
 		+ "fromDate;"
 		+ "toDate;"
 		+ "branch;"
@@ -49,6 +50,9 @@ public class ViewSalesReport {
 	@ReferenceView("selectionTypeCategory")
 	@Required
 	private  AccountItemType codeCategory;
+	
+	@Column
+	private Integer level;
 	
 	
 	public ViewSalesReport() {
@@ -101,7 +105,13 @@ public class ViewSalesReport {
 	public void setReportFormat(Types.ReportFormat reportFormat) {
 		this.reportFormat = reportFormat;
 	}
-	
-	
+
+	public Integer getLevel() {
+		return level;
+	}
+
+	public void setLevel(Integer level) {
+		this.level = level;
+	}
 	
 }

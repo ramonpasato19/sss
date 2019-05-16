@@ -1143,6 +1143,7 @@
 	<controller name="SaleReportController">
     	<subcontroller controller="CategoryReport"/>
     	<subcontroller controller="AnalysisMarginUtility"/>
+    	<subcontroller controller="SalesPerHour"/>
 	</controller>
 	
 	<controller name="CategoryReport">
@@ -1175,6 +1176,24 @@
 		<action name="categoryByProductDaily" mode="detail"
 			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
 			<set property="reportName" value="SALES_BY_CATEGORIES_DAILY_EXCEL"/>
+		</action>
+	</controller>
+	<controller name="SalesPerHour">
+	<action name="SalesPerHourDaily" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_TRANSACTIONS_DAILY_PER_HOUR"/>
+		</action>
+		<action name="SalesPerHourDailyConsolidated" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_TRANSACTIONS_DAILY_PER_HOUR_CONSOLIDADO"/>
+		</action>
+		<action name="SalesPerHourMonthly" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_TRANSACTIONS_MONTHLY_PER_HOUR"/>
+		</action>
+		<action name="SalesPerHourMonthlyConsolidated" mode="detail"
+			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
+			<set property="reportName" value="SALES_TRANSACTIONS_MONTHLY_PER_HOUR_CONSOLIDADO"/>
 		</action>
 	</controller>
 	
