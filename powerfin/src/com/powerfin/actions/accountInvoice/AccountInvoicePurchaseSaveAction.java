@@ -1,7 +1,11 @@
 package com.powerfin.actions.accountInvoice;
 
+import java.math.BigDecimal;
 import java.util.*;
 
+import javax.persistence.Query;
+
+import org.hibernate.id.uuid.Helper;
 import org.openxava.actions.*;
 import org.openxava.jpa.*;
 import org.openxava.model.*;
@@ -20,13 +24,12 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 	Integer branchId = null;
 	
 	@SuppressWarnings("unchecked")
-	public void execute() throws Exception {
-
+	public void execute() throws Exception {		
 		String accountId = getView().getValueString("accountId");
 		accountStatusId = getView().getSubview("accountStatus").getValueString("accountStatusId");	
 		String productId = getView().getSubview("product").getValueString("productId");
-		Integer personId = getView().getSubview("person").getValueInt("personId");
 		
+		Integer personId = getView().getSubview("person").getValueInt("personId");		
 		String externalCode = "";
 		
 		Map<String, Integer> branchMap = (Map<String, Integer>) getView().getRoot().getValue("branch");
@@ -63,9 +66,13 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		}
 
 		// Create/Update Account Invoice
+		
+		
 		super.execute();
 		
 		if (getErrors().isEmpty()) {
+			
+		
 			accountId = getView().getValueString("accountId");
 			AccountInvoice accountInvoice = XPersistence.getManager().find(AccountInvoice.class, accountId);
 	        
@@ -112,6 +119,11 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
      				.setParameter("transactionId", transaction.getTransactionId())
      				.executeUpdate();
             }
+            /**
+             * Se actualiza el costo de cada producto de acuerdo a la compra. 
+             */
+            updateAccountItemBranch(accountInvoice);
+            
         }
 		getView().refresh();
 	}
@@ -130,6 +142,51 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		if (branchId == null)
 			throw new OperativeException("branch_is_required");
 		
+	}
+	/**
+	 * Método que se encarga de actualizar con el costo de la última 
+	 * compra a los productos de acuerdo con la sucursal señala
+	 * @author David Mogrovejo
+	 * @param invoice
+	 */	
+	@SuppressWarnings("unused")
+	private void updateAccountItemBranch(AccountInvoice invoice) {
+		System.out.println("================================================");
+		System.out.println("ACTUALIZANDO LOS PRECIOS");
+		
+		Map<String, BigDecimal> unitsPrices = new HashMap<String, BigDecimal>();
+		
+		/**
+		 * Obtiene los costos más altos para cada detalle de factura
+		 * esto debido a que pueden existir en la misma factura varias veces el mismo producto
+		 */
+		for (AccountInvoiceDetail detail: invoice.getDetails()){
+			AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId()); 
+			BigDecimal currentUnitPrice = unitsPrices.get(accountItem.getAccountId());
+			if (currentUnitPrice == null || currentUnitPrice.equals(BigDecimal.ZERO) ) {
+				Query query =  XPersistence.getManager().createQuery("select max(aid.unitPrice) from AccountInvoiceDetail aid left join aid.accountDetail ai where ai.accountId=:PACCOUNT_ID ");
+				query.setParameter("PACCOUNT_ID", detail.getAccountDetail().getAccountId());
+				currentUnitPrice =  (BigDecimal) JPAHelper.getSingleResult(query);
+				if (currentUnitPrice!=null && !currentUnitPrice.equals(BigDecimal.ZERO)) {
+					unitsPrices.put(detail.getAccountDetail().getAccountId(), currentUnitPrice);
+				}
+			}			
+		}
+		for (Map.Entry<String, BigDecimal> entry : unitsPrices.entrySet()) {
+			 Query query= XPersistence.getManager().createQuery("select distinct aib from  AccountItemBranch aib left join fetch aib.branch b  left join fetch aib.accountItem ai "
+					+ " where b.branchId = :PBRANCH_ID  and ai.accountId = :PACCOUNT_ID");
+			 query.setParameter("PBRANCH_ID", invoice.getBranch().getBranchId());
+			 query.setParameter("PACCOUNT_ID", entry.getKey());
+			 AccountItemBranch accountItemBranch = (AccountItemBranch) JPAHelper.getSingleResult(query);
+			 if (accountItemBranch!=null) {
+				 accountItemBranch.setLastCostPurchase(entry.getValue());
+				 accountItemBranch.setLastAccountInvoice(invoice.getAccount());
+				 XPersistence.getManager().merge(accountItemBranch);
+			 }
+		}
+		XPersistence.getManager().flush();	
+		System.out.println("PRECIOS ACTUALIZADOS..");
+		System.out.println("================================================");
 	}
 
 	public String getTransactionModuleId() {

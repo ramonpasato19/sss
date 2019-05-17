@@ -35,8 +35,10 @@ import org.openxava.annotations.View;
 				+ "minimumStock;"
 				+ "maximumStock;"
 				+ "averageCost;"
+				+ "lastCostPurchase;"
+				+ "lastAccountInvoice"
 				)
-@Tab(properties="accountItem.accountId, accountItem.code, accountItem.name, branch.branchId, branch.name, minimumStock, averageCost")
+@Tab(properties="accountItem.accountId, accountItem.code, accountItem.name, branch.branchId, branch.name, minimumStock, averageCost, lastCostPurchase")
 public class AccountItemBranch implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -72,6 +74,16 @@ public class AccountItemBranch implements Serializable {
 
 	@Column(name="average_cost", precision=15, scale=6)
 	private BigDecimal averageCost;
+	
+	@Column(name="last_cost_purchase", precision=15, scale=6)
+	private BigDecimal lastCostPurchase;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "last_account_invoice_id")
+	@NoCreate
+	@NoModify	
+	@ReferenceView("InvoicePurchase")
+	private Account lastAccountInvoice;
 
 	public AccountItemBranch() {
 	}
@@ -123,5 +135,30 @@ public class AccountItemBranch implements Serializable {
 	public void setAverageCost(BigDecimal averageCost) {
 		this.averageCost = averageCost;
 	}
+
+	
+	public BigDecimal getLastCostPurchase() {
+		return lastCostPurchase;
+	}
+
+	public void setLastCostPurchase(BigDecimal lastCostPurchase) {
+		this.lastCostPurchase = lastCostPurchase;
+	}
+
+	public Account getLastAccountInvoice() {
+		return lastAccountInvoice;
+	}
+
+	public void setLastAccountInvoice(Account lastAccountInvoice) {
+		this.lastAccountInvoice = lastAccountInvoice;
+	}
+	
+	
+	
+	
+
+	
+	
+	
 
 }
