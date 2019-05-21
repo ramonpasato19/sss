@@ -75,7 +75,7 @@ public class PrintSalesReportAction extends ReportBaseAction {
 			String branchAux="%";
 			parameters.put("SUCURSAL",branchAux );
 		}	
-		if (reportName.equals("SALES_BY_CATEGORIES_WITH_COST_UTILITY_MARGIN_EXCEL") || reportName.equals("REPORT_BY_CATEGORY_PRODUCT_MONTLY_EXCEL")|| reportName.equals("REPORT_BY_CATEGORY_PRODUCT_DAILY_EXCEL")) {
+		if ( reportName.equals("REPORT_BY_CATEGORY_PRODUCT_DAILY")|| reportName.equals("REPORT_BY_CATEGORY_PRODUCT_MONTLY")) {
 			Map<String, String> mapCategory = (Map<String,String>) getView().getRoot().getValue("codeCategory");
 			String category="";
 			if (mapCategory.get("accountItemTypeId")!=null ){

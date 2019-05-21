@@ -622,6 +622,10 @@
 			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
 			<set property="reportName" value="MONTHLY_EVOLUTION_VARIABLE"/>
 		</action>
+		<action name="printAnnualEvolutionVariable" mode="detail"
+			class="com.powerfin.actions.balanceAccounting.PrintAccountingReportAction" icon="file-document">
+			<set property="reportName" value="ANNUAL_EVOLUTION_VARIABLE"/>
+		</action>
 	</controller>
 	
 	<controller name="AccountingReportControllerByBookAccount">
@@ -1139,7 +1143,15 @@
 			<set property="type" value="xls"/>	
 		</action>
 	</controller>
-	
+	<controller name="BarCodeReportController">
+	  <subcontroller controller="BarCodeReport"/>
+	</controller>	
+	<controller name="BarCodeReport">
+		<action name="printBarCodeReport" mode="detail"
+			class="com.powerfin.actions.report.PrintBarCodeReportAction" icon="file-document">
+			<set property="reportName" value="GENERATION_BARCODE"/>
+		</action>
+	</controller>	
 	<controller name="SaleReportController">
     	<subcontroller controller="CategoryReport"/>
     	<subcontroller controller="AnalysisMarginUtility"/>
@@ -1167,15 +1179,15 @@
 	<controller name="AnalysisMarginUtility">
 	<action name="categoryByBranch" mode="detail"
 			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
-			<set property="reportName" value="SALES_BY_CATEGORIES_WITH_COST_UTILITY_MARGIN_EXCEL"/>
+			<set property="reportName" value="REPORT_CATEGORIES_BY_BRANCH"/>
 		</action>
 			<action name="categoryByProductMonthly" mode="detail"
 			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
-			<set property="reportName" value="SALES_BY_CATEGORIES_MONTHLY_EXCEL"/>
+			<set property="reportName" value="REPORT_BY_CATEGORY_PRODUCT_MONTLY"/>
 		</action>
 		<action name="categoryByProductDaily" mode="detail"
 			class="com.powerfin.actions.report.PrintSalesReportAction" icon="file-document">
-			<set property="reportName" value="SALES_BY_CATEGORIES_DAILY_EXCEL"/>
+			<set property="reportName" value="REPORT_BY_CATEGORY_PRODUCT_DAILY"/>
 		</action>
 	</controller>
 	<controller name="SalesPerHour">
