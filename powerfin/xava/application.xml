@@ -175,6 +175,13 @@
 		<controller name="SaleReportController" /> 		 
 		<mode-controller name="DetailOnly" />
 	</module>
+<!-- BEGIN BarCodeReportPrint ######################################## -->		
+	<module name="BarCodeReportPrint">
+		<model name="ViewBarcodeReport" />
+		<controller name="BarCodeReportController" /> 		 
+		<mode-controller name="DetailOnly" />
+	</module>
+<!-- END BarCodeReportPrint ######################################## -->	
 <!-- BEGIN AccountBank ######################################## -->
 	<module name="NewAccountBank">
 		<model name="AccountBank" />
