@@ -161,8 +161,8 @@ public class AccountInvoicePurchaseSaveAction extends SaveAction{
 		 * esto debido a que pueden existir en la misma factura varias veces el mismo producto
 		 */
 		for (AccountInvoiceDetail detail: invoice.getDetails()){
-			AccountItem accountItem = XPersistence.getManager().find(AccountItem.class, detail.getAccountDetail().getAccountId()); 
-			BigDecimal currentUnitPrice = unitsPrices.get(accountItem.getAccountId());
+			Account account = XPersistence.getManager().find(Account.class, detail.getAccountDetail().getAccountId()); 
+			BigDecimal currentUnitPrice = unitsPrices.get(account.getAccountId());
 			if (currentUnitPrice == null || currentUnitPrice.equals(BigDecimal.ZERO) ) {
 				Query query =  XPersistence.getManager().createQuery("select max(aid.unitPrice) from AccountInvoiceDetail aid left join aid.accountDetail ai where ai.accountId=:PACCOUNT_ID ");
 				query.setParameter("PACCOUNT_ID", detail.getAccountDetail().getAccountId());

@@ -135,8 +135,6 @@ public class AccountItemBranch implements Serializable {
 	public void setAverageCost(BigDecimal averageCost) {
 		this.averageCost = averageCost;
 	}
-
-	
 	public BigDecimal getLastCostPurchase() {
 		return lastCostPurchase;
 	}
@@ -152,13 +150,4 @@ public class AccountItemBranch implements Serializable {
 	public void setLastAccountInvoice(Account lastAccountInvoice) {
 		this.lastAccountInvoice = lastAccountInvoice;
 	}
-	
-	
-	
-	
-
-	
-	
-	
-
 }

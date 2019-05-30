@@ -84,6 +84,11 @@ public class KardexAccountTemp implements Serializable {
 	@Column(name="registration_date", nullable=false)
 	private Date registrationDate;
 	
+	@Column(name="user_registering", nullable=false, length=30)
+	private String userRegistering;
+	
+	@Column(name="user_movement", nullable=false, length=30)
+	private String userMovement;	
 
 	public String getAccountId() {
 		return accountId;
@@ -186,6 +191,18 @@ public class KardexAccountTemp implements Serializable {
 	}
 	public void setRegistrationDate(Date registrationDate) {
 		this.registrationDate = registrationDate;
+	}
+	public String getUserRegistering() {
+		return userRegistering;
+	}
+	public void setUserRegistering(String userRegistering) {
+		this.userRegistering = userRegistering;
+	}
+	public String getUserMovement() {
+		return userMovement;
+	}
+	public void setUserMovement(String userMovement) {
+		this.userMovement = userMovement;
 	}
 	
 	

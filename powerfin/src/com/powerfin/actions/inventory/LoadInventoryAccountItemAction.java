@@ -92,7 +92,10 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 			k.setTotalCost((BigDecimal)data[9]);
 			k.setAccumulateBalance((BigDecimal)data[10]);
 			k.setAccumulateTotalCost((BigDecimal)data[11]);
-			k.setAverageCost((BigDecimal)data[12]);			
+			k.setAverageCost((BigDecimal)data[12]);
+			k.setUserMovement((String)data[13]);		
+			k.setUserRegistering(Users.getCurrent());
+			k.setRegistrationDate(new Date());
 			if (index>0) {
 				if (k.getUnitCost()==null || k.getUnitCost().compareTo(BigDecimal.ZERO)==0) {
 					if ( kardexList.get(index-1).getAverageCost()==null &&  kardexList.get(index-1).getAverageCost().compareTo(BigDecimal.ZERO)==0) {
@@ -135,7 +138,6 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		sql.append("	"+schema+".ACCOUNT A  ");
 		sql.append("WHERE  ");
 		sql.append("	A.ACCOUNT_ID = AI.ACCOUNT_ID ");
-		sql.append("	AND A.ACCOUNT_STATUS_ID  = '002' ");		
 		sql.append("	AND A.PRODUCT_ID IN ('1050', '1051','1052','1053') ");
 		return sql.toString();
 	}
