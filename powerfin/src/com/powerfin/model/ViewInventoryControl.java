@@ -22,7 +22,8 @@ import org.openxava.annotations.Views;
 				+ "account;"								
 				+ "fromDate;"
 				+ "toDate;" 
-				+ "branch;"				
+				+ "branch;"
+				+ "location"				
 			)
 })
 public class ViewInventoryControl {
@@ -55,6 +56,15 @@ public class ViewInventoryControl {
 	@Required
 	private Branch branch;
 	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@NoCreate
+	@NoModify
+	@ReferenceView("Reference")
+	@Required
+	@SearchAction(value="SearchCategoryLocation.search")
+	private Category location;
+	
+	
 	public Date getFromDate() {
 		return fromDate;
 	}
@@ -85,6 +95,13 @@ public class ViewInventoryControl {
 	public void setBranch(Branch branch) {
 		this.branch = branch;
 	}
+	public Category getLocation() {
+		return location;
+	}
+	public void setLocation(Category location) {
+		this.location = location;
+	}
+	
 	
 	
 

@@ -2665,6 +2665,9 @@
 		<action name="printTimeOutItems" mode="detail"
 			class="com.powerfin.actions.inventory.PrintExpiredItemsAction" icon="file-excel">
 		</action>
+		<action name="printExpiredItems" mode="detail"
+			class="com.powerfin.actions.inventory.PrintExpiredSpolitItemsAction" icon="file-excel">
+		</action>	
 	</controller>
 	
 	
@@ -3094,6 +3097,13 @@
 		<action name="printOperativeEntry" mode="detail"
 			class="com.powerfin.actions.transaction.PrintOperativeEntryAction" icon="file-pdf">
 		</action>
+	</controller>	
+	<controller name="SearchCategoryLocation">
+		<action name="search"
+		 	hidden="true"
+			icon="magnify"
+		 	class="com.powerfin.actions.search.SearchCategoryLocation">
+	 	</action>
 	</controller>
 	
 </controllers>
