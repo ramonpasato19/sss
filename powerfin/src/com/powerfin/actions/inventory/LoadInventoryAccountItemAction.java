@@ -33,7 +33,9 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		
 		List<Branch> branchs = XPersistence.getManager().createQuery("select distinct b from Branch b  order by branchId").getResultList();
 		if (branchs!=null && !branchs.isEmpty()) {
-			XPersistence.getManager().createQuery("DELETE FROM KardexAccountTemp k").executeUpdate();
+			XPersistence.getManager().createQuery("DELETE FROM KardexAccountTemp k where k.userRegistering = :PCURRENT_USER ")
+				.setParameter("PCURRENT_USER", Users.getCurrent())
+				.executeUpdate();
 			XPersistence.commit();
 			System.out.println("MOVIMIENTOS BORRADOS");
 			Query queryItems = XPersistence.getManager().createNativeQuery(getNativeQueryItems(XPersistence.getDefaultSchema()));
@@ -80,7 +82,7 @@ public class LoadInventoryAccountItemAction extends ViewBaseAction {
 		List<KardexAccountTemp> kardexList = new ArrayList<KardexAccountTemp>();
 		for (Object []data:result) {
 			KardexAccountTemp k = new KardexAccountTemp();
-			k.setAccountId((String)data[0]+ "_"+index+"_"+brachId);
+			k.setAccountId((String)data[0]+ "_"+index+"_"+brachId+"_"+Users.getCurrent());
 			k.setIssueDate((Timestamp)data[1]);
 			k.setRemark((String)data[2]);
 			k.setUnitCost((BigDecimal)data[3]);
